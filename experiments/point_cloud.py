@@ -197,7 +197,7 @@ def monte_carlo(orbital: Orbital, estimation_sample_count: int) -> Iterator[Eval
         # Force the origin to be sampled to ensure that s-orbitals are estimated accurately.
         # Otherwise, the sharp spike near the origin is difficult to sample.
         # Offset slightly to avoid division-by-zero.
-        tuple(orbital(Point(0, 0, 1E-6))),
+        orbital(Point(0, 0, 1E-6)),
         *take(sampler, estimation_sample_count - 1)
     )
     max_val = max(abs(val) for _, val in estimation_samples)
