@@ -1,3 +1,4 @@
+#!/usr/bin/env pypy3
 from __future__ import annotations
 
 import webbrowser
@@ -7,14 +8,14 @@ from io import StringIO
 from itertools import chain
 from math import cos, exp, pi, sin, sqrt
 from random import random, uniform
-from typing import Callable, Iterator, NamedTuple, Sequence, TypeVar
+from typing import Callable, Dict, Iterator, NamedTuple, Sequence, Tuple, TypeVar
 
 import plotly.express as px
 import plotly.graph_objects as go
 
 SQRT_PI_INV_OVER_2 = 1 / sqrt(pi) / 2
 
-EvaluationResult = tuple["Point", float]
+EvaluationResult = Tuple["Point", float]
 Orbital = Callable[["Point"], EvaluationResult]
 T = TypeVar("T")
 
@@ -190,7 +191,8 @@ def monte_carlo(orbital: Orbital, estimation_sample_count: int) -> Iterator[Eval
     estimation_sample_count = max(10_000, estimation_sample_count)
     # Questionable heuristic for estimating the size of the orbital.
     # obtained by inspection of orbital sizes.
-    rho_max = 8 * int(int(orbital.__name__.removeprefix("orbital_")[0])**1.5)
+    # Note that the 9th char is the principal quantum number (this is a HACK!).
+    rho_max = 8 * int(int(orbital.__name__[8])**1.5)
     sampler = map(orbital, Point.random_points_in_ball(rho_max))
     estimation_samples = (
         # Force the origin to be sampled to ensure that s-orbitals are estimated accurately.
@@ -209,7 +211,7 @@ def monte_carlo(orbital: Orbital, estimation_sample_count: int) -> Iterator[Eval
 def collect_results(
         points: Iterator[EvaluationResult]
         # Python ought to have type annotations generic over values...
-) -> tuple[Sequence[float], Sequence[float], Sequence[float], Sequence[float]]:
+) -> Tuple[Sequence[float], Sequence[float], Sequence[float], Sequence[float]]:
     xs = []
     ys = []
     zs = []
@@ -258,7 +260,7 @@ def plot_max_estimate_accuracies(num_runs: int) -> None:  # This is naaaaasty.
         if name.startswith("orbital_")
     ):
         print(f"Generating plot for orbital function {orbital.__name__}")
-        hist_data: dict[str, tuple[float, ...]] = {}
+        hist_data: Dict[str, Tuple[float, ...]] = {}
         for num_samples in range(2500, 22500, 2500):
             buf = StringIO()
             for _ in range(num_runs):
@@ -266,7 +268,7 @@ def plot_max_estimate_accuracies(num_runs: int) -> None:  # This is naaaaasty.
                     next(monte_carlo(orbital, estimation_sample_count=num_samples))
             # The most inelegant method for obtaining this value possible.
             estimated_max_vals = tuple(map(
-                lambda s: float(s.removeprefix("Approx. max value ").strip()),
+                lambda s: float(s[18:].strip()),
                 buf.getvalue().strip().split("\n")
             ))
             hist_data[f"{num_samples} samples"] = estimated_max_vals
