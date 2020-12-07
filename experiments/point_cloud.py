@@ -8,9 +8,8 @@ from io import StringIO
 from itertools import chain
 from math import cos, exp, pi, sin, sqrt
 from random import random, uniform
-from typing import Callable, Dict, Iterator, NamedTuple, Sequence, Tuple, TypeVar
+from typing import Callable, Iterator, NamedTuple, Sequence, Tuple, TypeVar
 
-import plotly.express as px
 import plotly.graph_objects as go
 
 SQRT_PI_INV_OVER_2 = 1 / sqrt(pi) / 2
@@ -256,29 +255,39 @@ def simulate_and_plot(orbital: Orbital, quality: Quality):
 
 def plot_max_estimate_accuracies(num_runs: int) -> None:  # This is naaaaasty.
     for orbital in (
-        obj for name, obj in globals().items()
-        if name.startswith("orbital_")
+            obj for name, obj in globals().items()
+            if name.startswith("orbital_")
     ):
         print(f"Generating plot for orbital function {orbital.__name__}")
-        hist_data: Dict[str, Tuple[float, ...]] = {}
-        for num_samples in range(2500, 22500, 2500):
+        fig = go.Figure()
+
+        for num_samples in (quality.value for quality in Quality):
             buf = StringIO()
-            for _ in range(num_runs):
-                with redirect_stdout(buf):
+            with redirect_stdout(buf):
+                for _ in range(num_runs):
+                    # Query one value to force monte_carlo to perform the estimation computation.
                     next(monte_carlo(orbital, estimation_sample_count=num_samples))
+
             # The most inelegant method for obtaining this value possible.
             estimated_max_vals = tuple(map(
                 lambda s: float(s[18:].strip()),
                 buf.getvalue().strip().split("\n")
             ))
-            hist_data[f"{num_samples} samples"] = estimated_max_vals
-        fig = px.histogram(
-            hist_data,
+            print(f"{num_samples} samples: max estimated max value {max(estimated_max_vals)}")
+
+            fig.add_trace(go.Violin(
+                x=estimated_max_vals,
+                name=f"{num_samples} samples",
+                points=False,
+                spanmode="hard",
+                meanline_visible=True,
+                showlegend=False,
+                scalegroup="fig",
+            ))
+        fig.update_layout(
             title=f"Estimated Max Wavefunction Value, {orbital.__name__}, {num_runs} Runs",
-            x=list(hist_data.keys()),
-            barmode="group",
-            nbins=10,
-            template="plotly_white"
+            template="plotly_white",
+            violingap=0,
         )
         fig.write_image(
             f"max_estimate_accuracy/estimated_max_distr_{orbital.__name__}.png",
@@ -287,5 +296,5 @@ def plot_max_estimate_accuracies(num_runs: int) -> None:  # This is naaaaasty.
 
 
 if __name__ == "__main__":
-    simulate_and_plot(orbital_4dx2y2, Quality.VERY_HIGH)
-    # plot_max_estimate_accuracies(200)
+    # simulate_and_plot(orbital_4dx2y2, Quality.VERY_HIGH)
+    plot_max_estimate_accuracies(200)
