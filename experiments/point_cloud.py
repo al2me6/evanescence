@@ -9,8 +9,8 @@ from math import cos, exp, pi, sin, sqrt
 from random import random, uniform
 from typing import Callable, Iterator, NamedTuple, Sequence, TypeVar
 
+import plotly.express as px
 import plotly.graph_objects as go
-from matplotlib import pyplot as plt
 
 SQRT_PI_INV_OVER_2 = 1 / sqrt(pi) / 2
 
@@ -270,11 +270,18 @@ def plot_max_estimate_accuracies(num_runs: int) -> None:  # This is naaaaasty.
                 buf.getvalue().strip().split("\n")
             ))
             hist_data[f"{num_samples} samples"] = estimated_max_vals
-        plt.hist(hist_data.values(), label=tuple(hist_data.keys()))
-        plt.title(f"Estimated Max Wavefunction Value, {orbital.__name__}, {num_runs} Runs")
-        plt.legend()
-        plt.savefig(f"max_estimate_accuracy/estimated_max_distr_{orbital.__name__}.png", dpi=300)
-        plt.clf()
+        fig = px.histogram(
+            hist_data,
+            title=f"Estimated Max Wavefunction Value, {orbital.__name__}, {num_runs} Runs",
+            x=list(hist_data.keys()),
+            barmode="group",
+            nbins=10,
+            template="plotly_white"
+        )
+        fig.write_image(
+            f"max_estimate_accuracy/estimated_max_distr_{orbital.__name__}.png",
+            scale=2,
+        )
 
 
 if __name__ == "__main__":
