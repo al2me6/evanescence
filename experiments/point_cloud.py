@@ -5,7 +5,7 @@ from contextlib import redirect_stdout
 from enum import Enum
 from io import StringIO
 from itertools import chain
-from math import copysign, cos, exp, pi, sin, sqrt
+from math import cos, exp, pi, sin, sqrt
 from random import random, uniform
 from typing import Callable, Iterator, NamedTuple, Sequence, TypeVar
 
@@ -25,7 +25,7 @@ class Quality(Enum):  # These values seem to produce reasonable-ish results.
     MEDIUM = 25_000
     HIGH = 50_000
     VERY_HIGH = 100_000
-    EXTREME = 250_000  # Over 30 seconds on a 2700X (single-threaded).
+    EXTREME = 200_000  # Over 30 seconds on a 2700X (single-threaded).
 
 
 def take(it: Iterator[T], n: int) -> Iterator[T]:
@@ -236,9 +236,10 @@ def simulate_and_plot(orbital: Orbital, quality: Quality):
         marker=dict(
             size=tuple(min(abs(val) / 2 + 1, 2) for val in vals),
             line=dict(width=0),  # Remove border on marker.
-            color=tuple(copysign(sqrt(abs(val)), val) for val in vals),
+            color=vals,
             colorscale="RdBu_r",
             cmid=0,  # Fix "colorless" to 0. Thus, red is + and blue is -.
+            opacity=0.98,  # Improve visibility of overlapping features.
         ),
         hovertext=vals,
     ))
@@ -277,5 +278,5 @@ def plot_max_estimate_accuracies(num_runs: int) -> None:  # This is naaaaasty.
 
 
 if __name__ == "__main__":
-    simulate_and_plot(orbital_4dz2, Quality.EXTREME)
+    simulate_and_plot(orbital_4dx2y2, Quality.VERY_HIGH)
     # plot_max_estimate_accuracies(200)
