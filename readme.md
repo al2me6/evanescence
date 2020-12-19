@@ -1,8 +1,12 @@
+<div align="center">
+
+<img src="img/4dz2.png" align="center" height=300px alt="4dz^2 orbital rendering">
+
 # Project Evanescence
 
-![4dz^2 orbital rendering](img/4dz2.png =300x)
+*An upcoming exploration in the visualization of hydrogenic orbitals.*
 
-An upcoming exploration in the visualization of hydrogenic orbitals.
+</div>
 
 ## License
 
