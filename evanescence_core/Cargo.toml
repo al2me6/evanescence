@@ -16,3 +16,7 @@ oorandom = "11"
 [dev-dependencies]
 criterion = "0.3"
 lazy_static = "1"
+
+[[bench]]
+name = "benchmarks"
+harness = false
