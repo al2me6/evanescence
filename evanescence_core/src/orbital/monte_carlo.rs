@@ -6,7 +6,7 @@ pub trait MonteCarlo {
     type Output;
     const MINIMUM_ESTIMATION_SAMPLES: usize = 50_000;
 
-    fn estimate_radius(qn: QuantumNumbers) -> Self::Output;
+    fn estimate_radius(qn: QuantumNumbers) -> f64;
     fn estimate_maximum_value(
         qn: QuantumNumbers,
         num_samples: usize,
@@ -31,7 +31,7 @@ impl MonteCarlo for RealOrbital {
     /// an orbital. See the attached Mathematica notebook `radial_wavefunction.nb`
     /// for plots.
     #[inline]
-    fn estimate_radius(QuantumNumbers { n, l, m: _ }: QuantumNumbers) -> Self::Output {
+    fn estimate_radius(QuantumNumbers { n, l, m: _ }: QuantumNumbers) -> f64 {
         let n = n as f64;
         n * (2.5 * n - 0.625 * l as f64 + 3.0)
     }
