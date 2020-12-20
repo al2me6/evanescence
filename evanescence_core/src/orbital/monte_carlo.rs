@@ -27,9 +27,13 @@ pub enum Quality {
 impl MonteCarlo for RealOrbital {
     type Output = f64;
 
+    /// An empirically derived heuristic for estimating the maximum radius of
+    /// an orbital. See the attached Mathematica notebook `radial_wavefunction.nb`
+    /// for plots.
     #[inline]
-    fn estimate_radius(QuantumNumbers { n, l: _, m: _ }: QuantumNumbers) -> Self::Output {
-        8.0 * f64::from(n).powf(1.5)
+    fn estimate_radius(QuantumNumbers { n, l, m: _ }: QuantumNumbers) -> Self::Output {
+        let n = n as f64;
+        n * (2.5 * n - 0.625 * l as f64 + 3.0)
     }
 
     fn estimate_maximum_value(
