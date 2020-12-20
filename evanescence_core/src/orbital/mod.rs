@@ -26,7 +26,7 @@ impl QuantumNumbers {
         }
     }
 
-    pub fn enumerate_all_up_to_n(n: u32) -> impl Iterator<Item = Self> {
+    pub fn enumerate_up_to_n(n: u32) -> impl Iterator<Item = Self> {
         // n = 1, 2, 3, ...
         (1..=n).flat_map(|n| {
             // l = 0, 1, ..., n - 1
@@ -37,7 +37,7 @@ impl QuantumNumbers {
         })
     }
 
-    pub fn enumerate_all_up_to_n_l(n: u32, l: u32) -> impl Iterator<Item = Self> {
+    pub fn enumerate_up_to_n_l(n: u32, l: u32) -> impl Iterator<Item = Self> {
         // n = 1, 2, 3, ...
         (1..=n).flat_map(move |n| {
             // l = 0, 1, ..., minimum of n - 1 and the limit passed in the parameter
