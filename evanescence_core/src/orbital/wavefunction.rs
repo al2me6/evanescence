@@ -15,8 +15,8 @@ pub trait Wavefunction {
 
 #[inline]
 fn radial_normalization_factor(n: u32, l: u32) -> f64 {
-    let root_numerator = (n - l - 1).factorial();
-    let root_denominator = (n + l).factorial();
+    let root_numerator = ((n - l - 1) as u64).factorial();
+    let root_denominator = ((n + l) as u64).factorial();
     2.0 / (n * n) as f64 * (root_numerator as f64 / root_denominator as f64).sqrt()
 }
 
