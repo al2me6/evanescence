@@ -1,10 +1,10 @@
-use crate::geometry::Point;
-use crate::numerics::orthogonal_polynomials::{associated_laguerre, associated_legendre};
-use crate::numerics::Factorial;
-use num_complex::Complex64;
 use std::f64::consts::{PI, SQRT_2};
 
+use num_complex::Complex64;
+
 use super::{LM, NL};
+use crate::geometry::Point;
+use crate::numerics::orthogonal_polynomials::{associated_laguerre, associated_legendre};
 
 pub trait Wavefunction {
     type Output;
@@ -13,11 +13,14 @@ pub trait Wavefunction {
     fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output;
 }
 
+/// Calculate the radial wavefunction normalization factor,
+/// `√( (2/n)^3 * (n-l-1)! / (2n * (n+l)!) )`.
 #[inline]
 fn radial_normalization_factor(n: u32, l: u32) -> f64 {
-    let root_numerator = ((n - l - 1) as u64).factorial();
-    let root_denominator = ((n + l) as u64).factorial();
-    2.0 / (n * n) as f64 * (root_numerator as f64 / root_denominator as f64).sqrt()
+    // (n-l-1)! / (n+l)! = 1 / [(n-l) * (n-l+1) * ... * (n+l-1) * (n+l)].
+    let factorial_factor = ((n - l)..=(n + l)).product::<u32>() as f64;
+    // Where we've taken `(2/n)^3 / 2n` out ouf the square root.
+    2.0 / ((n * n) as f64 * factorial_factor.sqrt())
 }
 
 pub struct RadialWavefunction;
@@ -36,10 +39,13 @@ impl Wavefunction for RadialWavefunction {
     }
 }
 
+/// Compute the normalization factor of a spherical harmonic, excluding the Condon-Shortley phase:
+/// `√( (2l + 1)/4pi * (l-|m|)!/(l+|m|)! )`.
 #[inline]
 fn spherical_harmonic_normalization_factor(l: u32, m_abs: u32) -> f64 {
-    (((2 * l + 1) * (l - m_abs).factorial()) as f64 / (4.0 * PI * (l + m_abs).factorial() as f64))
-        .sqrt()
+    // (l-|m|)!/(l+|m|)! = 1 / [(l-|m|+1) * (l-|m|+2) * ... * (l+|m|-1) * (l+|m|)].
+    let factorial_factor = ((l - m_abs + 1)..=(l + m_abs)).product::<u32>() as f64;
+    ((2 * l + 1) as f64 / (4.00 * PI * factorial_factor)).sqrt()
 }
 
 pub struct SphericalHarmonic;
@@ -70,12 +76,11 @@ impl Wavefunction for RealSphericalHarmonic {
         let norm_and_legendre = spherical_harmonic_normalization_factor(l, m_abs)
             * if m_abs % 2 == 0 { 1.0 } else { -1.0 } // (-1)^(-m), to cancel out the Condon-Shortley phase from `associated_legendre`.
             * associated_legendre((l, m_abs), point.cos_theta());
-        let phi = point.phi();
         norm_and_legendre
             * match m {
-            _ if m > 0 => SQRT_2 * (m as f64 * phi).cos(),
+            _ if m > 0 => SQRT_2 * (m as f64 * point.phi()).cos(),
             _ if m == 0 => 1.0,
-            _ /* m < 0 */ => SQRT_2 * (m_abs as f64 * phi).sin(),
+            _ /* m < 0 */ => SQRT_2 * (m_abs as f64 * point.phi()).sin(),
         }
     }
 }
