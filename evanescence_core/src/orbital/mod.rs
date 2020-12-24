@@ -32,7 +32,7 @@ impl QuantumNumbers {
             // l = 0, 1, ..., n - 1
             (0..n).flat_map(move |l| {
                 // m = -l, -l + 1, ..., 0, ..., l -1, l
-                (-(l as i32)..=(l as i32)).map(move |m| Self { n, l, m })
+                (-(l as i32)..=(l as i32)).map(move |m| Self::new(n, l, m).unwrap())
             })
         })
     }
@@ -43,7 +43,7 @@ impl QuantumNumbers {
             // l = 0, 1, ..., minimum of n - 1 and the limit passed in the parameter
             (0..=(n - 1).min(l)).flat_map(move |l| {
                 // m = -l, -l + 1, ..., 0, ..., l -1, l
-                (-(l as i32)..=(l as i32)).map(move |m| Self { n, l, m })
+                (-(l as i32)..=(l as i32)).map(move |m| Self::new(n, l, m).unwrap())
             })
         })
     }
