@@ -1,0 +1,23 @@
+name: evanescence_core Benchmarks
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  benchmark:
+    name: Benchmark evanescence_core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup toolchain update nightly && rustup default nightly
+      - name: Run benchmark
+        run: cd evanescence_core && cargo bench --bench benchmarks -- --output-format bencher | tee output.txt
+      - name: Store benchmark result
+        uses: rhysd/github-action-benchmark@v1
+        with:
+          name: evanescence_core benchmarks
+          tool: 'cargo'
+          output-file-path: output.txt
+          github-token: ${{ secrets.BENCHMARK_TOKEN }}
+          auto-push: true
