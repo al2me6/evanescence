@@ -19,5 +19,5 @@ jobs:
           name: evanescence_core benchmarks
           tool: 'cargo'
           output-file-path: evanescence_core/output.txt
-          github-token: ${{ secrets.BENCHMARK_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true

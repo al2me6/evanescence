@@ -20,7 +20,7 @@ pub fn bench_numerics(c: &mut Criterion) {
             b.iter(|| n.factorial())
         });
 
-        fact_group.bench_with_input(BenchmarkId::new("multifactorial::<2>", n), &n, |b, n| {
+        fact_group.bench_with_input(BenchmarkId::new("multifactorial_2", n), &n, |b, n| {
             b.iter(|| n.multifactorial::<2>())
         });
     }
@@ -29,13 +29,13 @@ pub fn bench_numerics(c: &mut Criterion) {
     let mut poly_group = c.benchmark_group("orthogonal_polynomials");
     for params in (1..=6).flat_map(|a| (0..=a).map(move |b| (a, b))) {
         poly_group.bench_with_input(
-            BenchmarkId::new("associated_legendre", format!("{},{}", params.0, params.1)),
+            BenchmarkId::new("associated_legendre", format!("{}_{}", params.0, params.1)),
             &params,
             |b, lm| b.iter(|| associated_legendre(*lm, 27.1828)),
         );
 
         poly_group.bench_with_input(
-            BenchmarkId::new("associated_laguerre", format!("{},{}", params.0, params.1)),
+            BenchmarkId::new("associated_laguerre", format!("{}_{}", params.0, params.1)),
             &params,
             |b, lm| b.iter(|| associated_laguerre(*lm, 27.1828)),
         );
@@ -51,9 +51,19 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
         .measurement_time(Duration::from_secs(30));
     group.throughput(Throughput::Elements(Quality::Extreme as _));
     for qn in QuantumNumbers::enumerate_up_to_n(5) {
-        group.bench_with_input(BenchmarkId::new("real", format!("{}", qn)), &qn, |b, qn| {
-            b.iter(|| RealOrbital::monte_carlo_simulate(*qn, Quality::Extreme))
-        });
+        group.bench_with_input(
+            BenchmarkId::new(
+                "real",
+                format!(
+                    "{}_{}_{}",
+                    qn.n(),
+                    qn.l(),
+                    qn.m().to_string().replace("-", "n")
+                ),
+            ),
+            &qn,
+            |b, qn| b.iter(|| RealOrbital::monte_carlo_simulate(*qn, Quality::Extreme)),
+        );
     }
 }
 
