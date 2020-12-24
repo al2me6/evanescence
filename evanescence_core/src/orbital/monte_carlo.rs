@@ -41,7 +41,7 @@ impl MonteCarlo for RealOrbital {
         num_samples: usize,
     ) -> (f64, Vec<(Point, Self::Output)>) {
         let evaluated_points: Vec<_> =
-            Point::random_in_ball_with_origin_iter(Self::estimate_radius(qn))
+            Point::sample_from_ball_with_origin_iter(Self::estimate_radius(qn))
                 .map(|pt| (pt, Self::evaluate(qn, &pt)))
                 .take(num_samples)
                 .collect();
@@ -61,7 +61,7 @@ impl MonteCarlo for RealOrbital {
         estimation_samples
             .into_iter()
             .chain(
-                Point::random_in_ball_iter(Self::estimate_radius(qn))
+                Point::sample_from_ball_iter(Self::estimate_radius(qn))
                     .map(|pt| (pt, Self::evaluate(qn, &pt))),
             )
             .filter(|(_, value)| value.abs() / max_value > rng.rand_float())

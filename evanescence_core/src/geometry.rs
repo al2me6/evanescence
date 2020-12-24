@@ -69,7 +69,7 @@ impl Point {
     ///
     /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
     /// specifically method 16.
-    pub fn random_in_ball_iter(radius: f64) -> impl Iterator<Item = Self> {
+    pub fn sample_from_ball_iter(radius: f64) -> impl Iterator<Item = Self> {
         let mut rng = new_rng();
         iter::repeat_with(move || {
             // For an explanation of taking the cube root of the random value, see
@@ -90,17 +90,17 @@ impl Point {
         })
     }
 
-    /// Same as [`random_in_ball_iter`], but with [`Point::ORIGIN_EPSILON`] guaranteed as
+    /// Same as [`Point::sample_from_ball_iter`], but with [`Point::ORIGIN_EPSILON`] guaranteed as
     /// the first point sampled:
     /// ```
     /// # use evanescence_core::geometry::Point;
     /// assert_eq!(
     ///     Some(Point::ORIGIN_EPSILON),
-    ///     Point::random_in_ball_with_origin_iter(1.0).next()
+    ///     Point::sample_from_ball_with_origin_iter(1.0).next()
     /// );
     /// ```
-    pub fn random_in_ball_with_origin_iter(radius: f64) -> impl Iterator<Item = Self> {
-        iter::once(Self::ORIGIN_EPSILON).chain(Self::random_in_ball_iter(radius))
+    pub fn sample_from_ball_with_origin_iter(radius: f64) -> impl Iterator<Item = Self> {
+        iter::once(Self::ORIGIN_EPSILON).chain(Self::sample_from_ball_iter(radius))
     }
 
     /// A point representing the origin.
@@ -113,7 +113,7 @@ impl Point {
         phi: 0.0,
     };
 
-    /// The origin, but offset in z by [`f64::EPSILON`] for when division-by-zeroneeds to be avoided.
+    /// The origin, but offset in z by [`f64::EPSILON`] for when division-by-zero needs to be avoided.
     pub const ORIGIN_EPSILON: Point = Point {
         x: 0.0,
         y: 0.0,
@@ -136,7 +136,7 @@ mod tests {
     #[test]
     fn test_point_rng_max_radius() {
         let sampling_radius = 2_f64;
-        Point::random_in_ball_iter(sampling_radius)
+        Point::sample_from_ball_iter(sampling_radius)
             .take(10_000)
             .for_each(|pt| assert!(pt.r < sampling_radius));
     }
@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     fn test_rng_spherical_coordinates() {
-        let rng_point = Point::random_in_ball_iter(2.0).next().unwrap();
+        let rng_point = Point::sample_from_ball_iter(2.0).next().unwrap();
         let recomputed_point = Point::new(rng_point.x, rng_point.y, rng_point.z);
         assert_relative_eq!(rng_point.r, recomputed_point.r);
         assert_relative_eq!(rng_point.cos_theta, recomputed_point.cos_theta);
