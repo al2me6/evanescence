@@ -5,7 +5,6 @@ use crate::geometry::Point;
 
 pub mod wavefunction;
 pub use wavefunction::Wavefunction;
-pub mod monte_carlo;
 
 use wavefunction::{RadialWavefunction, RealSphericalHarmonic, SphericalHarmonic};
 

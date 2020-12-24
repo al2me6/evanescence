@@ -31,9 +31,9 @@ impl MonteCarlo for RealOrbital {
     /// an orbital. See the attached Mathematica notebook `radial_wavefunction.nb`
     /// for plots.
     #[inline]
-    fn estimate_radius(QuantumNumbers { n, l, m: _ }: QuantumNumbers) -> f64 {
-        let n = n as f64;
-        n * (2.5 * n - 0.625 * l as f64 + 3.0)
+    fn estimate_radius(qn: QuantumNumbers) -> f64 {
+        let n = qn.n() as f64;
+        n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
     }
 
     fn estimate_maximum_value(

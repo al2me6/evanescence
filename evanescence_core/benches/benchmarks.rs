@@ -3,14 +3,12 @@ use std::time::Duration;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 
 use evanescence_core::{
+    monte_carlo::{MonteCarlo, Quality},
     numerics::{
         orthogonal_polynomials::{associated_laguerre, associated_legendre},
         Factorial, Multifactorial,
     },
-    orbital::{
-        monte_carlo::{MonteCarlo, Quality},
-        QuantumNumbers, RealOrbital,
-    },
+    orbital::{QuantumNumbers, RealOrbital},
 };
 
 pub fn bench_numerics(c: &mut Criterion) {

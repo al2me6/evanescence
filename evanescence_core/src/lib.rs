@@ -14,3 +14,4 @@ pub mod geometry;
 pub mod numerics;
 #[macro_use]
 pub mod orbital;
+pub mod monte_carlo;
