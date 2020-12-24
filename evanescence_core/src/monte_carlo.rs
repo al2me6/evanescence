@@ -1,18 +1,6 @@
-use crate::{geometry::Point, numerics::new_rng};
-
+use crate::geometry::Point;
+use crate::numerics::new_rng;
 use crate::orbital::{QuantumNumbers, RealOrbital, Wavefunction};
-
-pub trait MonteCarlo {
-    type Output;
-    const MINIMUM_ESTIMATION_SAMPLES: usize = 50_000;
-
-    fn estimate_radius(qn: QuantumNumbers) -> f64;
-    fn estimate_maximum_value(
-        qn: QuantumNumbers,
-        num_samples: usize,
-    ) -> (f64, Vec<(Point, Self::Output)>);
-    fn monte_carlo_simulate(qn: QuantumNumbers, quality: Quality) -> Vec<(Point, Self::Output)>;
-}
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Quality {
@@ -24,22 +12,55 @@ pub enum Quality {
     Extreme = 250_000,
 }
 
-impl MonteCarlo for RealOrbital {
-    type Output = f64;
+pub type EvaluationResult<T> = (Point, T);
 
-    /// An empirically derived heuristic for estimating the maximum radius of
-    /// an orbital. See the attached Mathematica notebook `radial_wavefunction.nb`
-    /// for plots.
-    #[inline]
-    fn estimate_radius(qn: QuantumNumbers) -> f64 {
-        let n = qn.n() as f64;
-        n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
+pub struct SimulationResult<T> {
+    pub xs: Vec<f64>,
+    pub ys: Vec<f64>,
+    pub zs: Vec<f64>,
+    pub vals: Vec<T>,
+}
+
+trait DecomposeResult<T> {
+    fn decompose(self) -> SimulationResult<T>;
+}
+
+impl<T, U> DecomposeResult<T> for U
+where
+    U: Iterator<Item = EvaluationResult<T>>,
+{
+    fn decompose(self) -> SimulationResult<T> {
+        let size_hint = {
+            let (lower, upper) = self.size_hint();
+            upper.unwrap_or(lower)
+        };
+        let (mut xs, mut ys, mut zs, mut vals) = (
+            Vec::with_capacity(size_hint),
+            Vec::with_capacity(size_hint),
+            Vec::with_capacity(size_hint),
+            Vec::with_capacity(size_hint),
+        );
+        self.into_iter().for_each(|(pt, val)| {
+            xs.push(pt.x());
+            ys.push(pt.y());
+            zs.push(pt.z());
+            vals.push(val);
+        });
+        SimulationResult { xs, ys, zs, vals }
     }
+}
+
+pub trait MonteCarlo: Wavefunction {
+    const MINIMUM_ESTIMATION_SAMPLES: usize = 50_000;
+
+    fn estimate_radius(qn: Self::Parameters) -> f64;
+
+    fn value_estimation_metric(val: Self::Output) -> f64;
 
     fn estimate_maximum_value(
-        qn: QuantumNumbers,
+        qn: Self::Parameters,
         num_samples: usize,
-    ) -> (f64, Vec<(Point, Self::Output)>) {
+    ) -> (f64, Vec<EvaluationResult<Self::Output>>) {
         let evaluated_points: Vec<_> =
             Point::sample_from_ball_with_origin_iter(Self::estimate_radius(qn))
                 .map(|pt| (pt, Self::evaluate(qn, &pt)))
@@ -47,13 +68,16 @@ impl MonteCarlo for RealOrbital {
                 .collect();
         let max_value = evaluated_points
             .iter()
-            .map(|(_, val)| val.abs())
+            .map(|(_, val)| Self::value_estimation_metric(*val))
             .fold_first(|a, b| if a > b { a } else { b })
             .expect("estimation requires at least one sample");
         (max_value, evaluated_points)
     }
 
-    fn monte_carlo_simulate(qn: QuantumNumbers, quality: Quality) -> Vec<(Point, Self::Output)> {
+    fn monte_carlo_simulate(
+        qn: Self::Parameters,
+        quality: Quality,
+    ) -> SimulationResult<Self::Output> {
         let num_estimation_samples = (quality as usize * 2).max(Self::MINIMUM_ESTIMATION_SAMPLES);
         let mut rng = new_rng();
         let (max_value, estimation_samples) =
@@ -64,8 +88,24 @@ impl MonteCarlo for RealOrbital {
                 Point::sample_from_ball_iter(Self::estimate_radius(qn))
                     .map(|pt| (pt, Self::evaluate(qn, &pt))),
             )
-            .filter(|(_, value)| value.abs() / max_value > rng.rand_float())
+            .filter(|(_, val)| Self::value_estimation_metric(*val) / max_value > rng.rand_float())
             .take(quality as usize)
-            .collect()
+            .decompose()
+    }
+}
+
+impl MonteCarlo for RealOrbital {
+    /// An empirically derived heuristic for estimating the maximum radius of
+    /// an orbital. See the attached Mathematica notebook `radial_wavefunction.nb`
+    /// for plots.
+    #[inline]
+    fn estimate_radius(qn: QuantumNumbers) -> f64 {
+        let n = qn.n() as f64;
+        n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
+    }
+
+    #[inline]
+    fn value_estimation_metric(val: f64) -> f64 {
+        val.abs()
     }
 }

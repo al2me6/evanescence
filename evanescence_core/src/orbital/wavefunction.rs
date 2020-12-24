@@ -7,8 +7,8 @@ use crate::geometry::Point;
 use crate::numerics::orthogonal_polynomials::{associated_laguerre, associated_legendre};
 
 pub trait Wavefunction {
-    type Output;
-    type Parameters;
+    type Output: Copy;
+    type Parameters: Copy;
 
     fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output;
 }
