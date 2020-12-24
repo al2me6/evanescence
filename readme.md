@@ -8,6 +8,8 @@
 
 </div>
 
+Auto-ran benchmarks can be viewed [here](https://al2me6.github.io/evanescence/dev/bench).
+
 ## License
 
 This project is released under the GNU Affero GPL license, version 3.
