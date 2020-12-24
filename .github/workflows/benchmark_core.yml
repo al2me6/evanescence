@@ -1,4 +1,4 @@
-name: evanescence_core Benchmarks
+name: evanescence_core benchmarks
 on:
   push:
     branches:
@@ -18,6 +18,6 @@ jobs:
         with:
           name: evanescence_core benchmarks
           tool: 'cargo'
-          output-file-path: output.txt
+          output-file-path: evanescence_core/output.txt
           github-token: ${{ secrets.BENCHMARK_TOKEN }}
           auto-push: true
