@@ -1,3 +1,5 @@
+use std::time::{Duration, Instant};
+
 use crate::geometry::Point;
 use crate::numerics::new_rng;
 use crate::orbital::{QuantumNumbers, RealOrbital, Wavefunction};
@@ -27,11 +29,12 @@ trait DecomposeResult<T> {
 
 impl<T, U> DecomposeResult<T> for U
 where
-    U: Iterator<Item = EvaluationResult<T>>,
+    U: IntoIterator<Item = EvaluationResult<T>>,
 {
     fn decompose(self) -> SimulationResult<T> {
+        let iter = self.into_iter();
         let size_hint = {
-            let (lower, upper) = self.size_hint();
+            let (lower, upper) = iter.size_hint();
             upper.unwrap_or(lower)
         };
         let (mut xs, mut ys, mut zs, mut vals) = (
@@ -40,7 +43,7 @@ where
             Vec::with_capacity(size_hint),
             Vec::with_capacity(size_hint),
         );
-        self.into_iter().for_each(|(pt, val)| {
+        iter.for_each(|(pt, val)| {
             xs.push(pt.x());
             ys.push(pt.y());
             zs.push(pt.z());
@@ -90,6 +93,7 @@ pub trait MonteCarlo: Wavefunction {
             )
             .filter(|(_, val)| Self::value_estimation_metric(*val) / max_value > rng.rand_float())
             .take(quality as usize)
+            .collect::<Vec<_>>() // Seems to increase performance by ~10%.
             .decompose()
     }
 }
