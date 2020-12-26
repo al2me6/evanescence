@@ -1,0 +1,2 @@
+[workspace]
+members = ["evanescence_core", "evanescence_cli"]
