@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use getset::Getters;
 
 use crate::geometry::Point;
 use crate::numerics::new_rng;
@@ -16,34 +16,31 @@ pub enum Quality {
 
 pub type EvaluationResult<T> = (Point, T);
 
+#[derive(Getters)]
+#[getset(get = "pub")]
 pub struct SimulationResult<T> {
-    pub xs: Vec<f64>,
-    pub ys: Vec<f64>,
-    pub zs: Vec<f64>,
-    pub vals: Vec<T>,
+    xs: Vec<f64>,
+    ys: Vec<f64>,
+    zs: Vec<f64>,
+    vals: Vec<T>,
 }
 
-trait DecomposeResult<T> {
-    fn decompose(self) -> SimulationResult<T>;
+impl<T> SimulationResult<T> {
+    pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.xs, self.ys, self.zs, self.vals)
+    }
 }
 
-impl<T, U> DecomposeResult<T> for U
-where
-    U: IntoIterator<Item = EvaluationResult<T>>,
-{
-    fn decompose(self) -> SimulationResult<T> {
-        let iter = self.into_iter();
-        let size_hint = {
-            let (lower, upper) = iter.size_hint();
-            upper.unwrap_or(lower)
-        };
+impl<T> From<Vec<EvaluationResult<T>>> for SimulationResult<T> {
+    fn from(v: Vec<EvaluationResult<T>>) -> Self {
+        let len = v.len();
         let (mut xs, mut ys, mut zs, mut vals) = (
-            Vec::with_capacity(size_hint),
-            Vec::with_capacity(size_hint),
-            Vec::with_capacity(size_hint),
-            Vec::with_capacity(size_hint),
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
         );
-        iter.for_each(|(pt, val)| {
+        v.into_iter().for_each(|(pt, val)| {
             xs.push(pt.x());
             ys.push(pt.y());
             zs.push(pt.z());
@@ -56,45 +53,44 @@ where
 pub trait MonteCarlo: Wavefunction {
     const MINIMUM_ESTIMATION_SAMPLES: usize = 50_000;
 
-    fn estimate_radius(qn: Self::Parameters) -> f64;
+    fn estimate_radius(params: Self::Parameters) -> f64;
 
-    fn value_estimation_metric(val: Self::Output) -> f64;
+    fn value_comparator(value: Self::Output) -> f64;
 
     fn estimate_maximum_value(
-        qn: Self::Parameters,
+        params: Self::Parameters,
         num_samples: usize,
     ) -> (f64, Vec<EvaluationResult<Self::Output>>) {
         let evaluated_points: Vec<_> =
-            Point::sample_from_ball_with_origin_iter(Self::estimate_radius(qn))
-                .map(|pt| (pt, Self::evaluate(qn, &pt)))
+            Point::sample_from_ball_with_origin_iter(Self::estimate_radius(params))
+                .map(|pt| (pt, Self::evaluate(params, &pt)))
                 .take(num_samples)
                 .collect();
         let max_value = evaluated_points
             .iter()
-            .map(|(_, val)| Self::value_estimation_metric(*val))
-            .fold_first(|a, b| if a > b { a } else { b })
-            .expect("estimation requires at least one sample");
+            .map(|(_, val)| Self::value_comparator(*val))
+            .fold(0.0, f64::max);
         (max_value, evaluated_points)
     }
 
     fn monte_carlo_simulate(
-        qn: Self::Parameters,
+        params: Self::Parameters,
         quality: Quality,
     ) -> SimulationResult<Self::Output> {
         let num_estimation_samples = (quality as usize * 2).max(Self::MINIMUM_ESTIMATION_SAMPLES);
         let mut rng = new_rng();
         let (max_value, estimation_samples) =
-            Self::estimate_maximum_value(qn, num_estimation_samples);
+            Self::estimate_maximum_value(params, num_estimation_samples);
         estimation_samples
             .into_iter()
             .chain(
-                Point::sample_from_ball_iter(Self::estimate_radius(qn))
-                    .map(|pt| (pt, Self::evaluate(qn, &pt))),
+                Point::sample_from_ball_iter(Self::estimate_radius(params))
+                    .map(|pt| (pt, Self::evaluate(params, &pt))),
             )
-            .filter(|(_, val)| Self::value_estimation_metric(*val) / max_value > rng.rand_float())
+            .filter(|(_, val)| Self::value_comparator(*val) / max_value > rng.rand_float())
             .take(quality as usize)
             .collect::<Vec<_>>() // Seems to increase performance by ~10%.
-            .decompose()
+            .into()
     }
 }
 
@@ -109,7 +105,7 @@ impl MonteCarlo for RealOrbital {
     }
 
     #[inline]
-    fn value_estimation_metric(val: f64) -> f64 {
+    fn value_comparator(val: f64) -> f64 {
         val.abs()
     }
 }
