@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::f64::consts::{PI, SQRT_2};
 
 use num_complex::Complex64;
@@ -73,15 +74,14 @@ impl Wavefunction for RealSphericalHarmonic {
     #[inline]
     fn evaluate(LM { l, m }: LM, point: &Point) -> Self::Output {
         let m_abs = m.abs() as u32;
-        let norm_and_legendre = spherical_harmonic_normalization_factor(l, m_abs)
+        spherical_harmonic_normalization_factor(l, m_abs)
             * if m_abs % 2 == 0 { 1.0 } else { -1.0 } // (-1)^(-m), to cancel out the Condon-Shortley phase from `associated_legendre`.
-            * associated_legendre((l, m_abs), point.cos_theta());
-        norm_and_legendre
-            * match m {
-            _ if m > 0 => SQRT_2 * (m as f64 * point.phi()).cos(),
-            _ if m == 0 => 1.0,
-            _ /* m < 0 */ => SQRT_2 * (m_abs as f64 * point.phi()).sin(),
-        }
+            * associated_legendre((l, m_abs), point.cos_theta())
+            * match m.cmp(&0) {
+                Ordering::Greater => SQRT_2 * (m as f64 * point.phi()).cos(),
+                Ordering::Equal => 1.0,
+                Ordering::Less => SQRT_2 * (m_abs as f64 * point.phi()).sin(),
+            }
     }
 }
 

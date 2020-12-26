@@ -1,5 +1,6 @@
-use getset::CopyGetters;
 use std::{f64::consts::PI, iter};
+
+use getset::CopyGetters;
 
 use crate::numerics::new_rng;
 
