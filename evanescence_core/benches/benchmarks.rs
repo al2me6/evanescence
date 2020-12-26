@@ -6,7 +6,7 @@ use evanescence_core::{
     monte_carlo::{MonteCarlo, Quality},
     numerics::{
         orthogonal_polynomials::{associated_laguerre, associated_legendre},
-        Factorial, Multifactorial,
+        Multifactorial,
     },
     orbital::{QuantumNumbers, RealOrbital},
 };
@@ -14,10 +14,6 @@ use evanescence_core::{
 pub fn bench_numerics(c: &mut Criterion) {
     let mut fact_group = c.benchmark_group("factorials");
     for n in 0_u64..=14 {
-        fact_group.bench_with_input(BenchmarkId::new("factorial", n), &n, |b, n| {
-            b.iter(|| n.factorial())
-        });
-
         fact_group.bench_with_input(BenchmarkId::new("multifactorial_2", n), &n, |b, n| {
             b.iter(|| n.multifactorial::<2>())
         });

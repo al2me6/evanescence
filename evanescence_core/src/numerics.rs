@@ -1,49 +1,33 @@
 use getrandom::getrandom;
-use num_traits::{CheckedMul, NumAssign, Unsigned};
 use oorandom::Rand64;
-
-pub trait Factorial {
-    fn factorial(self) -> Self;
-}
-
-impl<T> Factorial for T
-where
-    T: Copy + CheckedMul + Unsigned,
-    std::ops::RangeInclusive<T>: Iterator<Item = T>,
-{
-    #[inline]
-    fn factorial(self) -> Self {
-        (T::one()..=self).fold(T::one(), |acc, n| {
-            acc.checked_mul(&n).expect("overflowed computing factorial")
-        })
-    }
-}
 
 pub trait Multifactorial {
     fn multifactorial<const N: u8>(self) -> Self;
 }
 
-impl<T> Multifactorial for T
-where
-    T: Copy + Ord + CheckedMul + NumAssign + Unsigned + From<u8>,
-{
-    #[inline]
-    fn multifactorial<const N: u8>(self) -> Self {
-        if self <= T::one() {
-            return T::one();
-        }
-        let mut acc = self;
-        let delta = T::one() * N.into();
-        let mut mul = acc - delta;
-        while mul >= delta {
-            acc = acc
-                .checked_mul(&mul)
-                .expect("overflowed computing multifactorial");
-            mul -= delta;
-        }
-        acc
+macro_rules! impl_multifactorial {
+    ($($T:ty),+) => {
+        $(impl Multifactorial for $T {
+            #[inline]
+            fn multifactorial<const N: u8>(self) -> Self {
+                if self <= 1 {
+                    return 1;
+                }
+                let mut acc = self;
+                let delta = N as $T;
+                let mut mul = acc - delta;
+                while mul >= delta {
+                    acc = acc
+                        .checked_mul(mul)
+                        .expect("overflowed computing multifactorial");
+                    mul -= delta;
+                }
+                acc
+            }
+        })+
     }
 }
+impl_multifactorial!(u8, u16, u32, u64, usize);
 
 pub mod orthogonal_polynomials {
     use super::Multifactorial;
@@ -125,7 +109,7 @@ macro_rules! assert_iterable_relative_eq {
 #[cfg(test)]
 mod tests {
     use super::orthogonal_polynomials::{associated_laguerre, associated_legendre};
-    use super::{Factorial, Multifactorial};
+    use super::Multifactorial;
     use crate::assert_iterable_relative_eq;
 
     macro_rules! test {
@@ -248,14 +232,6 @@ mod tests {
             1.00000000000000
         ]
     );
-
-    #[test]
-    fn test_factorial() {
-        assert_eq!(
-            vec![1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800],
-            (0_u32..=10).map(Factorial::factorial).collect::<Vec<_>>()
-        );
-    }
 
     #[test]
     fn test_double_factorial() {
