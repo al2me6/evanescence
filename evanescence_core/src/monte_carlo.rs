@@ -1,10 +1,11 @@
 use getset::Getters;
+use strum::{Display, EnumString};
 
 use crate::geometry::Point;
 use crate::numerics::new_rng;
 use crate::orbital::{QuantumNumbers, RealOrbital, Wavefunction};
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Display, EnumString)]
 pub enum Quality {
     Minimum = 5_000,
     Low = 10_000,

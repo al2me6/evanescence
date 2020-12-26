@@ -1,0 +1,12 @@
+[package]
+name = "evanescence_cli"
+version = "0.1.0"
+authors = ["al2me6 <alvin.q.meng@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1"
+argh = "0.1"
+evanescence_core = { path = "../evanescence_core" }
+indoc = "1"
+pyo3 = "0.13"
