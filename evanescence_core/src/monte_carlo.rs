@@ -1,9 +1,11 @@
 use getset::Getters;
 use strum::{Display, EnumString};
 
-use crate::geometry::Point;
-use crate::numerics::new_rng;
-use crate::orbital::{QuantumNumbers, RealOrbital, Wavefunction};
+use crate::{
+    geometry::Point,
+    orbital::{Orbital, RealOrbital},
+    utils::new_rng,
+};
 
 /// A set of predefined qualities (i.e., number of points computed) for
 /// [`MonteCarlo::monte_carlo_simulate`] simulations.
@@ -78,14 +80,10 @@ impl<T> From<Vec<EvaluationResult<T>>> for SimulationResult<T> {
 
 /// Perform a Monte Carlo simulation of an orbital, generating a collection of points
 /// whose distribution corresponds to the geometry of said orbital.
-pub trait MonteCarlo: Wavefunction {
+pub trait MonteCarlo: Orbital {
     /// The minimum number of points required to get a reasonable estimate of
     /// the maximum value attained by an orbital.
     const MINIMUM_ESTIMATION_SAMPLES: usize = 50_000;
-
-    /// Estimate the radius of a specific orbital (in the sense that the vast majority
-    /// of probability density is confined within a sphere of that radius).
-    fn estimate_radius(params: Self::Parameters) -> f64;
 
     /// Process values such that the results can be used to compute a maximum.
     fn value_comparator(value: Self::Output) -> f64;
@@ -139,15 +137,6 @@ pub trait MonteCarlo: Wavefunction {
 }
 
 impl MonteCarlo for RealOrbital {
-    /// An empirically derived heuristic for estimating the maximum radius of
-    /// an orbital. See the attached Mathematica notebook `radial_wavefunction.nb`
-    /// for plots.
-    #[inline]
-    fn estimate_radius(qn: QuantumNumbers) -> f64 {
-        let n = qn.n() as f64;
-        n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
-    }
-
     #[inline]
     fn value_comparator(val: f64) -> f64 {
         val.abs()

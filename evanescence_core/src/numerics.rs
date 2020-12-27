@@ -1,5 +1,4 @@
-use getrandom::getrandom;
-use oorandom::Rand64;
+use crate::geometry::Point;
 
 pub trait Multifactorial {
     fn multifactorial<const N: u8>(self) -> Self;
@@ -77,10 +76,11 @@ pub mod orthogonal_polynomials {
     }
 }
 
-pub(crate) fn new_rng() -> Rand64 {
-    let mut buf = [0_u8; 16];
-    getrandom(&mut buf).unwrap();
-    Rand64::new(u128::from_ne_bytes(buf))
+pub trait Evaluate {
+    type Output: Copy;
+    type Parameters: Copy;
+
+    fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output;
 }
 
 #[macro_export]

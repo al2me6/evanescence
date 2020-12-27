@@ -3,16 +3,14 @@ use std::f64::consts::{PI, SQRT_2};
 
 use num_complex::Complex64;
 
-use super::{LM, NL};
-use crate::geometry::Point;
-use crate::numerics::orthogonal_polynomials::{associated_laguerre, associated_legendre};
-
-pub trait Wavefunction {
-    type Output: Copy;
-    type Parameters: Copy;
-
-    fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output;
-}
+use crate::{
+    geometry::Point,
+    numerics::{
+        orthogonal_polynomials::{associated_laguerre, associated_legendre},
+        Evaluate,
+    },
+    orbital::{LM, NL},
+};
 
 pub struct RadialWavefunction;
 
@@ -28,7 +26,7 @@ impl RadialWavefunction {
     }
 }
 
-impl Wavefunction for RadialWavefunction {
+impl Evaluate for RadialWavefunction {
     type Output = f64;
     type Parameters = NL;
 
@@ -55,7 +53,7 @@ impl SphericalHarmonic {
     }
 }
 
-impl Wavefunction for SphericalHarmonic {
+impl Evaluate for SphericalHarmonic {
     type Output = Complex64;
     type Parameters = LM;
 
@@ -70,7 +68,7 @@ impl Wavefunction for SphericalHarmonic {
 
 pub struct RealSphericalHarmonic;
 
-impl Wavefunction for RealSphericalHarmonic {
+impl Evaluate for RealSphericalHarmonic {
     type Output = f64;
     type Parameters = LM;
 
@@ -93,9 +91,12 @@ impl Wavefunction for RealSphericalHarmonic {
 mod tests {
     use lazy_static::lazy_static;
 
-    use super::{RadialWavefunction, RealSphericalHarmonic, Wavefunction};
-    use crate::{assert_iterable_relative_eq, orbital::NL};
-    use crate::{geometry::Point, orbital::LM};
+    use super::{Evaluate, RadialWavefunction, RealSphericalHarmonic};
+    use crate::{
+        assert_iterable_relative_eq,
+        geometry::Point,
+        orbital::{LM, NL},
+    };
 
     lazy_static! {
         static ref TEST_POINTS: Vec<Point> = vec![

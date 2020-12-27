@@ -2,7 +2,7 @@ use std::{f64::consts::PI, iter};
 
 use getset::CopyGetters;
 
-use crate::numerics::new_rng;
+use crate::utils::new_rng;
 
 /// A point in 3D space.
 ///

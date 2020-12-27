@@ -1,10 +1,9 @@
 use getset::CopyGetters;
 use num_complex::Complex64;
 
-use crate::geometry::Point;
+use crate::{geometry::Point, numerics::Evaluate};
 
 pub mod wavefunction;
-pub use wavefunction::Wavefunction;
 
 use wavefunction::{RadialWavefunction, RealSphericalHarmonic, SphericalHarmonic};
 
@@ -100,9 +99,15 @@ impl From<QuantumNumbers> for LM {
     }
 }
 
+pub trait Orbital: Evaluate {
+    /// Estimate the radius of a specific orbital (in the sense that the vast majority
+    /// of probability density is confined within a sphere of that radius).
+    fn estimate_radius(params: Self::Parameters) -> f64;
+}
+
 pub struct RealOrbital;
 
-impl Wavefunction for RealOrbital {
+impl Evaluate for RealOrbital {
     type Output = f64;
     type Parameters = QuantumNumbers;
 
@@ -113,9 +118,20 @@ impl Wavefunction for RealOrbital {
     }
 }
 
+impl Orbital for RealOrbital {
+    /// An empirically derived heuristic for estimating the maximum radius of
+    /// an orbital. See the attached Mathematica notebook `radial_wavefunction.nb`
+    /// for plots.
+    #[inline]
+    fn estimate_radius(qn: QuantumNumbers) -> f64 {
+        let n = qn.n() as f64;
+        n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
+    }
+}
+
 pub struct ComplexOrbital;
 
-impl Wavefunction for ComplexOrbital {
+impl Evaluate for ComplexOrbital {
     type Output = Complex64;
     type Parameters = QuantumNumbers;
 
@@ -123,5 +139,12 @@ impl Wavefunction for ComplexOrbital {
     fn evaluate(qn: QuantumNumbers, point: &Point) -> Complex64 {
         RadialWavefunction::evaluate(qn.into(), point)
             * SphericalHarmonic::evaluate(qn.into(), point)
+    }
+}
+
+impl Orbital for ComplexOrbital {
+    #[inline]
+    fn estimate_radius(params: Self::Parameters) -> f64 {
+        RealOrbital::estimate_radius(params)
     }
 }
