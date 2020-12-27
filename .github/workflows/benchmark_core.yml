@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: rustup toolchain update nightly && rustup default nightly
       - name: Run benchmark
-        run: cd evanescence_core && cargo bench --bench benchmarks -- --output-format bencher | tee output.txt
+        run: cd evanescence_core && cargo bench --bench benchmarks -- --noplot --output-format bencher '^[^f][^a]?[^c]?[^t]?[^o]?[^r]?[^i]?[^a]?[^l]?*' | tee output.txt
       - name: Store benchmark result
         uses: rhysd/github-action-benchmark@v1
         with:
