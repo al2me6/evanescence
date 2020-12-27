@@ -11,7 +11,7 @@ use pyo3::{prelude::*, types::PyModule};
 
 #[derive(FromArgs)]
 /// Simple CLI for evanescence_core, using the Plotly Python library for plotting.
-/// Note: pass two dashes before arguments for negative values: `evanescence_cli -- 4, 2, -1`.
+/// Note: pass two dashes before arguments for negative values: `evanescence_cli -- 4 2 -1`.
 struct Args {
     #[argh(positional)]
     n: u32,
@@ -22,10 +22,13 @@ struct Args {
     #[argh(option, short = 'q', default = "Quality::High")]
     /// render quality: Minimum, Low, Medium, High (default), VeryHigh, or Extreme
     quality: Quality,
+    #[argh(switch)]
+    /// skip rendering (effectively a benchmark for computation speed)
+    skip_render: bool,
 }
 
 fn main() -> Result<()> {
-    let Args { n, l, m, quality } = argh::from_env();
+    let Args { n, l, m, quality, skip_render } = argh::from_env();
 
     let qn = QuantumNumbers::new(n, l, m).with_context(|| {
         format!(
@@ -39,9 +42,14 @@ fn main() -> Result<()> {
     let sim_result = RealOrbital::monte_carlo_simulate(qn, quality);
     println!(
         "Simulated {} points in {:.3}s.",
-        quality as usize,
+        quality as u32,
         now.elapsed().as_secs_f64()
     );
+
+    if skip_render {
+        println!("Skipping rendering.");
+        return Ok(())
+    }
 
     let now = Instant::now();
     // We are stuck with Python interop until plotly.rs implements support for 3D scatterplots.
