@@ -3,17 +3,16 @@
 #![allow(
     clippy::excessive_precision,
     clippy::cast_lossless,
-    clippy::module_name_repetitions,
     clippy::must_use_candidate,
     clippy::non_ascii_literal,
     clippy::unreadable_literal
 )]
 
 pub mod geometry;
+pub mod monte_carlo;
 #[macro_use]
 pub mod numerics;
 pub mod orbital;
-pub mod monte_carlo;
 
 pub(crate) mod utils {
     use getrandom::getrandom;

@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use argh::FromArgs;
 use evanescence_core::{
     monte_carlo::{MonteCarlo, Quality},
-    orbital::{QuantumNumbers, RealOrbital},
+    orbital::{self, QuantumNumbers},
 };
 use indoc::indoc;
 use pyo3::{prelude::*, types::PyModule};
@@ -28,7 +28,13 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    let Args { n, l, m, quality, skip_render } = argh::from_env();
+    let Args {
+        n,
+        l,
+        m,
+        quality,
+        skip_render,
+    } = argh::from_env();
 
     let qn = QuantumNumbers::new(n, l, m).with_context(|| {
         format!(
@@ -39,7 +45,7 @@ fn main() -> Result<()> {
     println!("Rendering real orbital {} at {} quality...", qn, quality);
 
     let now = Instant::now();
-    let sim_result = RealOrbital::monte_carlo_simulate(qn, quality);
+    let sim_result = orbital::Real::monte_carlo_simulate(qn, quality);
     println!(
         "Simulated {} points in {:.3}s.",
         quality as u32,
@@ -48,7 +54,7 @@ fn main() -> Result<()> {
 
     if skip_render {
         println!("Skipping rendering.");
-        return Ok(())
+        return Ok(());
     }
 
     let now = Instant::now();

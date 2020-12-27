@@ -3,7 +3,7 @@ use strum::{Display, EnumString};
 
 use crate::{
     geometry::Point,
-    orbital::{Orbital, RealOrbital},
+    orbital::{self, Orbital},
     utils::new_rng,
 };
 
@@ -136,7 +136,7 @@ pub trait MonteCarlo: Orbital {
     }
 }
 
-impl MonteCarlo for RealOrbital {
+impl MonteCarlo for orbital::Real {
     #[inline]
     fn value_comparator(val: f64) -> f64 {
         val.abs()

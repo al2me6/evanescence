@@ -8,7 +8,7 @@ use evanescence_core::{
         orthogonal_polynomials::{associated_laguerre, associated_legendre},
         Multifactorial,
     },
-    orbital::{QuantumNumbers, RealOrbital},
+    orbital::{self, QuantumNumbers},
 };
 
 pub fn bench_numerics(c: &mut Criterion) {
@@ -56,7 +56,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
                 ),
             ),
             &qn,
-            |b, qn| b.iter(|| RealOrbital::monte_carlo_simulate(*qn, Quality::Extreme)),
+            |b, qn| b.iter(|| orbital::Real::monte_carlo_simulate(*qn, Quality::Extreme)),
         );
     }
 }

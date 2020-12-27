@@ -12,9 +12,9 @@ use crate::{
     orbital::{LM, NL},
 };
 
-pub struct RadialWavefunction;
+pub struct Radial;
 
-impl RadialWavefunction {
+impl Radial {
     /// Calculate the radial wavefunction normalization factor,
     /// `√( (2/n)^3 * (n-l-1)! / (2n * (n+l)!) )`.
     #[inline]
@@ -26,7 +26,7 @@ impl RadialWavefunction {
     }
 }
 
-impl Evaluate for RadialWavefunction {
+impl Evaluate for Radial {
     type Output = f64;
     type Parameters = NL;
 
@@ -91,10 +91,11 @@ impl Evaluate for RealSphericalHarmonic {
 mod tests {
     use lazy_static::lazy_static;
 
-    use super::{Evaluate, RadialWavefunction, RealSphericalHarmonic};
+    use super::{Radial, RealSphericalHarmonic};
     use crate::{
         assert_iterable_relative_eq,
         geometry::Point,
+        numerics::Evaluate,
         orbital::{LM, NL},
     };
 
@@ -142,7 +143,7 @@ mod tests {
 
     test!(
         test_radial_1_0,
-        RadialWavefunction::evaluate,
+        Radial::evaluate,
         NL::new(1, 0).unwrap(),
         &[
             0.00663625, 0.0058303, 0.00134232, 0.00109754, 0.0856609, 0.00137691, 0.00097705,
@@ -151,7 +152,7 @@ mod tests {
     );
     test!(
         test_radial_2_1,
-        RadialWavefunction::evaluate,
+        Radial::evaluate,
         NL::new(2, 1).unwrap(),
         &[
             0.06712, 0.0643393, 0.0386382, 0.0359008, 0.133092, 0.0389966, 0.0343976, 0.0161317,
@@ -160,7 +161,7 @@ mod tests {
     );
     test!(
         test_radial_3_0,
-        RadialWavefunction::evaluate,
+        Radial::evaluate,
         NL::new(3, 0).unwrap(),
         &[
             -0.0224952, -0.0202023, 0.00281192, 0.00536186, -0.0491676, 0.00247796, 0.00675915,
@@ -169,7 +170,7 @@ mod tests {
     );
     test!(
         test_radial_5_3,
-        RadialWavefunction::evaluate,
+        Radial::evaluate,
         NL::new(5, 3).unwrap(),
         &[
             0.00865692, 0.00894101, 0.0117124, 0.0120124, 0.00286186, 0.0116729, 0.0121757,
