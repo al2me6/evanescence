@@ -2,3 +2,6 @@
 **/.vscode
 target/
 Cargo.lock
+**/callgrind.out.*
+**/perf.data*
+**/flamegraph.svg
