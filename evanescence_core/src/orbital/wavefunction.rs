@@ -14,17 +14,19 @@ pub trait Wavefunction {
     fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output;
 }
 
-/// Calculate the radial wavefunction normalization factor,
-/// `√( (2/n)^3 * (n-l-1)! / (2n * (n+l)!) )`.
-#[inline]
-fn radial_normalization_factor(n: u32, l: u32) -> f64 {
-    // (n-l-1)! / (n+l)! = 1 / [(n-l) * (n-l+1) * ... * (n+l-1) * (n+l)].
-    let factorial_factor = ((n - l)..=(n + l)).product::<u32>() as f64;
-    // Where we've taken `(2/n)^3 / 2n` out ouf the square root.
-    2.0 / ((n * n) as f64 * factorial_factor.sqrt())
-}
-
 pub struct RadialWavefunction;
+
+impl RadialWavefunction {
+    /// Calculate the radial wavefunction normalization factor,
+    /// `√( (2/n)^3 * (n-l-1)! / (2n * (n+l)!) )`.
+    #[inline]
+    fn normalization_factor(n: u32, l: u32) -> f64 {
+        // (n-l-1)! / (n+l)! = 1 / [(n-l) * (n-l+1) * ... * (n+l-1) * (n+l)].
+        let factorial_factor = ((n - l)..=(n + l)).product::<u32>() as f64;
+        // Where we've taken `(2/n)^3 / 2n` out ouf the square root.
+        2.0 / ((n * n) as f64 * factorial_factor.sqrt())
+    }
+}
 
 impl Wavefunction for RadialWavefunction {
     type Output = f64;
@@ -33,23 +35,25 @@ impl Wavefunction for RadialWavefunction {
     #[inline]
     fn evaluate(NL { n, l }: NL, point: &Point) -> Self::Output {
         let rho = 2.0 * point.r() / (n as f64);
-        radial_normalization_factor(n, l)
+        Self::normalization_factor(n, l)
             * (-rho / 2.0).exp()
             * rho.powi(l as i32)
             * associated_laguerre((n - l - 1, 2 * l + 1), rho)
     }
 }
 
-/// Compute the normalization factor of a spherical harmonic, excluding the Condon-Shortley phase:
-/// `√( (2l + 1)/4pi * (l-|m|)!/(l+|m|)! )`.
-#[inline]
-fn spherical_harmonic_normalization_factor(l: u32, m_abs: u32) -> f64 {
-    // (l-|m|)!/(l+|m|)! = 1 / [(l-|m|+1) * (l-|m|+2) * ... * (l+|m|-1) * (l+|m|)].
-    let factorial_factor = ((l - m_abs + 1)..=(l + m_abs)).product::<u32>() as f64;
-    ((2 * l + 1) as f64 / (4.00 * PI * factorial_factor)).sqrt()
-}
-
 pub struct SphericalHarmonic;
+
+impl SphericalHarmonic {
+    /// Compute the normalization factor of a spherical harmonic, excluding the Condon-Shortley phase:
+    /// `√( (2l + 1)/4pi * (l-|m|)!/(l+|m|)! )`.
+    #[inline]
+    fn normalization_factor(l: u32, m_abs: u32) -> f64 {
+        // (l-|m|)!/(l+|m|)! = 1 / [(l-|m|+1) * (l-|m|+2) * ... * (l+|m|-1) * (l+|m|)].
+        let factorial_factor = ((l - m_abs + 1)..=(l + m_abs)).product::<u32>() as f64;
+        ((2 * l + 1) as f64 / (4.00 * PI * factorial_factor)).sqrt()
+    }
+}
 
 impl Wavefunction for SphericalHarmonic {
     type Output = Complex64;
@@ -58,7 +62,7 @@ impl Wavefunction for SphericalHarmonic {
     #[inline]
     fn evaluate(LM { l, m }: LM, point: &Point) -> Self::Output {
         let m_abs = m.abs() as u32;
-        spherical_harmonic_normalization_factor(l, m_abs)
+        Self::normalization_factor(l, m_abs)
             * associated_legendre((l, m_abs), point.cos_theta())
             * (Complex64::i() * m as f64 * point.phi()).exp()
     }
@@ -66,7 +70,6 @@ impl Wavefunction for SphericalHarmonic {
 
 pub struct RealSphericalHarmonic;
 
-/// This is implemented independently of [`SphericalHarmonic`] for performance reasons.
 impl Wavefunction for RealSphericalHarmonic {
     type Output = f64;
     type Parameters = LM;
@@ -74,7 +77,7 @@ impl Wavefunction for RealSphericalHarmonic {
     #[inline]
     fn evaluate(LM { l, m }: LM, point: &Point) -> Self::Output {
         let m_abs = m.abs() as u32;
-        spherical_harmonic_normalization_factor(l, m_abs)
+        SphericalHarmonic::normalization_factor(l, m_abs)
             * if m_abs % 2 == 0 { 1.0 } else { -1.0 } // (-1)^(-m), to cancel out the Condon-Shortley phase from `associated_legendre`.
             * associated_legendre((l, m_abs), point.cos_theta())
             * match m.cmp(&0) {
