@@ -5,28 +5,53 @@ use crate::geometry::Point;
 use crate::numerics::new_rng;
 use crate::orbital::{QuantumNumbers, RealOrbital, Wavefunction};
 
+/// A set of predefined qualities (i.e., number of points computed) for
+/// [`MonteCarlo::monte_carlo_simulate`] simulations.
+///
+/// These values have been empirically observed to produce reasonable results.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, EnumString)]
 pub enum Quality {
+    /// Produces "recognizable" results, but not much more.
     Minimum = 5_000,
     Low = 10_000,
     Medium = 25_000,
+    /// Generally a good middle ground between performance and quality.
     High = 50_000,
     VeryHigh = 100_000,
+    /// Should likely be avoided for all but the largest orbitals.
     Extreme = 250_000,
 }
 
+/// Intermediate type representing the evaluation of a wavefunction at a specific point.
 pub type EvaluationResult<T> = (Point, T);
 
+/// Type storing the outcome of a simulation, where values each dimension (x, y, z, and value)
+/// is stored in a separate vector. Each index, across the four vectors, corresponds to
+/// a single point and its associated value.
+///
+/// It may be thought of as the transpose of `Vec<EvaluationResult<T>>`.
+///
+/// This type cannot be manually constructed and should instead be obtained from
+/// [`MonteCarlo::monte_carlo_simulate`].
+///
+/// # Safety
+/// All four vectors must be the same length.
 #[derive(Getters)]
 #[getset(get = "pub")]
 pub struct SimulationResult<T> {
+    /// List of x-values.
     xs: Vec<f64>,
+    /// List of y-values.
     ys: Vec<f64>,
+    /// List of z-values.
     zs: Vec<f64>,
+    /// List of wavefunction values evaluated at the corresponding (x, y, z) coordinate.
     vals: Vec<T>,
 }
 
 impl<T> SimulationResult<T> {
+    /// Decompose a `SimulationResult` into a four-tuple of its inner vectors,
+    /// in the order (x, y, z, value).
     pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<T>) {
         (self.xs, self.ys, self.zs, self.vals)
     }
@@ -51,13 +76,24 @@ impl<T> From<Vec<EvaluationResult<T>>> for SimulationResult<T> {
     }
 }
 
+/// Perform a Monte Carlo simulation of an orbital, generating a collection of points
+/// whose distribution corresponds to the geometry of said orbital.
 pub trait MonteCarlo: Wavefunction {
+    /// The minimum number of points required to get a reasonable estimate of
+    /// the maximum value attained by an orbital.
     const MINIMUM_ESTIMATION_SAMPLES: usize = 50_000;
 
+    /// Estimate the radius of a specific orbital (in the sense that the vast majority
+    /// of probability density is confined within a sphere of that radius).
     fn estimate_radius(params: Self::Parameters) -> f64;
 
+    /// Process values such that the results can be used to compute a maximum.
     fn value_comparator(value: Self::Output) -> f64;
 
+    /// Estimate the maximum value attained by an orbital by brute-force sampling,
+    /// using [`MonteCarlo::value_comparator`] as the metric by which values are compared.
+    /// In addition to the maximum value, this function returns the points (and values)
+    /// sampled for later use.
     fn estimate_maximum_value(
         params: Self::Parameters,
         num_samples: usize,
@@ -74,6 +110,13 @@ pub trait MonteCarlo: Wavefunction {
         (max_value, evaluated_points)
     }
 
+    /// Run a Monte Carlo simulation for the orbital of the given parameters, at the
+    /// requested quality, where quality corresponds to both the total number of points
+    /// generated and the number of points sampled in the maximum value estimation.
+    ///
+    /// Note that while slower, higher qualities may be required to ortain sufficiently
+    /// detailed results for larger, more intricate orbitals. However, excessive quality
+    /// for small orbitals may obstruct details while significantly degrading user experience.
     fn monte_carlo_simulate(
         params: Self::Parameters,
         quality: Quality,
