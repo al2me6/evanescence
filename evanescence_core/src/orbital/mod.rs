@@ -112,8 +112,7 @@ impl Evaluate for Real {
 
     #[inline]
     fn evaluate(qn: QuantumNumbers, point: &Point) -> f64 {
-        Radial::evaluate(qn.into(), point)
-            * RealSphericalHarmonic::evaluate(qn.into(), point)
+        Radial::evaluate(qn.into(), point) * RealSphericalHarmonic::evaluate(qn.into(), point)
     }
 }
 
@@ -136,14 +135,13 @@ impl Evaluate for Complex {
 
     #[inline]
     fn evaluate(qn: QuantumNumbers, point: &Point) -> Complex64 {
-        Radial::evaluate(qn.into(), point)
-            * SphericalHarmonic::evaluate(qn.into(), point)
+        Radial::evaluate(qn.into(), point) * SphericalHarmonic::evaluate(qn.into(), point)
     }
 }
 
 impl Orbital for Complex {
     #[inline]
-    fn estimate_radius(params: Self::Parameters) -> f64 {
-        Real::estimate_radius(params)
+    fn estimate_radius(qn: QuantumNumbers) -> f64 {
+        Real::estimate_radius(qn)
     }
 }
