@@ -1,4 +1,3 @@
-#![feature(min_const_generics)]
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
     clippy::excessive_precision,
