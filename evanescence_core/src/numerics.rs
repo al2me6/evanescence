@@ -16,9 +16,7 @@ macro_rules! impl_multifactorial {
                 let delta = N as $T;
                 let mut mul = acc - delta;
                 while mul >= delta {
-                    acc = acc
-                        .checked_mul(mul)
-                        .expect("overflowed computing multifactorial");
+                    acc *= mul;
                     mul -= delta;
                 }
                 acc
