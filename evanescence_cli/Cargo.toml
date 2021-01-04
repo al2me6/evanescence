@@ -8,5 +8,4 @@ edition = "2018"
 anyhow = "1"
 argh = "0.1"
 evanescence_core = { path = "../evanescence_core" }
-indoc = "1"
 pyo3 = "0.13"

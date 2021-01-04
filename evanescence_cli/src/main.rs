@@ -6,7 +6,6 @@ use evanescence_core::{
     monte_carlo::{MonteCarlo, Quality},
     orbital::{self, QuantumNumbers},
 };
-use indoc::indoc;
 use pyo3::{prelude::*, types::PyModule};
 
 #[derive(FromArgs)]
@@ -61,44 +60,8 @@ fn main() -> Result<()> {
     // We are stuck with Python interop until plotly.rs implements support for 3D scatterplots.
     // See https://github.com/igiagkiozis/plotly/pull/30.
     Python::with_gil(|py| -> PyResult<()> {
-        let renderer = PyModule::from_code(
-            py,
-            indoc! {r##"
-                from typing import List
-                import plotly.graph_objects as go
-
-                def render(xs: List[float], ys: List[float], zs: List[float], vals: List[float]):
-                    fig = go.Figure(data=go.Scatter3d(
-                        x=xs,
-                        y=ys,
-                        z=zs,
-                        mode="markers",
-                        marker=dict(
-                            size=tuple(min(abs(val) / 2 + 1, 2) for val in vals),
-                            line=dict(width=0),  # Remove border on marker.
-                            color=vals,
-                            colorscale="RdBu_r",
-                            cmid=0,  # Fix "colorless" to 0. Thus, red is + and blue is -.
-                            opacity=0.98,  # Improve visibility of overlapping features.
-                        ),
-                        hovertext=vals,
-                    ))
-                    fig.update_layout(
-                        template="plotly_white",
-                        hovermode=False,
-                        dragmode="orbit",
-                        margin=dict(l=0, r=0, b=0, t=0),
-                        scene=dict(
-                            xaxis_showspikes=False,
-                            yaxis_showspikes=False,
-                            zaxis_showspikes=False,
-                        )
-                    )
-                    fig.show()
-            "##},
-            "renderer.py",
-            "renderer",
-        )?;
+        let renderer =
+            PyModule::from_code(py, include_str!("renderer.py"), "renderer.py", "renderer")?;
         renderer.call1("render", sim_result.into_components())?;
         Ok(())
     })?;
