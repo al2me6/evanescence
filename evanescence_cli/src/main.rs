@@ -2,11 +2,10 @@ use std::time::Instant;
 
 use anyhow::{Context, Result};
 use argh::FromArgs;
-use evanescence_core::{
-    monte_carlo::{MonteCarlo, Quality},
-    orbital::{self, QuantumNumbers},
-};
-use pyo3::{prelude::*, types::PyModule};
+use evanescence_core::monte_carlo::{MonteCarlo, Quality};
+use evanescence_core::orbital::{self, QuantumNumbers};
+use pyo3::prelude::*;
+use pyo3::types::PyModule;
 
 #[derive(FromArgs)]
 /// Simple CLI for evanescence_core, using the Plotly Python library for plotting.

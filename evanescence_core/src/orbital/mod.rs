@@ -1,7 +1,8 @@
 use getset::CopyGetters;
 use num_complex::Complex64;
 
-use crate::{geometry::Point, numerics::Evaluate};
+use crate::geometry::Point;
+use crate::numerics::Evaluate;
 use wavefunctions::{Radial, RealSphericalHarmonic, SphericalHarmonic};
 
 pub mod wavefunctions;

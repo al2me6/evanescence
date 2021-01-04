@@ -1,11 +1,9 @@
 use getset::Getters;
 use strum::{Display, EnumString};
 
-use crate::{
-    geometry::Point,
-    orbital::{self, Orbital},
-    utils::new_rng,
-};
+use crate::geometry::Point;
+use crate::orbital::{self, Orbital};
+use crate::utils::new_rng;
 
 /// A set of predefined qualities (i.e., number of points computed) for
 /// [`MonteCarlo::monte_carlo_simulate`] simulations.

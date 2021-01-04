@@ -1,15 +1,12 @@
 use std::time::Duration;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-
-use evanescence_core::{
-    monte_carlo::{MonteCarlo, Quality},
-    numerics::{
-        orthogonal_polynomials::{associated_laguerre, associated_legendre},
-        Multifactorial,
-    },
-    orbital::{self, QuantumNumbers},
+use evanescence_core::monte_carlo::{MonteCarlo, Quality};
+use evanescence_core::numerics::{
+    orthogonal_polynomials::{associated_laguerre, associated_legendre},
+    Multifactorial,
 };
+use evanescence_core::orbital::{self, QuantumNumbers};
 
 pub fn bench_numerics(c: &mut Criterion) {
     let mut fact_group = c.benchmark_group("factorials");
