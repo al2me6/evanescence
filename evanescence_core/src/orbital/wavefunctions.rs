@@ -40,6 +40,20 @@ impl Evaluate for Radial {
     }
 }
 
+pub struct RadialProbabilityDensity;
+
+impl Evaluate for RadialProbabilityDensity {
+    type Output = f64;
+    type Parameters = NL;
+
+    fn evaluate(params: Self::Parameters, pt: &Point) -> Self::Output {
+        let r = pt.r();
+        #[allow(non_snake_case)]
+        let R = Radial::evaluate(params, pt);
+        r * r * R * R
+    }
+}
+
 pub struct SphericalHarmonic;
 
 impl SphericalHarmonic {
