@@ -1,13 +1,118 @@
-use std::{f64::consts::PI, iter};
+use std::f64::consts::PI;
+use std::fmt::{self, Display};
+use std::iter;
+use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 use getset::CopyGetters;
 
 use crate::utils::new_rng;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Vec3 {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+}
+
+impl Vec3 {
+    pub const fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
+    }
+
+    pub const ZERO: Vec3 = Self::new(0.0, 0.0, 0.0);
+    pub const I: Vec3 = Self::new(1.0, 0.0, 0.0);
+    pub const J: Vec3 = Self::new(0.0, 1.0, 0.0);
+    pub const K: Vec3 = Self::new(0.0, 0.0, 1.0);
+}
+
+impl Add for Vec3 {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
+    }
+}
+
+impl AddAssign for Vec3 {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
+
+impl Sub for Vec3 {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+}
+
+impl Mul<f64> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
+impl Div<f64> for Vec3 {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+        }
+    }
+}
+
+impl Display for Vec3 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:+.4}i{:+.4}j{:+.4}k", self.x, self.y, self.z)
+    }
+}
+
+impl From<Vec3> for Point {
+    fn from(point: Vec3) -> Self {
+        Self::new(point.x, point.y, point.z)
+    }
+}
+
 /// A point in 3D space.
 ///
 /// Note that we use the physics convention of (r, theta, phi): theta is the inclination
 /// and phi is the azimuth.
+///
+/// # Safety
+/// The spherical elements must be kept in sync with Cartesian elements. For this reason,
+/// direct (i.e., mutable) access to struct members is not allowed.
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct Point {
@@ -25,9 +130,9 @@ pub struct Point {
     phi: f64,
 }
 
-impl std::fmt::Display for Point {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}, {}, {})", self.x, self.y, self.z)
+impl Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({:.4}, {:.4}, {:.4})", self.x, self.y, self.z)
     }
 }
 
@@ -66,6 +171,26 @@ impl Point {
         }
     }
 
+    /// A point representing the origin.
+    pub const ORIGIN: Point = Point {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+        r: 0.0,
+        cos_theta: 1.0,
+        phi: 0.0,
+    };
+
+    /// The origin, but offset in z by [`f64::EPSILON`] for when division-by-zero needs to be avoided.
+    pub const ORIGIN_EPSILON: Point = Point {
+        x: 0.0,
+        y: 0.0,
+        z: f64::EPSILON,
+        r: f64::EPSILON,
+        cos_theta: 1.0,
+        phi: 0.0,
+    };
+
     /// Produce random points uniformly distributed within a ball of the given radius.
     ///
     /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
@@ -103,26 +228,6 @@ impl Point {
     pub fn sample_from_ball_with_origin_iter(radius: f64) -> impl Iterator<Item = Self> {
         iter::once(Self::ORIGIN_EPSILON).chain(Self::sample_from_ball_iter(radius))
     }
-
-    /// A point representing the origin.
-    pub const ORIGIN: Point = Point {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-        r: 0.0,
-        cos_theta: 1.0,
-        phi: 0.0,
-    };
-
-    /// The origin, but offset in z by [`f64::EPSILON`] for when division-by-zero needs to be avoided.
-    pub const ORIGIN_EPSILON: Point = Point {
-        x: 0.0,
-        y: 0.0,
-        z: f64::EPSILON,
-        r: f64::EPSILON,
-        cos_theta: 1.0,
-        phi: 0.0,
-    };
 }
 
 #[cfg(test)]
