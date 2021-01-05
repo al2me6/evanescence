@@ -35,15 +35,24 @@ pub mod orthogonal_polynomials {
     /// <https://en.wikipedia.org/wiki/Laguerre_polynomials#Generalized_Laguerre_polynomials>.
     #[inline]
     pub fn associated_laguerre((q, p): (u32, u32), x: f64) -> f64 {
-        match q {
-            0 => 1.0,
-            1 => 1.0 + p as f64 - x,
-            _ => {
-                (((2 * q - 1 + p) as f64 - x) * associated_laguerre((q - 1, p), x)
-                    - (q - 1 + p) as f64 * associated_laguerre((q - 2, p), x))
-                    / q as f64
-            }
+        if q == 0 {
+            return 1.0;
         }
+
+        #[allow(non_snake_case)]
+        let mut L = 1.0 + p as f64 - x;
+        if q == 1 {
+            return L;
+        }
+
+        let mut prev = 1.0;
+        for q in 1..q {
+            (prev, L) = (
+                L,
+                (((2 * q + 1 + p) as f64 - x) * L - (q + p) as f64 * prev) / (q + 1) as f64,
+            );
+        }
+        L
     }
 
     /// The associated Legendre functions, `P_{l}^{m}(x)`, implemented for nonnegative
