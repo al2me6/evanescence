@@ -61,7 +61,8 @@ pub mod orthogonal_polynomials {
         };
 
         // Compute `P_m^m`.
-        let mut p = if m == 0 {
+        #[allow(non_snake_case)]
+        let mut P = if m == 0 {
             1.0
         } else {
             (if m % 2 == 0 { 1.0 } else { -1.0 })  // (-1)^l
@@ -69,25 +70,25 @@ pub mod orthogonal_polynomials {
                 * (1.0 - x * x).powi(l as _).sqrt()
         };
         if l == m {
-            return p;
+            return P;
         }
 
-        let mut prev = p;
+        let mut prev = P;
 
         // Compute `P_{m+1}^m`.
-        p *= x * (2 * m + 1) as f64;
+        P *= x * (2 * m + 1) as f64;
         if l - m == 1 {
-            return p;
+            return P;
         }
 
         // Iteratively compute `P_{m+2}^m`, `P_{m+3}^m`, ..., `P_l^m`.
         for l in (m + 1)..l {
-            (prev, p) = (
-                p,
-                ((2 * l + 1) as f64 * x * p - (l + m) as f64 * prev) / (l - m + 1) as f64,
+            (prev, P) = (
+                P,
+                ((2 * l + 1) as f64 * x * P - (l + m) as f64 * prev) / (l - m + 1) as f64,
             );
         }
-        p
+        P
     }
 }
 
