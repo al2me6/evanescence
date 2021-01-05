@@ -1,9 +1,9 @@
-use getset::Getters;
 use strum::{Display, EnumString};
 
-use crate::geometry::Point;
+use crate::numerics::Evaluation;
 use crate::orbital::{self, Orbital};
 use crate::utils::new_rng;
+use crate::{geometry::Point, numerics::ComponentForm};
 
 /// A set of predefined qualities (i.e., number of points computed) for
 /// [`MonteCarlo::monte_carlo_simulate`] simulations.
@@ -20,60 +20,6 @@ pub enum Quality {
     VeryHigh = 100_000,
     /// Should likely be avoided for all but the largest orbitals.
     Extreme = 250_000,
-}
-
-/// Intermediate type representing the evaluation of a wavefunction at a specific point.
-pub type EvaluationResult<T> = (Point, T);
-
-/// Type storing the outcome of a simulation, where values each dimension (x, y, z, and value)
-/// is stored in a separate vector. Each index, across the four vectors, corresponds to
-/// a single point and its associated value.
-///
-/// It may be thought of as the transpose of `Vec<EvaluationResult<T>>`.
-///
-/// This type cannot be manually constructed and should instead be obtained from
-/// [`MonteCarlo::monte_carlo_simulate`].
-///
-/// # Safety
-/// All four vectors must be the same length.
-#[derive(Getters)]
-#[getset(get = "pub")]
-pub struct SimulationResult<T> {
-    /// List of x-values.
-    xs: Vec<f64>,
-    /// List of y-values.
-    ys: Vec<f64>,
-    /// List of z-values.
-    zs: Vec<f64>,
-    /// List of wavefunction values evaluated at the corresponding (x, y, z) coordinate.
-    vals: Vec<T>,
-}
-
-impl<T> SimulationResult<T> {
-    /// Decompose a `SimulationResult` into a four-tuple of its inner vectors,
-    /// in the order (x, y, z, value).
-    pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<T>) {
-        (self.xs, self.ys, self.zs, self.vals)
-    }
-}
-
-impl<T> From<Vec<EvaluationResult<T>>> for SimulationResult<T> {
-    fn from(v: Vec<EvaluationResult<T>>) -> Self {
-        let len = v.len();
-        let (mut xs, mut ys, mut zs, mut vals) = (
-            Vec::with_capacity(len),
-            Vec::with_capacity(len),
-            Vec::with_capacity(len),
-            Vec::with_capacity(len),
-        );
-        v.into_iter().for_each(|(pt, val)| {
-            xs.push(pt.x());
-            ys.push(pt.y());
-            zs.push(pt.z());
-            vals.push(val);
-        });
-        SimulationResult { xs, ys, zs, vals }
-    }
 }
 
 /// Perform a Monte Carlo simulation of an orbital, generating a collection of points
@@ -93,10 +39,10 @@ pub trait MonteCarlo: Orbital {
     fn estimate_maximum_value(
         params: Self::Parameters,
         num_samples: usize,
-    ) -> (f64, Vec<EvaluationResult<Self::Output>>) {
+    ) -> (f64, Vec<Evaluation<Self::Output>>) {
         let evaluated_points: Vec<_> =
             Point::sample_from_ball_with_origin_iter(Self::estimate_radius(params))
-                .map(|pt| (pt, Self::evaluate(params, &pt)))
+                .map(|pt| Self::evaluate_at(params, &pt))
                 .take(num_samples)
                 .collect();
         let max_value = evaluated_points
@@ -116,7 +62,7 @@ pub trait MonteCarlo: Orbital {
     fn monte_carlo_simulate(
         params: Self::Parameters,
         quality: Quality,
-    ) -> SimulationResult<Self::Output> {
+    ) -> ComponentForm<Self::Output> {
         let num_estimation_samples = (quality as usize * 2).max(Self::MINIMUM_ESTIMATION_SAMPLES);
         let mut rng = new_rng();
         let (max_value, estimation_samples) =
@@ -125,11 +71,11 @@ pub trait MonteCarlo: Orbital {
             .into_iter()
             .chain(
                 Point::sample_from_ball_iter(Self::estimate_radius(params))
-                    .map(|pt| (pt, Self::evaluate(params, &pt))),
+                    .map(|pt| Self::evaluate_at(params, &pt)),
             )
             .filter(|(_, val)| Self::value_comparator(*val) / max_value > rng.rand_float())
             .take(quality as usize)
-            .collect::<Vec<_>>() // Seems to increase performance by ~10%.
+            .collect::<Vec<_>>()
             .into()
     }
 }

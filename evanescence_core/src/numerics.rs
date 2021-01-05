@@ -1,5 +1,6 @@
 use crate::geometry::Point;
 
+use getset::Getters;
 pub trait Multifactorial {
     fn multifactorial<const N: u8>(self) -> Self;
 }
@@ -101,11 +102,74 @@ pub mod orthogonal_polynomials {
     }
 }
 
+/// A point and the value of a function evaluated at that point.
+pub type Evaluation<T> = (Point, T);
+
+/// Type storing a collection of evaluations, where values in each dimension (x, y, z, and value)
+/// is stored in a separate vector. Each index, across the four vectors, corresponds to
+/// a single point and its associated value.
+///
+/// It may be thought of as the transpose of `Vec<Evaluation<T>>`.
+///
+/// This type cannot be manually constructed and should instead be obtained from a
+/// [`Vec<Evaluation<T>>`] via conversion traits.
+///
+/// # Safety
+/// All four vectors must be the same length.
+#[derive(Debug, PartialEq, Getters)]
+#[getset(get = "pub")]
+pub struct ComponentForm<T> {
+    /// List of x-values.
+    xs: Vec<f64>,
+    /// List of y-values.
+    ys: Vec<f64>,
+    /// List of z-values.
+    zs: Vec<f64>,
+    /// List of wavefunction values evaluated at the corresponding (x, y, z) coordinate.
+    vals: Vec<T>,
+}
+
+impl<T> ComponentForm<T> {
+    /// Decompose `Self` into a four-tuple of its inner vectors,
+    /// in the order (x, y, z, value).
+    pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.xs, self.ys, self.zs, self.vals)
+    }
+}
+
+impl<T> From<Vec<Evaluation<T>>> for ComponentForm<T> {
+    fn from(v: Vec<Evaluation<T>>) -> Self {
+        let len = v.len();
+        let (mut xs, mut ys, mut zs, mut vals) = (
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
+        );
+        v.into_iter().for_each(|(pt, val)| {
+            xs.push(pt.x());
+            ys.push(pt.y());
+            zs.push(pt.z());
+            vals.push(val);
+        });
+        ComponentForm { xs, ys, zs, vals }
+    }
+}
+
 pub trait Evaluate {
     type Output: Copy;
     type Parameters: Copy;
 
+    /// Evaluate `Self` at a certain point, returning the value only.
     fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output;
+
+    /// Evaluate `Self` at a certain point, returning the point *and* the value in the form of an
+    /// [`Evaluation`], or a `(Point, Self::Output)`.
+    #[allow(clippy::inline_always)]
+    #[inline(always)]
+    fn evaluate_at(params: Self::Parameters, point: &Point) -> Evaluation<Self::Output> {
+        (*point, Self::evaluate(params, point))
+    }
 }
 
 #[macro_export]
@@ -113,9 +177,10 @@ macro_rules! assert_iterable_relative_eq {
     ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)*) => {{
         assert_eq!($lhs.len(), $rhs.len());
         assert!(
-        $lhs.iter()
-            .zip($rhs.iter())
-            .all(|(l, r)| approx::relative_eq!(l, r $(, $opt = $val)*)),
+            $lhs.iter()
+                .zip($rhs.iter())
+                .all(|(l, r)| approx::relative_eq!(l, r $(, $opt = $val)*)
+        ),
         indoc::indoc! {"
             assertion failed: `(left ≈ right)`
             left: `{:?}`
