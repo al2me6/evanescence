@@ -55,22 +55,39 @@ pub mod orthogonal_polynomials {
     /// <https://en.wikipedia.org/wiki/Associated_Legendre_polynomials#Recurrence_formula>.
     #[inline]
     pub fn associated_legendre((l, m): (u32, u32), x: f64) -> f64 {
-        match (l, m) {
-            (0, 0) => 1.0,
-            (1, 0) => x,
-            _ if m > l => 0.0,
-            _ if m == l => {
-                (if l % 2 == 0 { 1.0 } else { -1.0 })  // (-1)^l
-                    * (2 * l - 1).multifactorial::<2>() as f64
-                    * (1.0 - x * x).powf(l as f64 / 2.0)
-            }
-            _ if m == l - 1 => x * (2 * l - 1) as f64 * associated_legendre((l - 1, m), x),
-            _ => {
-                ((2 * l - 1) as f64 * x * associated_legendre((l - 1, m), x)
-                    - (m + l - 1) as f64 * associated_legendre((l - 2, m), x))
-                    / (l - m) as f64
-            }
+        // Check for special cases.
+        if m > l {
+            return 0.0;
+        };
+
+        // Compute `P_m^m`.
+        let mut p = if m == 0 {
+            1.0
+        } else {
+            (if m % 2 == 0 { 1.0 } else { -1.0 })  // (-1)^l
+                * (2 * m - 1).multifactorial::<2>() as f64
+                * (1.0 - x * x).powi(l as _).sqrt()
+        };
+        if l == m {
+            return p;
         }
+
+        let mut prev = p;
+
+        // Compute `P_{m+1}^m`.
+        p *= x * (2 * m + 1) as f64;
+        if l - m == 1 {
+            return p;
+        }
+
+        // Iteratively compute `P_{m+2}^m`, `P_{m+3}^m`, ..., `P_l^m`.
+        for l in (m + 1)..l {
+            (prev, p) = (
+                p,
+                ((2 * l + 1) as f64 * x * p - (l + m) as f64 * prev) / (l - m + 1) as f64,
+            );
+        }
+        p
     }
 }
 

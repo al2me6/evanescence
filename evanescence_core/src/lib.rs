@@ -1,3 +1,4 @@
+#![feature(destructuring_assignment)]
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
     clippy::excessive_precision,
