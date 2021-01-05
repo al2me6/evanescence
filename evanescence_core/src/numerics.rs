@@ -1,6 +1,9 @@
-use crate::geometry::Point;
+use std::iter;
 
 use getset::Getters;
+
+use crate::geometry::{Point, Vec3};
+
 pub trait Multifactorial {
     fn multifactorial<const N: u8>(self) -> Self;
 }
@@ -169,6 +172,74 @@ pub trait Evaluate {
     #[inline(always)]
     fn evaluate_at(params: Self::Parameters, point: &Point) -> Evaluation<Self::Output> {
         (*point, Self::evaluate(params, point))
+    }
+
+    /// Evaluate `Self` on a line segment running from `begin` to `end` at a total of `num_points`
+    /// different points, all evenly spaced (à la "`linspace`" operation).
+    fn evaluate_on_line_segment(
+        params: Self::Parameters,
+        begin: Vec3,
+        end: Vec3,
+        num_points: usize,
+    ) -> Vec<Evaluation<Self::Output>> {
+        Vec3::linspace(begin, end, num_points)
+            .map(|pt| Self::evaluate_at(params, &pt.into()))
+            .collect()
+    }
+
+    /// Evaluate `Self` on a grid of points evenly covering a parallelogram. This parallelogram
+    /// is defined as follows:
+    /// 
+    /// * Its center is the origin;
+    /// * The midpoint of its "top" edge is defined by `extent_horizontal`; and
+    /// * The the midpoint of its "right" edge is defined by `extent_vertical`.
+    ///
+    /// Consider calling `evaluate_on_plane` with the following arguments:
+    ///
+    /// ```ignore
+    /// let points = SomeEvaluator::evaluate_on_plane(
+    ///     some_params,
+    ///     (X, 3),
+    ///     (Y, 5),
+    /// );
+    /// ```
+    ///
+    /// Then, these are the points where evaluation will occur (with order annotated, and where
+    /// `O` indicates the origin):
+    ///
+    /// ```text
+    ///           1      2      3
+    ///          x------X------x
+    ///         /             /
+    ///        x 4    x 5    x 6
+    ///       /             /
+    ///      x 7    O 8    Y 9
+    ///     /             /
+    ///    x 10   x 11   x 12
+    ///   /             /
+    ///  x------x------x
+    /// 13     14     15
+    /// ```
+    fn evaluate_on_plane(
+        params: Self::Parameters,
+        (extent_horizontal, num_pts_horizontal): (Vec3, usize),
+        (extent_vertical, num_pts_vertical): (Vec3, usize),
+    ) -> Vec<Evaluation<Self::Output>> {
+        let vertical_linspace = Vec3::linspace(extent_vertical, -extent_vertical, num_pts_vertical);
+        let horizontal_linspace =
+            Vec3::linspace(-extent_horizontal, extent_horizontal, num_pts_horizontal)
+                .collect::<Vec<_>>();
+        let horizontal_linspace_copies =
+            iter::repeat(horizontal_linspace).take(vertical_linspace.len());
+        vertical_linspace
+            .zip(horizontal_linspace_copies)
+            .flat_map(|(vertical_pt, horizontal_linspace)| {
+                horizontal_linspace
+                    .into_iter()
+                    .map(move |horizontal_pt| horizontal_pt + vertical_pt)
+            })
+            .map(|pt| Self::evaluate_at(params, &pt.into()))
+            .collect()
     }
 }
 

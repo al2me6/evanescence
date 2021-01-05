@@ -19,6 +19,20 @@ impl Vec3 {
         Self { x, y, z }
     }
 
+    pub fn linspace(
+        begin: Self,
+        end: Self,
+        num_points: usize,
+    ) -> impl ExactSizeIterator<Item = Self> {
+        let step = (end - begin) / (num_points as f64 - 1.0);
+        let mut acc = begin;
+        (0..num_points).map(move |_| {
+            let next = acc;
+            acc += step;
+            next
+        })
+    }
+
     pub const ZERO: Vec3 = Self::new(0.0, 0.0, 0.0);
     pub const I: Vec3 = Self::new(1.0, 0.0, 0.0);
     pub const J: Vec3 = Self::new(0.0, 1.0, 0.0);
