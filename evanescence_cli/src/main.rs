@@ -1,19 +1,33 @@
+use std::convert::TryInto;
 use std::time::Instant;
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use argh::FromArgs;
-use evanescence_core::geometry::{ComponentForm, Vec3};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
-use evanescence_core::numerics::Evaluate;
-use evanescence_core::orbital::{self, Orbital, QuantumNumbers, NL};
+use evanescence_core::orbital::{self, Orbital, QuantumNumbers, RadialPlot};
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
 use strum::{Display, EnumString};
 
-#[derive(Display, EnumString)]
+#[derive(Clone, Copy, Display, EnumString)]
 enum Mode {
     Pointillist,
-    RadialPDF,
+    Radial,
+    RadialProbability,
+    RadialProbabilityDensity,
+}
+
+impl TryInto<orbital::RadialPlot> for Mode {
+    type Error = anyhow::Error;
+
+    fn try_into(self) -> Result<orbital::RadialPlot, Self::Error> {
+        match self {
+            Self::Radial => Ok(RadialPlot::Wavefunction),
+            Self::RadialProbability => Ok(RadialPlot::Probability),
+            Self::RadialProbabilityDensity => Ok(RadialPlot::ProbabilityDensity),
+            _ => Err(anyhow!("Cannot plot {} as a radial plot.", self)),
+        }
+    }
 }
 
 #[derive(FromArgs)]
@@ -27,7 +41,8 @@ struct Args {
     #[argh(positional)]
     m: i32,
     #[argh(option, short = 'm', default = "Mode::Pointillist")]
-    /// select the visualization computed: Pointillist (default), RadialPDF,
+    /// select the visualization computed: Pointillist (default), Radial, RadialProbability,
+    /// RadialProbabilityDensity,
     mode: Mode,
     #[argh(option, short = 'q', default = "Quality::High")]
     /// render quality: Minimum, Low, Medium, High (default), VeryHigh, or Extreme
@@ -108,25 +123,18 @@ fn main() -> Result<()> {
                 },
             )?;
         }
-        Mode::RadialPDF => {
+        Mode::Radial | Mode::RadialProbability | Mode::RadialProbabilityDensity => {
             run_simulation(
                 || {
                     let num_points = quality as usize / 100;
-                    let nl: NL = qn.into();
-                    let sim_result: ComponentForm<_> =
-                        orbital::wavefunctions::RadialProbabilityDensity::evaluate_on_line_segment(
-                            nl,
-                            Vec3::ZERO,
-                            Vec3::I * orbital::Real::estimate_radius(qn),
-                            num_points,
-                        )
-                        .into();
-                    let (xs, _, _, vals) = sim_result.into_components();
-                    (num_points, (xs, vals))
+                    (
+                        num_points,
+                        orbital::Real::plot_radial(qn, mode.try_into().unwrap(), num_points),
+                    )
                 },
                 skip_render,
-                |(xs, vals)| {
-                    renderer.call1("render_radial_pdf", (xs, vals))?;
+                |sim_result| {
+                    renderer.call1("render_1d", sim_result)?;
                     Ok(())
                 },
             )?;

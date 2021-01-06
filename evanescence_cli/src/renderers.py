@@ -34,6 +34,6 @@ def render_pointillist(xs: List[float], ys: List[float], zs: List[float], vals: 
     fig.show()
 
 
-def render_radial_pdf(rs: List[float], vals: List[float]) -> None:
-    fig = px.line(x=rs, y=vals)
+def render_1d(xs: List[float], ys: List[float]) -> None:
+    fig = px.line(x=xs, y=ys)
     fig.show()
