@@ -71,14 +71,15 @@ pub mod orthogonal_polynomials {
             return 0.0;
         };
 
-        // Compute `P_m^m`.
+        // Compute P_m^m.
         #[allow(non_snake_case)]
         let mut P = if m == 0 {
-            1.0
+            1.0  // Since m <= l, this is P_0^0(x) = 1.
         } else {
+            // P_m^m(x) = (-1)^l (2m - 1)!! (1 - x^2)^(m/2).
             (if m % 2 == 0 { 1.0 } else { -1.0 })  // (-1)^l
                 * (2 * m - 1).multifactorial::<2>() as f64
-                * (1.0 - x * x).powi(l as _).sqrt()
+                * (1.0 - x * x).powi(m as _).sqrt()
         };
         if l == m {
             return P;
@@ -86,13 +87,14 @@ pub mod orthogonal_polynomials {
 
         let mut prev = P;
 
-        // Compute `P_{m+1}^m`.
+        // Compute P_{m+1}^m(x) = x (2m + 1) P_m^m(x).
         P *= x * (2 * m + 1) as f64;
         if l - m == 1 {
             return P;
         }
 
         // Iteratively compute `P_{m+2}^m`, `P_{m+3}^m`, ..., `P_l^m`.
+        // (k - m + 1) P_{k+1}^m(x) = (2k + 1) x P_k^m(x) - (k + m) P_{k-1}^m(x).
         for l in (m + 1)..l {
             (prev, P) = (
                 P,
