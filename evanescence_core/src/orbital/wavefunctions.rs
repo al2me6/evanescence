@@ -49,7 +49,7 @@ impl Evaluate for RadialProbabilityDensity {
     fn evaluate(params: Self::Parameters, pt: &Point) -> Self::Output {
         let r = pt.r();
         #[allow(non_snake_case)]
-        let R = Radial::evaluate(params, pt);
+        let R = Radial::evaluate(params, pt).abs();
         r * r * R * R
     }
 }
