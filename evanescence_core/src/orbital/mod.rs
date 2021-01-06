@@ -1,9 +1,11 @@
 use getset::CopyGetters;
 use num_complex::Complex64;
 
-use crate::geometry::Point;
+use crate::geometry::{ComponentForm, Point, Vec3};
 use crate::numerics::Evaluate;
-use wavefunctions::{Radial, RealSphericalHarmonic, SphericalHarmonic};
+use wavefunctions::{
+    Radial, RadialProbability, RadialProbabilityDensity, RealSphericalHarmonic, SphericalHarmonic,
+};
 
 pub mod wavefunctions;
 
@@ -99,10 +101,42 @@ impl From<QuantumNumbers> for LM {
     }
 }
 
-pub trait Orbital: Evaluate {
-    /// Estimate the radius of a specific orbital (in the sense that the vast majority
-    /// of probability density is confined within a sphere of that radius).
-    fn estimate_radius(params: Self::Parameters) -> f64;
+#[non_exhaustive]
+pub enum RadialPlot {
+    Wavefunction,
+    Probability,
+    ProbabilityDensity,
+}
+
+pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
+    /// An empirically derived heuristic for estimating the radius of a specific orbital
+    /// (in the sense that the vast majority of probability density is confined within a sphere
+    /// of that radius). See the attached Mathematica notebook `radial_wavefunction.nb`
+    /// for plots.
+    #[inline]
+    fn estimate_radius(qn: QuantumNumbers) -> f64 {
+        let n = qn.n() as f64;
+        n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
+    }
+
+    fn plot_radial(
+        qn: QuantumNumbers,
+        variant: RadialPlot,
+        num_points: usize,
+    ) -> (Vec<f64>, Vec<f64>) {
+        let evaluator = match variant {
+            RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
+            RadialPlot::Probability => RadialProbability::evaluate_on_line_segment,
+            RadialPlot::ProbabilityDensity => RadialProbabilityDensity::evaluate_on_line_segment,
+        };
+        ComponentForm::from(evaluator(
+            qn.into(),
+            Vec3::ZERO,
+            Vec3::I * Self::estimate_radius(qn),
+            num_points,
+        ))
+        .into_xv()
+    }
 }
 
 pub struct Real;
@@ -117,16 +151,7 @@ impl Evaluate for Real {
     }
 }
 
-impl Orbital for Real {
-    /// An empirically derived heuristic for estimating the maximum radius of
-    /// an orbital. See the attached Mathematica notebook `radial_wavefunction.nb`
-    /// for plots.
-    #[inline]
-    fn estimate_radius(qn: QuantumNumbers) -> f64 {
-        let n = qn.n() as f64;
-        n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
-    }
-}
+impl Orbital for Real {}
 
 pub struct Complex;
 
@@ -140,9 +165,4 @@ impl Evaluate for Complex {
     }
 }
 
-impl Orbital for Complex {
-    #[inline]
-    fn estimate_radius(qn: QuantumNumbers) -> f64 {
-        Real::estimate_radius(qn)
-    }
-}
+impl Orbital for Complex {}

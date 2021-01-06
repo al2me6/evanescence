@@ -40,16 +40,31 @@ impl Evaluate for Radial {
     }
 }
 
+pub struct RadialProbability;
+
+impl Evaluate for RadialProbability {
+    type Output = f64;
+    type Parameters = NL;
+
+    #[inline]
+    fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output {
+        #[allow(non_snake_case)]
+        let R = Radial::evaluate(params, point);
+        R * R
+    }
+}
+
 pub struct RadialProbabilityDensity;
 
 impl Evaluate for RadialProbabilityDensity {
     type Output = f64;
     type Parameters = NL;
 
+    #[inline]
     fn evaluate(params: Self::Parameters, pt: &Point) -> Self::Output {
         let r = pt.r();
         #[allow(non_snake_case)]
-        let R = Radial::evaluate(params, pt).abs();
+        let R = Radial::evaluate(params, pt);
         r * r * R * R
     }
 }
