@@ -140,6 +140,22 @@ impl<T> ComponentForm<T> {
     }
 }
 
+/// Swizzling decomposition operators.
+impl<T> ComponentForm<T> {
+    pub fn into_xv(self) -> (Vec<f64>, Vec<T>) {
+        (self.xs, self.vals)
+    }
+    pub fn into_xyv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.xs, self.ys, self.vals)
+    }
+    pub fn into_yzv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.ys, self.zs, self.vals)
+    }
+    pub fn into_xzv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.xs, self.zs, self.vals)
+    }
+}
+
 impl<T> From<Vec<Evaluation<T>>> for ComponentForm<T> {
     fn from(v: Vec<Evaluation<T>>) -> Self {
         let len = v.len();
