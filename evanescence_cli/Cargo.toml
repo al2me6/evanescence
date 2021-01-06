@@ -9,3 +9,4 @@ anyhow = "1"
 argh = "0.1"
 evanescence_core = { path = "../evanescence_core" }
 pyo3 = "0.13"
+strum = { version = "0.20", features = ["derive"] }

@@ -1,9 +1,10 @@
 from typing import List
 
+import plotly.express as px
 import plotly.graph_objects as go
 
 
-def render(xs: List[float], ys: List[float], zs: List[float], vals: List[float]):
+def render_pointillist(xs: List[float], ys: List[float], zs: List[float], vals: List[float]) -> None:
     fig = go.Figure(data=go.Scatter3d(  # type: ignore
         x=xs,
         y=ys,
@@ -30,4 +31,9 @@ def render(xs: List[float], ys: List[float], zs: List[float], vals: List[float])
             zaxis_showspikes=False,
         )
     )
+    fig.show()
+
+
+def render_radial_pdf(rs: List[float], vals: List[float]) -> None:
+    fig = px.line(x=rs, y=vals)
     fig.show()
