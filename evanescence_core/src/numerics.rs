@@ -189,7 +189,7 @@ pub trait Evaluate {
 
     /// Evaluate `Self` on a grid of points evenly covering a parallelogram. This parallelogram
     /// is defined as follows:
-    /// 
+    ///
     /// * Its center is the origin;
     /// * The midpoint of its "top" edge is defined by `extent_horizontal`; and
     /// * The the midpoint of its "right" edge is defined by `extent_vertical`.
