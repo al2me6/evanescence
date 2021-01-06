@@ -110,8 +110,8 @@ pub trait Evaluate {
     /// Evaluate `Self` at a certain point, returning the value only.
     fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output;
 
-    /// Evaluate `Self` at a certain point, returning the point *and* the value in the form of an
-    /// [`Evaluation`], or a `(Point, Self::Output)`.
+    /// Evaluate `Self` at a certain point, returning the point *and* the value in the form of a
+    /// [`PointValue`], or a `(Point, Self::Output)`.
     #[allow(clippy::inline_always)]
     #[inline(always)]
     fn evaluate_at(params: Self::Parameters, point: &Point) -> PointValue<Self::Output> {

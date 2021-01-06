@@ -281,15 +281,19 @@ impl<T> ComponentForm<T> {
 
 /// Swizzling decomposition operators.
 impl<T> ComponentForm<T> {
+    /// Return the x and value components.
     pub fn into_xv(self) -> (Vec<f64>, Vec<T>) {
         (self.xs, self.vals)
     }
+    /// Return the x, y, and value components.
     pub fn into_xyv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
         (self.xs, self.ys, self.vals)
     }
+    /// Return the y, z, and value components.
     pub fn into_yzv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
         (self.ys, self.zs, self.vals)
     }
+    /// Return the x, z, and value components.
     pub fn into_xzv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
         (self.xs, self.zs, self.vals)
     }
