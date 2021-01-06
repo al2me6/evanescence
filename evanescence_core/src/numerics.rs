@@ -1,6 +1,6 @@
 use std::iter;
 
-use crate::geometry::{Evaluation, Point, Vec3};
+use crate::geometry::{Point, PointValue, Vec3};
 
 pub trait Multifactorial {
     fn multifactorial<const N: u8>(self) -> Self;
@@ -114,7 +114,7 @@ pub trait Evaluate {
     /// [`Evaluation`], or a `(Point, Self::Output)`.
     #[allow(clippy::inline_always)]
     #[inline(always)]
-    fn evaluate_at(params: Self::Parameters, point: &Point) -> Evaluation<Self::Output> {
+    fn evaluate_at(params: Self::Parameters, point: &Point) -> PointValue<Self::Output> {
         (*point, Self::evaluate(params, point))
     }
 
@@ -125,7 +125,7 @@ pub trait Evaluate {
         begin: Vec3,
         end: Vec3,
         num_points: usize,
-    ) -> Vec<Evaluation<Self::Output>> {
+    ) -> Vec<PointValue<Self::Output>> {
         Vec3::linspace(begin, end, num_points)
             .map(|pt| Self::evaluate_at(params, &pt.into()))
             .collect()
@@ -168,7 +168,7 @@ pub trait Evaluate {
         params: Self::Parameters,
         (extent_horizontal, num_pts_horizontal): (Vec3, usize),
         (extent_vertical, num_pts_vertical): (Vec3, usize),
-    ) -> Vec<Evaluation<Self::Output>> {
+    ) -> Vec<PointValue<Self::Output>> {
         let vertical_linspace = Vec3::linspace(extent_vertical, -extent_vertical, num_pts_vertical);
         let horizontal_linspace =
             Vec3::linspace(-extent_horizontal, extent_horizontal, num_pts_horizontal)

@@ -245,7 +245,7 @@ impl Point {
 }
 
 /// A point and the value of a function evaluated at that point.
-pub type Evaluation<T> = (Point, T);
+pub type PointValue<T> = (Point, T);
 
 /// Type storing a collection of evaluations, where values in each dimension (x, y, z, and value)
 /// is stored in a separate vector. Each index, across the four vectors, corresponds to
@@ -295,8 +295,8 @@ impl<T> ComponentForm<T> {
     }
 }
 
-impl<T> From<Vec<Evaluation<T>>> for ComponentForm<T> {
-    fn from(v: Vec<Evaluation<T>>) -> Self {
+impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
+    fn from(v: Vec<PointValue<T>>) -> Self {
         let len = v.len();
         let (mut xs, mut ys, mut zs, mut vals) = (
             Vec::with_capacity(len),

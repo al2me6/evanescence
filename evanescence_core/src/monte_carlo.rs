@@ -1,6 +1,6 @@
 use strum::{Display, EnumString};
 
-use crate::geometry::{ComponentForm, Evaluation, Point};
+use crate::geometry::{ComponentForm, Point, PointValue};
 use crate::orbital::{self, Orbital};
 use crate::utils::new_rng;
 
@@ -38,7 +38,7 @@ pub trait MonteCarlo: Orbital {
     fn estimate_maximum_value(
         params: Self::Parameters,
         num_samples: usize,
-    ) -> (f64, Vec<Evaluation<Self::Output>>) {
+    ) -> (f64, Vec<PointValue<Self::Output>>) {
         let evaluated_points: Vec<_> =
             Point::sample_from_ball_with_origin_iter(Self::estimate_radius(params))
                 .map(|pt| Self::evaluate_at(params, &pt))
