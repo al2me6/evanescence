@@ -1,7 +1,6 @@
 use strum::{Display, EnumString};
 
-use crate::geometry::Point;
-use crate::numerics::{ComponentForm, Evaluation};
+use crate::geometry::{ComponentForm, Evaluation, Point};
 use crate::orbital::{self, Orbital};
 use crate::utils::new_rng;
 

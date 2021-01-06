@@ -3,7 +3,7 @@ use std::fmt::{self, Display};
 use std::iter;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
-use getset::CopyGetters;
+use getset::{CopyGetters, Getters};
 
 use crate::utils::new_rng;
 
@@ -241,6 +241,76 @@ impl Point {
     /// ```
     pub fn sample_from_ball_with_origin_iter(radius: f64) -> impl Iterator<Item = Self> {
         iter::once(Self::ORIGIN_EPSILON).chain(Self::sample_from_ball_iter(radius))
+    }
+}
+
+/// A point and the value of a function evaluated at that point.
+pub type Evaluation<T> = (Point, T);
+
+/// Type storing a collection of evaluations, where values in each dimension (x, y, z, and value)
+/// is stored in a separate vector. Each index, across the four vectors, corresponds to
+/// a single point and its associated value.
+///
+/// It may be thought of as the transpose of `Vec<Evaluation<T>>`.
+///
+/// This type cannot be manually constructed and should instead be obtained from a
+/// [`Vec<Evaluation<T>>`] via conversion traits.
+///
+/// # Safety
+/// All four vectors must be the same length.
+#[derive(Debug, PartialEq, Getters)]
+#[getset(get = "pub")]
+pub struct ComponentForm<T> {
+    /// List of x-values.
+    xs: Vec<f64>,
+    /// List of y-values.
+    ys: Vec<f64>,
+    /// List of z-values.
+    zs: Vec<f64>,
+    /// List of wavefunction values evaluated at the corresponding (x, y, z) coordinate.
+    vals: Vec<T>,
+}
+
+impl<T> ComponentForm<T> {
+    /// Decompose `Self` into a four-tuple of its inner vectors,
+    /// in the order (x, y, z, value).
+    pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.xs, self.ys, self.zs, self.vals)
+    }
+}
+
+/// Swizzling decomposition operators.
+impl<T> ComponentForm<T> {
+    pub fn into_xv(self) -> (Vec<f64>, Vec<T>) {
+        (self.xs, self.vals)
+    }
+    pub fn into_xyv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.xs, self.ys, self.vals)
+    }
+    pub fn into_yzv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.ys, self.zs, self.vals)
+    }
+    pub fn into_xzv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
+        (self.xs, self.zs, self.vals)
+    }
+}
+
+impl<T> From<Vec<Evaluation<T>>> for ComponentForm<T> {
+    fn from(v: Vec<Evaluation<T>>) -> Self {
+        let len = v.len();
+        let (mut xs, mut ys, mut zs, mut vals) = (
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
+            Vec::with_capacity(len),
+        );
+        v.into_iter().for_each(|(pt, val)| {
+            xs.push(pt.x());
+            ys.push(pt.y());
+            zs.push(pt.z());
+            vals.push(val);
+        });
+        ComponentForm { xs, ys, zs, vals }
     }
 }
 

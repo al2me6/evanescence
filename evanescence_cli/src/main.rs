@@ -2,9 +2,9 @@ use std::time::Instant;
 
 use anyhow::{Context, Result};
 use argh::FromArgs;
-use evanescence_core::geometry::Vec3;
+use evanescence_core::geometry::{ComponentForm, Vec3};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
-use evanescence_core::numerics::{ComponentForm, Evaluate};
+use evanescence_core::numerics::Evaluate;
 use evanescence_core::orbital::{self, Orbital, QuantumNumbers, NL};
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
