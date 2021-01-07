@@ -1,7 +1,7 @@
 use getset::CopyGetters;
 use num_complex::Complex64;
 
-use crate::geometry::{ComponentForm, Point, Vec3};
+use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
 use crate::numerics::Evaluate;
 use wavefunctions::{
     Radial, RadialProbability, RadialProbabilityDensity, RealSphericalHarmonic, SphericalHarmonic,
@@ -129,13 +129,22 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
             RadialPlot::Probability => RadialProbability::evaluate_on_line_segment,
             RadialPlot::ProbabilityDensity => RadialProbabilityDensity::evaluate_on_line_segment,
         };
-        ComponentForm::from(evaluator(
+        let (xs, _, _, vals) = ComponentForm::from(evaluator(
             qn.into(),
             Vec3::ZERO,
-            Vec3::I * Self::estimate_radius(qn),
+            Vec3::I * Self::estimate_radius(qn), // We use the x-axis for simplicity; this function is radially symmetrical.
             num_points,
         ))
-        .into_xv()
+        .into_components();
+        (xs, vals)
+    }
+
+    fn plot_cross_section(
+        qn: QuantumNumbers,
+        plane: Plane,
+        num_points: usize,
+    ) -> GridValues<Self::Output> {
+        Self::evaluate_on_plane(qn, plane, Self::estimate_radius(qn), num_points)
     }
 }
 

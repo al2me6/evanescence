@@ -8,10 +8,13 @@ use strum::Display;
 
 use crate::utils::new_rng;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
 pub struct Vec3 {
+    #[getset(get_copy = "pub with_prefix")] // The `with_prefix` attribute doesn't appear to work on the entire struct.
     pub x: f64,
+    #[getset(get_copy = "pub with_prefix")]
     pub y: f64,
+    #[getset(get_copy = "pub with_prefix")]
     pub z: f64,
 }
 
@@ -307,26 +310,6 @@ impl<T> ComponentForm<T> {
     /// in the order (x, y, z, value).
     pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<T>) {
         (self.xs, self.ys, self.zs, self.vals)
-    }
-}
-
-/// Swizzling decomposition operators.
-impl<T> ComponentForm<T> {
-    /// Return the x and value components.
-    pub fn into_xv(self) -> (Vec<f64>, Vec<T>) {
-        (self.xs, self.vals)
-    }
-    /// Return the x, y, and value components.
-    pub fn into_xyv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
-        (self.xs, self.ys, self.vals)
-    }
-    /// Return the y, z, and value components.
-    pub fn into_yzv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
-        (self.ys, self.zs, self.vals)
-    }
-    /// Return the x, z, and value components.
-    pub fn into_xzv(self) -> (Vec<f64>, Vec<f64>, Vec<T>) {
-        (self.xs, self.zs, self.vals)
     }
 }
 

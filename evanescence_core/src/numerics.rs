@@ -1,6 +1,4 @@
-use std::iter;
-
-use crate::geometry::{Point, PointValue, Vec3};
+use crate::geometry::{GridValues, Plane, Point, PointValue, Vec3};
 
 pub trait Multifactorial {
     fn multifactorial<const N: u8>(self) -> Self;
@@ -133,59 +131,50 @@ pub trait Evaluate {
             .collect()
     }
 
-    /// Evaluate `Self` on a grid of points evenly covering a parallelogram. This parallelogram
-    /// is defined as follows:
-    ///
-    /// * Its center is the origin;
-    /// * The midpoint of its "top" edge is defined by `extent_horizontal`; and
-    /// * The the midpoint of its "right" edge is defined by `extent_vertical`.
-    ///
-    /// Consider calling `evaluate_on_plane` with the following arguments:
-    ///
-    /// ```ignore
-    /// let points = SomeEvaluator::evaluate_on_plane(
-    ///     some_params,
-    ///     (X, 3),
-    ///     (Y, 5),
-    /// );
-    /// ```
-    ///
-    /// Then, these are the points where evaluation will occur (with order annotated, and where
-    /// `O` indicates the origin):
-    ///
-    /// ```text
-    ///           1      2      3
-    ///          x------X------x
-    ///         /             /
-    ///        x 4    x 5    x 6
-    ///       /             /
-    ///      x 7    O 8    Y 9
-    ///     /             /
-    ///    x 10   x 11   x 12
-    ///   /             /
-    ///  x------x------x
-    /// 13     14     15
-    /// ```
+    /// Evaluate `Self` on a [`Plane`], producing a [grid](crate::geometry::GridValues) of evenly
+    /// spaced values. Specifically, the grid is a square centered at the origin with side
+    /// length of 2 × `extent`, and `num_points` are sampled *in each dimension*.
     fn evaluate_on_plane(
         params: Self::Parameters,
-        (extent_horizontal, num_pts_horizontal): (Vec3, usize),
-        (extent_vertical, num_pts_vertical): (Vec3, usize),
-    ) -> Vec<PointValue<Self::Output>> {
-        let vertical_linspace = Vec3::linspace(extent_vertical, -extent_vertical, num_pts_vertical);
-        let horizontal_linspace =
-            Vec3::linspace(-extent_horizontal, extent_horizontal, num_pts_horizontal)
-                .collect::<Vec<_>>();
-        let horizontal_linspace_copies =
-            iter::repeat(horizontal_linspace).take(vertical_linspace.len());
-        vertical_linspace
-            .zip(horizontal_linspace_copies)
-            .flat_map(|(vertical_pt, horizontal_linspace)| {
-                horizontal_linspace
-                    .into_iter()
-                    .map(move |horizontal_pt| horizontal_pt + vertical_pt)
-            })
-            .map(|pt| Self::evaluate_at(params, &pt.into()))
-            .collect()
+        plane: Plane,
+        extent: f64,
+        num_points: usize,
+    ) -> GridValues<Self::Output> {
+        type ComponentGetter = fn(&Vec3) -> f64;
+        // Functions to extract the correct component of the `Vec3`.
+        let extract_component: (ComponentGetter, ComponentGetter) = match plane {
+            Plane::XY => (Vec3::get_x, Vec3::get_y),
+            Plane::YZ => (Vec3::get_y, Vec3::get_z),
+            Plane::ZX => (Vec3::get_z, Vec3::get_x),
+        };
+
+        // The midpoints of the grid's "right" and "top" edges.
+        let midpoints = {
+            let basis = plane.basis_vectors();
+            (basis.0 * extent, basis.1 * extent)
+        };
+
+        // Points linearly dependent on `e_0`, i.e., the center row.
+        let points_in_row: Vec<_> = Vec3::linspace(-midpoints.0, midpoints.0, num_points).collect();
+        // Points linearly dependent on `e_1`, i.e., the center column.
+        let points_in_col: Vec<_> = Vec3::linspace(-midpoints.1, midpoints.1, num_points).collect();
+
+        let mut vals = Vec::with_capacity(num_points);
+
+        for &col_pt in points_in_col.iter() {
+            let mut row = Vec::with_capacity(num_points);
+            for &row_pt in points_in_row.iter() {
+                row.push(Self::evaluate(params, &(row_pt + col_pt).into()));
+            }
+            vals.push(row);
+        }
+
+        GridValues::new(
+            plane,
+            points_in_row.iter().map(extract_component.0).collect(),
+            points_in_col.iter().map(extract_component.1).collect(),
+            vals,
+        )
     }
 }
 
