@@ -21,6 +21,14 @@ pub enum Quality {
     Extreme = 250_000,
 }
 
+impl Quality {
+    #[allow(clippy::integer_division)]
+    #[inline]
+    pub fn for_line(self) -> usize {
+        self as usize / 100
+    }
+}
+
 /// Perform a Monte Carlo simulation of an orbital, generating a collection of points
 /// whose distribution corresponds to the geometry of said orbital.
 pub trait MonteCarlo: Orbital {

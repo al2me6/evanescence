@@ -126,7 +126,7 @@ fn main() -> Result<()> {
         Mode::Radial | Mode::RadialProbability | Mode::RadialProbabilityDensity => {
             run_simulation(
                 || {
-                    let num_points = quality as usize / 100;
+                    let num_points = quality.for_line();
                     (
                         num_points,
                         orbital::Real::plot_radial(qn, mode.try_into().unwrap(), num_points),
