@@ -27,6 +27,16 @@ impl Quality {
     pub fn for_line(self) -> usize {
         self as usize / 100
     }
+
+    #[allow(
+        clippy::cast_possible_truncation,
+        clippy::integer_division,
+        clippy::cast_sign_loss
+    )]
+    #[inline]
+    pub fn for_grid(self) -> usize {
+        (self as usize as f32).sqrt() as usize / 2
+    }
 }
 
 /// Perform a Monte Carlo simulation of an orbital, generating a collection of points

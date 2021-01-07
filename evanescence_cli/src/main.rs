@@ -3,6 +3,7 @@ use std::time::Instant;
 
 use anyhow::{anyhow, Context, Result};
 use argh::FromArgs;
+use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::orbital::{self, Orbital, QuantumNumbers, RadialPlot};
 use pyo3::prelude::*;
@@ -15,17 +16,33 @@ enum Mode {
     Radial,
     RadialProbability,
     RadialProbabilityDensity,
+    CrossSectionXY,
+    CrossSectionYZ,
+    CrossSectionZX,
 }
 
-impl TryInto<orbital::RadialPlot> for Mode {
+impl TryInto<RadialPlot> for Mode {
     type Error = anyhow::Error;
 
-    fn try_into(self) -> Result<orbital::RadialPlot, Self::Error> {
+    fn try_into(self) -> Result<RadialPlot, Self::Error> {
         match self {
             Self::Radial => Ok(RadialPlot::Wavefunction),
             Self::RadialProbability => Ok(RadialPlot::Probability),
             Self::RadialProbabilityDensity => Ok(RadialPlot::ProbabilityDensity),
             _ => Err(anyhow!("Cannot plot {} as a radial plot.", self)),
+        }
+    }
+}
+
+impl TryInto<Plane> for Mode {
+    type Error = anyhow::Error;
+
+    fn try_into(self) -> Result<Plane, Self::Error> {
+        match self {
+            Self::CrossSectionXY => Ok(Plane::XY),
+            Self::CrossSectionYZ => Ok(Plane::YZ),
+            Self::CrossSectionZX => Ok(Plane::ZX),
+            _ => Err(anyhow!("Cannot plot {} as a cross-section plot.", self)),
         }
     }
 }
@@ -42,7 +59,7 @@ struct Args {
     m: i32,
     #[argh(option, short = 'm', default = "Mode::Pointillist")]
     /// select the visualization computed: Pointillist (default), Radial, RadialProbability,
-    /// RadialProbabilityDensity,
+    /// RadialProbabilityDensity, CrossSectionXY, CrossSectionYZ, CrossSectionZX,
     mode: Mode,
     #[argh(option, short = 'q', default = "Quality::High")]
     /// render quality: Minimum, Low, Medium, High (default), VeryHigh, or Extreme
@@ -133,8 +150,37 @@ fn main() -> Result<()> {
                     )
                 },
                 skip_render,
+                |(xs, ys)| {
+                    renderer.call1("render_1d", (xs, "r", ys, mode.to_string()))?;
+                    Ok(())
+                },
+            )?;
+        }
+        Mode::CrossSectionXY | Mode::CrossSectionYZ | Mode::CrossSectionZX => {
+            run_simulation(
+                || {
+                    let num_points = quality.for_grid();
+                    (
+                        num_points * num_points, // We calculate an entire grid.
+                        orbital::Real::plot_cross_section(qn, mode.try_into().unwrap(), num_points),
+                    )
+                },
+                skip_render,
                 |sim_result| {
-                    renderer.call1("render_1d", sim_result)?;
+                    let (x_name, y_name) = sim_result.plane().axes_names();
+                    let (xs, ys, vals) = sim_result.into_components();
+                    let mut min = 0_f64;
+                    let mut max = 0_f64;
+                    vals.iter().for_each(|row| {
+                        row.iter().for_each(|&val| {
+                            min = min.min(val);
+                            max = max.max(val);
+                        })
+                    });
+                    renderer.call1(
+                        "render_2d",
+                        (xs, x_name, ys, y_name, vals, "Wavefunction Value", min, max),
+                    )?;
                     Ok(())
                 },
             )?;
