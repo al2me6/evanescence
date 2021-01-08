@@ -4,11 +4,51 @@
 
 # Project Evanescence
 
-*An upcoming exploration in the visualization of hydrogenic orbitals.*
+*An exploration in the visualization of hydrogenic orbitals.*
 
 </div>
 
-Auto-ran benchmarks can be viewed [here](https://al2me6.github.io/evanescence/dev/bench).
+Continuous benchmarks can be viewed [here](https://al2me6.github.io/evanescence/dev/bench).
+
+## Features
+
+This project is very much a work-in-progress. Currently, the following features are implemented:
+
+* Computation of arbitrary real and complex hydrogen orbitals
+* Computation of radial wavefunction, probability, and probability density values
+* Sampling of values on a line or plane
+* A variant of the "pointillist" visualization algorithm presented in [Tully et al. 2013](https://doi.org/10.1021/ed300393s)
+
+## CLI
+
+The CLI can be used to generate plots for preview/debugging purposes. Do note that it uses the [`plotly` Python library](https://pypi.org/project/plotly/) and [`pyo3`](https://crates.io/crates/pyo3) for plotting, meaning that a recent version of Python 3 and its development headers need to be installed.
+
+```terminal
+$ cargo run --quiet --release -- --help
+Usage: evanescence_cli <n> <l> <m> [-m <mode>] [-q <quality>] [--skip-render]
+
+Simple CLI for evanescence_core, using the Plotly Python library for plotting.
+Note: pass two dashes before arguments for negative values: `evanescence_cli -- 4 2 -1`.
+
+Options:
+  -m, --mode        select the visualization computed: Pointillist (default),
+                    Radial, RadialProbability, RadialProbabilityDensity,
+                    CrossSectionXY, CrossSectionYZ, CrossSectionZX,
+  -q, --quality     render quality: Minimum, Low, Medium, High (default),
+                    VeryHigh, or Extreme
+  --skip-render     skip rendering (effectively a benchmark for computation
+                    speed)
+  --help            display usage information
+```
+
+For example, to render an xy-plane cross section of the 4d<sub>xy</sub> orbital at VeryHigh quality, run:
+
+```terminal
+$ cargo run --quiet --release -- -q VeryHigh -m CrossSectionXY -- 4 2 -2
+Rendering CrossSectionXY visualization for real orbital 4,2,-2 at VeryHigh quality...
+Computed 24964 points in 0.002s.
+Rendered in 0.868s.
+```
 
 ## License
 
