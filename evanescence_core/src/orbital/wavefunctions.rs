@@ -52,7 +52,7 @@ impl Evaluate for RadialProbability {
 
     #[inline]
     fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output {
-        #[allow(non_snake_case)]
+        #[allow(non_snake_case)] // Mathematical convention.
         let R = Radial::evaluate(params, point);
         R * R
     }
@@ -68,7 +68,7 @@ impl Evaluate for RadialProbabilityDistribution {
     #[inline]
     fn evaluate(params: Self::Parameters, pt: &Point) -> Self::Output {
         let r = pt.r();
-        #[allow(non_snake_case)]
+        #[allow(non_snake_case)] // Mathematical convention.
         let R = Radial::evaluate(params, pt);
         r * r * R * R
     }
