@@ -1,3 +1,9 @@
+//! Implementations of real and complex hydrogen-atom orbitals. Access to radial and angular
+//! components, as well as related functions (ex. radial probability and probability density)
+//! are available through the [`wavefunctions`] module.
+//!
+//! Types for working with and validating quantum numbers are also provided.
+
 use getset::CopyGetters;
 use num_complex::Complex64;
 
@@ -9,15 +15,24 @@ use wavefunctions::{
 
 pub mod wavefunctions;
 
+/// Type representing the quantum numbers `n`, `l`, and `m`.
+///
+/// # Safety
+/// `QuantumNumbers` must satisfy that `n > l` and `l >= |m|`.
 #[derive(Clone, Copy, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct QuantumNumbers {
+    /// The principal quantum number.
     n: u32,
+    /// The azimuthal quantum number.
     l: u32,
+    /// The magnetic quantum number.
     m: i32,
 }
 
 impl QuantumNumbers {
+    /// Create a new `QuantumNumbers`, verifying that the passed values are valid. Returns `None`
+    /// if that is not the case.
     pub const fn new(n: u32, l: u32, m: i32) -> Option<Self> {
         if n > l && l >= m.abs() as u32 {
             Some(Self { n, l, m })
@@ -26,6 +41,7 @@ impl QuantumNumbers {
         }
     }
 
+    /// List all possible quantum number sets with `n` less than or equal to the value passed.
     pub fn enumerate_up_to_n(n: u32) -> impl Iterator<Item = Self> {
         // n = 1, 2, 3, ...
         (1..=n).flat_map(|n| {
@@ -37,6 +53,8 @@ impl QuantumNumbers {
         })
     }
 
+    /// List all possible quantum number sets with both `n` and `l` less than or equal to
+    /// the values passed.
     pub fn enumerate_up_to_n_l(n: u32, l: u32) -> impl Iterator<Item = Self> {
         // n = 1, 2, 3, ...
         (1..=n).flat_map(move |n| {
@@ -55,14 +73,22 @@ impl std::fmt::Display for QuantumNumbers {
     }
 }
 
+/// Type representing the quantum numbers `n` and `l`.
+///
+/// # Safety
+/// `NL` must satisfy that `n > l`.
 #[derive(Clone, Copy, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct NL {
+    /// The principal quantum number.
     n: u32,
+    /// The azimuthal quantum number.
     l: u32,
 }
 
 impl NL {
+    /// Create a new `NL`, verifying that the passed values are valid. Returns `None`
+    /// if that is not the case.
     pub const fn new(n: u32, l: u32) -> Option<Self> {
         if n > l {
             Some(Self { n, l })
@@ -78,14 +104,22 @@ impl From<QuantumNumbers> for NL {
     }
 }
 
+/// Type representing the quantum numbers `l` and `m`.
+///
+/// # Safety
+/// `LM` must satisfy that `l >= |m|`.
 #[derive(Clone, Copy, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct LM {
+    /// The azimuthal quantum number.
     l: u32,
+    /// The magnetic quantum number.
     m: i32,
 }
 
 impl LM {
+    /// Create a new `LM`, verifying that the passed values are valid. Returns `None`
+    /// if that is not the case.
     pub const fn new(l: u32, m: i32) -> Option<Self> {
         if l >= m.abs() as u32 {
             Some(Self { l, m })
@@ -101,6 +135,7 @@ impl From<QuantumNumbers> for LM {
     }
 }
 
+/// A radially symmetrical property associated with an orbital.
 #[non_exhaustive]
 pub enum RadialPlot {
     Wavefunction,
@@ -108,6 +143,7 @@ pub enum RadialPlot {
     ProbabilityDensity,
 }
 
+/// Trait representing a hydrogenic orbital.
 pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     /// An empirically derived heuristic for estimating the radius of a specific orbital
     /// (in the sense that the vast majority of probability density is confined within a sphere
@@ -119,6 +155,13 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
         n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
     }
 
+    /// Compute a plot of a property of an orbital's radial wavefunction (see [`RadialPlot`]).
+    ///
+    /// The property will be evaluated at `num_points` points evenly spaced between the origin
+    /// and the maximum extent of the orbital, which is automatically estimated.
+    ///
+    /// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
+    /// and the second containing the values associated with the radial points.
     fn plot_radial(
         qn: QuantumNumbers,
         variant: RadialPlot,
@@ -139,6 +182,12 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
         (xs, vals)
     }
 
+    /// Compute a plot of the cross section of an orbital along a given `plane`.
+    ///
+    /// `num_points` points will be evaluated in a grid centered at the origin and covering
+    /// the extent of the orbital, which is automatically estimated.
+    ///
+    /// For more information, see the documentation on [`GridValues`].
     fn plot_cross_section(
         qn: QuantumNumbers,
         plane: Plane,
@@ -148,6 +197,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     }
 }
 
+/// Implementation of the real hydrogenic orbitals.
 pub struct Real;
 
 impl Evaluate for Real {
@@ -162,6 +212,7 @@ impl Evaluate for Real {
 
 impl Orbital for Real {}
 
+/// Implementation of the complex hydrogenic orbitals.
 pub struct Complex;
 
 impl Evaluate for Complex {
