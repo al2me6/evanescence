@@ -10,7 +10,8 @@ use num_complex::Complex32;
 use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
 use crate::numerics::Evaluate;
 use wavefunctions::{
-    Radial, RadialProbability, RadialProbabilityDensity, RealSphericalHarmonic, SphericalHarmonic,
+    Radial, RadialProbability, RadialProbabilityDistribution, RealSphericalHarmonic,
+    SphericalHarmonic,
 };
 
 pub mod wavefunctions;
@@ -140,7 +141,7 @@ impl From<QuantumNumbers> for LM {
 pub enum RadialPlot {
     Wavefunction,
     Probability,
-    ProbabilityDensity,
+    ProbabilityDistribution,
 }
 
 /// Trait representing a hydrogenic orbital.
@@ -170,7 +171,9 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
         let evaluator = match variant {
             RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
             RadialPlot::Probability => RadialProbability::evaluate_on_line_segment,
-            RadialPlot::ProbabilityDensity => RadialProbabilityDensity::evaluate_on_line_segment,
+            RadialPlot::ProbabilityDistribution => {
+                RadialProbabilityDistribution::evaluate_on_line_segment
+            }
         };
         let (xs, _, _, vals) = ComponentForm::from(evaluator(
             qn.into(),

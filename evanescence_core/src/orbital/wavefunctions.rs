@@ -54,7 +54,8 @@ impl Evaluate for RadialProbability {
     }
 }
 
-pub struct RadialProbabilityDensity;
+
+pub struct RadialProbabilityDistribution;
 
 impl Evaluate for RadialProbabilityDensity {
     type Output = f32;
