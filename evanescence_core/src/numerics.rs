@@ -1,5 +1,8 @@
+//! Functions and traits relating to numerical evaluation.
+
 use crate::geometry::{GridValues, Plane, Point, PointValue, Vec3};
 
+/// Compute the `N`-th [multifactorial](https://en.wikipedia.org/wiki/Factorial#Multifactorials).
 pub trait Multifactorial {
     fn multifactorial<const N: u8>(self) -> Self;
 }
@@ -27,6 +30,8 @@ macro_rules! impl_multifactorial {
 impl_multifactorial!(u8, u16, u32, u64, usize);
 
 pub mod orthogonal_polynomials {
+    //! Implementations of the the associated Legendre functions and the associated Laguerre
+    //! polynomials.
     use super::Multifactorial;
 
     /// The associated Laguerre polynomials, `L_{q}^{p}(x)`.
@@ -103,6 +108,9 @@ pub mod orthogonal_polynomials {
     }
 }
 
+/// Trait for mathematical functions that can be evaluated at a point in `R^3`.
+///
+/// Utilities are provided for sampling the function on a line or plane.
 pub trait Evaluate {
     type Output: Copy;
     type Parameters: Copy;
@@ -178,6 +186,7 @@ pub trait Evaluate {
     }
 }
 
+/// Verify that two iterables containing float values are approximately equal.
 #[macro_export]
 macro_rules! assert_iterable_relative_eq {
     ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)*) => {{

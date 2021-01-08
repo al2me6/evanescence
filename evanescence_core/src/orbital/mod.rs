@@ -1,6 +1,7 @@
-//! Implementations of real and complex hydrogen-atom orbitals. Access to radial and angular
-//! components, as well as related functions (ex. radial probability and probability density)
-//! are available through the [`wavefunctions`] module.
+//! Implementations of real and complex hydrogen-atom orbitals.
+//!
+//! Access to radial and angular components, as well as related functions (ex. radial probability
+//! and probability density) are available through the [`wavefunctions`] module.
 //!
 //! Types for working with and validating quantum numbers are also provided.
 

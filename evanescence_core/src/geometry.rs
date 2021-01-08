@@ -1,3 +1,5 @@
+//! Types for working with and storing points.
+
 use std::f32::consts::PI;
 use std::fmt::{self, Display};
 use std::iter;
@@ -13,14 +15,18 @@ use crate::utils::new_rng;
 pub struct Vec3 {
     // The `with_prefix` attribute doesn't appear to work on the entire struct.
     #[getset(get_copy = "pub with_prefix")]
+    /// The component in the î direction.
     pub x: f32,
     #[getset(get_copy = "pub with_prefix")]
+    /// The component in the ĵ direction.
     pub y: f32,
     #[getset(get_copy = "pub with_prefix")]
+    /// The component in the k̂ direction.
     pub z: f32,
 }
 
 impl Vec3 {
+    /// Construct a new `Vec3` with value xî + yĵ + zk̂.
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
     }
@@ -130,7 +136,7 @@ impl From<Vec3> for Point {
     }
 }
 
-/// A point in 3D space.
+/// A point in `R^3`.
 ///
 /// Note that we use the physics convention of (r, theta, phi): theta is the inclination
 /// and phi is the azimuth.
@@ -162,7 +168,7 @@ impl Display for Point {
 }
 
 impl Point {
-    /// Construct a new Point at Cartesian position (x, y, z).
+    /// Construct a new `Point` at Cartesian position (x, y, z).
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         let r = (x * x + y * y + z * z).sqrt();
         Self {
@@ -182,7 +188,7 @@ impl Point {
         }
     }
 
-    /// Construct a new Point at spherical position (r, theta, phi).
+    /// Construct a new `Point` at spherical position (r, theta, phi).
     pub fn new_spherical(r: f32, theta: f32, phi: f32) -> Self {
         let sin_theta = theta.sin();
         let cos_theta = theta.cos();
