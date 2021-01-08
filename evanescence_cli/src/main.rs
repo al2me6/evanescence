@@ -169,8 +169,8 @@ fn main() -> Result<()> {
                 |sim_result| {
                     let (x_name, y_name) = sim_result.plane().axes_names();
                     let (xs, ys, vals) = sim_result.into_components();
-                    let mut min = 0_f64;
-                    let mut max = 0_f64;
+                    let mut min = 0_f32;
+                    let mut max = 0_f32;
                     vals.iter().for_each(|row| {
                         row.iter().for_each(|&val| {
                             min = min.min(val);

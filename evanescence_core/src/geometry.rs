@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 use std::fmt::{self, Display};
 use std::iter;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
@@ -11,16 +11,17 @@ use crate::utils::new_rng;
 /// A vector (the mathematical kind) in `R^3`.
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
 pub struct Vec3 {
-    #[getset(get_copy = "pub with_prefix")] // The `with_prefix` attribute doesn't appear to work on the entire struct.
-    pub x: f64,
+    // The `with_prefix` attribute doesn't appear to work on the entire struct.
     #[getset(get_copy = "pub with_prefix")]
-    pub y: f64,
+    pub x: f32,
     #[getset(get_copy = "pub with_prefix")]
-    pub z: f64,
+    pub y: f32,
+    #[getset(get_copy = "pub with_prefix")]
+    pub z: f32,
 }
 
 impl Vec3 {
-    pub const fn new(x: f64, y: f64, z: f64) -> Self {
+    pub const fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
     }
 
@@ -30,7 +31,7 @@ impl Vec3 {
         end: Self,
         num_points: usize,
     ) -> impl ExactSizeIterator<Item = Self> {
-        let step = (end - begin) / (num_points as f64 - 1.0);
+        let step = (end - begin) / (num_points as f32 - 1.0);
         let mut acc = begin;
         (0..num_points).map(move |_| {
             let next = acc;
@@ -93,10 +94,10 @@ impl Neg for Vec3 {
     }
 }
 
-impl Mul<f64> for Vec3 {
+impl Mul<f32> for Vec3 {
     type Output = Self;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: f32) -> Self::Output {
         Self {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -105,10 +106,10 @@ impl Mul<f64> for Vec3 {
     }
 }
 
-impl Div<f64> for Vec3 {
+impl Div<f32> for Vec3 {
     type Output = Self;
 
-    fn div(self, rhs: f64) -> Self::Output {
+    fn div(self, rhs: f32) -> Self::Output {
         Self {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -141,17 +142,17 @@ impl From<Vec3> for Point {
 #[getset(get_copy = "pub")]
 pub struct Point {
     /// Cartesian x.
-    x: f64,
+    x: f32,
     /// Cartesian y.
-    y: f64,
+    y: f32,
     /// Cartesian z.
-    z: f64,
+    z: f32,
     /// Spherical radius.
-    r: f64,
+    r: f32,
     /// Cosine of spherical longitude.
-    cos_theta: f64,
+    cos_theta: f32,
     /// Spherical azimuth.
-    phi: f64,
+    phi: f32,
 }
 
 impl Display for Point {
@@ -162,7 +163,7 @@ impl Display for Point {
 
 impl Point {
     /// Construct a new Point at Cartesian position (x, y, z).
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
         let r = (x * x + y * y + z * z).sqrt();
         Self {
             x,
@@ -182,7 +183,7 @@ impl Point {
     }
 
     /// Construct a new Point at spherical position (r, theta, phi).
-    pub fn new_spherical(r: f64, theta: f64, phi: f64) -> Self {
+    pub fn new_spherical(r: f32, theta: f32, phi: f32) -> Self {
         let sin_theta = theta.sin();
         let cos_theta = theta.cos();
         Self {
@@ -205,12 +206,12 @@ impl Point {
         phi: 0.0,
     };
 
-    /// The origin, but offset in z by [`f64::EPSILON`] for when division-by-zero needs to be avoided.
+    /// The origin, but offset in z by [`f32::EPSILON`] for when division-by-zero needs to be avoided.
     pub const ORIGIN_EPSILON: Point = Point {
         x: 0.0,
         y: 0.0,
-        z: f64::EPSILON,
-        r: f64::EPSILON,
+        z: f32::EPSILON,
+        r: f32::EPSILON,
         cos_theta: 1.0,
         phi: 0.0,
     };
@@ -219,7 +220,7 @@ impl Point {
     ///
     /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
     /// specifically method 16.
-    pub fn sample_from_ball_iter(radius: f64) -> impl Iterator<Item = Self> {
+    pub fn sample_from_ball_iter(radius: f32) -> impl Iterator<Item = Self> {
         let mut rng = new_rng();
         iter::repeat_with(move || {
             // For an explanation of taking the cube root of the random value, see
@@ -249,7 +250,7 @@ impl Point {
     ///     Point::sample_from_ball_with_origin_iter(1.0).next()
     /// );
     /// ```
-    pub fn sample_from_ball_with_origin_iter(radius: f64) -> impl Iterator<Item = Self> {
+    pub fn sample_from_ball_with_origin_iter(radius: f32) -> impl Iterator<Item = Self> {
         iter::once(Self::ORIGIN_EPSILON).chain(Self::sample_from_ball_iter(radius))
     }
 }
@@ -302,11 +303,11 @@ pub type PointValue<T> = (Point, T);
 #[getset(get = "pub")]
 pub struct ComponentForm<T> {
     /// List of x values.
-    xs: Vec<f64>,
+    xs: Vec<f32>,
     /// List of y values.
-    ys: Vec<f64>,
+    ys: Vec<f32>,
     /// List of z values.
-    zs: Vec<f64>,
+    zs: Vec<f32>,
     /// List of values evaluated at the corresponding (x, y, z) coordinate.
     vals: Vec<T>,
 }
@@ -314,7 +315,7 @@ pub struct ComponentForm<T> {
 impl<T> ComponentForm<T> {
     /// Decompose `self` into a four-tuple of its inner vectors,
     /// in the order (x, y, z, value).
-    pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<T>) {
+    pub fn into_components(self) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<T>) {
         (self.xs, self.ys, self.zs, self.vals)
     }
 }
@@ -389,9 +390,9 @@ pub struct GridValues<T> {
     /// The plane on which the grid is situated.
     plane: Plane,
     /// The "horizontal" coordinate of each column.
-    col_coords: Vec<f64>,
+    col_coords: Vec<f32>,
     /// The "vertical" coordinate of each row.
-    row_coords: Vec<f64>,
+    row_coords: Vec<f32>,
     /// The values associated with the grid, stored as a column of rows.
     vals: Vec<Vec<T>>,
 }
@@ -404,7 +405,7 @@ impl<T> GridValues<T> {
     ///
     /// ```should_panic
     /// # use evanescence_core::geometry::{Plane, GridValues};
-    /// GridValues::<f64>::new(
+    /// GridValues::<f32>::new(
     ///     Plane::XY,
     ///     vec![0.0, 1.0], // There are two columns.
     ///     vec![0.0, 1.0, 2.0], // There are three rows.
@@ -417,8 +418,8 @@ impl<T> GridValues<T> {
     /// ```
     pub fn new(
         plane: Plane,
-        col_coords: Vec<f64>,
-        row_coords: Vec<f64>,
+        col_coords: Vec<f32>,
+        row_coords: Vec<f32>,
         vals: Vec<Vec<T>>,
     ) -> Self {
         // SAFETY: Verify that the passed `Vec`s have the correct shape.
@@ -435,7 +436,7 @@ impl<T> GridValues<T> {
 
     /// Decompose `self` into a 3-tuple of column coordinates ("x coordinates"), row coordinates
     /// ("y coordinates"), and values, in that order.
-    pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<Vec<T>>) {
+    pub fn into_components(self) -> (Vec<f32>, Vec<f32>, Vec<Vec<T>>) {
         (self.col_coords, self.row_coords, self.vals)
     }
 }
@@ -451,7 +452,7 @@ mod tests {
     /// the distribution produced.
     #[test]
     fn test_point_rng_max_radius() {
-        let sampling_radius = 2_f64;
+        let sampling_radius = 2_f32;
         Point::sample_from_ball_iter(sampling_radius)
             .take(10_000)
             .for_each(|pt| assert!(pt.r < sampling_radius));

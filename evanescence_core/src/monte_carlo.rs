@@ -47,7 +47,7 @@ pub trait MonteCarlo: Orbital {
     const MINIMUM_ESTIMATION_SAMPLES: usize = 50_000;
 
     /// Process values such that the results can be used to compute a maximum.
-    fn value_comparator(value: Self::Output) -> f64;
+    fn value_comparator(value: Self::Output) -> f32;
 
     /// Estimate the maximum value attained by an orbital by brute-force sampling,
     /// using [`MonteCarlo::value_comparator`] as the metric by which values are compared.
@@ -56,7 +56,7 @@ pub trait MonteCarlo: Orbital {
     fn estimate_maximum_value(
         params: Self::Parameters,
         num_samples: usize,
-    ) -> (f64, Vec<PointValue<Self::Output>>) {
+    ) -> (f32, Vec<PointValue<Self::Output>>) {
         let evaluated_points: Vec<_> =
             Point::sample_from_ball_with_origin_iter(Self::estimate_radius(params))
                 .map(|pt| Self::evaluate_at(params, &pt))
@@ -65,7 +65,7 @@ pub trait MonteCarlo: Orbital {
         let max_value = evaluated_points
             .iter()
             .map(|(_, val)| Self::value_comparator(*val))
-            .fold(0.0, f64::max);
+            .fold(0.0, f32::max);
         (max_value, evaluated_points)
     }
 
@@ -99,7 +99,7 @@ pub trait MonteCarlo: Orbital {
 
 impl MonteCarlo for orbital::Real {
     #[inline]
-    fn value_comparator(val: f64) -> f64 {
+    fn value_comparator(val: f32) -> f32 {
         val.abs()
     }
 }

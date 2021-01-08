@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
-use std::f64::consts::{PI, SQRT_2};
+use std::f32::consts::{PI, SQRT_2};
 
-use num_complex::Complex64;
+use num_complex::Complex32;
 
 use crate::{
     geometry::Point,
@@ -18,21 +18,21 @@ impl Radial {
     /// Calculate the radial wavefunction normalization factor,
     /// `√( (2/n)^3 * (n-l-1)! / (2n * (n+l)!) )`.
     #[inline]
-    fn normalization_factor(n: u32, l: u32) -> f64 {
+    fn normalization_factor(n: u32, l: u32) -> f32 {
         // (n-l-1)! / (n+l)! = 1 / [(n-l) * (n-l+1) * ... * (n+l-1) * (n+l)].
-        let factorial_factor = ((n - l)..=(n + l)).product::<u32>() as f64;
+        let factorial_factor = ((n - l)..=(n + l)).product::<u32>() as f32;
         // Where we've taken `(2/n)^3 / 2n` out ouf the square root.
-        2.0 / ((n * n) as f64 * factorial_factor.sqrt())
+        2.0 / ((n * n) as f32 * factorial_factor.sqrt())
     }
 }
 
 impl Evaluate for Radial {
-    type Output = f64;
+    type Output = f32;
     type Parameters = NL;
 
     #[inline]
     fn evaluate(NL { n, l }: NL, point: &Point) -> Self::Output {
-        let rho = 2.0 * point.r() / (n as f64);
+        let rho = 2.0 * point.r() / (n as f32);
         Self::normalization_factor(n, l)
             * (-rho / 2.0).exp()
             * rho.powi(l as i32)
@@ -43,7 +43,7 @@ impl Evaluate for Radial {
 pub struct RadialProbability;
 
 impl Evaluate for RadialProbability {
-    type Output = f64;
+    type Output = f32;
     type Parameters = NL;
 
     #[inline]
@@ -57,7 +57,7 @@ impl Evaluate for RadialProbability {
 pub struct RadialProbabilityDensity;
 
 impl Evaluate for RadialProbabilityDensity {
-    type Output = f64;
+    type Output = f32;
     type Parameters = NL;
 
     #[inline]
@@ -75,15 +75,15 @@ impl SphericalHarmonic {
     /// Compute the normalization factor of a spherical harmonic, excluding the Condon-Shortley phase:
     /// `√( (2l + 1)/4pi * (l-|m|)!/(l+|m|)! )`.
     #[inline]
-    fn normalization_factor(l: u32, m_abs: u32) -> f64 {
+    fn normalization_factor(l: u32, m_abs: u32) -> f32 {
         // (l-|m|)!/(l+|m|)! = 1 / [(l-|m|+1) * (l-|m|+2) * ... * (l+|m|-1) * (l+|m|)].
-        let factorial_factor = ((l - m_abs + 1)..=(l + m_abs)).product::<u32>() as f64;
-        ((2 * l + 1) as f64 / (4.00 * PI * factorial_factor)).sqrt()
+        let factorial_factor = ((l - m_abs + 1)..=(l + m_abs)).product::<u32>() as f32;
+        ((2 * l + 1) as f32 / (4.00 * PI * factorial_factor)).sqrt()
     }
 }
 
 impl Evaluate for SphericalHarmonic {
-    type Output = Complex64;
+    type Output = Complex32;
     type Parameters = LM;
 
     #[inline]
@@ -91,14 +91,14 @@ impl Evaluate for SphericalHarmonic {
         let m_abs = m.abs() as u32;
         Self::normalization_factor(l, m_abs)
             * associated_legendre((l, m_abs), point.cos_theta())
-            * (Complex64::i() * m as f64 * point.phi()).exp()
+            * (Complex32::i() * m as f32 * point.phi()).exp()
     }
 }
 
 pub struct RealSphericalHarmonic;
 
 impl Evaluate for RealSphericalHarmonic {
-    type Output = f64;
+    type Output = f32;
     type Parameters = LM;
 
     #[inline]
@@ -108,9 +108,9 @@ impl Evaluate for RealSphericalHarmonic {
             * if m_abs % 2 == 0 { 1.0 } else { -1.0 } // (-1)^(-m), to cancel out the Condon-Shortley phase from `associated_legendre`.
             * associated_legendre((l, m_abs), point.cos_theta())
             * match m.cmp(&0) {
-                Ordering::Greater => SQRT_2 * (m as f64 * point.phi()).cos(),
+                Ordering::Greater => SQRT_2 * (m as f32 * point.phi()).cos(),
                 Ordering::Equal => 1.0,
-                Ordering::Less => SQRT_2 * (m_abs as f64 * point.phi()).sin(),
+                Ordering::Less => SQRT_2 * (m_abs as f32 * point.phi()).sin(),
             }
     }
 }
@@ -165,7 +165,7 @@ mod tests {
                     .iter()
                     .map(|pt| $target_fn($target_params, pt))
                     .collect();
-                assert_iterable_relative_eq!($expected, &calculated, max_relative = 1E-4_f64);
+                assert_iterable_relative_eq!($expected, &calculated, max_relative = 1E-4_f32);
             }
         };
     }

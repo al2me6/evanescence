@@ -34,13 +34,13 @@ pub mod orthogonal_polynomials {
     /// Implemented via recurrence relation:
     /// <https://en.wikipedia.org/wiki/Laguerre_polynomials#Generalized_Laguerre_polynomials>.
     #[inline]
-    pub fn associated_laguerre((q, p): (u32, u32), x: f64) -> f64 {
+    pub fn associated_laguerre((q, p): (u32, u32), x: f32) -> f32 {
         if q == 0 {
             return 1.0;
         }
 
         #[allow(non_snake_case)]
-        let mut L = 1.0 + p as f64 - x;
+        let mut L = 1.0 + p as f32 - x;
         if q == 1 {
             return L;
         }
@@ -49,7 +49,7 @@ pub mod orthogonal_polynomials {
         for q in 1..q {
             (prev, L) = (
                 L,
-                (((2 * q + 1 + p) as f64 - x) * L - (q + p) as f64 * prev) / (q + 1) as f64,
+                (((2 * q + 1 + p) as f32 - x) * L - (q + p) as f32 * prev) / (q + 1) as f32,
             );
         }
         L
@@ -63,7 +63,7 @@ pub mod orthogonal_polynomials {
     /// Implemented via recurrence relation:
     /// <https://en.wikipedia.org/wiki/Associated_Legendre_polynomials#Recurrence_formula>.
     #[inline]
-    pub fn associated_legendre((l, m): (u32, u32), x: f64) -> f64 {
+    pub fn associated_legendre((l, m): (u32, u32), x: f32) -> f32 {
         // Check for special cases.
         if m > l {
             return 0.0;
@@ -76,7 +76,7 @@ pub mod orthogonal_polynomials {
         } else {
             // P_m^m(x) = (-1)^l (2m - 1)!! (1 - x^2)^(m/2).
             (if m % 2 == 0 { 1.0 } else { -1.0 })  // (-1)^l
-                * (2 * m - 1).multifactorial::<2>() as f64
+                * (2 * m - 1).multifactorial::<2>() as f32
                 * (1.0 - x * x).powi(m as _).sqrt()
         };
         if l == m {
@@ -86,7 +86,7 @@ pub mod orthogonal_polynomials {
         let mut prev = P;
 
         // Compute P_{m+1}^m(x) = x (2m + 1) P_m^m(x).
-        P *= x * (2 * m + 1) as f64;
+        P *= x * (2 * m + 1) as f32;
         if l - m == 1 {
             return P;
         }
@@ -96,7 +96,7 @@ pub mod orthogonal_polynomials {
         for k in (m + 1)..l {
             (prev, P) = (
                 P,
-                ((2 * k + 1) as f64 * x * P - (k + m) as f64 * prev) / (k - m + 1) as f64,
+                ((2 * k + 1) as f32 * x * P - (k + m) as f32 * prev) / (k - m + 1) as f32,
             );
         }
         P
@@ -137,10 +137,10 @@ pub trait Evaluate {
     fn evaluate_on_plane(
         params: Self::Parameters,
         plane: Plane,
-        extent: f64,
+        extent: f32,
         num_points: usize,
     ) -> GridValues<Self::Output> {
-        type ComponentGetter = fn(&Vec3) -> f64;
+        type ComponentGetter = fn(&Vec3) -> f32;
         // Functions to extract the correct component of the `Vec3`.
         let extract_component: (ComponentGetter, ComponentGetter) = match plane {
             Plane::XY => (Vec3::get_x, Vec3::get_y),
@@ -212,10 +212,10 @@ mod tests {
         ($fn_name:ident, $target_fn:ident, $target_params:expr, $expected:expr) => {
             #[test]
             fn $fn_name() {
-                let calculated: Vec<f64> = (-2..=2)
-                    .map(|x| $target_fn($target_params, x as f64 / 2.0))
+                let calculated: Vec<f32> = (-2..=2)
+                    .map(|x| $target_fn($target_params, x as f32 / 2.0))
                     .collect();
-                assert_iterable_relative_eq!($expected, &calculated, max_relative = 1E-10_f64);
+                assert_iterable_relative_eq!($expected, &calculated, max_relative = 1E-6_f32);
             }
         };
     }

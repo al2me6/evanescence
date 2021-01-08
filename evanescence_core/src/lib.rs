@@ -19,11 +19,11 @@ pub mod orbital;
 
 pub(crate) mod utils {
     use getrandom::getrandom;
-    use oorandom::Rand64;
+    use oorandom::Rand32;
 
-    pub(crate) fn new_rng() -> Rand64 {
-        let mut buf = [0_u8; 16];
+    pub(crate) fn new_rng() -> Rand32 {
+        let mut buf = [0_u8; 8];
         getrandom(&mut buf).unwrap();
-        Rand64::new(u128::from_ne_bytes(buf))
+        Rand32::new(u64::from_ne_bytes(buf))
     }
 }

@@ -5,7 +5,7 @@
 //! Types for working with and validating quantum numbers are also provided.
 
 use getset::CopyGetters;
-use num_complex::Complex64;
+use num_complex::Complex32;
 
 use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
 use crate::numerics::Evaluate;
@@ -150,9 +150,9 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     /// of that radius). See the attached Mathematica notebook `radial_wavefunction.nb`
     /// for plots.
     #[inline]
-    fn estimate_radius(qn: QuantumNumbers) -> f64 {
-        let n = qn.n() as f64;
-        n * (2.5 * n - 0.625 * qn.l() as f64 + 3.0)
+    fn estimate_radius(qn: QuantumNumbers) -> f32 {
+        let n = qn.n() as f32;
+        n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
     }
 
     /// Compute a plot of a property of an orbital's radial wavefunction (see [`RadialPlot`]).
@@ -166,7 +166,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
         qn: QuantumNumbers,
         variant: RadialPlot,
         num_points: usize,
-    ) -> (Vec<f64>, Vec<f64>) {
+    ) -> (Vec<f32>, Vec<f32>) {
         let evaluator = match variant {
             RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
             RadialPlot::Probability => RadialProbability::evaluate_on_line_segment,
@@ -201,11 +201,11 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
 pub struct Real;
 
 impl Evaluate for Real {
-    type Output = f64;
+    type Output = f32;
     type Parameters = QuantumNumbers;
 
     #[inline]
-    fn evaluate(qn: QuantumNumbers, point: &Point) -> f64 {
+    fn evaluate(qn: QuantumNumbers, point: &Point) -> f32 {
         Radial::evaluate(qn.into(), point) * RealSphericalHarmonic::evaluate(qn.into(), point)
     }
 }
@@ -216,11 +216,11 @@ impl Orbital for Real {}
 pub struct Complex;
 
 impl Evaluate for Complex {
-    type Output = Complex64;
+    type Output = Complex32;
     type Parameters = QuantumNumbers;
 
     #[inline]
-    fn evaluate(qn: QuantumNumbers, point: &Point) -> Complex64 {
+    fn evaluate(qn: QuantumNumbers, point: &Point) -> Complex32 {
         Radial::evaluate(qn.into(), point) * SphericalHarmonic::evaluate(qn.into(), point)
     }
 }
