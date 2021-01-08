@@ -1,10 +1,11 @@
 //! An implementation of a Monte Carlo simulation to produce point cloud visualizations of orbitals.
 
+use nanorand::tls_rng;
 use strum::{Display, EnumString};
 
 use crate::geometry::{ComponentForm, Point, PointValue};
 use crate::orbital::{self, Orbital, QuantumNumbers};
-use crate::utils::new_rng;
+use crate::rand_f32;
 
 /// A set of predefined qualities (i.e., number of points computed) for sampling orbitals, either
 /// for Monte Carlo simulations or plotting.
@@ -107,7 +108,7 @@ pub trait MonteCarlo: Orbital {
     /// may obstruct details while significantly degrading user experience.
     fn monte_carlo_simulate(qn: QuantumNumbers, quality: Quality) -> ComponentForm<Self::Output> {
         let num_estimation_samples = (quality as usize * 2).max(Self::MINIMUM_ESTIMATION_SAMPLES);
-        let mut rng = new_rng();
+        let mut rng = tls_rng();
         let (max_value, estimation_samples) =
             Self::estimate_maximum_value(qn, num_estimation_samples);
         estimation_samples
@@ -116,7 +117,7 @@ pub trait MonteCarlo: Orbital {
                 Point::sample_from_ball_iter(Self::estimate_radius(qn))
                     .map(|pt| Self::evaluate_at(qn, &pt)),
             )
-            .filter(|(_, val)| Self::value_comparator(*val) / max_value > rng.rand_float())
+            .filter(|(_, val)| Self::value_comparator(*val) / max_value > rand_f32!(rng))
             .take(quality as usize)
             .collect::<Vec<_>>()
             .into()

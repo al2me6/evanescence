@@ -6,9 +6,10 @@ use std::iter;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 use getset::{CopyGetters, Getters};
+use nanorand::tls_rng;
 use strum::Display;
 
-use crate::utils::new_rng;
+use crate::rand_f32;
 
 /// A vector (the mathematical kind) in `R^3`.
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
@@ -227,15 +228,15 @@ impl Point {
     /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
     /// specifically method 16.
     pub fn sample_from_ball_iter(radius: f32) -> impl Iterator<Item = Self> {
-        let mut rng = new_rng();
+        let mut rng = tls_rng();
         iter::repeat_with(move || {
             // For an explanation of taking the cube root of the random value, see
             // https://stackoverflow.com/a/50746409.
-            let r /* [0, radius] */ = rng.rand_float().cbrt() * radius;
-            let cos_theta /* [-1, 1] */ = rng.rand_float() * 2.0 - 1.0;
+            let r /* [0, radius] */ = rand_f32!(rng).cbrt() * radius;
+            let cos_theta /* [-1, 1] */ = rand_f32!(rng) * 2.0 - 1.0;
             // Pythagorean identity: sin^2(x) + cos^2(x) = 1.
             let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
-            let phi /* [0, 2pi) */ = rng.rand_float() * 2.0 * PI;
+            let phi /* [0, 2pi) */ = rand_f32!(rng) * 2.0 * PI;
             Self {
                 x: r * sin_theta * phi.cos(),
                 y: r * sin_theta * phi.sin(),
@@ -416,7 +417,7 @@ impl<T> GridValues<T> {
     ///     vec![0.0, 1.0], // There are two columns.
     ///     vec![0.0, 1.0, 2.0], // There are three rows.
     ///     vec![ // This is a column of rows.
-    ///         vec![3.1, 4.1],
+    ///         vec![3.1, 4.1], // Each row has two values (corresponding to the two columns).
     ///         vec![1.5, 9.2],
     ///         // The third row is missing!!
     ///     ],
