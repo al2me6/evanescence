@@ -1,17 +1,20 @@
+//! This module contains implementations of the radial and angular components of the hydrogenic
+//! wavefunction. Also included are probability and probability distribution functions for the
+//! radial wavefunction.
+
 use std::cmp::Ordering;
 use std::f32::consts::{PI, SQRT_2};
 
 use num_complex::Complex32;
 
-use crate::{
-    geometry::Point,
-    numerics::{
-        orthogonal_polynomials::{associated_laguerre, associated_legendre},
-        Evaluate,
-    },
-    orbital::{LM, NL},
+use crate::geometry::Point;
+use crate::numerics::{
+    orthogonal_polynomials::{associated_laguerre, associated_legendre},
+    Evaluate,
 };
+use crate::orbital::{LM, NL};
 
+/// Implementation of the radial component of the hydrogenic wavefunction.
 pub struct Radial;
 
 impl Radial {
@@ -40,6 +43,7 @@ impl Evaluate for Radial {
     }
 }
 
+/// The radial probability function, or the wavefunction squared.
 pub struct RadialProbability;
 
 impl Evaluate for RadialProbability {
@@ -54,10 +58,10 @@ impl Evaluate for RadialProbability {
     }
 }
 
-
+/// The radial probability distribution function, `r^2R^2`.
 pub struct RadialProbabilityDistribution;
 
-impl Evaluate for RadialProbabilityDensity {
+impl Evaluate for RadialProbabilityDistribution {
     type Output = f32;
     type Parameters = NL;
 
@@ -70,6 +74,7 @@ impl Evaluate for RadialProbabilityDensity {
     }
 }
 
+/// Implementation of the spherical harmonics, `Y_l^m(θ,φ)`, including the Condon-Shortley phase.
 pub struct SphericalHarmonic;
 
 impl SphericalHarmonic {
@@ -92,11 +97,14 @@ impl Evaluate for SphericalHarmonic {
     fn evaluate(LM { l, m }: LM, point: &Point) -> Self::Output {
         let m_abs = m.abs() as u32;
         Self::normalization_factor(l, m_abs)
-            * associated_legendre((l, m_abs), point.cos_theta())
+            * associated_legendre((l, m_abs), point.cos_theta()) // Condon-Shortley phase is included here.
             * (Complex32::i() * m as f32 * point.phi()).exp()
     }
 }
 
+/// Implementation of the real spherical harmonics, `S_lm(θ,φ)`.
+///
+/// See [Blanco et al. 1997](https://doi.org/10.1016/S0166-1280(97)00185-1) for more information.
 pub struct RealSphericalHarmonic;
 
 impl Evaluate for RealSphericalHarmonic {
