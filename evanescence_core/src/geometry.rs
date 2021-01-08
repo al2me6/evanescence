@@ -8,6 +8,7 @@ use strum::Display;
 
 use crate::utils::new_rng;
 
+/// A vector (the mathematical kind) in `R^3`.
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
 pub struct Vec3 {
     #[getset(get_copy = "pub with_prefix")] // The `with_prefix` attribute doesn't appear to work on the entire struct.
@@ -23,6 +24,7 @@ impl Vec3 {
         Self { x, y, z }
     }
 
+    /// Produce `num_points` vectors evenly spaced across the interval `begin` to `end`.
     pub fn linspace(
         begin: Self,
         end: Self,
@@ -37,9 +39,13 @@ impl Vec3 {
         })
     }
 
+    /// The zero vector.
     pub const ZERO: Vec3 = Self::new(0.0, 0.0, 0.0);
+    /// The î unit vector.
     pub const I: Vec3 = Self::new(1.0, 0.0, 0.0);
+    /// The ĵ unit vector.
     pub const J: Vec3 = Self::new(0.0, 1.0, 0.0);
+    /// The k̂ unit vector.
     pub const K: Vec3 = Self::new(0.0, 0.0, 1.0);
 }
 
@@ -281,32 +287,32 @@ impl Plane {
 /// A point and the value of a function evaluated at that point.
 pub type PointValue<T> = (Point, T);
 
-/// Type storing a collection of evaluations, where values in each dimension (x, y, z, and value)
-/// is stored in a separate vector. Each index, across the four vectors, corresponds to
-/// a single point and its associated value.
+/// Type storing a collection of [`PointValue`]s, where values in each dimension
+/// (x, y, z, and value) are stored in a separate vector. Each index, across the four vectors,
+/// corresponds to a single point and its associated value.
 ///
-/// It may be thought of as the transpose of `Vec<Evaluation<T>>`.
+/// It may be thought of as the transpose of `Vec<PointValue<T>>`.
 ///
 /// This type cannot be manually constructed and should instead be obtained from a
-/// [`Vec<Evaluation<T>>`] via conversion traits.
+/// [`Vec<PointValue<T>>`] via conversion traits.
 ///
 /// # Safety
 /// All four vectors must be the same length.
 #[derive(Debug, PartialEq, Getters)]
 #[getset(get = "pub")]
 pub struct ComponentForm<T> {
-    /// List of x-values.
+    /// List of x values.
     xs: Vec<f64>,
-    /// List of y-values.
+    /// List of y values.
     ys: Vec<f64>,
-    /// List of z-values.
+    /// List of z values.
     zs: Vec<f64>,
-    /// List of wavefunction values evaluated at the corresponding (x, y, z) coordinate.
+    /// List of values evaluated at the corresponding (x, y, z) coordinate.
     vals: Vec<T>,
 }
 
 impl<T> ComponentForm<T> {
-    /// Decompose `Self` into a four-tuple of its inner vectors,
+    /// Decompose `self` into a four-tuple of its inner vectors,
     /// in the order (x, y, z, value).
     pub fn into_components(self) -> (Vec<f64>, Vec<f64>, Vec<f64>, Vec<T>) {
         (self.xs, self.ys, self.zs, self.vals)
@@ -328,6 +334,7 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
             zs.push(pt.z());
             vals.push(val);
         });
+        // SAFETY: The four vectors, by nature, have the same length.
         ComponentForm { xs, ys, zs, vals }
     }
 }
