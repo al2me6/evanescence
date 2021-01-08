@@ -20,7 +20,7 @@ impl Radial {
     #[inline]
     fn normalization_factor(n: u32, l: u32) -> f32 {
         // (n-l-1)! / (n+l)! = 1 / [(n-l) * (n-l+1) * ... * (n+l-1) * (n+l)].
-        let factorial_factor = ((n - l)..=(n + l)).product::<u32>() as f32;
+        let factorial_factor = (((n - l) as u64)..=((n + l) as u64)).product::<u64>() as f32;
         // Where we've taken `(2/n)^3 / 2n` out ouf the square root.
         2.0 / ((n * n) as f32 * factorial_factor.sqrt())
     }
@@ -77,7 +77,8 @@ impl SphericalHarmonic {
     #[inline]
     fn normalization_factor(l: u32, m_abs: u32) -> f32 {
         // (l-|m|)!/(l+|m|)! = 1 / [(l-|m|+1) * (l-|m|+2) * ... * (l+|m|-1) * (l+|m|)].
-        let factorial_factor = ((l - m_abs + 1)..=(l + m_abs)).product::<u32>() as f32;
+        let factorial_factor =
+            (((l - m_abs + 1) as u64)..=((l + m_abs) as u64)).product::<u64>() as f32;
         ((2 * l + 1) as f32 / (4.00 * PI * factorial_factor)).sqrt()
     }
 }
