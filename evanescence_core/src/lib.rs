@@ -45,17 +45,19 @@ pub mod orbital;
 pub(crate) mod utils {
     /// Generated an `f32` value in the range \[0, 1\) from a source `u32` value.
     ///
-    /// This is reproduced from <https://docs.rs/oorandom/11.1.3/src/oorandom/lib.rs.html#104-117>.
+    /// Reproduced from <https://docs.rs/oorandom/11.1.3/src/oorandom/lib.rs.html#104-117>.
     #[inline]
     pub(crate) fn reinterpret_as_f32(mut u: u32) -> f32 {
         const TOTAL_BITS: u32 = 32;
-        const PRECISION: u32 = core::f32::MANTISSA_DIGITS + 1;
+        const PRECISION: u32 = f32::MANTISSA_DIGITS + 1;
         const MANTISSA_SCALE: f32 = 1.0 / ((1_u32 << PRECISION) as f32);
         u >>= TOTAL_BITS - PRECISION;
         u as f32 * MANTISSA_SCALE
     }
 
     /// Generated a random `f32` value in the range \[0, 1\).
+    ///
+    /// This is somehow faster when implemented as a macro wrapper around a function...
     #[macro_export]
     macro_rules! rand_f32 {
         ($rng:expr) => {{

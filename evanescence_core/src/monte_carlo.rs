@@ -1,6 +1,6 @@
 //! An implementation of a Monte Carlo simulation to produce point cloud visualizations of orbitals.
 
-use nanorand::tls_rng;
+use nanorand::WyRand;
 use strum::{Display, EnumString};
 
 use crate::geometry::{ComponentForm, Point, PointValue};
@@ -83,12 +83,13 @@ pub trait MonteCarlo: Orbital {
     fn estimate_maximum_value(
         qn: QuantumNumbers,
         num_samples: usize,
+        rng: &mut WyRand,
     ) -> (f32, Vec<PointValue<Self::Output>>) {
         // Note that we force the origin to be sampled. This is to ensure that s orbitals are
         // accurately estimated: They attain their maximum value over a very small area near the
         // origin, which is difficult to hit when sampling randomly.
         let evaluated_points: Vec<_> =
-            Point::sample_from_ball_with_origin_iter(Self::estimate_radius(qn))
+            Point::sample_from_ball_with_origin_iter(Self::estimate_radius(qn), rng)
                 .map(|pt| Self::evaluate_at(qn, &pt))
                 .take(num_samples)
                 .collect();
@@ -108,16 +109,17 @@ pub trait MonteCarlo: Orbital {
     /// may obstruct details while significantly degrading user experience.
     fn monte_carlo_simulate(qn: QuantumNumbers, quality: Quality) -> ComponentForm<Self::Output> {
         let num_estimation_samples = (quality as usize * 2).max(Self::MINIMUM_ESTIMATION_SAMPLES);
-        let mut rng = tls_rng();
+        let mut point_rng = WyRand::new();
+        let mut value_rng = WyRand::new();
         let (max_value, estimation_samples) =
-            Self::estimate_maximum_value(qn, num_estimation_samples);
+            Self::estimate_maximum_value(qn, num_estimation_samples, &mut point_rng);
         estimation_samples
             .into_iter()
             .chain(
-                Point::sample_from_ball_iter(Self::estimate_radius(qn))
+                Point::sample_from_ball_iter(Self::estimate_radius(qn), &mut point_rng)
                     .map(|pt| Self::evaluate_at(qn, &pt)),
             )
-            .filter(|(_, val)| Self::value_comparator(*val) / max_value > rand_f32!(rng))
+            .filter(|(_, val)| Self::value_comparator(*val) / max_value > rand_f32!(value_rng))
             .take(quality as usize)
             .collect::<Vec<_>>()
             .into()

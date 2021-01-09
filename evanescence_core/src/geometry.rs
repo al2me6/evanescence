@@ -6,7 +6,7 @@ use std::iter;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 use getset::{CopyGetters, Getters};
-use nanorand::tls_rng;
+use nanorand::WyRand;
 use strum::Display;
 
 use crate::rand_f32;
@@ -227,8 +227,7 @@ impl Point {
     ///
     /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
     /// specifically method 16.
-    pub fn sample_from_ball_iter(radius: f32) -> impl Iterator<Item = Self> {
-        let mut rng = tls_rng();
+    pub fn sample_from_ball_iter(radius: f32, rng: &mut WyRand) -> impl Iterator<Item = Self> + '_ {
         iter::repeat_with(move || {
             // For an explanation of taking the cube root of the random value, see
             // https://stackoverflow.com/a/50746409.
@@ -257,8 +256,11 @@ impl Point {
     ///     Point::sample_from_ball_with_origin_iter(1.0).next()
     /// );
     /// ```
-    pub fn sample_from_ball_with_origin_iter(radius: f32) -> impl Iterator<Item = Self> {
-        iter::once(Self::ORIGIN_EPSILON).chain(Self::sample_from_ball_iter(radius))
+    pub fn sample_from_ball_with_origin_iter(
+        radius: f32,
+        rng: &mut WyRand,
+    ) -> impl Iterator<Item = Self> + '_ {
+        iter::once(Self::ORIGIN_EPSILON).chain(Self::sample_from_ball_iter(radius, rng))
     }
 }
 
@@ -451,6 +453,7 @@ impl<T> GridValues<T> {
 #[cfg(test)]
 mod tests {
     use approx::assert_relative_eq;
+    use nanorand::WyRand;
 
     use crate::geometry::Point;
 
@@ -460,7 +463,8 @@ mod tests {
     #[test]
     fn test_point_rng_max_radius() {
         let sampling_radius = 2_f32;
-        Point::sample_from_ball_iter(sampling_radius)
+        let mut rng = WyRand::new();
+        Point::sample_from_ball_iter(sampling_radius, &mut rng)
             .take(10_000)
             .for_each(|pt| assert!(pt.r < sampling_radius));
     }
@@ -479,7 +483,8 @@ mod tests {
 
     #[test]
     fn test_rng_spherical_coordinates() {
-        let rng_point = Point::sample_from_ball_iter(2.0).next().unwrap();
+        let mut rng = WyRand::new();
+        let rng_point = Point::sample_from_ball_iter(2.0, &mut rng).next().unwrap();
         let recomputed_point = Point::new(rng_point.x, rng_point.y, rng_point.z);
         assert_relative_eq!(rng_point.r, recomputed_point.r);
         assert_relative_eq!(rng_point.cos_theta, recomputed_point.cos_theta);
