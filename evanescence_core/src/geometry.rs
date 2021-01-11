@@ -250,10 +250,11 @@ impl Point {
     /// Same as [`Point::sample_from_ball_iter`], but with [`Point::ORIGIN_EPSILON`] guaranteed as
     /// the first point sampled:
     /// ```
-    /// # use evanescence_core::geometry::Point;
+    /// use evanescence_core::geometry::Point;
+    /// let mut rng = nanorand::WyRand::new();
     /// assert_eq!(
     ///     Some(Point::ORIGIN_EPSILON),
-    ///     Point::sample_from_ball_with_origin_iter(1.0).next()
+    ///     Point::sample_from_ball_with_origin_iter(1.0, &mut rng).next()
     /// );
     /// ```
     pub fn sample_from_ball_with_origin_iter(
