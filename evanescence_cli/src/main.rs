@@ -146,7 +146,7 @@ fn main() -> Result<()> {
                     let num_points = quality.for_line();
                     (
                         num_points,
-                        orbital::Real::plot_radial(qn, mode.try_into().unwrap(), num_points),
+                        orbital::Real::sample_radial(qn, mode.try_into().unwrap(), num_points),
                     )
                 },
                 skip_render,
@@ -162,7 +162,11 @@ fn main() -> Result<()> {
                     let num_points = quality.for_grid();
                     (
                         num_points * num_points, // We calculate an entire grid.
-                        orbital::Real::plot_cross_section(qn, mode.try_into().unwrap(), num_points),
+                        orbital::Real::sample_cross_section(
+                            qn,
+                            mode.try_into().unwrap(),
+                            num_points,
+                        ),
                     )
                 },
                 skip_render,

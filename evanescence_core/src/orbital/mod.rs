@@ -164,7 +164,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     ///
     /// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
     /// and the second containing the values associated with the radial points.
-    fn plot_radial(
+    fn sample_radial(
         qn: QuantumNumbers,
         variant: RadialPlot,
         num_points: usize,
@@ -192,7 +192,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     /// the extent of the orbital, which is automatically estimated.
     ///
     /// For more information, see the documentation on [`GridValues`].
-    fn plot_cross_section(
+    fn sample_cross_section(
         qn: QuantumNumbers,
         plane: Plane,
         num_points: usize,
