@@ -163,9 +163,9 @@ pub trait Evaluate {
         };
 
         // Points linearly dependent on `e_0`, i.e., the center row.
-        let points_in_row: Vec<_> = Vec3::linspace(-midpoints.0, midpoints.0, num_points).collect();
+        let points_in_row: Vec<_> = Vec3::symmetric_linspace(midpoints.0, num_points).collect();
         // Points linearly dependent on `e_1`, i.e., the center column.
-        let points_in_col: Vec<_> = Vec3::linspace(-midpoints.1, midpoints.1, num_points).collect();
+        let points_in_col: Vec<_> = Vec3::symmetric_linspace(midpoints.1, num_points).collect();
 
         let mut vals = Vec::with_capacity(num_points);
 
