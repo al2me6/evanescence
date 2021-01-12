@@ -13,6 +13,7 @@ use strum::{Display, EnumString};
 #[derive(Clone, Copy, Display, EnumString)]
 enum Mode {
     Pointillist,
+    PointillistWithNodes,
     Radial,
     RadialProbability,
     RadialProbabilityDistribution,
@@ -58,8 +59,8 @@ struct Args {
     #[argh(positional)]
     m: i32,
     #[argh(option, short = 'm', default = "Mode::Pointillist")]
-    /// select the visualization computed: Pointillist (default), Radial, RadialProbability,
-    /// RadialProbabilityDensity, CrossSectionXY, CrossSectionYZ, CrossSectionZX,
+    /// select the visualization computed: Pointillist (default), PointillistWithNodes, Radial,
+    /// RadialProbability, RadialProbabilityDensity, CrossSectionXY, CrossSectionYZ, CrossSectionZX,
     mode: Mode,
     #[argh(option, short = 'q', default = "Quality::High")]
     /// render quality: Minimum, Low, Medium, High (default), VeryHigh, or Extreme
@@ -136,6 +137,39 @@ fn main() -> Result<()> {
                 skip_render,
                 |sim_result| {
                     renderer.call1("render_pointillist", sim_result.into_components())?;
+                    Ok(())
+                },
+            )?;
+        }
+        Mode::PointillistWithNodes => {
+            run_simulation(
+                || {
+                    let num_points_iso = quality.for_isosurface();
+                    (
+                        // We render the Monte Carlo points and a cube of side length num_points_iso.
+                        quality as usize + num_points_iso.pow(3),
+                        (
+                            orbital::Real::monte_carlo_simulate(qn, quality),
+                            orbital::Real::sample_region(qn, num_points_iso),
+                        ),
+                    )
+                },
+                skip_render,
+                |(pointillist, isosurface)| {
+                    let (xs_pt, ys_pt, zs_pt, vals_pt) = pointillist.into_components();
+                    let (xs_iso, ys_iso, zs_iso, vals_iso) = isosurface.into_components();
+                    let mut min = 0_f32;
+                    let mut max = 0_f32;
+                    vals_iso.iter().for_each(|&val| {
+                        min = min.min(val);
+                        max = max.max(val);
+                    });
+                    renderer.call1(
+                        "render_pointillist_with_nodes",
+                        (
+                            xs_pt, ys_pt, zs_pt, vals_pt, xs_iso, ys_iso, zs_iso, vals_iso,
+                        ),
+                    )?;
                     Ok(())
                 },
             )?;

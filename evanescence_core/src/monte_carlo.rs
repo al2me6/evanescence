@@ -24,23 +24,27 @@ pub enum Quality {
     Extreme = 250_000,
 }
 
+#[allow(
+    clippy::cast_possible_truncation, // Discriminants are small enough.
+    clippy::cast_sign_loss, // Roots of positive numbers are positive.
+    clippy::integer_division, // Intentional.
+)]
 impl Quality {
     /// Get the number of points that should be sampled for a line plot.
-    #[allow(clippy::integer_division)] // Intentional.
     #[inline]
     pub fn for_line(self) -> usize {
         self as usize / 100
     }
 
     /// Get the number of points that should be sampled for a plane/cross-section plot.
-    #[allow(
-        clippy::cast_possible_truncation, // Unlikely consider the size of the values we work with.
-        clippy::integer_division, // Intentional.
-        clippy::cast_sign_loss, // A square root cannot be negative.
-    )]
     #[inline]
     pub fn for_grid(self) -> usize {
         (self as usize as f32).sqrt() as usize / 2
+    }
+
+    #[inline]
+    pub fn for_isosurface(self) -> usize {
+        (self as usize as f32 * 5.0).cbrt() as usize
     }
 }
 
