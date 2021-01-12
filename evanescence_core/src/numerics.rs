@@ -184,6 +184,27 @@ pub trait Evaluate {
             vals,
         )
     }
+
+    /// Evaluate `Self` on a cube of side length 2 × `extent`, centered at the origin, producing
+    /// a list of evenly spaced points arranged as a flattened 3D array, with the first index
+    /// being x, second index being y, and third index being z.
+    ///
+    /// That is, values are each of the form (x, y, z, val), sorted by increasing x, then y, and
+    /// finally z.
+    fn evaluate_in_region(
+        params: Self::Parameters,
+        extent: f32,
+        num_points: usize,
+    ) -> Vec<PointValue<Self::Output>> {
+        Vec3::symmetric_linspace(Vec3::I * extent, num_points)
+            .flat_map(|x_pt| {
+                Vec3::symmetric_linspace(Vec3::J * extent, num_points).flat_map(move |y_pt| {
+                    Vec3::symmetric_linspace(Vec3::K * extent, num_points)
+                        .map(move |z_pt| Self::evaluate_at(params, &(x_pt + y_pt + z_pt).into()))
+                })
+            })
+            .collect()
+    }
 }
 
 /// Verify that two iterables containing float values are approximately equal.

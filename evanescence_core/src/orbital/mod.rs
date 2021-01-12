@@ -199,6 +199,10 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     ) -> GridValues<Self::Output> {
         Self::evaluate_on_plane(qn, plane, Self::estimate_radius(qn), num_points)
     }
+
+    fn sample_region(qn: QuantumNumbers, num_points: usize) -> ComponentForm<Self::Output> {
+        Self::evaluate_in_region(qn, Self::estimate_radius(qn), num_points).into()
+    }
 }
 
 /// Implementation of the real hydrogenic orbitals.
