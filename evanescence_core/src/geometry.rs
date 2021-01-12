@@ -304,7 +304,8 @@ impl Plane {
 }
 
 /// A point and the value of a function evaluated at that point.
-pub type PointValue<T> = (Point, T);
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct PointValue<T>(pub Point, pub T);
 
 /// Type storing a collection of [`PointValue`]s, where values in each dimension
 /// (x, y, z, and value) are stored in a separate vector. Each index, across the four vectors,
@@ -347,7 +348,7 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
             Vec::with_capacity(len),
             Vec::with_capacity(len),
         );
-        v.into_iter().for_each(|(pt, val)| {
+        v.into_iter().for_each(|PointValue(pt, val)| {
             xs.push(pt.x());
             ys.push(pt.y());
             zs.push(pt.z());

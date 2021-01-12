@@ -99,7 +99,7 @@ pub trait MonteCarlo: Orbital {
                 .collect();
         let max_value = evaluated_points
             .iter()
-            .map(|(_, val)| Self::value_comparator(*val))
+            .map(|PointValue(_, val)| Self::value_comparator(*val))
             .fold(0.0, f32::max);
         (max_value, evaluated_points)
     }
@@ -124,7 +124,9 @@ pub trait MonteCarlo: Orbital {
                 Point::sample_from_ball_iter(Self::estimate_radius(qn), &mut point_rng)
                     .map(|pt| Self::evaluate_at(qn, &pt)),
             )
-            .filter(|(_, val)| Self::value_comparator(*val) / max_value > rand_f32!(value_rng))
+            .filter(|PointValue(_, val)| {
+                Self::value_comparator(*val) / max_value > rand_f32!(value_rng)
+            })
             .take(quality as usize)
             .collect::<Vec<_>>() // Faster than coverting to ComponentForm directly.
             .into()

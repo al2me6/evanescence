@@ -123,7 +123,7 @@ pub trait Evaluate {
     #[allow(clippy::inline_always)]
     #[inline(always)]
     fn evaluate_at(params: Self::Parameters, point: &Point) -> PointValue<Self::Output> {
-        (*point, Self::evaluate(params, point))
+        PointValue(*point, Self::evaluate(params, point))
     }
 
     /// Evaluate `Self` on a line segment running from `begin` to `end` at a total of `num_points`
