@@ -139,3 +139,10 @@ impl MonteCarlo for orbital::Real {
         val.abs()
     }
 }
+
+impl MonteCarlo for orbital::Complex {
+    #[inline]
+    fn value_comparator(value: Self::Output) -> f32 {
+        value.norm()
+    }
+}

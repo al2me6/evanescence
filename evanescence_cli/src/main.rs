@@ -14,6 +14,7 @@ use strum::{Display, EnumString};
 enum Mode {
     Pointillist,
     PointillistWithNodes,
+    PointillistComplex,
     Radial,
     RadialProbability,
     RadialProbabilityDistribution,
@@ -59,8 +60,9 @@ struct Args {
     #[argh(positional)]
     m: i32,
     #[argh(option, short = 'm', default = "Mode::Pointillist")]
-    /// select the visualization computed: Pointillist (default), PointillistWithNodes, Radial,
-    /// RadialProbability, RadialProbabilityDensity, CrossSectionXY, CrossSectionYZ, CrossSectionZX,
+    /// select the visualization computed: Pointillist (default), PointillistWithNodes,
+    /// PointillistComplex, Radial, RadialProbability, RadialProbabilityDensity, CrossSectionXY,
+    /// CrossSectionYZ, CrossSectionZX,
     mode: Mode,
     #[argh(option, short = 'q', default = "Quality::High")]
     /// render quality: Minimum, Low, Medium, High (default), VeryHigh, or Extreme
@@ -169,6 +171,27 @@ fn main() -> Result<()> {
                         (
                             xs_pt, ys_pt, zs_pt, vals_pt, xs_iso, ys_iso, zs_iso, vals_iso,
                         ),
+                    )?;
+                    Ok(())
+                },
+            )?;
+        }
+        Mode::PointillistComplex => {
+            run_simulation(
+                || {
+                    (
+                        quality as usize,
+                        orbital::Complex::monte_carlo_simulate(qn, quality),
+                    )
+                },
+                skip_render,
+                |sim_result| {
+                    let (xs, ys, zs, vals) = sim_result.into_components();
+                    let vals_moduli: Vec<_> = vals.iter().map(|val| val.norm()).collect();
+                    let vals_arguments: Vec<_> = vals.iter().map(|val| val.arg()).collect();
+                    renderer.call1(
+                        "render_pointillist_complex",
+                        (xs, ys, zs, vals_moduli, vals_arguments),
                     )?;
                     Ok(())
                 },
