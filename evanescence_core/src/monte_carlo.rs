@@ -118,14 +118,15 @@ pub trait MonteCarlo: Orbital {
         let (max_value, estimation_samples) =
             Self::estimate_maximum_value(qn, num_estimation_samples, &mut point_rng);
         estimation_samples
-            .into_iter()
+            .into_iter() // Reuse the points sampled during estimation...
             .chain(
+                // ...before generating new ones.
                 Point::sample_from_ball_iter(Self::estimate_radius(qn), &mut point_rng)
                     .map(|pt| Self::evaluate_at(qn, &pt)),
             )
             .filter(|(_, val)| Self::value_comparator(*val) / max_value > rand_f32!(value_rng))
             .take(quality as usize)
-            .collect::<Vec<_>>()
+            .collect::<Vec<_>>() // Faster than coverting to ComponentForm directly.
             .into()
     }
 }

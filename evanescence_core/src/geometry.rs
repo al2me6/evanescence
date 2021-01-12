@@ -47,7 +47,7 @@ impl Vec3 {
         })
     }
 
-    /// /// Produce `num_points` vectors evenly spaced across the interval `-extent` to `extent`.
+    /// Produce `num_points` vectors evenly spaced across the interval `-extent` to `extent`.
     pub fn symmetric_linspace(
         extent: Self,
         num_points: usize,
