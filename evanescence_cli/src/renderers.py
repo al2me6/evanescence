@@ -1,3 +1,4 @@
+from math import copysign, sqrt
 from typing import List, Optional
 
 import plotly.express as px
@@ -21,8 +22,8 @@ def render_pointillist_into_fig(
         ys: List[float],
         zs: List[float],
         vals: List[float],
-        min_size: float = 0.8,
-        max_size: float = 1.5,
+        min_size: float = 1.5,
+        max_size: float = 2,
         colors: Optional[List[float]] = None,
         colorscale: Optional[str] = None,
 ) -> Figure:  # type: ignore
@@ -87,7 +88,9 @@ def render_pointillist_with_nodes(
         x=xs_iso,
         y=ys_iso,
         z=zs_iso,
-        value=vals_iso,
+        # This alleviates numerical instability by amplifying any deviations from zero.
+        # However, this does result in crinkly surfaces.
+        value=tuple(map(lambda v: copysign(sqrt(abs(v)), v), vals_iso)),
         caps=dict(x_show=False, y_show=False, z_show=False),
         flatshading=False,
         opacity=0.075,
@@ -95,6 +98,7 @@ def render_pointillist_with_nodes(
         isomax=0,
         surface_count=1,
         colorscale="greens",
+        colorbar=dict(showticklabels=False),
     ))
     fig = render_pointillist_into_fig(fig, xs_pt, ys_pt, zs_pt, vals_pt)
     fig.show()  # type: ignore
@@ -110,7 +114,7 @@ def render_pointillist_complex(
     fig = go.Figure()  # type: ignore
     fig = render_pointillist_into_fig(
         fig, xs, ys, zs, vals_moduli,
-        min_size=0.2, max_size=1.5,
+        min_size=0.4,
         colors=vals_arguments, colorscale="phase"
     )
     fig.show()  # type: ignore
