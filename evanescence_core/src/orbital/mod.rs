@@ -178,8 +178,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
         };
         let (xs, _, _, vals) = ComponentForm::from(evaluator(
             qn.into(),
-            Vec3::ZERO,
-            Vec3::I * Self::estimate_radius(qn), // We use the x-axis for simplicity; this function is radially symmetrical.
+            Vec3::ZERO..=(Vec3::I * Self::estimate_radius(qn)), // We use the x-axis for simplicity; this function is radially symmetric.
             num_points,
         ))
         .into_components();

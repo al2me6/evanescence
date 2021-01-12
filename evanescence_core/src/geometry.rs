@@ -3,7 +3,7 @@
 use std::f32::consts::PI;
 use std::fmt::{self, Display};
 use std::iter;
-use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
+use std::ops::{Add, AddAssign, Div, Mul, Neg, RangeInclusive, Sub};
 
 use getset::{CopyGetters, Getters};
 use nanorand::WyRand;
@@ -32,14 +32,13 @@ impl Vec3 {
         Self { x, y, z }
     }
 
-    /// Produce `num_points` vectors evenly spaced across the interval `begin` to `end`.
+    /// Produce `num_points` vectors evenly spaced across `range`.
     pub fn linspace(
-        begin: Self,
-        end: Self,
+        range: RangeInclusive<Self>,
         num_points: usize,
     ) -> impl ExactSizeIterator<Item = Self> {
-        let step = (end - begin) / (num_points as f32 - 1.0);
-        let mut acc = begin;
+        let step = (*range.end() - *range.start()) / (num_points as f32 - 1.0);
+        let mut acc = *range.start();
         (0..num_points).map(move |_| {
             let next = acc;
             acc += step;
@@ -52,7 +51,7 @@ impl Vec3 {
         extent: Self,
         num_points: usize,
     ) -> impl ExactSizeIterator<Item = Self> {
-        Self::linspace(-extent, extent, num_points)
+        Self::linspace(-extent..=extent, num_points)
     }
 
     /// The zero vector.

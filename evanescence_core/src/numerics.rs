@@ -126,15 +126,14 @@ pub trait Evaluate {
         PointValue(*point, Self::evaluate(params, point))
     }
 
-    /// Evaluate `Self` on a line segment running from `begin` to `end` at a total of `num_points`
+    /// Evaluate `Self` on a line segment running across `range` at a total of `num_points`
     /// different points, all evenly spaced (à la "`linspace`" operation).
     fn evaluate_on_line_segment(
         params: Self::Parameters,
-        begin: Vec3,
-        end: Vec3,
+        range: RangeInclusive<Vec3>,
         num_points: usize,
     ) -> Vec<PointValue<Self::Output>> {
-        Vec3::linspace(begin, end, num_points)
+        Vec3::linspace(range, num_points)
             .map(|pt| Self::evaluate_at(params, &pt.into()))
             .collect()
     }
