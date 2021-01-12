@@ -1,5 +1,7 @@
 //! Functions and traits relating to numerical evaluation.
 
+use std::ops::RangeInclusive;
+
 use crate::geometry::{GridValues, Plane, Point, PointValue, Vec3};
 
 /// Compute the `N`-th [multifactorial](https://en.wikipedia.org/wiki/Factorial#Multifactorials).
