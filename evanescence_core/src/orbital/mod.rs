@@ -5,6 +5,8 @@
 //!
 //! Types for working with and validating quantum numbers are also provided.
 
+use std::ops::Range;
+
 use getset::CopyGetters;
 use num_complex::Complex32;
 
@@ -43,28 +45,36 @@ impl QuantumNumbers {
         }
     }
 
+    /// List all possible values of `l` for a given value of `n`.
+    pub fn enumerate_l_for_n(n: u32) -> Range<u32> {
+        0..n
+    }
+
+    /// List all possible values of `m` for a given value of `l`.
+    pub fn enumerate_m_for_l(l: u32) -> Range<i32> {
+        -(l as i32)..(l as i32)
+    }
+
     /// List all possible quantum number sets with `n` less than or equal to the value passed.
     pub fn enumerate_up_to_n(n: u32) -> impl Iterator<Item = Self> {
-        // n = 1, 2, 3, ...
         (1..=n).flat_map(|n| {
-            // l = 0, 1, ..., n - 1
-            (0..n).flat_map(move |l| {
-                // m = -l, -l + 1, ..., 0, ..., l -1, l
-                (-(l as i32)..=(l as i32)).map(move |m| Self::new(n, l, m).unwrap())
+            Self::enumerate_l_for_n(n).flat_map(move |l| {
+                Self::enumerate_m_for_l(l).map(move |m| Self::new(n, l, m).unwrap())
             })
         })
     }
 
     /// List all possible quantum number sets with both `n` and `l` less than or equal to
     /// the values passed.
+    #[allow(clippy::filter_map)] // Stylistic.
     pub fn enumerate_up_to_n_l(n: u32, l: u32) -> impl Iterator<Item = Self> {
-        // n = 1, 2, 3, ...
         (1..=n).flat_map(move |n| {
-            // l = 0, 1, ..., minimum of n - 1 and the limit passed in the parameter
-            (0..=(n - 1).min(l)).flat_map(move |l| {
-                // m = -l, -l + 1, ..., 0, ..., l -1, l
-                (-(l as i32)..=(l as i32)).map(move |m| Self::new(n, l, m).unwrap())
-            })
+            Self::enumerate_l_for_n(n)
+                // Check if the value of l is within the limit requested.
+                .filter(move |&possible_l| possible_l <= l)
+                .flat_map(move |l| {
+                    Self::enumerate_m_for_l(l).map(move |m| Self::new(n, l, m).unwrap())
+                })
         })
     }
 }
@@ -134,6 +144,22 @@ impl LM {
 impl From<QuantumNumbers> for LM {
     fn from(QuantumNumbers { n: _, l, m }: QuantumNumbers) -> Self {
         Self { l, m }
+    }
+}
+
+/// Get the conventional subshell name (s, p, d, f, etc.) for common (i.e., small) values of `l`;
+/// will otherwise return `None`.
+pub fn subshell_name(l: u32) -> Option<&'static str> {
+    match l {
+        0 => Some("s"),
+        1 => Some("p"),
+        2 => Some("d"),
+        3 => Some("f"),
+        4 => Some("g"),
+        5 => Some("h"),
+        6 => Some("i"),
+        7 => Some("k"), // Note that "j" is skipped!
+        _ => None,
     }
 }
 
@@ -207,6 +233,12 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     fn sample_region(qn: QuantumNumbers, num_points: usize) -> ComponentForm<Self::Output> {
         Self::evaluate_in_region(qn, Self::estimate_radius(qn), num_points).into()
     }
+
+    /// Give the conventional name of an orbital.
+    ///
+    /// Superscripts and subscripts are represented with the HTML tags `<sup></sup>` and
+    /// `<sub></sub>`.
+    fn name(qn: QuantumNumbers) -> String;
 }
 
 /// Implementation of the real hydrogenic orbitals.
@@ -222,7 +254,20 @@ impl Evaluate for Real {
     }
 }
 
-impl Orbital for Real {}
+impl Orbital for Real {
+    /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
+    /// the quantum numbers only (ex. `ψ_{420}`).
+    fn name(qn: QuantumNumbers) -> String {
+        if let (Some(subshell), Some(linear_combination)) = (
+            subshell_name(qn.l),
+            RealSphericalHarmonic::linear_combination_expression(qn.into()),
+        ) {
+            format!("{}{}<sub>{}</sub>", qn.n, subshell, linear_combination)
+        } else {
+            Complex::name(qn)
+        }
+    }
+}
 
 /// Implementation of the complex hydrogenic orbitals.
 pub struct Complex;
@@ -237,4 +282,9 @@ impl Evaluate for Complex {
     }
 }
 
-impl Orbital for Complex {}
+impl Orbital for Complex {
+    /// Give the name of the wavefunction (ex. `ψ_{420}`).
+    fn name(qn: QuantumNumbers) -> String {
+        format!("ψ<sub>{}{}{}</sub>", qn.n, qn.l, qn.m)
+    }
+}

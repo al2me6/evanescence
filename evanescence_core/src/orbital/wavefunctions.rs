@@ -125,6 +125,62 @@ impl Evaluate for RealSphericalHarmonic {
     }
 }
 
+impl RealSphericalHarmonic {
+    /// Give the mathematical expression for the linear combination that corresponds to a certain
+    /// set of `l` and `m` quantum numbers, as a `&str`. Superscripts are represented with the
+    /// HTML tag `<sup></sup>`.
+    ///
+    /// This is only implemented for `l` up to 3 and returns `None` for larger values.
+    ///
+    /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
+    pub fn linear_combination_expression(lm: LM) -> Option<&'static str> {
+        match lm.l {
+            0 => Some(""), // s orbital.
+            1 => Some(match lm.m {
+                // p orbitals.
+                -1 => "y",
+                0 => "z",
+                1 => "x",
+                _ => unreachable!(),
+            }),
+            2 => Some(match lm.m {
+                // d orbitals.
+                -2 => "xy",
+                -1 => "yz",
+                0 => "z<sup>2</sup>",
+                1 => "xz",
+                2 => "x<sup>2</sup>-y<sup>2</sup>",
+                _ => unreachable!(),
+            }),
+            3 => Some(match lm.m {
+                // f orbitals.
+                -3 => "y(3x<sup>2</sup>-y<sup>2</sup>)",
+                -2 => "xyz",
+                -1 => "yz<sup>2</sup>",
+                0 => "z<sup>3</sup>",
+                1 => "xz<sup>2</sup>",
+                2 => "z(x<sup>2</sup>-y<sup>2</sup>)",
+                3 => "x(x<sup>2</sup>-3y<sup>2</sup>)",
+                _ => unreachable!(),
+            }),
+            4 => Some(match lm.m {
+                // g orbitals.
+                -4 => "xy(x<sup>2</sup>-y<sup>2</sup>)",
+                -3 => "zy<sup>3</sup>",
+                -2 => "z<sup>2</sup>xy",
+                -1 => "z<sup>3</sup>y",
+                0 => "z<sup>4</sup>",
+                1 => "z<sup>3</sup>x",
+                2 => "z<sup>2</sup>(x<sup>2</sup>-y<sup>2</sup>)",
+                3 => "zx<sup>3</sup>",
+                4 => "x<sup>4</sup>+y<sup>4</sup>",
+                _ => unreachable!(),
+            }),
+            _ => None,
+        }
+    }
+}
+
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
