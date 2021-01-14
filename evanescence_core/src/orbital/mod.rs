@@ -5,7 +5,7 @@
 //!
 //! Types for working with and validating quantum numbers are also provided.
 
-use std::ops::Range;
+use std::ops::{Range, RangeInclusive};
 
 use getset::CopyGetters;
 use num_complex::Complex32;
@@ -51,8 +51,8 @@ impl QuantumNumbers {
     }
 
     /// List all possible values of `m` for a given value of `l`.
-    pub fn enumerate_m_for_l(l: u32) -> Range<i32> {
-        -(l as i32)..(l as i32)
+    pub fn enumerate_m_for_l(l: u32) -> RangeInclusive<i32> {
+        -(l as i32)..=(l as i32)
     }
 
     /// List all possible quantum number sets with `n` less than or equal to the value passed.
