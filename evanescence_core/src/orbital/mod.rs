@@ -23,7 +23,7 @@ pub mod wavefunctions;
 ///
 /// # Safety
 /// `QuantumNumbers` must satisfy that `n > l` and `l >= |m|`.
-#[derive(Clone, Copy, Debug, CopyGetters)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct QuantumNumbers {
     /// The principal quantum number.
@@ -76,6 +76,31 @@ impl QuantumNumbers {
                     Self::enumerate_m_for_l(l).map(move |m| Self::new(n, l, m).unwrap())
                 })
         })
+    }
+
+    /// Set `n`, the principal quantum number, clamping `l` and `m` as necessary.
+    pub fn set_n_clamping(&mut self, n: u32) {
+        if self.l >= n {
+            self.set_l_clamping(n - 1);
+        }
+        self.n = n;
+    }
+
+    /// Set `l`, the azimuthal quantum number, clamping `m` as necessary.
+    pub fn set_l_clamping(&mut self, l: u32) {
+        if self.m.abs() as u32 > l {
+            self.set_m(self.m.signum() * l as i32)
+        }
+        self.l = l;
+    }
+
+    /// Set `m`, the magnetic quantum number.
+    ///
+    /// # Panics
+    /// The passed value `m` must satisfy `self.l >= |m|`. Otherwise, this function will panic.
+    pub fn set_m(&mut self, m: i32) {
+        assert!(self.l >= m.abs() as _);
+        self.m = m;
     }
 }
 
@@ -286,5 +311,56 @@ impl Orbital for Complex {
     /// Give the name of the wavefunction (ex. `ψ_{420}`).
     fn name(qn: QuantumNumbers) -> String {
         format!("ψ<sub>{}{}{}</sub>", qn.n, qn.l, qn.m)
+    }
+}
+
+#[cfg(test)]
+mod qn_tests {
+    use super::QuantumNumbers as Qn;
+
+    macro_rules! test_invalid {
+        ($($fn:ident, $n:literal, $l:literal, $m:literal);+ $(;)?) => {
+            $(
+                #[test]
+                #[should_panic]
+                fn $fn() {
+                    Qn::new($n, $l, $m).unwrap();
+                }
+            )+
+        };
+    }
+
+    test_invalid!(
+        test_21n2, 2, 1, -2;
+        test_253, 2, 5, 3;
+        test_443, 4, 4, 3;
+    );
+
+    #[test]
+    fn test_clamping_setters() {
+        let mut qn = Qn::new(5, 4, -3).unwrap();
+        qn.set_n_clamping(3);
+        assert_eq!(Qn::new(3, 2, -2).unwrap(), qn);
+        qn.set_l_clamping(0);
+        assert_eq!(Qn::new(3, 0, 0).unwrap(), qn);
+        qn = Qn::new(4, 2, 1).unwrap();
+        qn.set_n_clamping(1);
+        assert_eq!(Qn::new(1, 0, 0).unwrap(), qn);
+    }
+
+    #[test]
+    fn test_m_setter() {
+        let mut qn = Qn::new(5, 4, -3).unwrap();
+        qn.set_m(2);
+        assert_eq!(Qn::new(5, 4, 2).unwrap(), qn);
+        qn.set_m(-4);
+        assert_eq!(Qn::new(5, 4, -4).unwrap(), qn);
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion failed: self.l >= m.abs() as _")]
+    fn test_invalid_m_setter() {
+        let mut qn = Qn::new(5, 4, -3).unwrap();
+        qn.set_m(-5);
     }
 }
