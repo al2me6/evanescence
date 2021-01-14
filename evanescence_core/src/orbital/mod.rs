@@ -120,6 +120,12 @@ impl QuantumNumbers {
     }
 }
 
+impl Default for QuantumNumbers {
+    fn default() -> Self {
+        Self::new(1, 0, 0).unwrap()
+    }
+}
+
 impl std::fmt::Display for QuantumNumbers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{},{},{}", self.n, self.l, self.m)

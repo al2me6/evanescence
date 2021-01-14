@@ -24,6 +24,12 @@ pub enum Quality {
     Extreme = 250_000,
 }
 
+impl Default for Quality {
+    fn default() -> Self {
+        Self::High
+    }
+}
+
 #[allow(
     clippy::cast_possible_truncation, // Discriminants are small enough.
     clippy::cast_sign_loss, // Roots of positive numbers are positive.
