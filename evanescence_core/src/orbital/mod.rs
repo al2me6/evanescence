@@ -22,7 +22,7 @@ pub mod wavefunctions;
 /// Type representing the quantum numbers `n`, `l`, and `m`.
 ///
 /// # Safety
-/// `QuantumNumbers` must satisfy that `n > l` and `l >= |m|`.
+/// `QuantumNumbers` must satisfy that `n > 0`, `n > l` and `l >= |m|`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct QuantumNumbers {
@@ -46,7 +46,11 @@ impl QuantumNumbers {
     }
 
     /// List all possible values of `l` for a given value of `n`.
+    ///
+    /// # Panics
+    /// This function will panic if the passed value is zero.
     pub fn enumerate_l_for_n(n: u32) -> Range<u32> {
+        assert!(n != 0);
         0..n
     }
 
@@ -56,7 +60,11 @@ impl QuantumNumbers {
     }
 
     /// List all possible quantum number sets with `n` less than or equal to the value passed.
+    ///
+    /// # Panics
+    /// This function will panic if the passed value is zero.
     pub fn enumerate_up_to_n(n: u32) -> impl Iterator<Item = Self> {
+        assert!(n != 0);
         (1..=n).flat_map(|n| {
             Self::enumerate_l_for_n(n).flat_map(move |l| {
                 Self::enumerate_m_for_l(l).map(move |m| Self::new(n, l, m).unwrap())
@@ -66,8 +74,12 @@ impl QuantumNumbers {
 
     /// List all possible quantum number sets with both `n` and `l` less than or equal to
     /// the values passed.
+    ///
+    /// # Panics
+    /// This function will panic if the passed value is zero.
     #[allow(clippy::filter_map)] // Stylistic.
     pub fn enumerate_up_to_n_l(n: u32, l: u32) -> impl Iterator<Item = Self> {
+        assert!(n != 0);
         (1..=n).flat_map(move |n| {
             Self::enumerate_l_for_n(n)
                 // Check if the value of l is within the limit requested.
@@ -79,7 +91,11 @@ impl QuantumNumbers {
     }
 
     /// Set `n`, the principal quantum number, clamping `l` and `m` as necessary.
+    ///
+    /// # Panics
+    /// This function will panic if the passed value is zero.
     pub fn set_n_clamping(&mut self, n: u32) {
+        assert!(n != 0);
         if self.l >= n {
             self.set_l_clamping(n - 1);
         }
@@ -113,7 +129,7 @@ impl std::fmt::Display for QuantumNumbers {
 /// Type representing the quantum numbers `n` and `l`.
 ///
 /// # Safety
-/// `NL` must satisfy that `n > l`.
+/// `NL` must satisfy that `n > 0` and `n > l`.
 #[derive(Clone, Copy, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct NL {
@@ -127,7 +143,7 @@ impl NL {
     /// Create a new `NL`, verifying that the passed values are valid. Returns `None`
     /// if that is not the case.
     pub const fn new(n: u32, l: u32) -> Option<Self> {
-        if n > l {
+        if n != 0 && n > l {
             Some(Self { n, l })
         } else {
             None
@@ -331,6 +347,7 @@ mod qn_tests {
     }
 
     test_invalid!(
+        test_000, 0, 0, 0;
         test_21n2, 2, 1, -2;
         test_253, 2, 5, 3;
         test_443, 4, 4, 3;
@@ -358,9 +375,60 @@ mod qn_tests {
     }
 
     #[test]
+    #[should_panic(expected = "assertion failed: n != 0")]
+    fn test_invalid_n_setter() {
+        let mut qn = Qn::new(5, 4, -3).unwrap();
+        qn.set_n_clamping(0);
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion failed: n != 0")]
+    fn test_invalid_enumerate() {
+        let _ = Qn::enumerate_up_to_n(0);
+    }
+
+    #[test]
     #[should_panic(expected = "assertion failed: self.l >= m.abs() as _")]
     fn test_invalid_m_setter() {
         let mut qn = Qn::new(5, 4, -3).unwrap();
         qn.set_m(-5);
+    }
+
+    #[test]
+    fn test_enumerate_l_m() {
+        assert_eq!(vec![0], Qn::enumerate_l_for_n(1).collect::<Vec<_>>());
+        assert_eq!(vec![0, 1, 2], Qn::enumerate_l_for_n(3).collect::<Vec<_>>());
+        assert_eq!(vec![0], Qn::enumerate_m_for_l(0).collect::<Vec<_>>());
+        assert_eq!(
+            vec![-2, -1, 0, 1, 2],
+            Qn::enumerate_m_for_l(2).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_enumerate_qn() {
+        let expected = &[
+            Qn::new(1, 0, 0),
+            Qn::new(2, 0, 0),
+            Qn::new(2, 1, -1),
+            Qn::new(2, 1, 0),
+            Qn::new(2, 1, 1),
+            Qn::new(3, 0, 0),
+            Qn::new(3, 1, -1),
+            Qn::new(3, 1, 0),
+            Qn::new(3, 1, 1),
+            // ^^ There are 9 quantum numbers through n=3, l=2. ^^
+            Qn::new(3, 2, -2),
+            Qn::new(3, 2, -1),
+            Qn::new(3, 2, 0),
+            Qn::new(3, 2, 1),
+            Qn::new(3, 2, 2),
+        ];
+        for (exp, test) in expected.iter().zip(Qn::enumerate_up_to_n(3)) {
+            assert_eq!(exp, &Some(test));
+        }
+        for (exp, test) in expected[..9].iter().zip(Qn::enumerate_up_to_n_l(3, 1)) {
+            assert_eq!(exp, &Some(test));
+        }
     }
 }
