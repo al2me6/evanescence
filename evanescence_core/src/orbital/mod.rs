@@ -9,7 +9,7 @@ pub mod wavefunctions;
 
 use num_complex::Complex32;
 
-pub use quantum_numbers::QuantumNumbers;
+pub use quantum_numbers::Qn;
 
 use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
 use crate::numerics::Evaluate;
@@ -43,13 +43,13 @@ pub enum RadialPlot {
 }
 
 /// Trait representing a hydrogenic orbital.
-pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
+pub trait Orbital: Evaluate<Parameters = Qn> {
     /// An empirically derived heuristic for estimating the radius of a specific orbital
     /// (in the sense that the vast majority of probability density is confined within a sphere
     /// of that radius). See the attached Mathematica notebook `radial_wavefunction.nb`
     /// for plots.
     #[inline]
-    fn estimate_radius(qn: QuantumNumbers) -> f32 {
+    fn estimate_radius(qn: Qn) -> f32 {
         let n = qn.n() as f32;
         n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
     }
@@ -61,11 +61,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     ///
     /// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
     /// and the second containing the values associated with the radial points.
-    fn sample_radial(
-        qn: QuantumNumbers,
-        variant: RadialPlot,
-        num_points: usize,
-    ) -> (Vec<f32>, Vec<f32>) {
+    fn sample_radial(qn: Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
         let evaluator = match variant {
             RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
             RadialPlot::Probability => RadialProbability::evaluate_on_line_segment,
@@ -88,11 +84,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     /// the extent of the orbital, which is automatically estimated.
     ///
     /// For more information, see the documentation on [`GridValues`].
-    fn sample_cross_section(
-        qn: QuantumNumbers,
-        plane: Plane,
-        num_points: usize,
-    ) -> GridValues<Self::Output> {
+    fn sample_cross_section(qn: Qn, plane: Plane, num_points: usize) -> GridValues<Self::Output> {
         Self::evaluate_on_plane(qn, plane, Self::estimate_radius(qn), num_points)
     }
 
@@ -101,7 +93,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     /// extent.
     ///
     /// For more information, see [`Evaluate::evaluate_in_region`].
-    fn sample_region(qn: QuantumNumbers, num_points: usize) -> ComponentForm<Self::Output> {
+    fn sample_region(qn: Qn, num_points: usize) -> ComponentForm<Self::Output> {
         Self::evaluate_in_region(qn, Self::estimate_radius(qn), num_points).into()
     }
 
@@ -109,7 +101,7 @@ pub trait Orbital: Evaluate<Parameters = QuantumNumbers> {
     ///
     /// Superscripts and subscripts are represented with the HTML tags `<sup></sup>` and
     /// `<sub></sub>`.
-    fn name(qn: QuantumNumbers) -> String;
+    fn name(qn: Qn) -> String;
 }
 
 /// Implementation of the real hydrogenic orbitals.
@@ -117,10 +109,10 @@ pub struct Real;
 
 impl Evaluate for Real {
     type Output = f32;
-    type Parameters = QuantumNumbers;
+    type Parameters = Qn;
 
     #[inline]
-    fn evaluate(qn: QuantumNumbers, point: &Point) -> f32 {
+    fn evaluate(qn: Qn, point: &Point) -> f32 {
         Radial::evaluate(qn.into(), point) * RealSphericalHarmonic::evaluate(qn.into(), point)
     }
 }
@@ -128,7 +120,7 @@ impl Evaluate for Real {
 impl Orbital for Real {
     /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
     /// the quantum numbers only (ex. `ψ_{420}`).
-    fn name(qn: QuantumNumbers) -> String {
+    fn name(qn: Qn) -> String {
         if let (Some(subshell), Some(linear_combination)) = (
             subshell_name(qn.l()),
             RealSphericalHarmonic::linear_combination_expression(qn.into()),
@@ -145,17 +137,17 @@ pub struct Complex;
 
 impl Evaluate for Complex {
     type Output = Complex32;
-    type Parameters = QuantumNumbers;
+    type Parameters = Qn;
 
     #[inline]
-    fn evaluate(qn: QuantumNumbers, point: &Point) -> Complex32 {
+    fn evaluate(qn: Qn, point: &Point) -> Complex32 {
         Radial::evaluate(qn.into(), point) * SphericalHarmonic::evaluate(qn.into(), point)
     }
 }
 
 impl Orbital for Complex {
     /// Give the name of the wavefunction (ex. `ψ_{420}`).
-    fn name(qn: QuantumNumbers) -> String {
+    fn name(qn: Qn) -> String {
         format!("ψ<sub>{}{}{}</sub>", qn.n(), qn.l(), qn.m())
     }
 }

@@ -6,10 +6,10 @@ use getset::CopyGetters;
 /// Type representing the quantum numbers `n`, `l`, and `m`.
 ///
 /// # Safety
-/// `QuantumNumbers` must satisfy that `n > 0`, `n > l` and `l >= |m|`.
+/// `Qn` must satisfy that `n > 0`, `n > l` and `l >= |m|`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, CopyGetters)]
 #[getset(get_copy = "pub")]
-pub struct QuantumNumbers {
+pub struct Qn {
     /// The principal quantum number.
     n: u32,
     /// The azimuthal quantum number.
@@ -18,9 +18,9 @@ pub struct QuantumNumbers {
     m: i32,
 }
 
-impl QuantumNumbers {
-    /// Create a new `QuantumNumbers`, verifying that the passed values are valid. Returns `None`
-    /// if that is not the case.
+impl Qn {
+    /// Create a new `Qn`, verifying that the passed values are valid. Returns `None` if that
+    /// is not the case.
     pub const fn new(n: u32, l: u32, m: i32) -> Option<Self> {
         if n > l && l >= m.abs() as u32 {
             Some(Self { n, l, m })
@@ -108,13 +108,13 @@ impl QuantumNumbers {
     }
 }
 
-impl Default for QuantumNumbers {
+impl Default for Qn {
     fn default() -> Self {
         Self::new(1, 0, 0).unwrap()
     }
 }
 
-impl std::fmt::Display for QuantumNumbers {
+impl std::fmt::Display for Qn {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{},{},{}", self.n, self.l, self.m)
     }
@@ -123,18 +123,18 @@ impl std::fmt::Display for QuantumNumbers {
 /// Type representing the quantum numbers `n` and `l`.
 ///
 /// # Safety
-/// `NL` must satisfy that `n > 0` and `n > l`.
+/// `Nl` must satisfy that `n > 0` and `n > l`.
 #[derive(Clone, Copy, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
-pub struct NL {
+pub struct Nl {
     /// The principal quantum number.
     n: u32,
     /// The azimuthal quantum number.
     l: u32,
 }
 
-impl NL {
-    /// Create a new `NL`, verifying that the passed values are valid. Returns `None`
+impl Nl {
+    /// Create a new `Nm`, verifying that the passed values are valid. Returns `None`
     /// if that is not the case.
     pub const fn new(n: u32, l: u32) -> Option<Self> {
         if n != 0 && n > l {
@@ -145,8 +145,8 @@ impl NL {
     }
 }
 
-impl From<QuantumNumbers> for NL {
-    fn from(QuantumNumbers { n, l, m: _ }: QuantumNumbers) -> Self {
+impl From<Qn> for Nl {
+    fn from(Qn { n, l, m: _ }: Qn) -> Self {
         Self { n, l }
     }
 }
@@ -154,18 +154,18 @@ impl From<QuantumNumbers> for NL {
 /// Type representing the quantum numbers `l` and `m`.
 ///
 /// # Safety
-/// `LM` must satisfy that `l >= |m|`.
+/// `Lm` must satisfy that `l >= |m|`.
 #[derive(Clone, Copy, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
-pub struct LM {
+pub struct Lm {
     /// The azimuthal quantum number.
     l: u32,
     /// The magnetic quantum number.
     m: i32,
 }
 
-impl LM {
-    /// Create a new `LM`, verifying that the passed values are valid. Returns `None`
+impl Lm {
+    /// Create a new `Lm`, verifying that the passed values are valid. Returns `None`
     /// if that is not the case.
     pub const fn new(l: u32, m: i32) -> Option<Self> {
         if l >= m.abs() as u32 {
@@ -176,15 +176,15 @@ impl LM {
     }
 }
 
-impl From<QuantumNumbers> for LM {
-    fn from(QuantumNumbers { n: _, l, m }: QuantumNumbers) -> Self {
+impl From<Qn> for Lm {
+    fn from(Qn { n: _, l, m }: Qn) -> Self {
         Self { l, m }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::QuantumNumbers as Qn;
+    use super::Qn as Qn;
 
     macro_rules! test_invalid {
         ($($fn:ident, $n:literal, $l:literal, $m:literal);+ $(;)?) => {

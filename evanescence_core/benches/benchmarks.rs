@@ -6,7 +6,7 @@ use evanescence_core::numerics::{
     orthogonal_polynomials::{associated_laguerre, associated_legendre},
     Multifactorial,
 };
-use evanescence_core::orbital::{self, QuantumNumbers};
+use evanescence_core::orbital::{self, Qn};
 
 pub fn bench_numerics(c: &mut Criterion) {
     let mut fact_group = c.benchmark_group("factorials");
@@ -41,7 +41,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
         .warm_up_time(Duration::from_secs(10))
         .measurement_time(Duration::from_secs(30));
     group.throughput(Throughput::Elements(Quality::Extreme as _));
-    for qn in QuantumNumbers::enumerate_up_to_n(5) {
+    for qn in Qn::enumerate_up_to_n(5) {
         group.bench_with_input(
             BenchmarkId::new(
                 "real",

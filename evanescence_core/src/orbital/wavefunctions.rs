@@ -12,7 +12,7 @@ use crate::numerics::{
     orthogonal_polynomials::{associated_laguerre, associated_legendre},
     Evaluate,
 };
-use crate::orbital::quantum_numbers::{LM, NL};
+use crate::orbital::quantum_numbers::{Lm, Nl};
 
 /// Implementation of the radial component of the hydrogenic wavefunction.
 pub struct Radial;
@@ -31,10 +31,10 @@ impl Radial {
 
 impl Evaluate for Radial {
     type Output = f32;
-    type Parameters = NL;
+    type Parameters = Nl;
 
     #[inline]
-    fn evaluate(nl: NL, point: &Point) -> Self::Output {
+    fn evaluate(nl: Nl, point: &Point) -> Self::Output {
         let (n, l) = (nl.n(), nl.l());
         let rho = 2.0 * point.r() / (n as f32);
         Self::normalization_factor(n, l)
@@ -49,7 +49,7 @@ pub struct RadialProbability;
 
 impl Evaluate for RadialProbability {
     type Output = f32;
-    type Parameters = NL;
+    type Parameters = Nl;
 
     #[inline]
     fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output {
@@ -64,7 +64,7 @@ pub struct RadialProbabilityDistribution;
 
 impl Evaluate for RadialProbabilityDistribution {
     type Output = f32;
-    type Parameters = NL;
+    type Parameters = Nl;
 
     #[inline]
     fn evaluate(params: Self::Parameters, pt: &Point) -> Self::Output {
@@ -92,10 +92,10 @@ impl SphericalHarmonic {
 
 impl Evaluate for SphericalHarmonic {
     type Output = Complex32;
-    type Parameters = LM;
+    type Parameters = Lm;
 
     #[inline]
-    fn evaluate(lm: LM, point: &Point) -> Self::Output {
+    fn evaluate(lm: Lm, point: &Point) -> Self::Output {
         let (l, m) = (lm.l(), lm.m());
         let m_abs = m.abs() as u32;
         Self::normalization_factor(l, m_abs)
@@ -111,10 +111,10 @@ pub struct RealSphericalHarmonic;
 
 impl Evaluate for RealSphericalHarmonic {
     type Output = f32;
-    type Parameters = LM;
+    type Parameters = Lm;
 
     #[inline]
-    fn evaluate(lm: LM, point: &Point) -> Self::Output {
+    fn evaluate(lm: Lm, point: &Point) -> Self::Output {
         let (l, m) = (lm.l(), lm.m());
         let m_abs = m.abs() as u32;
         SphericalHarmonic::normalization_factor(l, m_abs)
@@ -136,7 +136,7 @@ impl RealSphericalHarmonic {
     /// This is only implemented for `l` up to 3 and returns `None` for larger values.
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
-    pub fn linear_combination_expression(lm: LM) -> Option<&'static str> {
+    pub fn linear_combination_expression(lm: Lm) -> Option<&'static str> {
         let (l, m) = (lm.l(), lm.m());
         match l {
             0 => Some(""), // s orbital.
@@ -194,7 +194,7 @@ mod tests {
     use crate::assert_iterable_relative_eq;
     use crate::geometry::Point;
     use crate::numerics::Evaluate;
-    use crate::orbital::quantum_numbers::{LM, NL};
+    use crate::orbital::quantum_numbers::{Lm, Nl};
 
     lazy_static! {
         static ref TEST_POINTS: Vec<Point> = vec![
@@ -241,7 +241,7 @@ mod tests {
     test!(
         test_radial_1_0,
         Radial::evaluate,
-        NL::new(1, 0).unwrap(),
+        Nl::new(1, 0).unwrap(),
         &[
             0.00663625, 0.0058303, 0.00134232, 0.00109754, 0.0856609, 0.00137691, 0.00097705,
             0.00013556, 0.00017174, 0.00053425,
@@ -250,7 +250,7 @@ mod tests {
     test!(
         test_radial_2_1,
         Radial::evaluate,
-        NL::new(2, 1).unwrap(),
+        Nl::new(2, 1).unwrap(),
         &[
             0.06712, 0.0643393, 0.0386382, 0.0359008, 0.133092, 0.0389966, 0.0343976, 0.0161317,
             0.0177099, 0.0274495,
@@ -259,7 +259,7 @@ mod tests {
     test!(
         test_radial_3_0,
         Radial::evaluate,
-        NL::new(3, 0).unwrap(),
+        Nl::new(3, 0).unwrap(),
         &[
             -0.0224952, -0.0202023, 0.00281192, 0.00536186, -0.0491676, 0.00247796, 0.00675915,
             0.0223802, 0.0212521, 0.0131223
@@ -268,7 +268,7 @@ mod tests {
     test!(
         test_radial_5_3,
         Radial::evaluate,
-        NL::new(5, 3).unwrap(),
+        Nl::new(5, 3).unwrap(),
         &[
             0.00865692, 0.00894101, 0.0117124, 0.0120124, 0.00286186, 0.0116729, 0.0121757,
             0.0137583, 0.013689, 0.0129009,
@@ -278,7 +278,7 @@ mod tests {
     test!(
         test_real_sph_harm_1_0,
         RealSphericalHarmonic::evaluate,
-        LM::new(1, 0).unwrap(),
+        Lm::new(1, 0).unwrap(),
         &[
             -0.486811, -0.0506311, -0.0820011, 0.399348, 0.46074, -0.312183, 0.178182, -0.420266,
             0.298149, 0.124939
@@ -287,7 +287,7 @@ mod tests {
     test!(
         test_real_sph_harm_1_1,
         RealSphericalHarmonic::evaluate,
-        LM::new(1, 1).unwrap(),
+        Lm::new(1, 1).unwrap(),
         &[
             0.0412355, 0.17018, -0.370225, -0.270055, 0.0248569, 0.0643476, -0.353216, -0.247778,
             -0.0081252, 0.260785
@@ -296,7 +296,7 @@ mod tests {
     test!(
         test_real_sph_harm_1_n1,
         RealSphericalHarmonic::evaluate,
-        LM::new(1, -1).unwrap(),
+        Lm::new(1, -1).unwrap(),
         &[
             -0.0068873, -0.455201, 0.308126, -0.0795211, -0.160728, -0.370316, 0.286744, 0.0267368,
             -0.387006, -0.393845
@@ -305,7 +305,7 @@ mod tests {
     test!(
         test_real_sph_harm_2_1,
         RealSphericalHarmonic::evaluate,
-        LM::new(2, 1).unwrap(),
+        Lm::new(2, 1).unwrap(),
         &[
             -0.0918672, -0.0394327, 0.138936, -0.493553, 0.0524122, -0.0919329, -0.288027,
             0.476559, -0.0110866, 0.149112
@@ -314,7 +314,7 @@ mod tests {
     test!(
         test_real_sph_harm_3_n2,
         RealSphericalHarmonic::evaluate,
-        LM::new(3, -2).unwrap(),
+        Lm::new(3, -2).unwrap(),
         &[
             0.00342614, 0.0971969, 0.231812, 0.212525, -0.045616, 0.184347, -0.44722, 0.0689953,
             0.0232332, -0.318002
@@ -323,7 +323,7 @@ mod tests {
     test!(
         test_real_sph_harm_5_n3,
         RealSphericalHarmonic::evaluate,
-        LM::new(5, -3).unwrap(),
+        Lm::new(5, -3).unwrap(),
         &[
             -0.0011583, -0.207523, -0.305109, -0.355185, 0.113205, 0.517974, 0.0691625, 0.11642,
             0.570845, 0.0332508

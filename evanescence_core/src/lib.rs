@@ -6,10 +6,10 @@
 //! ```
 //! use evanescence_core::geometry::Point;
 //! use evanescence_core::numerics::Evaluate;
-//! use evanescence_core::orbital::{self, QuantumNumbers};
+//! use evanescence_core::orbital::{self, Qn};
 //!
 //! // The 4d_{z^2} orbital.
-//! let qn = QuantumNumbers::new(4, 2, 0).unwrap(); // The constructor validates the parameters.
+//! let qn = Qn::new(4, 2, 0).unwrap(); // The constructor validates the parameters.
 //! let value = orbital::Real::evaluate(qn, &Point::new(1.0, 3.2, 4.7));
 //! approx::assert_relative_eq!(value, 0.008895547);
 //! ```
@@ -17,9 +17,9 @@
 //! To run a [Monte Carlo simulation](monte_carlo) on an orbital:
 //! ```
 //! use evanescence_core::monte_carlo::{MonteCarlo, Quality};
-//! use evanescence_core::orbital::{self, QuantumNumbers};
+//! use evanescence_core::orbital::{self, Qn};
 //!
-//! let qn = QuantumNumbers::new(4, 2, 0).unwrap();
+//! let qn = Qn::new(4, 2, 0).unwrap();
 //! let quality = Quality::Low; // Quality controls the number of points sampled.
 //! let results = orbital::Real::monte_carlo_simulate(qn, quality);
 //! ```

@@ -5,7 +5,7 @@ use anyhow::{anyhow, Context, Result};
 use argh::FromArgs;
 use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
-use evanescence_core::orbital::{self, Orbital, QuantumNumbers, RadialPlot};
+use evanescence_core::orbital::{self, Orbital, Qn, RadialPlot};
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
 use strum::{Display, EnumString};
@@ -106,7 +106,7 @@ fn main() -> Result<()> {
         skip_render,
     } = argh::from_env();
 
-    let qn = QuantumNumbers::new(n, l, m).with_context(|| {
+    let qn = Qn::new(n, l, m).with_context(|| {
         format!(
             "received illegal quantum numbers: n={}, l={}, m={}; must satisfy n > l and l >= |m|",
             n, l, m
