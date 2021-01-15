@@ -12,7 +12,7 @@ use crate::numerics::{
     orthogonal_polynomials::{associated_laguerre, associated_legendre},
     Evaluate,
 };
-use crate::orbital::{LM, NL};
+use crate::orbital::quantum_numbers::{LM, NL};
 
 /// Implementation of the radial component of the hydrogenic wavefunction.
 pub struct Radial;
@@ -34,7 +34,8 @@ impl Evaluate for Radial {
     type Parameters = NL;
 
     #[inline]
-    fn evaluate(NL { n, l }: NL, point: &Point) -> Self::Output {
+    fn evaluate(nl: NL, point: &Point) -> Self::Output {
+        let (n, l) = (nl.n(), nl.l());
         let rho = 2.0 * point.r() / (n as f32);
         Self::normalization_factor(n, l)
             * (-rho / 2.0).exp()
@@ -94,7 +95,8 @@ impl Evaluate for SphericalHarmonic {
     type Parameters = LM;
 
     #[inline]
-    fn evaluate(LM { l, m }: LM, point: &Point) -> Self::Output {
+    fn evaluate(lm: LM, point: &Point) -> Self::Output {
+        let (l, m) = (lm.l(), lm.m());
         let m_abs = m.abs() as u32;
         Self::normalization_factor(l, m_abs)
             * associated_legendre((l, m_abs), point.cos_theta()) // Condon-Shortley phase is included here.
@@ -112,7 +114,8 @@ impl Evaluate for RealSphericalHarmonic {
     type Parameters = LM;
 
     #[inline]
-    fn evaluate(LM { l, m }: LM, point: &Point) -> Self::Output {
+    fn evaluate(lm: LM, point: &Point) -> Self::Output {
+        let (l, m) = (lm.l(), lm.m());
         let m_abs = m.abs() as u32;
         SphericalHarmonic::normalization_factor(l, m_abs)
             * if m_abs % 2 == 0 { 1.0 } else { -1.0 } // (-1)^(-m), to cancel out the Condon-Shortley phase from `associated_legendre`.
@@ -134,16 +137,17 @@ impl RealSphericalHarmonic {
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
     pub fn linear_combination_expression(lm: LM) -> Option<&'static str> {
-        match lm.l {
+        let (l, m) = (lm.l(), lm.m());
+        match l {
             0 => Some(""), // s orbital.
-            1 => Some(match lm.m {
+            1 => Some(match m {
                 // p orbitals.
                 -1 => "y",
                 0 => "z",
                 1 => "x",
                 _ => unreachable!(),
             }),
-            2 => Some(match lm.m {
+            2 => Some(match m {
                 // d orbitals.
                 -2 => "xy",
                 -1 => "yz",
@@ -152,7 +156,7 @@ impl RealSphericalHarmonic {
                 2 => "x<sup>2</sup>-y<sup>2</sup>",
                 _ => unreachable!(),
             }),
-            3 => Some(match lm.m {
+            3 => Some(match m {
                 // f orbitals.
                 -3 => "y(3x<sup>2</sup>-y<sup>2</sup>)",
                 -2 => "xyz",
@@ -163,7 +167,7 @@ impl RealSphericalHarmonic {
                 3 => "x(x<sup>2</sup>-3y<sup>2</sup>)",
                 _ => unreachable!(),
             }),
-            4 => Some(match lm.m {
+            4 => Some(match m {
                 // g orbitals.
                 -4 => "xy(x<sup>2</sup>-y<sup>2</sup>)",
                 -3 => "zy<sup>3</sup>",
@@ -187,12 +191,10 @@ mod tests {
     use lazy_static::lazy_static;
 
     use super::{Radial, RealSphericalHarmonic};
-    use crate::{
-        assert_iterable_relative_eq,
-        geometry::Point,
-        numerics::Evaluate,
-        orbital::{LM, NL},
-    };
+    use crate::assert_iterable_relative_eq;
+    use crate::geometry::Point;
+    use crate::numerics::Evaluate;
+    use crate::orbital::quantum_numbers::{LM, NL};
 
     lazy_static! {
         static ref TEST_POINTS: Vec<Point> = vec![
