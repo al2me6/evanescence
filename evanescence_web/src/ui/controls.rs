@@ -1,69 +1,44 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use evanescence_core::monte_carlo::Quality;
 use evanescence_core::orbital::Qn;
 use strum::IntoEnumIterator;
-use yew::{html, Callback, Component, ComponentLink, Html, Properties, ShouldRender};
+use yew::{html, Component, ComponentLink, Html, ShouldRender};
+use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
 use crate::components::Dropdown;
-use crate::{AppState, MAX_N};
+use crate::StateHandle;
+use crate::MAX_N;
 
-pub(crate) struct Controls {
-    link: ComponentLink<Self>,
-    props: ControlsProps,
+pub(crate) struct ControlsImpl {
+    handle: StateHandle,
 }
 
-#[derive(Clone, PartialEq, Properties)]
-pub(crate) struct ControlsProps {
-    pub(crate) onchange: Callback<()>,
-    pub(crate) state: Rc<RefCell<AppState>>,
-}
+impl Component for ControlsImpl {
+    type Message = ();
+    type Properties = StateHandle;
 
-pub(crate) enum ControlsMsg {
-    N(u32),
-    L(u32),
-    M(i32),
-    Quality(Quality),
-}
-
-impl Component for Controls {
-    type Message = ControlsMsg;
-    type Properties = ControlsProps;
-
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self { link, props }
+    fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
+        Self { handle }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        {
-            let mut state = self.props.state.borrow_mut();
-            match msg {
-                ControlsMsg::N(n) => {
-                    state.qn.set_n_clamping(n);
-                }
-                ControlsMsg::L(l) => {
-                    state.qn.set_l_clamping(l);
-                }
-                ControlsMsg::M(m) => {
-                    state.qn.set_m(m);
-                }
-                ControlsMsg::Quality(quality) => {
-                    state.quality = quality;
-                }
-            }
-        }
-        self.props.onchange.emit(());
-        true
+    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+        false
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props.neq_assign(props)
+    fn change(&mut self, handle: StateHandle) -> ShouldRender {
+        self.handle.neq_assign(handle)
     }
 
     fn view(&self) -> Html {
-        let state = self.props.state.borrow();
+        let handle = &self.handle;
+
+        let set_n = handle.reduce_callback_with(|state, n| state.qn.set_n_clamping(n));
+        let set_l = handle.reduce_callback_with(|state, l| state.qn.set_l_clamping(l));
+        let set_m = handle.reduce_callback_with(|state, m| state.qn.set_m(m));
+        let set_quality = handle.reduce_callback_with(|state, quality| state.quality = quality);
+
+        let state = handle.state();
+
         html! {
             <div id = "controls">
                 <table>
@@ -71,7 +46,7 @@ impl Component for Controls {
                         <td>{"Principal quantum number (n):"}</td>
                         <td><Dropdown<u32>
                             id = "n-picker"
-                            onchange = self.link.callback(|selected| ControlsMsg::N(selected))
+                            onchange = set_n,
                             options = (1..=MAX_N).collect::<Vec<_>>()
                             selected = state.qn.n()
                         /></td>
@@ -80,7 +55,7 @@ impl Component for Controls {
                         <td>{"Azimuthal quantum number (l):"}</td>
                         <td><Dropdown<u32>
                             id = "l-picker"
-                            onchange = self.link.callback(|selected| ControlsMsg::L(selected))
+                            onchange = set_l,
                             options = Qn::enumerate_l_for_n(state.qn.n()).collect::<Vec<_>>(),
                             selected = state.qn.l()
                         /></td>
@@ -89,7 +64,7 @@ impl Component for Controls {
                         <td>{"Magnetic quantum number (m):"}</td>
                         <td><Dropdown<i32>
                             id = "m-picker"
-                            onchange = self.link.callback(|selected| ControlsMsg::M(selected))
+                            onchange = set_m,
                             options = Qn::enumerate_m_for_l(state.qn.l()).collect::<Vec<_>>(),
                             selected = state.qn.m()
                         /></td>
@@ -98,7 +73,7 @@ impl Component for Controls {
                         <td>{"Render quality:"}</td>
                         <td><Dropdown<Quality>
                             id = "quality-picker"
-                            onchange = self.link.callback(|selected| ControlsMsg::Quality(selected))
+                            onchange = set_quality,
                             options = Quality::iter().collect::<Vec<_>>()
                             selected = state.quality
                         /></td>
@@ -108,3 +83,5 @@ impl Component for Controls {
         }
     }
 }
+
+pub(crate) type Controls = SharedStateComponent<ControlsImpl>;

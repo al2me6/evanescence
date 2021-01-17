@@ -29,3 +29,4 @@ web-sys = { version = "0.3", features = [
 ] }
 yew = "0.17"
 yewtil = "0.3"
+yew-state = "0.4"

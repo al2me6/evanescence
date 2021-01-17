@@ -1,31 +1,38 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::orbital;
 use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
+use yew_state::{SharedState, SharedStateComponent};
 use yewtil::NeqAssign;
 
 use crate::evanescence_bridge;
 use crate::plotly::config::{Config, ModeBarButtons};
 use crate::plotly::layout::{Layout, Scene};
 use crate::plotly::Plotly;
-use crate::AppState;
+use crate::StateHandle;
 
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct VisualizationProps {
     pub(crate) id: String,
-    pub(crate) state: Rc<RefCell<AppState>>,
+    #[prop_or_default]
+    pub(crate) handle: StateHandle,
 }
 
-pub(crate) struct PointillistVisualization {
+impl SharedState for VisualizationProps {
+    type Handle = StateHandle;
+
+    fn handle(&mut self) -> &mut Self::Handle {
+        self.handle.handle()
+    }
+}
+
+pub(crate) struct PointillistVisualizationImpl {
     props: VisualizationProps,
     has_rendered: bool,
 }
 
-impl PointillistVisualization {
+impl PointillistVisualizationImpl {
     fn render_plot(&mut self) {
-        let state = self.props.state.borrow();
+        let state = self.props.handle.state();
         let trace = evanescence_bridge::into_scatter3d_real(orbital::Real::monte_carlo_simulate(
             state.qn,
             state.quality,
@@ -55,7 +62,7 @@ impl PointillistVisualization {
     }
 }
 
-impl Component for PointillistVisualization {
+impl Component for PointillistVisualizationImpl {
     type Message = ();
     type Properties = VisualizationProps;
 
@@ -71,8 +78,9 @@ impl Component for PointillistVisualization {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props.neq_assign(props);
-        self.render_plot();
+        if self.props.neq_assign(props) {
+            self.render_plot();
+        }
         false
     }
 
@@ -87,3 +95,5 @@ impl Component for PointillistVisualization {
         }
     }
 }
+
+pub(crate) type PointillistVisualization = SharedStateComponent<PointillistVisualizationImpl>;
