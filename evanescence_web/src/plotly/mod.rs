@@ -1,4 +1,3 @@
-use derivative::Derivative;
 use serde::Serialize;
 use serde_wasm_bindgen::to_value as to_js_value;
 use wasm_bindgen::prelude::*;
@@ -13,29 +12,6 @@ pub(crate) mod scatter_3d;
 pub(crate) enum PlotType {
     #[serde(rename = "scatter3d")]
     Scatter3D,
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) enum ModeBarButtons {
-    ResetCameraLastSave3d,
-    HoverClosest3d,
-}
-
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct Config<'a> {
-    #[serde(rename = "displaylogo")]
-    pub(crate) display_logo: bool,
-
-    #[derivative(Default(value = "true"))]
-    pub(crate) display_mode_bar: bool,
-
-    pub(crate) mode_bar_buttons_to_remove: &'a [ModeBarButtons],
-
-    #[derivative(Default(value = "true"))]
-    pub(crate) responsive: bool,
 }
 
 #[wasm_bindgen]
@@ -53,7 +29,7 @@ extern "C" {
 pub(crate) struct Plotly;
 
 impl Plotly {
-    pub(crate) fn react<I>(graph_div: &str, data: I, layout: layout::Layout, config: Config)
+    pub(crate) fn react<I>(graph_div: &str, data: I, layout: layout::Layout, config: config::Config)
     where
         I: IntoIterator,
         <I as IntoIterator>::Item: Serialize,

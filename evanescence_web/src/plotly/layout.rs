@@ -42,7 +42,6 @@ pub(crate) struct Axis<'a> {
 
     #[serde(rename = "showspikes")]
     pub(crate) show_spikes: bool,
-
 }
 
 #[derive(Serialize, Derivative)]

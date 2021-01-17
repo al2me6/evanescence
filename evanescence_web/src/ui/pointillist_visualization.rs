@@ -7,8 +7,9 @@ use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
 use yewtil::NeqAssign;
 
 use crate::evanescence_bridge;
+use crate::plotly::config::{Config, ModeBarButtons};
 use crate::plotly::layout::{Layout, Scene};
-use crate::plotly::{Config, ModeBarButtons, Plotly};
+use crate::plotly::Plotly;
 use crate::AppState;
 
 #[derive(Clone, PartialEq, Properties)]
