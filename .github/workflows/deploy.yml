@@ -11,13 +11,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - run: rustup toolchain update nightly && rustup default nightly && cargo install wasm-bindgen-cli
+      - run: |
+          rustup toolchain update nightly
+          rustup default nightly
+          cargo install wasm-bindgen-cli
       - name: Compile
         run: |
           cd evanescence_web
           wasm-pack build --target web --out-name wasm --out-dir ./static
       - name: Store artifact
-        uses: actions/upload-artifacts@v2
+        uses: actions/upload-artifact@v2
         with:
           path: evanescence_web/static
       - name: Switch to gh-pages branch
