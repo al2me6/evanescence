@@ -31,6 +31,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: artifact
+      - name: List directory contents
         run: ls -la
       - name: Push to gh-pages
         run: |
