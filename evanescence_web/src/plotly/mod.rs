@@ -20,14 +20,18 @@ extern "C" {
     fn plotly_react(graph_div: &str, data: Box<[JsValue]>, layout: JsValue, config: JsValue);
 
     #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
-    fn plotly_delete_trace(graph_div: &str, index: u32);
+    fn plotly_delete_trace(graph_div: &str, index: usize);
 
     #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
     fn plotly_add_trace(graph_div: &str, trace: JsValue);
+
+    #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
+    fn plotly_add_trace_at(graph_div: &str, trace: JsValue, index: usize);
 }
 
 pub(crate) struct Plotly;
 
+#[allow(dead_code)]
 impl Plotly {
     pub(crate) fn react<I>(graph_div: &str, data: I, layout: layout::Layout, config: config::Config)
     where
@@ -45,11 +49,15 @@ impl Plotly {
         )
     }
 
-    pub(crate) fn delete_trace(graph_div: &str, index: u32) {
+    pub(crate) fn delete_trace(graph_div: &str, index: usize) {
         plotly_delete_trace(graph_div, index)
     }
 
     pub(crate) fn add_trace<T: Serialize>(graph_div: &str, trace: T) {
         plotly_add_trace(graph_div, to_js_value(&trace).unwrap());
+    }
+
+    pub(crate) fn add_trace_at<T: Serialize>(graph_div: &str, trace: T, index: usize) {
+        plotly_add_trace_at(graph_div, to_js_value(&trace).unwrap(), index);
     }
 }
