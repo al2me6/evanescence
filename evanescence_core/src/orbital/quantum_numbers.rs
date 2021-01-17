@@ -184,7 +184,7 @@ impl From<Qn> for Lm {
 
 #[cfg(test)]
 mod tests {
-    use super::Qn as Qn;
+    use super::Qn;
 
     macro_rules! test_invalid {
         ($($fn:ident, $n:literal, $l:literal, $m:literal);+ $(;)?) => {

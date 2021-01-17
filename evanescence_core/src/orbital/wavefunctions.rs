@@ -133,7 +133,7 @@ impl RealSphericalHarmonic {
     /// set of `l` and `m` quantum numbers, as a `&str`. Superscripts are represented with the
     /// HTML tag `<sup></sup>`.
     ///
-    /// This is only implemented for `l` up to 3 and returns `None` for larger values.
+    /// This is only implemented for `l` up to 4 and returns `None` for larger values.
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
     pub fn linear_combination_expression(lm: Lm) -> Option<&'static str> {
