@@ -4,14 +4,16 @@ use wasm_bindgen::prelude::*;
 
 pub(crate) mod color;
 pub(crate) mod config;
+pub(crate) mod isosurface;
 pub(crate) mod layout;
 pub(crate) mod scatter;
 pub(crate) mod scatter_3d;
 
 #[derive(Serialize)]
+#[serde(rename_all = "lowercase")]
 pub(crate) enum PlotType {
-    #[serde(rename = "scatter3d")]
     Scatter3D,
+    Isosurface,
 }
 
 #[wasm_bindgen]
