@@ -22,7 +22,11 @@ jobs:
       - name: Store artifact
         uses: actions/upload-artifact@v2
         with:
-          path: evanescence_web/static
+          path: |
+            evanescence_web/static
+            !evanescence_web/static/.gitignore
+            !evanescence_web/static/.package.json
+            !evanescence_web/static/*.ts
       - name: Switch to gh-pages branch
         uses: actions/checkout@v2
         with:
@@ -31,12 +35,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: artifact
-      - name: List directory contents
-        run: ls -la
       - name: Push to gh-pages
         run: |
+          ls -la
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
+          git status
           git commit -m "Deploy website at commit $(git rev-parse HEAD)"
           git push
