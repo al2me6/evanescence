@@ -1,7 +1,7 @@
 //! An implementation of a Monte Carlo simulation to produce point cloud visualizations of orbitals.
 
 use nanorand::WyRand;
-use strum::{Display, EnumString};
+use strum::{Display, EnumIter, EnumString};
 
 use crate::geometry::{ComponentForm, Point, PointValue};
 use crate::orbital::{self, Orbital, Qn};
@@ -11,7 +11,7 @@ use crate::rand_f32;
 /// for Monte Carlo simulations or plotting.
 ///
 /// These values have been empirically observed to produce reasonable results.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Display, EnumString)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Display, EnumString, EnumIter)]
 pub enum Quality {
     /// Produces "recognizable" results, but not much more.
     Minimum = 5_000,
