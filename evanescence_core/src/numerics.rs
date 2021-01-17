@@ -31,6 +31,16 @@ macro_rules! impl_multifactorial {
 }
 impl_multifactorial!(u8, u16, u32, u64, usize);
 
+pub fn normalize(
+    source_range: RangeInclusive<f32>,
+    target_range: RangeInclusive<f32>,
+    val: f32,
+) -> f32 {
+    (val - source_range.start()) / (source_range.end() - source_range.start())
+        * (target_range.end() - target_range.start())
+        + target_range.start()
+}
+
 pub mod orthogonal_polynomials {
     //! Implementations of the the associated Legendre functions and the associated Laguerre
     //! polynomials.
