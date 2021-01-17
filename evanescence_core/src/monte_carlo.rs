@@ -26,7 +26,7 @@ pub enum Quality {
 
 impl Default for Quality {
     fn default() -> Self {
-        Self::High
+        Self::Medium
     }
 }
 
