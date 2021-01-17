@@ -25,7 +25,7 @@ jobs:
           path: |
             evanescence_web/static
             !evanescence_web/static/.gitignore
-            !evanescence_web/static/.package.json
+            !evanescence_web/static/package.json
             !evanescence_web/static/*.ts
       - name: Switch to gh-pages branch
         uses: actions/checkout@v2
