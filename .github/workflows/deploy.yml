@@ -32,7 +32,8 @@ jobs:
         with:
           name: artifact
       - name: Push to gh-pages
-        run: git config user.name github-actions
+        run: |
+          git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
           git commit -m "Deploy website at commit $(git rev-parse HEAD)"
