@@ -8,6 +8,8 @@
 
 </div>
 
+The web interface is hosted [here](https://al2me6.github.io/evanescence).
+
 Continuous benchmarks can be viewed [here](https://al2me6.github.io/evanescence/dev/bench).
 
 ## Features
