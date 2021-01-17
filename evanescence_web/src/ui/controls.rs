@@ -5,7 +5,7 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::components::Dropdown;
+use crate::components::{CheckBox, Dropdown};
 use crate::StateHandle;
 use crate::MAX_N;
 
@@ -36,6 +36,7 @@ impl Component for ControlsImpl {
         let set_l = handle.reduce_callback_with(|state, l| state.qn.set_l_clamping(l));
         let set_m = handle.reduce_callback_with(|state, m| state.qn.set_m(m));
         let set_quality = handle.reduce_callback_with(|state, quality| state.quality = quality);
+        let set_show_nodes = handle.reduce_callback_with(|state, show| state.show_nodes = show);
 
         let state = handle.state();
 
@@ -79,6 +80,12 @@ impl Component for ControlsImpl {
                         /></td>
                     </tr>
                 </table>
+                <CheckBox
+                    id = "nodes-toggle",
+                    onchange = set_show_nodes,
+                    initial_state = self.handle.state().show_nodes,
+                    label = "Display nodal surfaces"
+                />
             </div>
         }
     }

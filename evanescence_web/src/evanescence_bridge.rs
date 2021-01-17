@@ -1,7 +1,8 @@
 use evanescence_core::geometry::ComponentForm;
 use evanescence_core::numerics::normalize;
 
-use crate::plotly::color::ColorBar;
+use crate::plotly::color::{color_scales, ColorBar};
+use crate::plotly::isosurface::Isosurface;
 use crate::plotly::layout::Anchor;
 use crate::plotly::scatter_3d::{Marker, Scatter3D};
 
@@ -32,6 +33,25 @@ pub(crate) fn into_scatter3d_real(simulation: ComponentForm<f32>) -> Scatter3D {
             },
             ..Default::default()
         },
+        ..Default::default()
+    }
+}
+
+pub(crate) fn into_nodal_surface(simulation: ComponentForm<f32>) -> Isosurface {
+    let (x, y, z, value) = simulation.into_components();
+    Isosurface {
+        x,
+        y,
+        z,
+        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
+        // numerical instability/artifacting by amplifying any deviations from zero. However,
+        // this also results in crinkly-looking surfaces.
+        value: value
+            .into_iter()
+            .map(|v| v.signum() * v.abs().sqrt())
+            .collect(),
+        opacity: 0.075,
+        color_scale: color_scales::GREENS,
         ..Default::default()
     }
 }

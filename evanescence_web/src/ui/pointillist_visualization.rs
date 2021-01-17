@@ -1,5 +1,5 @@
 use evanescence_core::monte_carlo::MonteCarlo;
-use evanescence_core::orbital;
+use evanescence_core::orbital::{self, Orbital};
 use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
 use yew_state::{SharedState, SharedStateComponent};
 use yewtil::NeqAssign;
@@ -9,6 +9,12 @@ use crate::plotly::config::{Config, ModeBarButtons};
 use crate::plotly::layout::{Layout, Scene};
 use crate::plotly::Plotly;
 use crate::StateHandle;
+
+pub(crate) struct PointillistVisualizationImpl {
+    props: VisualizationProps,
+    has_rendered_pointillist: bool,
+    has_rendered_nodes: bool,
+}
 
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct VisualizationProps {
@@ -25,23 +31,15 @@ impl SharedState for VisualizationProps {
     }
 }
 
-pub(crate) struct PointillistVisualizationImpl {
-    props: VisualizationProps,
-    has_rendered: bool,
-}
-
 impl PointillistVisualizationImpl {
-    fn render_plot(&mut self) {
+    fn render_pointillist(&mut self) {
         let state = self.props.handle.state();
         let trace = evanescence_bridge::into_scatter3d_real(orbital::Real::monte_carlo_simulate(
             state.qn,
             state.quality,
         ));
 
-        if self.has_rendered {
-            Plotly::delete_trace(&self.props.id, 0);
-            Plotly::add_trace(&self.props.id, trace);
-        } else {
+        if !self.has_rendered_pointillist {
             Plotly::react(
                 &self.props.id,
                 &[trace],
@@ -58,6 +56,27 @@ impl PointillistVisualizationImpl {
                     ..Default::default()
                 },
             );
+        } else {
+            Plotly::delete_trace(&self.props.id, 0);
+            Plotly::add_trace_at(&self.props.id, trace, 0);
+            self.has_rendered_pointillist = true;
+        }
+    }
+
+    fn render_or_remove_nodes(&mut self) {
+        let state = self.props.handle.state();
+        if self.has_rendered_nodes {
+            Plotly::delete_trace(&self.props.id, 1);
+        }
+        if state.show_nodes {
+            let trace = evanescence_bridge::into_nodal_surface(orbital::Real::sample_region(
+                state.qn,
+                state.quality.for_isosurface(),
+            ));
+            Plotly::add_trace(&self.props.id, trace);
+            self.has_rendered_nodes = true;
+        } else {
+            self.has_rendered_nodes = false;
         }
     }
 }
@@ -69,7 +88,8 @@ impl Component for PointillistVisualizationImpl {
     fn create(props: Self::Properties, _link: ComponentLink<Self>) -> Self {
         Self {
             props,
-            has_rendered: false,
+            has_rendered_pointillist: false,
+            has_rendered_nodes: false,
         }
     }
 
@@ -78,15 +98,28 @@ impl Component for PointillistVisualizationImpl {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        if self.props.neq_assign(props) {
-            self.render_plot();
+        let (render_all, render_nodes_only) = {
+            let state = self.props.handle.state();
+            let new_state = props.handle.state();
+            (
+                !(state.qn == new_state.qn && state.quality == new_state.quality),
+                state.show_nodes != new_state.show_nodes,
+            )
+        };
+        self.props.neq_assign(props);
+        if render_all {
+            self.render_pointillist();
+            self.render_or_remove_nodes();
+        }
+        if render_nodes_only {
+            self.render_or_remove_nodes();
         }
         false
     }
 
     fn rendered(&mut self, _first_render: bool) {
-        self.render_plot();
-        self.has_rendered = true;
+        self.render_pointillist();
+        self.render_or_remove_nodes();
     }
 
     fn view(&self) -> Html {

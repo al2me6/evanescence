@@ -29,6 +29,7 @@ pub(crate) const VER_PATCH: u32 = pkg_version_patch!();
 pub(crate) struct State {
     qn: Qn,
     quality: Quality,
+    show_nodes: bool,
 }
 
 pub(crate) type StateHandle = SharedHandle<State>;
