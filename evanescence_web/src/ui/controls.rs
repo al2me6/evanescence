@@ -31,13 +31,6 @@ impl Component for ControlsImpl {
 
     fn view(&self) -> Html {
         let handle = &self.handle;
-
-        let set_n = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n));
-        let set_l = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l));
-        let set_m = handle.reduce_callback_with(|s, m| s.qn.set_m(m));
-        let set_quality = handle.reduce_callback_with(|s, qual| s.quality = qual);
-        let set_nodes_visibility = handle.reduce_callback_with(|s, vis| s.nodes_visibility = vis);
-
         let state = handle.state();
 
         html! {
@@ -47,7 +40,7 @@ impl Component for ControlsImpl {
                         <td>{"Principal quantum number (n):"}</td>
                         <td><Dropdown<u32>
                             id = "n-picker"
-                            onchange = set_n,
+                            onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n)),
                             options = (1..=MAX_N).collect::<Vec<_>>()
                             selected = state.qn.n()
                         /></td>
@@ -56,7 +49,7 @@ impl Component for ControlsImpl {
                         <td>{"Azimuthal quantum number (l):"}</td>
                         <td><Dropdown<u32>
                             id = "l-picker"
-                            onchange = set_l,
+                            onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l)),
                             options = Qn::enumerate_l_for_n(state.qn.n()).collect::<Vec<_>>(),
                             selected = state.qn.l()
                         /></td>
@@ -65,7 +58,7 @@ impl Component for ControlsImpl {
                         <td>{"Magnetic quantum number (m):"}</td>
                         <td><Dropdown<i32>
                             id = "m-picker"
-                            onchange = set_m,
+                            onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m)),
                             options = Qn::enumerate_m_for_l(state.qn.l()).collect::<Vec<_>>(),
                             selected = state.qn.m()
                         /></td>
@@ -74,17 +67,24 @@ impl Component for ControlsImpl {
                         <td>{"Render quality:"}</td>
                         <td><Dropdown<Quality>
                             id = "quality-picker"
-                            onchange = set_quality,
+                            onchange = handle.reduce_callback_with(|s, qual| s.quality = qual),
                             options = Quality::iter().collect::<Vec<_>>()
                             selected = state.quality
                         /></td>
                     </tr>
                 </table>
                 <CheckBox
-                    id = "nodes-toggle",
-                    onchange = set_nodes_visibility,
-                    initial_state = self.handle.state().nodes_visibility,
-                    label = "Display nodal surfaces"
+                    id = "radial-nodes-toggle",
+                    onchange = handle.reduce_callback_with(|s, vis| s.radial_nodes_visibility = vis),
+                    initial_state = self.handle.state().radial_nodes_visibility,
+                    label = "Display radial nodes"
+                />
+                <br/>
+                <CheckBox
+                    id = "angular-nodes-toggle",
+                    onchange = handle.reduce_callback_with(|s, vis| s.angular_nodes_visibility = vis),
+                    initial_state = self.handle.state().angular_nodes_visibility,
+                    label = "Display angular nodes"
                 />
             </div>
         }

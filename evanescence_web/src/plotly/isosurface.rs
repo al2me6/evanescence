@@ -27,7 +27,7 @@ pub(crate) struct Surface {
 
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
-pub(crate) struct Isosurface {
+pub(crate) struct Isosurface<'a> {
     pub(crate) x: Vec<f32>,
     pub(crate) y: Vec<f32>,
     pub(crate) z: Vec<f32>,
@@ -40,7 +40,7 @@ pub(crate) struct Isosurface {
     #[serde(rename = "flatshading")]
     pub(crate) flat_shading: bool,
     #[serde(rename = "colorscale")]
-    pub(crate) color_scale: ColorScale<'static>,
+    pub(crate) color_scale: ColorScale<'a>,
     #[derivative(Default(value = "1.0"))]
     pub(crate) opacity: f32,
     #[serde(rename = "showscale")]

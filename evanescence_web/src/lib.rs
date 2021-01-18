@@ -29,19 +29,22 @@ pub(crate) const VER_PATCH: u32 = pkg_version_patch!();
 pub(crate) struct State {
     qn: Qn,
     quality: Quality,
-    nodes_visibility: bool,
+    radial_nodes_visibility: bool,
+    angular_nodes_visibility: bool,
 }
 
 pub(crate) struct StateDiff {
     pub(crate) qn_or_quality: bool,
-    pub(crate) nodes_visibility: bool,
+    pub(crate) angular_nodes: bool,
+    pub(crate) radial_nodes: bool,
 }
 
 impl State {
     pub(crate) fn diff(&self, other: &Self) -> StateDiff {
         StateDiff {
             qn_or_quality: !(self.qn == other.qn && self.quality == other.quality),
-            nodes_visibility: self.nodes_visibility != other.nodes_visibility,
+            radial_nodes: self.radial_nodes_visibility != other.radial_nodes_visibility,
+            angular_nodes: self.angular_nodes_visibility != other.angular_nodes_visibility,
         }
     }
 }

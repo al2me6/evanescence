@@ -1,7 +1,9 @@
 use evanescence_core::geometry::ComponentForm;
+use evanescence_core::monte_carlo::Quality;
 use evanescence_core::numerics::normalize;
+use evanescence_core::orbital::{self, wavefunctions, Qn};
 
-use crate::plotly::color::{color_scales, ColorBar};
+use crate::plotly::color::{color_scales, ColorBar, ColorScale};
 use crate::plotly::isosurface::Isosurface;
 use crate::plotly::layout::Anchor;
 use crate::plotly::scatter_3d::{Marker, Scatter3D};
@@ -40,7 +42,8 @@ pub(crate) fn plot_scatter3d_real(simulation: ComponentForm<f32>) -> Scatter3D {
 pub(crate) fn plot_isosurface(
     simulation: ComponentForm<f32>,
     correct_instability: bool,
-) -> Isosurface {
+    color_scale: ColorScale,
+) -> Isosurface<'_> {
     let (x, y, z, mut value) = simulation.into_components();
     if correct_instability {
         // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
@@ -56,8 +59,35 @@ pub(crate) fn plot_isosurface(
         y,
         z,
         value,
+        color_scale,
         opacity: 0.075,
-        color_scale: color_scales::GREENS,
         ..Default::default()
     }
+}
+
+pub(crate) fn plot_radial_nodes(qn: Qn, quality: Quality) -> Isosurface<'static> {
+    plot_isosurface(
+        orbital::sample_region_for::<wavefunctions::Radial>(
+            qn,
+            quality.for_isosurface(),
+            // Shrink the extent plotted since radial nodes are found in the central
+            // part of the full extent only. This is a heuristic that has been verified
+            // to cover all radial nodes from `n` = 2 through 8.
+            Some(qn.n() as f32 * 0.05 + 0.125),
+        ),
+        false,
+        color_scales::GREENS,
+    )
+}
+
+pub(crate) fn plot_angular_nodes(qn: Qn, quality: Quality) -> Isosurface<'static> {
+    plot_isosurface(
+        orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
+            qn,
+            quality.for_isosurface(),
+            None,
+        ),
+        qn.l() > 6 && qn.m().abs() > 5,
+        color_scales::PURP,
+    )
 }
