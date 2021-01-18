@@ -38,10 +38,10 @@ pub(crate) struct StateDiff {
 }
 
 impl State {
-    pub(crate) fn diff(&self, new: &Self) -> StateDiff {
+    pub(crate) fn diff(&self, other: &Self) -> StateDiff {
         StateDiff {
-            qn_or_quality: !(self.qn == new.qn && self.quality == new.quality),
-            nodes_visibility: self.nodes_visibility != new.nodes_visibility,
+            qn_or_quality: !(self.qn == other.qn && self.quality == other.quality),
+            nodes_visibility: self.nodes_visibility != other.nodes_visibility,
         }
     }
 }
