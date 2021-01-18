@@ -88,15 +88,6 @@ pub trait Orbital: Evaluate<Parameters = Qn> {
         Self::evaluate_on_plane(qn, plane, Self::estimate_radius(qn), num_points)
     }
 
-    /// Compute a plot of an orbital in a cube centered at the origin. `num_points` are sampled
-    /// in each dimension, producing an evenly-spaced lattice of values the size of the orbital's
-    /// extent.
-    ///
-    /// For more information, see [`Evaluate::evaluate_in_region`].
-    fn sample_region(qn: Qn, num_points: usize) -> ComponentForm<Self::Output> {
-        Self::evaluate_in_region(qn, Self::estimate_radius(qn), num_points).into()
-    }
-
     /// Give the conventional name of an orbital.
     ///
     /// Superscripts and subscripts are represented with the HTML tags `<sup></sup>` and

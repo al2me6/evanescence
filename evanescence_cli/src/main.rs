@@ -152,7 +152,7 @@ fn main() -> Result<()> {
                         quality as usize + num_points_iso.pow(3),
                         (
                             orbital::Real::monte_carlo_simulate(qn, quality),
-                            orbital::Real::sample_region(qn, num_points_iso),
+                            orbital::sample_region_for::<orbital::Real>(qn, num_points_iso, None),
                         ),
                     )
                 },
