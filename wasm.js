@@ -314,13 +314,13 @@ async function init(input) {
         Plotly.react(getStringFromWasm0(arg0, arg1), v0, takeObject(arg4), takeObject(arg5));
     };
     imports.wbg.__wbg_deleteTraces_a7a215808a41e86d = function(arg0, arg1, arg2) {
-        Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2 >>> 0);
+        Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2);
     };
     imports.wbg.__wbg_addTraces_60271901da8b31cc = function(arg0, arg1, arg2) {
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
     imports.wbg.__wbg_addTraces_cade9f1a2d7664cb = function(arg0, arg1, arg2, arg3) {
-        Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2), arg3 >>> 0);
+        Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2), arg3);
     };
     imports.wbg.__wbg_relayout_7171e6b5efb2b9fe = function(arg0, arg1, arg2) {
         Plotly.relayout(getStringFromWasm0(arg0, arg1), takeObject(arg2));
@@ -630,8 +630,8 @@ async function init(input) {
         var ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper799 = function(arg0, arg1, arg2) {
-        var ret = makeMutClosure(arg0, arg1, 329, __wbg_adapter_20);
+    imports.wbg.__wbindgen_closure_wrapper805 = function(arg0, arg1, arg2) {
+        var ret = makeMutClosure(arg0, arg1, 330, __wbg_adapter_20);
         return addHeapObject(ret);
     };
 
