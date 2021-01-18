@@ -299,6 +299,12 @@ async function init(input) {
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
+    imports.wbg.__wbg_deleteTraces_e1e9548c4663066b = function(arg0, arg1, arg2) {
+        Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2);
+    };
+    imports.wbg.__wbg_relayout_ffc1c7a815a2dbf4 = function(arg0, arg1, arg2) {
+        Plotly.relayout(getStringFromWasm0(arg0, arg1), takeObject(arg2));
+    };
     imports.wbg.__wbindgen_cb_drop = function(arg0) {
         const obj = takeObject(arg0).original;
         if (obj.cnt-- == 1) {
@@ -308,22 +314,16 @@ async function init(input) {
         var ret = false;
         return ret;
     };
-    imports.wbg.__wbg_react_3c2963aecd311286 = function(arg0, arg1, arg2, arg3, arg4, arg5) {
+    imports.wbg.__wbg_react_c289f541b179dabb = function(arg0, arg1, arg2, arg3, arg4, arg5) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.react(getStringFromWasm0(arg0, arg1), v0, takeObject(arg4), takeObject(arg5));
     };
-    imports.wbg.__wbg_deleteTraces_a7a215808a41e86d = function(arg0, arg1, arg2) {
-        Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2);
-    };
-    imports.wbg.__wbg_addTraces_60271901da8b31cc = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_addTraces_f8d9d888f2b213e6 = function(arg0, arg1, arg2) {
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
-    imports.wbg.__wbg_addTraces_cade9f1a2d7664cb = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_addTraces_a90c242a2895340d = function(arg0, arg1, arg2, arg3) {
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2), arg3);
-    };
-    imports.wbg.__wbg_relayout_7171e6b5efb2b9fe = function(arg0, arg1, arg2) {
-        Plotly.relayout(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
         var ret = getStringFromWasm0(arg0, arg1);
@@ -630,8 +630,8 @@ async function init(input) {
         var ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper805 = function(arg0, arg1, arg2) {
-        var ret = makeMutClosure(arg0, arg1, 330, __wbg_adapter_20);
+    imports.wbg.__wbindgen_closure_wrapper809 = function(arg0, arg1, arg2) {
+        var ret = makeMutClosure(arg0, arg1, 335, __wbg_adapter_20);
         return addHeapObject(ret);
     };
 
