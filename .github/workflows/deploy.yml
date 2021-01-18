@@ -11,10 +11,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - run: |
+      - name: Set up environment
+        run: |
           rustup toolchain update nightly
           rustup default nightly
-          cargo install wasm-pack
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Compile
         run: |
           cd evanescence_web
