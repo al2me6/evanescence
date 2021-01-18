@@ -1,10 +1,10 @@
 use evanescence_core::monte_carlo::MonteCarlo;
-use evanescence_core::orbital::{self, Orbital};
+use evanescence_core::orbital::{self, wavefunctions, Orbital};
 use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
 use yew_state::{SharedState, SharedStateComponent};
 use yewtil::NeqAssign;
 
-use crate::evanescence_bridge;
+use crate::evanescence_bridge::{plot_isosurface, plot_scatter3d_real};
 use crate::plotly::config::{Config, ModeBarButtons};
 use crate::plotly::layout::{Axis, Layout, LayoutRangeUpdate, Scene};
 use crate::plotly::Plotly;
@@ -34,10 +34,8 @@ impl SharedState for VisualizationProps {
 impl PointillistVisualizationImpl {
     fn render_pointillist(&mut self) {
         let state = self.props.handle.state();
-        let trace = evanescence_bridge::into_scatter3d_real(orbital::Real::monte_carlo_simulate(
-            state.qn,
-            state.quality,
-        ));
+        let trace =
+            plot_scatter3d_real(orbital::Real::monte_carlo_simulate(state.qn, state.quality));
 
         // First render, set up the plot too.
         if !self.has_rendered_pointillist {
@@ -86,15 +84,27 @@ impl PointillistVisualizationImpl {
         let state = self.props.handle.state();
         // We always need to remove the old isosurface.
         if self.has_rendered_nodes {
-            Plotly::delete_trace(&self.props.id, 1);
+            Plotly::delete_trace(&self.props.id, -1);
+            Plotly::delete_trace(&self.props.id, -1);
         }
         // Add a new one if necessary.
         if state.nodes_visibility {
-            let trace = evanescence_bridge::into_nodal_surface(orbital::Real::sample_region(
-                state.qn,
-                state.quality.for_isosurface(),
-            ));
-            Plotly::add_trace(&self.props.id, trace);
+            let radial_trace = plot_isosurface(
+                orbital::sample_region_for::<wavefunctions::Radial>(
+                    state.qn,
+                    state.quality.for_isosurface(),
+                ),
+                false,
+            );
+            let angular_trace = plot_isosurface(
+                orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
+                    state.qn,
+                    state.quality.for_isosurface(),
+                ),
+                state.qn.l() > 6 && state.qn.m().abs() > 5,
+            );
+            Plotly::add_trace(&self.props.id, radial_trace);
+            Plotly::add_trace(&self.props.id, angular_trace);
             self.has_rendered_nodes = true;
         } else {
             self.has_rendered_nodes = false;

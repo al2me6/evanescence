@@ -6,7 +6,7 @@ use crate::plotly::isosurface::Isosurface;
 use crate::plotly::layout::Anchor;
 use crate::plotly::scatter_3d::{Marker, Scatter3D};
 
-pub(crate) fn into_scatter3d_real(simulation: ComponentForm<f32>) -> Scatter3D {
+pub(crate) fn plot_scatter3d_real(simulation: ComponentForm<f32>) -> Scatter3D {
     let (x, y, z, values) = simulation.into_components();
 
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
@@ -37,19 +37,25 @@ pub(crate) fn into_scatter3d_real(simulation: ComponentForm<f32>) -> Scatter3D {
     }
 }
 
-pub(crate) fn into_nodal_surface(simulation: ComponentForm<f32>) -> Isosurface {
-    let (x, y, z, value) = simulation.into_components();
+pub(crate) fn plot_isosurface(
+    simulation: ComponentForm<f32>,
+    correct_instability: bool,
+) -> Isosurface {
+    let (x, y, z, mut value) = simulation.into_components();
+    if correct_instability {
+        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
+        // numerical instability/artifacting by amplifying any deviations from zero. However,
+        // this also results in crinkly-looking surfaces.
+        value = value
+            .into_iter()
+            .map(|v| v.signum() * v.abs().sqrt())
+            .collect();
+    }
     Isosurface {
         x,
         y,
         z,
-        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
-        // numerical instability/artifacting by amplifying any deviations from zero. However,
-        // this also results in crinkly-looking surfaces.
-        value: value
-            .into_iter()
-            .map(|v| v.signum() * v.abs().sqrt())
-            .collect(),
+        value,
         opacity: 0.075,
         color_scale: color_scales::GREENS,
         ..Default::default()
