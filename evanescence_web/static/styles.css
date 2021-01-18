@@ -13,7 +13,7 @@ main {
   flex: 5 1 50vh;
 }
 
-@media (max-width: 40em) {
+@media (orientation: portrait) {
   main {
     height: 100vw;
   }
@@ -42,6 +42,7 @@ footer {
 
 footer p {
   text-align: right;
+  font-size: 12px;
 }
 
 select {
