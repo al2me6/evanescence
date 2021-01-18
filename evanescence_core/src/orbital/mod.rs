@@ -147,14 +147,26 @@ impl Orbital for Complex {
 /// `num_points` are sampled in each dimension, producing an evenly-spaced lattice of values the
 /// size of the orbital's extent.
 ///
+/// The optional value `extent_multiplier` is used to scale the extent plotted. Passing `None`
+/// retains the original extent.
+///
 /// This function is intended to be used for plotting [radial](wavefunctions::Radial) and
 /// [angular](wavefunctions::RealSphericalHarmonic) nodes.
 ///
 /// For more information, see [`Evaluate::evaluate_in_region`].
-pub fn sample_region_for<E>(qn: Qn, num_points: usize) -> ComponentForm<E::Output>
+pub fn sample_region_for<E>(
+    qn: Qn,
+    num_points: usize,
+    extent_multiplier: Option<f32>,
+) -> ComponentForm<E::Output>
 where
     E: Evaluate,
     <E as Evaluate>::Parameters: From<Qn>,
 {
-    E::evaluate_in_region(qn.into(), Real::estimate_radius(qn), num_points).into()
+    E::evaluate_in_region(
+        qn.into(),
+        Real::estimate_radius(qn) * extent_multiplier.unwrap_or(1.0),
+        num_points,
+    )
+    .into()
 }

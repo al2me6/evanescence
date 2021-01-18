@@ -50,7 +50,7 @@ impl Quality {
 
     #[inline]
     pub fn for_isosurface(self) -> usize {
-        (self as usize as f32 * 4.0).cbrt() as usize
+        (self as usize as f32 * 2.0).cbrt() as usize
     }
 }
 

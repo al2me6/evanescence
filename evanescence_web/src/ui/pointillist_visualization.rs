@@ -93,6 +93,10 @@ impl PointillistVisualizationImpl {
                 orbital::sample_region_for::<wavefunctions::Radial>(
                     state.qn,
                     state.quality.for_isosurface(),
+                    // Shrink the extent plotted since radial nodes are found in the central
+                    // part of the full extent only. This is a heuristic that has been verified
+                    // to cover all radial nodes from `n` = 2 through 8.
+                    Some(state.qn.n() as f32 * 0.05 + 0.1),
                 ),
                 false,
             );
@@ -100,6 +104,7 @@ impl PointillistVisualizationImpl {
                 orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
                     state.qn,
                     state.quality.for_isosurface(),
+                    None,
                 ),
                 state.qn.l() > 6 && state.qn.m().abs() > 5,
             );
