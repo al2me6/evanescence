@@ -40,6 +40,7 @@ impl PointillistVisualizationImpl {
         ));
 
         if !self.has_rendered_pointillist {
+            log::debug!("Completely rerendering... uhh", );
             Plotly::react(
                 &self.props.id,
                 &[trace],
@@ -56,10 +57,10 @@ impl PointillistVisualizationImpl {
                     ..Default::default()
                 },
             );
+            self.has_rendered_pointillist = true;
         } else {
             Plotly::delete_trace(&self.props.id, 0);
             Plotly::add_trace_at(&self.props.id, trace, 0);
-            self.has_rendered_pointillist = true;
         }
     }
 
