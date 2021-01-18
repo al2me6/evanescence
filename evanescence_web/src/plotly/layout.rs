@@ -21,7 +21,7 @@ pub(crate) struct Margin {
     pub(crate) left: u32,
 }
 
-#[derive(Serialize, Derivative)]
+#[derive(Clone, Copy, Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Axis<'a> {
     #[serde(rename = "backgroundcolor")]
@@ -42,11 +42,35 @@ pub(crate) struct Axis<'a> {
 
     #[serde(rename = "showspikes")]
     pub(crate) show_spikes: bool,
+
+    pub(crate) range: Option<(f32, f32)>,
+}
+
+#[derive(Serialize)]
+pub(crate) struct AspectRatio {
+    pub(crate) x: f32,
+    pub(crate) y: f32,
+    pub(crate) z: f32,
+}
+
+impl Default for AspectRatio {
+    fn default() -> Self {
+        Self {
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+        }
+    }
 }
 
 #[derive(Serialize, Derivative)]
-#[derivative(Default(new = "true"))]
+#[derivative(Default())]
 pub(crate) struct Scene<'a> {
+    #[serde(rename = "aspectmode")]
+    #[derivative(Default(value = "\"manual\""))]
+    pub(crate) aspect_mode: &'a str,
+    #[serde(rename="aspectratio")]
+    pub(crate) aspect_ratio: AspectRatio,
     #[serde(rename = "xaxis")]
     pub(crate) x_axis: Axis<'a>,
     #[serde(rename = "yaxis")]
@@ -70,4 +94,25 @@ pub(crate) struct Layout<'a> {
 
     #[serde(rename = "uirevision")]
     pub(crate) ui_revision: &'a str,
+}
+
+#[derive(Serialize)]
+pub(crate) struct LayoutRangeUpdate {
+    #[serde(rename = "scene.xaxis.range")]
+    pub(crate) x_axis_range: (f32, f32),
+    #[serde(rename = "scene.yaxis.range")]
+    pub(crate) y_axis_range: (f32, f32),
+    #[serde(rename = "scene.zaxis.range")]
+    pub(crate) z_axis_range: (f32, f32),
+}
+
+impl LayoutRangeUpdate {
+    pub(crate) fn new(extent: f32) -> Self {
+        let range = (-extent, extent);
+        Self {
+            x_axis_range: range,
+            y_axis_range: range,
+            z_axis_range: range,
+        }
+    }
 }

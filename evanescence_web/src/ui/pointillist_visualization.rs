@@ -6,7 +6,7 @@ use yewtil::NeqAssign;
 
 use crate::evanescence_bridge;
 use crate::plotly::config::{Config, ModeBarButtons};
-use crate::plotly::layout::{Layout, Scene};
+use crate::plotly::layout::{Axis, Layout, LayoutRangeUpdate, Scene};
 use crate::plotly::Plotly;
 use crate::StateHandle;
 
@@ -39,13 +39,25 @@ impl PointillistVisualizationImpl {
             state.quality,
         ));
 
+        // First render, set up the plot too.
         if !self.has_rendered_pointillist {
+            // Manually set the plot range.
+            let extent = orbital::Real::estimate_radius(state.qn);
+            let axis = Axis {
+                range: Some((-extent, extent)),
+                ..Default::default()
+            };
             Plotly::react(
                 &self.props.id,
                 &[trace],
                 Layout {
                     ui_revision: &self.props.id,
-                    scene: Some(Scene::default()),
+                    scene: Some(Scene {
+                        x_axis: axis,
+                        y_axis: axis,
+                        z_axis: axis,
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 },
                 Config {
@@ -58,16 +70,25 @@ impl PointillistVisualizationImpl {
             );
             self.has_rendered_pointillist = true;
         } else {
+            // On subsequent renders, only update the trace.
             Plotly::delete_trace(&self.props.id, 0);
+            // Relayout to set new plot range. Note that we relayout when there are no points
+            // displayed to improve performance.
+            Plotly::relayout(
+                &self.props.id,
+                LayoutRangeUpdate::new(orbital::Real::estimate_radius(state.qn)),
+            );
             Plotly::add_trace_at(&self.props.id, trace, 0);
         }
     }
 
     fn render_or_remove_nodes(&mut self) {
         let state = self.props.handle.state();
+        // We always need to remove the old isosurface.
         if self.has_rendered_nodes {
             Plotly::delete_trace(&self.props.id, 1);
         }
+        // Add a new one if necessary.
         if state.nodes_visibility {
             let trace = evanescence_bridge::into_nodal_surface(orbital::Real::sample_region(
                 state.qn,

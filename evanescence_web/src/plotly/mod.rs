@@ -29,6 +29,9 @@ extern "C" {
 
     #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
     fn plotly_add_trace_at(graph_div: &str, trace: JsValue, index: usize);
+
+    #[wasm_bindgen(js_namespace = Plotly, js_name = relayout)]
+    fn plotly_relayout(graph_div: &str, update: JsValue);
 }
 
 pub(crate) struct Plotly;
@@ -61,5 +64,9 @@ impl Plotly {
 
     pub(crate) fn add_trace_at<T: Serialize>(graph_div: &str, trace: T, index: usize) {
         plotly_add_trace_at(graph_div, to_js_value(&trace).unwrap(), index);
+    }
+
+    pub(crate) fn relayout<T: Serialize>(graph_div: &str, layout: T) {
+        plotly_relayout(graph_div, to_js_value(&layout).unwrap());
     }
 }
