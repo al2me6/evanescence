@@ -151,3 +151,19 @@ impl Orbital for Complex {
         format!("ψ<sub>{}{}{}</sub>", qn.n(), qn.l(), qn.m())
     }
 }
+
+/// Compute a plot of a function related to an orbital in a cube centered at the origin.
+/// `num_points` are sampled in each dimension, producing an evenly-spaced lattice of values the
+/// size of the orbital's extent.
+///
+/// This function is intended to be used for plotting [radial](wavefunctions::Radial) and
+/// [angular](wavefunctions::RealSphericalHarmonic) nodes.
+///
+/// For more information, see [`Evaluate::evaluate_in_region`].
+pub fn sample_region_for<E>(qn: Qn, num_points: usize) -> ComponentForm<E::Output>
+where
+    E: Evaluate,
+    <E as Evaluate>::Parameters: From<Qn>,
+{
+    E::evaluate_in_region(qn.into(), Real::estimate_radius(qn), num_points).into()
+}
