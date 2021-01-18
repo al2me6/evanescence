@@ -68,7 +68,7 @@ impl PointillistVisualizationImpl {
         if self.has_rendered_nodes {
             Plotly::delete_trace(&self.props.id, 1);
         }
-        if state.show_nodes {
+        if state.nodes_visibility {
             let trace = evanescence_bridge::into_nodal_surface(orbital::Real::sample_region(
                 state.qn,
                 state.quality.for_isosurface(),
@@ -98,22 +98,17 @@ impl Component for PointillistVisualizationImpl {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        let (render_all, render_nodes_only) = {
-            let state = self.props.handle.state();
-            let new_state = props.handle.state();
-            (
-                !(state.qn == new_state.qn && state.quality == new_state.quality),
-                state.show_nodes != new_state.show_nodes,
-            )
-        };
+        let diff = self.props.handle.state().diff(props.handle.state());
         self.props.neq_assign(props);
-        if render_all {
+
+        if diff.qn_or_quality {
             self.render_pointillist();
             self.render_or_remove_nodes();
         }
-        if render_nodes_only {
+        if diff.nodes_visibility {
             self.render_or_remove_nodes();
         }
+
         false
     }
 

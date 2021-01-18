@@ -32,11 +32,11 @@ impl Component for ControlsImpl {
     fn view(&self) -> Html {
         let handle = &self.handle;
 
-        let set_n = handle.reduce_callback_with(|state, n| state.qn.set_n_clamping(n));
-        let set_l = handle.reduce_callback_with(|state, l| state.qn.set_l_clamping(l));
-        let set_m = handle.reduce_callback_with(|state, m| state.qn.set_m(m));
-        let set_quality = handle.reduce_callback_with(|state, quality| state.quality = quality);
-        let set_show_nodes = handle.reduce_callback_with(|state, show| state.show_nodes = show);
+        let set_n = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n));
+        let set_l = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l));
+        let set_m = handle.reduce_callback_with(|s, m| s.qn.set_m(m));
+        let set_quality = handle.reduce_callback_with(|s, qual| s.quality = qual);
+        let set_nodes_visibility = handle.reduce_callback_with(|s, vis| s.nodes_visibility = vis);
 
         let state = handle.state();
 
@@ -82,8 +82,8 @@ impl Component for ControlsImpl {
                 </table>
                 <CheckBox
                     id = "nodes-toggle",
-                    onchange = set_show_nodes,
-                    initial_state = self.handle.state().show_nodes,
+                    onchange = set_nodes_visibility,
+                    initial_state = self.handle.state().nodes_visibility,
                     label = "Display nodal surfaces"
                 />
             </div>
