@@ -308,13 +308,13 @@ async function init(input) {
         var ret = false;
         return ret;
     };
+    imports.wbg.__wbg_deleteTraces_a7a215808a41e86d = function(arg0, arg1, arg2) {
+        Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2 >>> 0);
+    };
     imports.wbg.__wbg_react_3c2963aecd311286 = function(arg0, arg1, arg2, arg3, arg4, arg5) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.react(getStringFromWasm0(arg0, arg1), v0, takeObject(arg4), takeObject(arg5));
-    };
-    imports.wbg.__wbg_deleteTraces_a7a215808a41e86d = function(arg0, arg1, arg2) {
-        Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2 >>> 0);
     };
     imports.wbg.__wbg_addTraces_60271901da8b31cc = function(arg0, arg1, arg2) {
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2));
