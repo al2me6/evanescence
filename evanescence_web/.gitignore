@@ -1,0 +1,5 @@
+static/.gitignore
+static/*.js
+static/*.ts
+static/*.wasm
+static/package.json
