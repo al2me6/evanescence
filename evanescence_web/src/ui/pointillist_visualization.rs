@@ -40,7 +40,6 @@ impl PointillistVisualizationImpl {
         ));
 
         if !self.has_rendered_pointillist {
-            log::debug!("Completely rerendering... uhh", );
             Plotly::react(
                 &self.props.id,
                 &[trace],
