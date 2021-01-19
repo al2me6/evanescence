@@ -25,7 +25,7 @@ pub(crate) fn plot_scatter3d_real(simulation: ComponentForm<f32>) -> Scatter3D {
         marker: Marker {
             size: values_abs
                 .into_iter()
-                .map(|v| normalize(min_abs..=max_abs, 0.2..=2.0, v))
+                .map(|v| normalize(min_abs..=max_abs, 0.2..=5.0, v))
                 .collect(),
             color: values,
             show_scale: true,
