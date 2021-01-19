@@ -30,7 +30,7 @@ pub(crate) mod color_scales {
         ("0.7", "rgb(244,165,130)"),
         ("0.8", "rgb(214,96,77)"),
         ("0.9", "rgb(178,24,43)"),
-        ("1.0", "rgb(103,0,31"),
+        ("1.0", "rgb(103,0,31)"),
     ];
     pub(crate) const RED_YELLOW_BLUE_REVERSED: ColorScale = &[
         ("0.0", "rgb(49,54,149)"),
@@ -43,7 +43,7 @@ pub(crate) mod color_scales {
         ("0.7", "rgb(253,174,97)"),
         ("0.8", "rgb(244,109,67)"),
         ("0.9", "rgb(215,48,39)"),
-        ("1.0", "rgb(165,0,38"),
+        ("1.0", "rgb(165,0,38)"),
     ];
 
     pub(crate) const GREENS: ColorScale = &[
