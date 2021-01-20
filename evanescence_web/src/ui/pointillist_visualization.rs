@@ -1,5 +1,6 @@
 use evanescence_core::monte_carlo::Quality;
 use evanescence_core::orbital::{self, Orbital, Qn};
+use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
 use yew_state::{SharedState, SharedStateComponent};
@@ -11,7 +12,7 @@ use crate::plotly::layout::{Axis, LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
 use crate::{State, StateHandle};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 enum Trace {
     Pointillist,
     RadialNodes,
@@ -52,6 +53,13 @@ impl PointillistVisualizationImpl {
     fn rerender_all(&self) {
         let state = self.props.handle.state();
 
+        // Validate that the currently rendered traces match what should be rendered according
+        // to the state.
+        Trace::iter().for_each(|t| {
+            let expected_render_state = t.should_render(state).0;
+            assert!(!(self.rendered_traces.contains(&t) ^ expected_render_state));
+        });
+
         // Clear all old traces.
         Plotly::delete_traces(
             &self.props.id,
@@ -70,12 +78,11 @@ impl PointillistVisualizationImpl {
         );
 
         // And compute new ones in the same order.
-        let traces: Vec<_> = self
+        let traces: Vec<JsValue> = self
             .rendered_traces
             .iter()
-            .map(|&t| t.should_render(state))
-            .filter(|(should_render, _)| *should_render)
-            .map(|(_, renderer)| renderer(state.qn, state.quality))
+            .map(|&t| t.should_render(state).1)
+            .map(|renderer| renderer(state.qn, state.quality))
             .collect();
         Plotly::add_traces(&self.props.id, traces.into_boxed_slice());
     }
