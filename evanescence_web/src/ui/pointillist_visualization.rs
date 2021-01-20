@@ -56,7 +56,7 @@ impl PointillistVisualizationImpl {
         // Validate that the currently rendered traces match what should be rendered according
         // to the state.
         Trace::iter().for_each(|t| {
-            let expected_render_state = t.should_render(state).0;
+            let (expected_render_state, _) = t.should_render(state);
             assert!(!(self.rendered_traces.contains(&t) ^ expected_render_state));
         });
 
@@ -81,8 +81,8 @@ impl PointillistVisualizationImpl {
         let traces: Vec<JsValue> = self
             .rendered_traces
             .iter()
-            .map(|&t| t.should_render(state).1)
-            .map(|renderer| renderer(state.qn, state.quality))
+            .map(|&t| t.should_render(state))
+            .map(|(_, renderer)| renderer(state.qn, state.quality))
             .collect();
         Plotly::add_traces(&self.props.id, traces.into_boxed_slice());
     }
