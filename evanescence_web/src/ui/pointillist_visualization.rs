@@ -49,27 +49,18 @@ impl SharedState for VisualizationProps {
 }
 
 impl PointillistVisualizationImpl {
-    fn rerender_all(&mut self) {
+    fn rerender_all(&self) {
         let state = self.props.handle.state();
-        let rendered_traces = &mut self.rendered_traces;
 
         // Clear all old traces.
         Plotly::delete_traces(
             &self.props.id,
-            (0..rendered_traces.len())
+            (0..self.rendered_traces.len())
                 .into_iter()
                 .map(|i| JsValue::from_f64(i as _))
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
         );
-
-        // And compute new ones in the same order.
-        let traces: Vec<_> = rendered_traces
-            .iter()
-            .map(|&t| t.should_render(state))
-            .filter(|(should_render, _)| *should_render)
-            .map(|(_, renderer)| renderer(state.qn, state.quality))
-            .collect();
 
         // Relayout to set new plot range. Note that we relayout when there are no points
         // displayed to improve performance.
@@ -78,6 +69,14 @@ impl PointillistVisualizationImpl {
             LayoutRangeUpdate::new(orbital::Real::estimate_radius(state.qn)).into(),
         );
 
+        // And compute new ones in the same order.
+        let traces: Vec<_> = self
+            .rendered_traces
+            .iter()
+            .map(|&t| t.should_render(state))
+            .filter(|(should_render, _)| *should_render)
+            .map(|(_, renderer)| renderer(state.qn, state.quality))
+            .collect();
         Plotly::add_traces(&self.props.id, traces.into_boxed_slice());
     }
 
