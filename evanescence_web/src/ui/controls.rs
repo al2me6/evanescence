@@ -72,20 +72,25 @@ impl Component for ControlsImpl {
                             selected = state.quality
                         /></td>
                     </tr>
+                    <tr>
+                        <td/>
+                        <td><CheckBox
+                            id = "radial-nodes-toggle",
+                            onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_radial = vis),
+                            initial_state = self.handle.state().nodes_show_radial,
+                            label = "Show radial nodes"
+                        /></td>
+                    </tr>
+                    <tr>
+                        <td/>
+                        <td><CheckBox
+                            id = "angular-nodes-toggle",
+                            onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis),
+                            initial_state = self.handle.state().nodes_show_angular,
+                            label = "Show angular nodes"
+                        /></td>
+                    </tr>
                 </table>
-                <CheckBox
-                    id = "radial-nodes-toggle",
-                    onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_radial = vis),
-                    initial_state = self.handle.state().nodes_show_radial,
-                    label = "Display radial nodes"
-                />
-                <br/>
-                <CheckBox
-                    id = "angular-nodes-toggle",
-                    onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis),
-                    initial_state = self.handle.state().nodes_show_angular,
-                    label = "Display angular nodes"
-                />
             </div>
         }
     }

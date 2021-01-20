@@ -43,16 +43,16 @@ impl Component for CheckBox {
 
     fn view(&self) -> Html {
         html! {
-            <>
-            <input
-                ref = self.node_ref.clone(),
-                type = "checkbox",
-                id = self.props.id,
-                onchange = self.link.callback(|_| ()),
-                checked = self.state
-            />
-            <label for = self.props.id>{ &self.props.label }</label>
-            </>
+            <label>
+                <input
+                    ref = self.node_ref.clone(),
+                    type = "checkbox",
+                    id = self.props.id,
+                    onchange = self.link.callback(|_| ()),
+                    checked = self.state
+                />
+                <span>{ &self.props.label }</span>
+            </label>
         }
     }
 }

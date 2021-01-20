@@ -61,6 +61,7 @@ pub(crate) fn plot_pointillist_real(qn: Qn, quality: Quality) -> JsValue {
             color_bar: ColorBar {
                 x: 0.0,
                 x_anchor: Anchor::Right,
+                ..Default::default()
             },
             ..Default::default()
         },

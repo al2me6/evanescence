@@ -24,21 +24,13 @@ pub(crate) struct Margin {
 #[derive(Clone, Copy, Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Axis<'a> {
-    #[serde(rename = "backgroundcolor")]
-    #[derivative(Default(value = "\"rgb(40,40,40)\""))]
-    pub(crate) background_color: &'a str,
-
     #[serde(rename = "gridcolor")]
-    #[derivative(Default(value = "\"rgb(140,140,140)\""))]
+    #[derivative(Default(value = "\"#888\""))]
     pub(crate) grid_color: &'a str,
 
     #[serde(rename = "zerolinecolor")]
-    #[derivative(Default(value = "\"rgb(240,240,240)\""))]
+    #[derivative(Default(value = "\"#f8f8f8\""))]
     pub(crate) zero_line_color: &'a str,
-
-    #[serde(rename = "showbackground")]
-    #[derivative(Default(value = "true"))]
-    pub(crate) show_background: bool,
 
     #[serde(rename = "showspikes")]
     pub(crate) show_spikes: bool,
@@ -69,7 +61,7 @@ pub(crate) struct Scene<'a> {
     #[serde(rename = "aspectmode")]
     #[derivative(Default(value = "\"manual\""))]
     pub(crate) aspect_mode: &'a str,
-    #[serde(rename="aspectratio")]
+    #[serde(rename = "aspectratio")]
     pub(crate) aspect_ratio: AspectRatio,
     #[serde(rename = "xaxis")]
     pub(crate) x_axis: Axis<'a>,
@@ -77,6 +69,28 @@ pub(crate) struct Scene<'a> {
     pub(crate) y_axis: Axis<'a>,
     #[serde(rename = "zaxis")]
     pub(crate) z_axis: Axis<'a>,
+}
+
+#[derive(Serialize, Derivative)]
+#[derivative(Default)]
+pub(crate) struct Font<'a> {
+    #[derivative(Default(value = "\"Lato\""))]
+    pub(crate) family: &'a str,
+    #[derivative(Default(value = "\"#d8d8d8\""))]
+    pub(crate) color: &'a str,
+}
+
+#[derive(Serialize, Derivative)]
+#[derivative(Default)]
+pub(crate) struct ModeBar<'a> {
+    #[serde(rename = "bgcolor")]
+    #[derivative(Default(value = "\"#585858\""))]
+    pub(crate) bg_color: &'a str,
+    #[derivative(Default(value = "\"#888\""))]
+    pub(crate) color: &'a str,
+    #[serde(rename = "activecolor")]
+    #[derivative(Default(value = "\"#d8d8d8\""))]
+    pub(crate) active_color: &'a str,
 }
 
 #[derive(Serialize, Derivative)]
@@ -91,6 +105,13 @@ pub(crate) struct Layout<'a> {
 
     pub(crate) margin: Margin,
     pub(crate) scene: Option<Scene<'a>>,
+    pub(crate) font: Font<'a>,
+
+    #[derivative(Default(value = "\"rgba(0,0,0,0)\""))]
+    pub(crate) paper_bgcolor: &'a str,
+
+    #[serde(rename = "modebar")]
+    pub(crate) mode_bar: ModeBar<'a>,
 
     #[serde(rename = "uirevision")]
     pub(crate) ui_revision: bool,

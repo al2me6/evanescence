@@ -16,14 +16,14 @@ pub(crate) struct Line {
 
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
-pub(crate) struct Marker {
+pub(crate) struct Marker<'a> {
     pub(crate) color: Vec<f32>,
 
     #[serde(rename = "cmid")]
     pub(crate) c_mid: f32,
 
     #[serde(rename = "colorbar")]
-    pub(crate) color_bar: ColorBar,
+    pub(crate) color_bar: ColorBar<'a>,
 
     #[serde(rename = "colorscale")]
     #[derivative(Default(value = "color_scales::RED_BLUE_REVERSED"))]

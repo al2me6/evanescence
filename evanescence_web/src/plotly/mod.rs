@@ -70,5 +70,5 @@ macro_rules! impl_into_js_value {
         }
     }
 }
-impl_into_js_value!('a; Config, Layout, Isosurface);
-impl_into_js_value!(LayoutRangeUpdate, Scatter3D);
+impl_into_js_value!('a; Config, Layout, Isosurface, Scatter3D);
+impl_into_js_value!(LayoutRangeUpdate);

@@ -7,12 +7,15 @@ pub(crate) type ColorScale<'a> = &'a [(&'a str, &'a str)];
 
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
-pub(crate) struct ColorBar {
+pub(crate) struct ColorBar<'a> {
     #[derivative(Default(value = "1.02"))]
     pub(crate) x: f32,
     #[serde(rename = "xanchor")]
     #[derivative(Default(value = "Anchor::Left"))]
     pub(crate) x_anchor: Anchor,
+    #[serde(rename="outlinecolor")]
+    #[derivative(Default(value="\"#d8d8d8\""))]
+    pub(crate) outline_color: &'a str,
 }
 
 #[allow(dead_code)]

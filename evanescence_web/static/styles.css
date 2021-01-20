@@ -1,16 +1,53 @@
+/* Using Base16 Dark colors:
+https://github.com/chriskempson/base16-default-schemes/blob/master/default-dark.yaml
+
+base00: "181818"
+base01: "282828"
+base02: "383838"
+base03: "585858"
+base04: "b8b8b8"
+base05: "d8d8d8"
+base06: "e8e8e8"
+base07: "f8f8f8"
+base08: "ab4642"
+base09: "dc9656"
+base0A: "f7ca88"
+base0B: "a1b56c"
+base0C: "86c1b9"
+base0D: "7cafc2"
+base0E: "ba8baf"
+base0F: "a16946"
+*/
+
 body {
   font-size: 16px;
   font-family: "Lato", sans-serif;
   margin: 0;
   display: flex;
   flex-wrap: wrap;
+  /* base02 */
+  background-color: #383838;
+  /* base05 */
+  color: #d8d8d8;
+}
+
+h1 {
+  font-size: 32px;
+}
+
+a {
+  color: #7cafc2;
+}
+
+a:visited {
+  color: #ba8baf;
 }
 
 main {
   box-sizing: border-box;
   padding: 20px;
   height: 100vh;
-  flex: 5 1 50vh;
+  flex: 2 1 50vh;
 }
 
 @media (orientation: portrait) {
@@ -46,18 +83,106 @@ footer p {
 }
 
 select {
+  appearance: none;
   font: inherit;
+  color: inherit;
+  /* base01 */
+  background-color: #181818;
+  /* Icon source: https://fontawesome.com/icons/chevron-down?style=solid. */
+  /* base05 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="%23d8d8d8" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.4em top 53%;
+  background-size: auto 50%;
+  border: 0px;
+  border-radius: 4px;
+  padding: 0.2em 1.5em 0.3em 0.4em;
+  transform: translateY(0.1em);
+}
+
+select:hover {
+  /* base03 */
+  background-color: #585858;
+}
+
+select:active,
+select:hover {
+  /* base01 */
+  box-shadow: 1px 1px 4px 1px #181818;
+}
+
+select:focus {
+  outline: none;
+}
+
+label > input[type="checkbox"],
+label > span {
+  vertical-align: middle;
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  width: 1.2em;
+  height: 1.2em;
+  /* base01 */
+  background-color: #181818;
+  border: 0px;
+  border-radius: 4px;
+  margin-right: 0.5em;
+}
+
+input[type="checkbox"]:hover {
+  /* base03 */
+  background-color: #585858;
+  /* base01 */
+  box-shadow: 1px 1px 4px 1px #181818;
+}
+
+input[type="checkbox"]:focus {
+  outline: none;
+}
+
+input[type="checkbox"]:checked {
+  /* Icon source: https://fontawesome.com/icons/check?style=solid. */
+  /* base05 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23d8d8d8" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>');
+  background-repeat: no-repeat;
+  background-size: 75% auto;
+  background-position: 50% 60%;
 }
 
 #controls table {
   width: 100%;
   border-spacing: 0;
+  max-width: 500px;
+  margin: auto;
 }
 
-#controls td:last-of-type {
+#controls tr:first-child td {
+  padding-top: 0;
+}
+
+#controls tr:last-child td {
+  padding-bottom: 0;
+}
+
+#controls td {
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+}
+
+#controls td + td {
+  padding-left: 0.5em;
+}
+
+#controls td:first-child {
   text-align: right;
 }
 
+#controls td:last-child {
+  text-align: left;
+}
+
 #controls select {
-  width: 8em;
+  width: 100%;
 }
