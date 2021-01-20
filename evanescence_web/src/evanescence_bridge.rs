@@ -1,14 +1,43 @@
 use evanescence_core::geometry::ComponentForm;
-use evanescence_core::monte_carlo::Quality;
+use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::normalize;
 use evanescence_core::orbital::{self, wavefunctions, Qn};
+use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
 use crate::plotly::isosurface::Isosurface;
 use crate::plotly::layout::Anchor;
 use crate::plotly::scatter_3d::{Marker, Scatter3D};
 
-pub(crate) fn plot_scatter3d_real(simulation: ComponentForm<f32>) -> Scatter3D {
+pub(crate) fn plot_isosurface(
+    simulation: ComponentForm<f32>,
+    correct_instability: bool,
+    color_scale: ColorScale,
+) -> JsValue {
+    let (x, y, z, mut value) = simulation.into_components();
+    if correct_instability {
+        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
+        // numerical instability/artifacting by amplifying any deviations from zero. However,
+        // this also results in crinkly-looking surfaces.
+        value = value
+            .into_iter()
+            .map(|v| v.signum() * v.abs().sqrt())
+            .collect();
+    }
+    Isosurface {
+        x,
+        y,
+        z,
+        value,
+        color_scale,
+        opacity: 0.075,
+        ..Default::default()
+    }
+    .into()
+}
+
+pub(crate) fn plot_pointillist_real(qn: Qn, quality: Quality) -> JsValue {
+    let simulation = orbital::Real::monte_carlo_simulate(qn, quality);
     let (x, y, z, values) = simulation.into_components();
 
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
@@ -37,35 +66,10 @@ pub(crate) fn plot_scatter3d_real(simulation: ComponentForm<f32>) -> Scatter3D {
         },
         ..Default::default()
     }
+    .into()
 }
 
-pub(crate) fn plot_isosurface(
-    simulation: ComponentForm<f32>,
-    correct_instability: bool,
-    color_scale: ColorScale,
-) -> Isosurface<'_> {
-    let (x, y, z, mut value) = simulation.into_components();
-    if correct_instability {
-        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
-        // numerical instability/artifacting by amplifying any deviations from zero. However,
-        // this also results in crinkly-looking surfaces.
-        value = value
-            .into_iter()
-            .map(|v| v.signum() * v.abs().sqrt())
-            .collect();
-    }
-    Isosurface {
-        x,
-        y,
-        z,
-        value,
-        color_scale,
-        opacity: 0.075,
-        ..Default::default()
-    }
-}
-
-pub(crate) fn plot_radial_nodes(qn: Qn, quality: Quality) -> Isosurface<'static> {
+pub(crate) fn plot_radial_nodes(qn: Qn, quality: Quality) -> JsValue {
     plot_isosurface(
         orbital::sample_region_for::<wavefunctions::Radial>(
             qn,
@@ -80,7 +84,7 @@ pub(crate) fn plot_radial_nodes(qn: Qn, quality: Quality) -> Isosurface<'static>
     )
 }
 
-pub(crate) fn plot_angular_nodes(qn: Qn, quality: Quality) -> Isosurface<'static> {
+pub(crate) fn plot_angular_nodes(qn: Qn, quality: Quality) -> JsValue {
     plot_isosurface(
         orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
             qn,

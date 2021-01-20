@@ -75,15 +75,15 @@ impl Component for ControlsImpl {
                 </table>
                 <CheckBox
                     id = "radial-nodes-toggle",
-                    onchange = handle.reduce_callback_with(|s, vis| s.radial_nodes_visibility = vis),
-                    initial_state = self.handle.state().radial_nodes_visibility,
+                    onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_radial = vis),
+                    initial_state = self.handle.state().nodes_show_radial,
                     label = "Display radial nodes"
                 />
                 <br/>
                 <CheckBox
                     id = "angular-nodes-toggle",
-                    onchange = handle.reduce_callback_with(|s, vis| s.angular_nodes_visibility = vis),
-                    initial_state = self.handle.state().angular_nodes_visibility,
+                    onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis),
+                    initial_state = self.handle.state().nodes_show_angular,
                     label = "Display angular nodes"
                 />
             </div>

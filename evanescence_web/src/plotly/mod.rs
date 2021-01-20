@@ -6,11 +6,12 @@ pub(crate) mod scatter;
 pub(crate) mod scatter_3d;
 
 use serde::Serialize;
-use serde_wasm_bindgen::to_value as to_js_value;
-use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsValue;
 
-use self::config::Config;
-use self::layout::Layout;
+pub(crate) use self::config::Config;
+pub(crate) use self::isosurface::Isosurface;
+pub(crate) use self::layout::{Layout, LayoutRangeUpdate};
+pub(crate) use self::scatter_3d::Scatter3D;
 
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -19,57 +20,55 @@ pub(crate) enum PlotType {
     Isosurface,
 }
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = Plotly, js_name = react)]
-    fn plotly_react(graph_div: &str, data: Box<[JsValue]>, layout: JsValue, config: JsValue);
+#[allow(non_snake_case)] // This is semantically a class.
+pub(crate) mod Plotly {
+    use wasm_bindgen::prelude::*;
 
-    #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
-    fn plotly_delete_trace(graph_div: &str, index: isize);
+    #[wasm_bindgen]
+    extern "C" {
+        #[wasm_bindgen(js_namespace = Plotly, js_name = react)]
+        pub(crate) fn react(
+            graph_div: &str,
+            data: Box<[JsValue]>,
+            layout: JsValue,
+            config: JsValue,
+        );
 
-    #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
-    fn plotly_add_trace(graph_div: &str, trace: JsValue);
+        #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
+        pub(crate) fn add_trace(graph_div: &str, trace: JsValue);
 
-    #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
-    fn plotly_add_trace_at(graph_div: &str, trace: JsValue, index: isize);
+        #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
+        pub(crate) fn add_traces(graph_div: &str, trace: Box<[JsValue]>);
 
-    #[wasm_bindgen(js_namespace = Plotly, js_name = relayout)]
-    fn plotly_relayout(graph_div: &str, update: JsValue);
-}
+        #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
+        pub(crate) fn delete_trace(graph_div: &str, index: isize);
 
-pub(crate) struct Plotly;
+        /// Note that we have a `Box<[JsValue]>` and not a `Box<[isize]>`! The latter produces a
+        /// `TypedArray` instead of a plain `Array` and causes problems.
+        #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
+        pub(crate) fn delete_traces(graph_div: &str, index: Box<[JsValue]>);
 
-#[allow(dead_code)]
-impl Plotly {
-    pub(crate) fn react<I>(graph_div: &str, data: I, layout: Layout, config: Config)
-    where
-        I: IntoIterator,
-        <I as IntoIterator>::Item: Serialize,
-    {
-        plotly_react(
-            graph_div,
-            data.into_iter()
-                .map(|trace| to_js_value(&trace).unwrap())
-                .collect::<Vec<_>>()
-                .into_boxed_slice(),
-            to_js_value(&layout).unwrap(),
-            to_js_value(&config).unwrap(),
-        )
-    }
-
-    pub(crate) fn delete_trace(graph_div: &str, index: isize) {
-        plotly_delete_trace(graph_div, index)
-    }
-
-    pub(crate) fn add_trace<T: Serialize>(graph_div: &str, trace: T) {
-        plotly_add_trace(graph_div, to_js_value(&trace).unwrap());
-    }
-
-    pub(crate) fn add_trace_at<T: Serialize>(graph_div: &str, trace: T, index: isize) {
-        plotly_add_trace_at(graph_div, to_js_value(&trace).unwrap(), index);
-    }
-
-    pub(crate) fn relayout<T: Serialize>(graph_div: &str, layout: T) {
-        plotly_relayout(graph_div, to_js_value(&layout).unwrap());
+        #[wasm_bindgen(js_namespace = Plotly, js_name = relayout)]
+        pub(crate) fn relayout(graph_div: &str, update: JsValue);
     }
 }
+
+macro_rules! impl_into_js_value {
+    ($a:lifetime; $($ty:ident),+) => {$(
+        impl<$a> From<$ty<$a>> for JsValue {
+            impl_into_js_value!(inner $ty<$a>);
+        }
+    )+};
+    ($($ty:ty),+) => {$(
+        impl From<$ty> for JsValue {
+            impl_into_js_value!(inner $ty);
+        }
+    )+};
+    (inner $ty:ty) => {
+        fn from(value: $ty) -> Self {
+            serde_wasm_bindgen::to_value(&value).unwrap()
+        }
+    }
+}
+impl_into_js_value!('a; Config, Layout, Isosurface);
+impl_into_js_value!(LayoutRangeUpdate, Scatter3D);

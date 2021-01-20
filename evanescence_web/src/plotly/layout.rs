@@ -93,7 +93,7 @@ pub(crate) struct Layout<'a> {
     pub(crate) scene: Option<Scene<'a>>,
 
     #[serde(rename = "uirevision")]
-    pub(crate) ui_revision: &'a str,
+    pub(crate) ui_revision: bool,
 }
 
 #[derive(Serialize)]

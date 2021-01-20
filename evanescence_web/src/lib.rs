@@ -25,26 +25,26 @@ pub(crate) const VER_MAJOR: u32 = pkg_version_major!();
 pub(crate) const VER_MINOR: u32 = pkg_version_minor!();
 pub(crate) const VER_PATCH: u32 = pkg_version_patch!();
 
-#[derive(Clone, PartialEq, Eq, Default)]
+#[derive(Clone, PartialEq, Eq, Default, Debug)]
 pub(crate) struct State {
     qn: Qn,
     quality: Quality,
-    radial_nodes_visibility: bool,
-    angular_nodes_visibility: bool,
+    nodes_show_radial: bool,
+    nodes_show_angular: bool,
 }
 
 pub(crate) struct StateDiff {
     pub(crate) qn_or_quality: bool,
-    pub(crate) angular_nodes: bool,
-    pub(crate) radial_nodes: bool,
+    pub(crate) nodes_radial: bool,
+    pub(crate) nodes_angular: bool,
 }
 
 impl State {
     pub(crate) fn diff(&self, other: &Self) -> StateDiff {
         StateDiff {
             qn_or_quality: !(self.qn == other.qn && self.quality == other.quality),
-            radial_nodes: self.radial_nodes_visibility != other.radial_nodes_visibility,
-            angular_nodes: self.angular_nodes_visibility != other.angular_nodes_visibility,
+            nodes_radial: self.nodes_show_radial != other.nodes_show_radial,
+            nodes_angular: self.nodes_show_angular != other.nodes_show_angular,
         }
     }
 }
