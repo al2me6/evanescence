@@ -65,7 +65,7 @@ impl Component for MainImpl {
         html! {
             <>
             <main>
-                <PointillistVisualization id = "pointillist" />
+                <PointillistVisualization/>
             </main>
             <aside>
                 <h1>{ "Hydrogenic Orbitals" }</h1>
