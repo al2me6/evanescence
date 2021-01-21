@@ -19,8 +19,19 @@ base0E: "ba8baf"
 base0F: "a16946"
 */
 
-body {
+/* BASIC PAGE STYLING */
+
+html {
   font-size: 16px;
+}
+
+@media (max-width: 1400px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+body {
   font-family: "Lato", sans-serif;
   margin: 0;
   display: flex;
@@ -31,14 +42,31 @@ body {
   color: #d8d8d8;
 }
 
-@media (max-width: 1400px) {
-  body {
-    font-size: 14px;
-  }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0.8em;
+  margin-bottom: 0.5em;
 }
 
 h1 {
   font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 0.7em;
 }
 
 a {
@@ -51,56 +79,9 @@ a:visited {
   color: #ba8baf;
 }
 
-main {
-  box-sizing: border-box;
-  padding: 20px;
-  height: 100vh;
-  flex: 2 1 50vh;
-}
+/* COMPONENT STYLING */
 
-@media (orientation: portrait) {
-  main {
-    height: 100vw;
-  }
-}
-
-@media (max-width: 1400px) {
-  main {
-    padding: 15px;
-  }
-}
-
-aside {
-  box-sizing: border-box;
-  margin: 20px;
-  flex: 1 0 20em;
-}
-
-aside > :first-child {
-  margin-block-start: 0;
-}
-
-@media (max-width: 1400px) {
-  aside {
-    margin: 15px;
-  }
-}
-
-#pointillist {
-  width: 100%;
-  height: 100%;
-}
-
-footer {
-  margin-top: 40px;
-  width: 100%;
-  align-items: right;
-}
-
-footer p {
-  text-align: right;
-  font-size: 12px;
-}
+/* Dropdown component. */
 
 select {
   appearance: none;
@@ -134,6 +115,8 @@ select:hover {
 select:focus {
   outline: none;
 }
+
+/* Checkbox component. */
 
 .checkbox {
   display: flex;
@@ -176,6 +159,8 @@ select:focus {
   background-position: 50% 60%;
 }
 
+/* Controls component. */
+
 #controls table {
   width: 100%;
   border-spacing: 0;
@@ -210,4 +195,66 @@ select:focus {
 
 #controls select {
   width: 100%;
+}
+
+#controls input {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* UI STYLING */
+
+/* Pointillist display. */
+
+main {
+  box-sizing: border-box;
+  padding: 20px;
+  height: 100vh;
+  flex: 2 1 50vh;
+}
+
+@media (orientation: portrait) {
+  main {
+    height: 100vw;
+  }
+}
+
+@media (max-width: 1400px) {
+  main {
+    padding: 15px;
+  }
+}
+
+#pointillist {
+  width: 100%;
+  height: 100%;
+}
+
+/* Sidebar. */
+
+aside {
+  box-sizing: border-box;
+  margin: 20px;
+  flex: 1 0 20rem;
+}
+
+aside > :first-child {
+  margin-top: 0.2em;
+}
+
+@media (max-width: 1400px) {
+  aside {
+    margin: 15px;
+  }
+}
+
+footer {
+  margin-top: 40px;
+  width: 100%;
+  align-items: right;
+}
+
+footer p {
+  text-align: right;
+  font-size: 0.8rem;
 }
