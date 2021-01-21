@@ -6,7 +6,7 @@ use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
 use crate::components::{CheckBox, Dropdown};
-use crate::StateHandle;
+use crate::state::StateHandle;
 use crate::MAX_N;
 
 pub(crate) struct ControlsImpl {

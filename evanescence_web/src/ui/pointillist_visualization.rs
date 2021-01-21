@@ -10,7 +10,7 @@ use crate::evanescence_bridge::{plot_angular_nodes, plot_pointillist_real, plot_
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::layout::{Axis, LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
-use crate::{State, StateHandle};
+use crate::state::{State, StateHandle};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 enum Trace {

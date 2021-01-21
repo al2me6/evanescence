@@ -3,18 +3,18 @@
 pub(crate) mod components;
 pub(crate) mod evanescence_bridge;
 pub(crate) mod plotly;
+pub(crate) mod state;
 pub(crate) mod ui;
 
 use std::panic;
 
-use evanescence_core::monte_carlo::Quality;
-use evanescence_core::orbital::Qn;
 use pkg_version::{pkg_version_major, pkg_version_minor, pkg_version_patch};
 use wasm_bindgen::prelude::*;
 use yew::{html, start_app, Component, ComponentLink, Html, ShouldRender};
-use yew_state::{SharedHandle, SharedStateComponent};
+use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
+use crate::state::StateHandle;
 use crate::ui::{Controls, InfoPanel, PointillistVisualization};
 
 /// Maximum value of the principal quantum number `n` that is exposed.
@@ -26,32 +26,6 @@ pub(crate) const VER_PATCH: u32 = pkg_version_patch!();
 
 pub(crate) const REPO: &str = "https://github.com/al2me6/evanescence";
 pub(crate) const BENCHMARKS_URL: &str = "https://al2me6.github.io/evanescence/dev/bench";
-
-#[derive(Clone, PartialEq, Eq, Default, Debug)]
-pub(crate) struct State {
-    qn: Qn,
-    quality: Quality,
-    nodes_show_radial: bool,
-    nodes_show_angular: bool,
-}
-
-pub(crate) struct StateDiff {
-    pub(crate) qn_or_quality: bool,
-    pub(crate) nodes_radial: bool,
-    pub(crate) nodes_angular: bool,
-}
-
-impl State {
-    pub(crate) fn diff(&self, other: &Self) -> StateDiff {
-        StateDiff {
-            qn_or_quality: !(self.qn == other.qn && self.quality == other.quality),
-            nodes_radial: self.nodes_show_radial != other.nodes_show_radial,
-            nodes_angular: self.nodes_show_angular != other.nodes_show_angular,
-        }
-    }
-}
-
-pub(crate) type StateHandle = SharedHandle<State>;
 
 struct MainImpl {
     handle: StateHandle,
