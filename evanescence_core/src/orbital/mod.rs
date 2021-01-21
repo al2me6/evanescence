@@ -123,6 +123,18 @@ impl Orbital for Real {
     }
 }
 
+impl Real {
+    /// Give the number of radial nodes in an orbital.
+    pub fn num_radial_nodes(qn: Qn) -> u32 {
+        qn.n() - qn.l() - 1
+    }
+
+    // Give the number of angular nodes in an orbital.
+    pub fn num_angular_nodes(qn: Qn) -> u32 {
+        qn.l()
+    }
+}
+
 /// Implementation of the complex hydrogenic orbitals.
 pub struct Complex;
 
