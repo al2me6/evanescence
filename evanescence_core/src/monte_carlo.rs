@@ -45,12 +45,13 @@ impl Quality {
     /// Get the number of points that should be sampled for a plane/cross-section plot.
     #[inline]
     pub fn for_grid(self) -> usize {
-        (self as usize as f32).sqrt() as usize / 2
+        ((self as usize as f32).sqrt() as usize / 2) | 0b1 // Force the number to be odd.
     }
 
+    /// Get the number of points that should be sampled for an isosurface plot.
     #[inline]
     pub fn for_isosurface(self) -> usize {
-        (self as usize as f32 * 2.0).cbrt() as usize
+        (self as usize as f32 * 2.0).cbrt() as usize | 0b1 // Force the number to be odd.
     }
 }
 
