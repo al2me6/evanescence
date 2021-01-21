@@ -80,16 +80,20 @@ pub(crate) struct Font<'a> {
     pub(crate) color: &'a str,
 }
 
+// Colors using Base16 Tomorrow Night.
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct ModeBar<'a> {
     #[serde(rename = "bgcolor")]
-    #[derivative(Default(value = "\"#585858\""))]
+    // blend of base02 and base03
+    #[derivative(Default(value = "\"#676a6c\""))]
     pub(crate) bg_color: &'a str,
-    #[derivative(Default(value = "\"#888\""))]
+    // blend of base03 and base04
+    #[derivative(Default(value = "\"#a5a8a5\""))]
     pub(crate) color: &'a str,
     #[serde(rename = "activecolor")]
-    #[derivative(Default(value = "\"#d8d8d8\""))]
+    // base06
+    #[derivative(Default(value = "\"#e0e0e0\""))]
     pub(crate) active_color: &'a str,
 }
 

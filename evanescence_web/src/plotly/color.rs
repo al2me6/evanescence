@@ -5,6 +5,7 @@ use crate::plotly::layout::Anchor;
 
 pub(crate) type ColorScale<'a> = &'a [(&'a str, &'a str)];
 
+// Colors using Base16 Tomorrow Night.
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct ColorBar<'a> {
@@ -14,7 +15,8 @@ pub(crate) struct ColorBar<'a> {
     #[derivative(Default(value = "Anchor::Left"))]
     pub(crate) x_anchor: Anchor,
     #[serde(rename="outlinecolor")]
-    #[derivative(Default(value="\"#d8d8d8\""))]
+    // base06
+    #[derivative(Default(value="\"#e0e0e0\""))]
     pub(crate) outline_color: &'a str,
 }
 

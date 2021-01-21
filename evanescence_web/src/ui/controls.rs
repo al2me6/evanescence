@@ -37,7 +37,7 @@ impl Component for ControlsImpl {
             <div id = "controls">
                 <table>
                     <tr>
-                        <td>{"Principal quantum number (n):"}</td>
+                        <td>{"Principal quantum number n:"}</td>
                         <td><Dropdown<u32>
                             id = "n-picker"
                             onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n)),
@@ -46,7 +46,8 @@ impl Component for ControlsImpl {
                         /></td>
                     </tr>
                     <tr>
-                        <td>{"Azimuthal quantum number (l):"}</td>
+                        // U+2113 SCRIPT SMALL L.
+                        <td>{"Azimuthal quantum number \u{2113}:"}</td>
                         <td><Dropdown<u32>
                             id = "l-picker"
                             onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l)),
@@ -55,7 +56,7 @@ impl Component for ControlsImpl {
                         /></td>
                     </tr>
                     <tr>
-                        <td>{"Magnetic quantum number (m):"}</td>
+                        <td>{"Magnetic quantum number m:"}</td>
                         <td><Dropdown<i32>
                             id = "m-picker"
                             onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m)),
