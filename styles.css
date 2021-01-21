@@ -1,22 +1,22 @@
-/* Using Base16 Dark colors:
-https://github.com/chriskempson/base16-default-schemes/blob/master/default-dark.yaml
+/* Using Base16 Tomorrow Night colors:
+https://github.com/chriskempson/base16-tomorrow-scheme/blob/master/tomorrow-night.yaml
 
-base00: "181818"
-base01: "282828"
-base02: "383838"
-base03: "585858"
-base04: "b8b8b8"
-base05: "d8d8d8"
-base06: "e8e8e8"
-base07: "f8f8f8"
-base08: "ab4642"
-base09: "dc9656"
-base0A: "f7ca88"
-base0B: "a1b56c"
-base0C: "86c1b9"
-base0D: "7cafc2"
-base0E: "ba8baf"
-base0F: "a16946"
+base00: "1d1f21"
+base01: "282a2e"
+base02: "373b41"
+base03: "969896"
+base04: "b4b7b4"
+base05: "c5c8c6"
+base06: "e0e0e0"
+base07: "ffffff"
+base08: "cc6666"
+base09: "de935f"
+base0A: "f0c674"
+base0B: "b5bd68"
+base0C: "8abeb7"
+base0D: "81a2be"
+base0E: "b294bb"
+base0F: "a3685a"
 */
 
 /* BASIC PAGE STYLING */
@@ -36,10 +36,10 @@ body {
   margin: 0;
   display: flex;
   flex-wrap: wrap;
-  /* base02 */
-  background-color: #383838;
-  /* base05 */
-  color: #d8d8d8;
+  /* blend of base01 and base02 */
+  background-color: #303338;
+  /* base06 */
+  color: #e0e0e0;
 }
 
 h1,
@@ -71,12 +71,12 @@ p {
 
 a {
   /* base0d */
-  color: #7cafc2;
+  color: #81a2be;
 }
 
 a:visited {
   /* base0e */
-  color: #ba8baf;
+  color: #b294bb;
 }
 
 /* COMPONENT STYLING */
@@ -87,29 +87,29 @@ select {
   appearance: none;
   font: inherit;
   color: inherit;
-  /* base01 */
-  background-color: #181818;
+  /* base00 */
+  background-color: #1d1f21;
   /* Icon source: https://fontawesome.com/icons/chevron-down?style=solid. */
-  /* base05 */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="%23d8d8d8" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>');
+  /* base06 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="%23e0e0e0" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>');
   background-repeat: no-repeat;
-  background-position: right 0.4em top 53%;
+  background-position: right 0.4em top 50%;
   background-size: auto 50%;
   border: 0px;
   border-radius: 4px;
-  padding: 0.2em 1.5em 0.3em 0.4em;
+  padding: 0.15em 1.5em 0.3em 0.4em;
   transform: translateY(0.1em);
 }
 
 select:hover {
-  /* base03 */
-  background-color: #585858;
+  /* blend of base02 and base03 */
+  background-color: #676a6c;
 }
 
 select:active,
 select:hover {
-  /* base01 */
-  box-shadow: 1px 1px 4px 1px #181818;
+  /* base00 */
+  box-shadow: 1px 1px 4px 1px #1d1f21;
 }
 
 select:focus {
@@ -129,8 +129,8 @@ select:focus {
   appearance: none;
   width: 1.2em;
   height: 1.2em;
-  /* base01 */
-  background-color: #181818;
+  /* base00 */
+  background-color: #1d1f21;
   border: 0px;
   border-radius: 4px;
   padding: 0;
@@ -140,10 +140,10 @@ select:focus {
 }
 
 .checkbox input:hover {
-  /* base03 */
-  background-color: #585858;
-  /* base01 */
-  box-shadow: 1px 1px 4px 1px #181818;
+  /* blend of base02 and base03 */
+  background-color: #676a6c;
+  /* base00 */
+  box-shadow: 1px 1px 4px 1px #1d1f21;
 }
 
 .checkbox input:focus {
@@ -152,8 +152,8 @@ select:focus {
 
 .checkbox input:checked {
   /* Icon source: https://fontawesome.com/icons/check?style=solid. */
-  /* base05 */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23d8d8d8" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>');
+  /* base06 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23e0e0e0" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>');
   background-repeat: no-repeat;
   background-size: 75% auto;
   background-position: 50% 60%;
@@ -238,14 +238,14 @@ aside {
   flex: 1 0 20rem;
 }
 
-aside > :first-child {
-  margin-top: 0.2em;
-}
-
 @media (max-width: 1400px) {
   aside {
     margin: 15px;
   }
+}
+
+aside > :first-child {
+  margin-top: 0.2em;
 }
 
 footer {
