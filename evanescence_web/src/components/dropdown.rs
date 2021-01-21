@@ -79,7 +79,7 @@ impl<T: DropdownItem> Component for Dropdown<T> {
         html! {
             <select
                 id = self.props.id
-                onchange=self.link.callback(|data: ChangeData| into_select_element(data).value())
+                onchange = self.link.callback(|data: ChangeData| into_select_element(data).value())
             >
                 { for self.props.options.iter().map(|opt| option(opt, &self.props.selected)) }
             </select>

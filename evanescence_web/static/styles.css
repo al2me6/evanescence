@@ -31,15 +31,23 @@ body {
   color: #d8d8d8;
 }
 
+@media (max-width: 1400px) {
+  body {
+    font-size: 14px;
+  }
+}
+
 h1 {
-  font-size: 32px;
+  font-size: 2rem;
 }
 
 a {
+  /* base0d */
   color: #7cafc2;
 }
 
 a:visited {
+  /* base0e */
   color: #ba8baf;
 }
 
@@ -56,6 +64,12 @@ main {
   }
 }
 
+@media (max-width: 1400px) {
+  main {
+    padding: 15px;
+  }
+}
+
 aside {
   box-sizing: border-box;
   margin: 20px;
@@ -64,6 +78,12 @@ aside {
 
 aside > :first-child {
   margin-block-start: 0;
+}
+
+@media (max-width: 1400px) {
+  aside {
+    margin: 15px;
+  }
 }
 
 #pointillist {
@@ -115,12 +135,14 @@ select:focus {
   outline: none;
 }
 
-label > input[type="checkbox"],
-label > span {
-  vertical-align: middle;
+.checkbox {
+  display: flex;
+  column-gap: 0.25em;
+  justify-items: left;
+  align-items: center;
 }
 
-input[type="checkbox"] {
+.checkbox input {
   appearance: none;
   width: 1.2em;
   height: 1.2em;
@@ -128,21 +150,24 @@ input[type="checkbox"] {
   background-color: #181818;
   border: 0px;
   border-radius: 4px;
-  margin-right: 0.5em;
+  padding: 0;
+  margin: 0.25em;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
-input[type="checkbox"]:hover {
+.checkbox input:hover {
   /* base03 */
   background-color: #585858;
   /* base01 */
   box-shadow: 1px 1px 4px 1px #181818;
 }
 
-input[type="checkbox"]:focus {
+.checkbox input:focus {
   outline: none;
 }
 
-input[type="checkbox"]:checked {
+.checkbox input:checked {
   /* Icon source: https://fontawesome.com/icons/check?style=solid. */
   /* base05 */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23d8d8d8" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>');

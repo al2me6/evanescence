@@ -43,7 +43,7 @@ impl Component for CheckBox {
 
     fn view(&self) -> Html {
         html! {
-            <label>
+            <label class = "checkbox">
                 <input
                     ref = self.node_ref.clone(),
                     type = "checkbox",
