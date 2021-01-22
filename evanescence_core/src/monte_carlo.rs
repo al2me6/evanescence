@@ -19,7 +19,6 @@ pub enum Quality {
     Medium = 25_000,
     /// Generally a good middle ground between performance and quality.
     High = 50_000,
-    #[strum(serialize = "Very high")]
     VeryHigh = 100_000,
     /// Should likely be avoided for all but the largest orbitals.
     Extreme = 250_000,
