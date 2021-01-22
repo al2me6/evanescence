@@ -40,7 +40,7 @@ impl Component for ControlsImpl {
                         <td>{"Principal quantum number n:"}</td>
                         <td><Dropdown<u32>
                             id = "n-picker"
-                            onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n)),
+                            onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n))
                             options = (1..=MAX_N).collect::<Vec<_>>()
                             selected = state.qn.n()
                         /></td>
@@ -59,8 +59,8 @@ impl Component for ControlsImpl {
                         <td>{"Magnetic quantum number m:"}</td>
                         <td><Dropdown<i32>
                             id = "m-picker"
-                            onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m)),
-                            options = Qn::enumerate_m_for_l(state.qn.l()).collect::<Vec<_>>(),
+                            onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
+                            options = Qn::enumerate_m_for_l(state.qn.l()).collect::<Vec<_>>()
                             selected = state.qn.m()
                         /></td>
                     </tr>
@@ -68,7 +68,7 @@ impl Component for ControlsImpl {
                         <td>{"Render quality:"}</td>
                         <td><Dropdown<Quality>
                             id = "quality-picker"
-                            onchange = handle.reduce_callback_with(|s, qual| s.quality = qual),
+                            onchange = handle.reduce_callback_with(|s, qual| s.quality = qual)
                             options = Quality::iter().collect::<Vec<_>>()
                             selected = state.quality
                         /></td>
@@ -77,8 +77,8 @@ impl Component for ControlsImpl {
                         <td/>
                         <td><CheckBox
                             id = "radial-nodes-toggle",
-                            onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_radial = vis),
-                            initial_state = self.handle.state().nodes_show_radial,
+                            onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_radial = vis)
+                            initial_state = self.handle.state().nodes_show_radial
                             label = "Show radial nodes"
                         /></td>
                     </tr>
@@ -86,8 +86,8 @@ impl Component for ControlsImpl {
                         <td/>
                         <td><CheckBox
                             id = "angular-nodes-toggle",
-                            onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis),
-                            initial_state = self.handle.state().nodes_show_angular,
+                            onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis)
+                            initial_state = self.handle.state().nodes_show_angular
                             label = "Show angular nodes"
                         /></td>
                     </tr>
