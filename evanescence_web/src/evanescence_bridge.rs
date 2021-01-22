@@ -92,7 +92,7 @@ pub(crate) fn plot_angular_nodes(qn: Qn, quality: Quality) -> JsValue {
             quality.for_isosurface(),
             None,
         ),
-        qn.l() > 6 && qn.m().abs() > 5,
+        qn.l() >= 4 && qn.m().abs() >= 4,
         color_scales::PURP,
     )
 }
