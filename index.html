@@ -8,8 +8,23 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <title>Evanescence</title>
     <script type="module">
+      function setScrolling() {
+        const sidebar = document.getElementById("sidebar");
+        const offset = sidebar.getBoundingClientRect().y + window.scrollY;
+        if (offset !== 0) {
+          sidebar.style.setProperty("max-height", "unset");
+          sidebar.style.setProperty("overflow-y", "unset");
+        } else {
+          sidebar.style.setProperty("max-height", "100vh");
+          sidebar.style.setProperty("overflow-y", "auto");
+        }
+      }
       import init from "./wasm.js";
-      init();
+      (async () => {
+        await init();
+        window.addEventListener("resize", setScrolling);
+        setScrolling();
+      })();
     </script>
   </head>
   <body></body>
