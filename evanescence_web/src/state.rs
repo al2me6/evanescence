@@ -12,6 +12,12 @@ pub(crate) enum Visualization {
     RadialProbability,
     #[strum(serialize = "Radial probability distribution")]
     RadialProbabilityDistribution,
+    #[strum(serialize = "XY-plane cross section")]
+    CrossSectionXY,
+    #[strum(serialize = "YZ-plane cross section")]
+    CrossSectionYZ,
+    #[strum(serialize = "ZX-plane cross-section")]
+    CrossSectionZX,
 }
 
 impl Default for Visualization {

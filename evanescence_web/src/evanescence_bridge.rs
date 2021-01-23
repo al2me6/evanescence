@@ -1,14 +1,17 @@
-use evanescence_core::geometry::ComponentForm;
+use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::normalize;
 use evanescence_core::orbital::{self, wavefunctions, Orbital, Qn, RadialPlot};
 use wasm_bindgen::JsValue;
 
-use crate::plotly::color::{color_scales, ColorBar, ColorScale};
-use crate::plotly::layout::{Anchor, Axis, Title};
-use crate::plotly::scatter::Line;
-use crate::plotly::scatter_3d::Marker;
-use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D};
+use crate::plotly::{
+    color::{color_scales, ColorBar, ColorScale},
+    layout::{Anchor, Axis, Scene, Title},
+    scatter::Line,
+    scatter_3d::Marker,
+    surface::{Contour, Contours, Lighting, Project},
+};
+use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D, Surface};
 use crate::state::{State, Visualization};
 use crate::utils::{capitalize_words, min_max};
 
@@ -132,6 +135,86 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
                 standoff: Some(20),
             }),
             ticks: "outside",
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    (trace.into(), layout.into())
+}
+
+pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
+    let plane = match state.extra_visualization {
+        Visualization::CrossSectionXY => Plane::XY,
+        Visualization::CrossSectionYZ => Plane::YZ,
+        Visualization::CrossSectionZX => Plane::ZX,
+        _ => unreachable!(),
+    };
+    let num_points = state.quality.for_grid();
+    let (x, y, mut value) =
+        orbital::Real::sample_cross_section(state.qn, plane, num_points).into_components();
+    let (min, max) = min_max(value.iter().flat_map(|row| row.iter()));
+    let (x_label, y_label) = plane.axes_names();
+
+    // If all values are within some very small bound, then it's likely that we have encountered
+    // numerical errors and the values should all be zero.
+    const ZERO_THRESHOLD: f32 = 1E-7_f32;
+    if min.abs() < ZERO_THRESHOLD && max < ZERO_THRESHOLD {
+        value = vec![vec![0.0; value[0].len()]; value.len()]; // Grid of zeroes.
+    }
+
+    let trace = Surface {
+        x,
+        y,
+        z: value,
+        contours: Some(Contours {
+            z: Contour {
+                show: Some(true),
+                start: Some(min),
+                end: Some(max),
+                size: Some((max - min) / 19.0),
+                use_color_map: Some(true),
+                highlight: true,
+                project: Some(Project {
+                    z: true,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ..Default::default()
+        }),
+        lighting: Some(Lighting {
+            diffuse: 0.2,
+            specular: 0.05,
+            roughness: 1.0,
+        }),
+        ..Default::default()
+    };
+
+    let layout = Layout {
+        ui_revision: true,
+        scene: Some(Scene {
+            x_axis: Axis {
+                title: Some(Title {
+                    text: x_label,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            y_axis: Axis {
+                title: Some(Title {
+                    text: y_label,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            z_axis: Axis {
+                title: Some(Title {
+                    text: "Wavefunction Value",
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
             ..Default::default()
         }),
         ..Default::default()

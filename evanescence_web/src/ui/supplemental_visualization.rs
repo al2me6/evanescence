@@ -4,7 +4,7 @@ use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::evanescence_bridge::plot_radial;
+use crate::evanescence_bridge::{plot_cross_section, plot_radial};
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::state::{State, StateHandle, Visualization};
@@ -36,19 +36,24 @@ impl SupplementalVisualizationImpl {
             Visualization::RadialWavefunction
             | Visualization::RadialProbability
             | Visualization::RadialProbabilityDistribution => plot_radial,
+            Visualization::CrossSectionXY
+            | Visualization::CrossSectionYZ
+            | Visualization::CrossSectionZX => plot_cross_section,
         };
 
         let (trace, layout) = renderer(state);
-        Plotly::new_plot(
+        Plotly::react(
             Self::ID,
             vec![trace].into_boxed_slice(),
             layout,
             Config {
                 mode_bar_buttons_to_remove: &[
                     ModeBarButtons::AutoScale2d,
+                    ModeBarButtons::HoverClosest3d,
                     ModeBarButtons::HoverCompareCartesian,
                     ModeBarButtons::Lasso2d,
                     ModeBarButtons::Pan2d,
+                    ModeBarButtons::ResetCameraLastSave3d,
                     ModeBarButtons::ResetScale2d,
                     ModeBarButtons::Select2d,
                     ModeBarButtons::ToggleSpikelines,
