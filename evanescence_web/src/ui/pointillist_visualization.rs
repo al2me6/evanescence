@@ -1,12 +1,13 @@
-use evanescence_core::monte_carlo::Quality;
-use evanescence_core::orbital::{self, Orbital, Qn};
+use evanescence_core::orbital::{self, Orbital};
 use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::evanescence_bridge::{plot_angular_nodes, plot_pointillist_real, plot_radial_nodes};
+use crate::evanescence_bridge::{
+    plot_angular_nodes, plot_cross_section_indicator, plot_pointillist_real, plot_radial_nodes,
+};
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::layout::{Axis, LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
@@ -17,14 +18,18 @@ enum Trace {
     Pointillist,
     RadialNodes,
     AngularNodes,
+    CrossSectionIndicator,
 }
 
 impl Trace {
-    fn should_render(self, state: &State) -> (bool, fn(Qn, Quality) -> JsValue) {
+    fn should_render(self, state: &State) -> (bool, fn(&State) -> JsValue) {
         match self {
             Self::Pointillist => (true, plot_pointillist_real),
             Self::RadialNodes => (state.nodes_show_radial, plot_radial_nodes),
             Self::AngularNodes => (state.nodes_show_angular, plot_angular_nodes),
+            Self::CrossSectionIndicator => {
+                (state.cross_section_enabled(), plot_cross_section_indicator)
+            }
         }
     }
 }
@@ -69,7 +74,7 @@ impl PointillistVisualizationImpl {
             .rendered_traces
             .iter()
             .map(|&t| t.should_render(state))
-            .map(|(_, renderer)| renderer(state.qn, state.quality))
+            .map(|(_, renderer)| renderer(state))
             .collect();
         Plotly::add_traces(Self::ID, traces.into_boxed_slice());
     }
@@ -92,7 +97,7 @@ impl PointillistVisualizationImpl {
 
         // If so, compute and render one.
         if should_render {
-            Plotly::add_trace(Self::ID, renderer(state.qn, state.quality));
+            Plotly::add_trace(Self::ID, renderer(state));
             self.rendered_traces.push(kind);
         }
     }
@@ -125,6 +130,9 @@ impl Component for PointillistVisualizationImpl {
             if diff.nodes_angular {
                 self.add_or_remove_trace(Trace::AngularNodes);
             }
+            if diff.cross_section {
+                self.add_or_remove_trace(Trace::CrossSectionIndicator);
+            }
         }
         false
     }
@@ -144,7 +152,7 @@ impl Component for PointillistVisualizationImpl {
 
         Plotly::react(
             Self::ID,
-            vec![plot_pointillist_real(state.qn, state.quality)].into_boxed_slice(),
+            vec![plot_pointillist_real(state)].into_boxed_slice(),
             Layout {
                 drag_mode_str: Some("orbit"),
                 ui_revision: true,

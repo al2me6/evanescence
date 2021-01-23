@@ -1,9 +1,9 @@
 use std::convert::TryInto;
 
 use evanescence_core::geometry::{ComponentForm, Plane};
-use evanescence_core::monte_carlo::{MonteCarlo, Quality};
+use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::normalize;
-use evanescence_core::orbital::{self, wavefunctions, Orbital, Qn, RadialPlot};
+use evanescence_core::orbital::{self, wavefunctions, Orbital, RadialPlot};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::{
@@ -44,8 +44,8 @@ pub(crate) fn plot_isosurface(
     .into()
 }
 
-pub(crate) fn plot_pointillist_real(qn: Qn, quality: Quality) -> JsValue {
-    let simulation = orbital::Real::monte_carlo_simulate(qn, quality);
+pub(crate) fn plot_pointillist_real(state: &State) -> JsValue {
+    let simulation = orbital::Real::monte_carlo_simulate(state.qn, state.quality);
     let (x, y, z, values) = simulation.into_components();
 
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
@@ -74,26 +74,27 @@ pub(crate) fn plot_pointillist_real(qn: Qn, quality: Quality) -> JsValue {
     .into()
 }
 
-pub(crate) fn plot_radial_nodes(qn: Qn, quality: Quality) -> JsValue {
+pub(crate) fn plot_radial_nodes(state: &State) -> JsValue {
     plot_isosurface(
         orbital::sample_region_for::<wavefunctions::Radial>(
-            qn,
-            quality.for_isosurface(),
+            state.qn,
+            state.quality.for_isosurface(),
             // Shrink the extent plotted since radial nodes are found in the central
             // part of the full extent only. This is a heuristic that has been verified
             // to cover all radial nodes from `n` = 2 through 8.
-            Some(qn.n() as f32 * 0.05 + 0.125),
+            Some(state.qn.n() as f32 * 0.05 + 0.125),
         ),
         false,
         color_scales::GREENS,
     )
 }
 
-pub(crate) fn plot_angular_nodes(qn: Qn, quality: Quality) -> JsValue {
+pub(crate) fn plot_angular_nodes(state: &State) -> JsValue {
+    let qn = state.qn;
     plot_isosurface(
         orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
             qn,
-            quality.for_isosurface(),
+            state.quality.for_isosurface(),
             None,
         ),
         qn.l() >= 4 && qn.m().abs() >= 4,
@@ -213,4 +214,22 @@ pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
     };
 
     (trace.into(), layout.into())
+}
+
+pub(crate) fn plot_cross_section_indicator(state: &State) -> JsValue {
+    let plane: Plane = state.extra_visualization.try_into().unwrap();
+    let (x, y, z) = plane
+        .four_points_as_xy_value(orbital::Real::estimate_radius(state.qn))
+        .into_components();
+    Surface {
+        x,
+        y,
+        z,
+        opacity: 0.2,
+        show_scale: false,
+        color_scale: color_scales::ORANGES,
+        surface_color: Some(vec![vec![0.0; 2]; 2]),
+        ..Default::default()
+    }
+    .into()
 }

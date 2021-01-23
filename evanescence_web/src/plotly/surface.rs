@@ -75,6 +75,17 @@ pub(crate) struct Surface<'a> {
     #[serde(rename = "colorbar")]
     pub(crate) color_bar: ColorBar<'a>,
 
+    #[serde(rename = "surfacecolor")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) surface_color: Option<Vec<Vec<f32>>>,
+
+    #[serde(rename = "showscale")]
+    #[derivative(Default(value = "true"))]
+    pub(crate) show_scale: bool,
+
+    #[derivative(Default(value = "1.0"))]
+    pub(crate) opacity: f32,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) contours: Option<Contours<'a>>,
 

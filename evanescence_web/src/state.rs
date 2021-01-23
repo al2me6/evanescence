@@ -69,15 +69,29 @@ pub(crate) struct StateDiff {
     pub(crate) nodes_radial: bool,
     pub(crate) nodes_angular: bool,
     pub(crate) extra_visualization: bool,
+    pub(crate) cross_section: bool,
 }
 
 impl State {
+    pub(crate) fn cross_section_enabled(&self) -> bool {
+        [
+            Visualization::CrossSectionXY,
+            Visualization::CrossSectionYZ,
+            Visualization::CrossSectionZX,
+        ]
+        .contains(&self.extra_visualization)
+    }
+
     pub(crate) fn diff(&self, other: &Self) -> StateDiff {
+        let extra_visualization = self.extra_visualization != other.extra_visualization;
         StateDiff {
             qn_or_quality: !(self.qn == other.qn && self.quality == other.quality),
             nodes_radial: self.nodes_show_radial != other.nodes_show_radial,
             nodes_angular: self.nodes_show_angular != other.nodes_show_angular,
-            extra_visualization: self.extra_visualization != other.extra_visualization,
+            extra_visualization,
+            cross_section: extra_visualization
+                && (other.extra_visualization == Visualization::None
+                    || other.cross_section_enabled()),
         }
     }
 }
