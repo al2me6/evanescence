@@ -122,14 +122,14 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
         x_axis: Some(Axis {
             title: Some(Title {
                 text: "r",
-                ..Default::default()
+                standoff: Some(20),
             }),
             ..Default::default()
         }),
         y_axis: Some(Axis {
             title: Some(Title {
                 text: &variant_name,
-                ..Default::default()
+                standoff: Some(20),
             }),
             ticks: "outside",
             ..Default::default()

@@ -14,10 +14,13 @@ pub(crate) struct ColorBar<'a> {
     #[serde(rename = "xanchor")]
     #[derivative(Default(value = "Anchor::Left"))]
     pub(crate) x_anchor: Anchor,
-    #[serde(rename="outlinecolor")]
+    #[serde(rename = "outlinecolor")]
     // base06
-    #[derivative(Default(value="\"#e0e0e0\""))]
+    #[derivative(Default(value = "\"#e0e0e0\""))]
     pub(crate) outline_color: &'a str,
+
+    #[derivative(Default(value = "20"))]
+    pub(crate) thickness: u32,
 }
 
 #[allow(dead_code)]

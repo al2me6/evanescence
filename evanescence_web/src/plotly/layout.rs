@@ -12,8 +12,8 @@ pub(crate) enum Anchor {
 #[derivative(Default)]
 pub(crate) struct Title<'a> {
     pub(crate) text: &'a str,
-    #[derivative(Default(value = "20"))]
-    pub(crate) standoff: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) standoff: Option<usize>,
 }
 
 #[derive(Serialize, Derivative)]

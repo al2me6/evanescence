@@ -4,6 +4,7 @@ pub(crate) mod isosurface;
 pub(crate) mod layout;
 pub(crate) mod scatter;
 pub(crate) mod scatter_3d;
+pub(crate) mod surface;
 
 use serde::Serialize;
 use wasm_bindgen::JsValue;
@@ -13,13 +14,15 @@ pub(crate) use self::isosurface::Isosurface;
 pub(crate) use self::layout::{Layout, LayoutRangeUpdate};
 pub(crate) use self::scatter::Scatter;
 pub(crate) use self::scatter_3d::Scatter3D;
+pub(crate) use self::surface::Surface;
 
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
 pub(crate) enum PlotType {
+    Isosurface,
     Scatter,
     Scatter3D,
-    Isosurface,
+    Surface,
 }
 
 #[allow(non_snake_case)] // This is semantically a class.
@@ -80,5 +83,5 @@ macro_rules! impl_into_js_value {
         }
     }
 }
-impl_into_js_value!('a; Config, Layout, Isosurface, Scatter, Scatter3D);
+impl_into_js_value!('a; Config, Layout, Isosurface, Scatter, Scatter3D, Surface);
 impl_into_js_value!(LayoutRangeUpdate);
