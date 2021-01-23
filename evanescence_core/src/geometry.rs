@@ -459,6 +459,37 @@ impl<T> GridValues<T> {
     }
 }
 
+impl Plane {
+    /// Produce four points situated on the plane, *on the xy-plane*. That is, the values are
+    /// always represented as (x, y, z), regardless of whether the plane is the xy-plane. The
+    /// appropriate coordinate will be zeroed according to the plane.
+    ///
+    /// The four points produced are those of the vertices of the square with sidelength `extent`
+    /// centered at the origin.
+    pub fn four_points_as_xy_value(self, extent: f32) -> GridValues<f32> {
+        match self {
+            Self::XY => GridValues {
+                plane: Plane::XY,
+                col_coords: vec![-extent, extent],
+                row_coords: vec![-extent, extent],
+                vals: vec![vec![0.0, 0.0]; 2],
+            },
+            Self::YZ => GridValues {
+                plane: Plane::XY,
+                col_coords: vec![0.0, 0.0],
+                row_coords: vec![-extent, extent],
+                vals: vec![vec![-extent, extent]; 2],
+            },
+            Self::ZX => GridValues {
+                plane: Plane::XY,
+                col_coords: vec![-extent, extent],
+                row_coords: vec![0.0, 0.0],
+                vals: vec![vec![-extent; 2], vec![extent; 2]],
+            },
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use approx::assert_relative_eq;
