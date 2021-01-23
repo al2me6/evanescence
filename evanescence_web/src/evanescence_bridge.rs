@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::normalize;
@@ -12,7 +14,7 @@ use crate::plotly::{
     surface::{Contour, Contours, Lighting, Project},
 };
 use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D, Surface};
-use crate::state::{State, Visualization};
+use crate::state::State;
 use crate::utils::{capitalize_words, min_max};
 
 pub(crate) fn plot_isosurface(
@@ -100,12 +102,7 @@ pub(crate) fn plot_angular_nodes(qn: Qn, quality: Quality) -> JsValue {
 }
 
 pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
-    let variant = match state.extra_visualization {
-        Visualization::RadialWavefunction => RadialPlot::Wavefunction,
-        Visualization::RadialProbability => RadialPlot::Probability,
-        Visualization::RadialProbabilityDistribution => RadialPlot::ProbabilityDistribution,
-        _ => unreachable!(),
-    };
+    let variant: RadialPlot = state.extra_visualization.try_into().unwrap();
     let variant_name = capitalize_words(&state.extra_visualization.to_string());
 
     let (x, y) = orbital::Real::sample_radial(state.qn, variant, state.quality.for_line());
@@ -144,12 +141,7 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
-    let plane = match state.extra_visualization {
-        Visualization::CrossSectionXY => Plane::XY,
-        Visualization::CrossSectionYZ => Plane::YZ,
-        Visualization::CrossSectionZX => Plane::ZX,
-        _ => unreachable!(),
-    };
+    let plane: Plane = state.extra_visualization.try_into().unwrap();
     let num_points = state.quality.for_grid();
     let (x, y, mut value) =
         orbital::Real::sample_cross_section(state.qn, plane, num_points).into_components();

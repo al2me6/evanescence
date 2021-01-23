@@ -1,5 +1,8 @@
+use std::convert::TryFrom;
+
+use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::Quality;
-use evanescence_core::orbital::Qn;
+use evanescence_core::orbital::{Qn, RadialPlot};
 use strum::{Display, EnumIter};
 use yew_state::SharedHandle;
 
@@ -23,6 +26,32 @@ pub(crate) enum Visualization {
 impl Default for Visualization {
     fn default() -> Self {
         Self::None
+    }
+}
+
+impl TryFrom<Visualization> for Plane {
+    type Error = String;
+
+    fn try_from(value: Visualization) -> Result<Self, Self::Error> {
+        match value {
+            Visualization::CrossSectionXY => Ok(Plane::XY),
+            Visualization::CrossSectionYZ => Ok(Plane::YZ),
+            Visualization::CrossSectionZX => Ok(Plane::ZX),
+            _ => Err(format!("{:?} does not have an associated plane.", value)),
+        }
+    }
+}
+
+impl TryFrom<Visualization> for RadialPlot {
+    type Error = String;
+
+    fn try_from(value: Visualization) -> Result<Self, Self::Error> {
+        match value {
+            Visualization::RadialWavefunction => Ok(RadialPlot::Wavefunction),
+            Visualization::RadialProbability => Ok(RadialPlot::Probability),
+            Visualization::RadialProbabilityDistribution => Ok(RadialPlot::ProbabilityDistribution),
+            _ => Err(format!("{:?} is not a radial plot.", value)),
+        }
     }
 }
 
