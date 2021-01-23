@@ -1,4 +1,3 @@
-use inflector::Inflector;
 use wasm_bindgen::JsValue;
 use web_sys::HtmlElement;
 use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender};
@@ -9,6 +8,7 @@ use crate::evanescence_bridge::plot_radial;
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::state::{State, StateHandle, Visualization};
+use crate::utils::capitalize_words;
 
 pub(crate) struct SupplementalVisualizationImpl {
     handle: StateHandle,
@@ -93,18 +93,13 @@ impl Component for SupplementalVisualizationImpl {
     }
 
     fn view(&self) -> Html {
-        let title = self
-            .handle
-            .state()
-            .extra_visualization
-            .to_string()
-            .to_title_case();
+        let title = self.handle.state().extra_visualization.to_string();
         html! {
             <>
                 // The title can't be in the same div as the visualization because that somehow
                 // breaks Plotly's responsive mode detection (reverts to hard-coded 450px
                 // vertical size).
-                <h3 ref = self.title_ref.clone() >{ title }</h3>
+                <h3 ref = self.title_ref.clone() >{ capitalize_words(&title) }</h3>
                 <div ref = self.div_ref.clone() class = "visualization" id = Self::ID />
             </>
         }

@@ -2,7 +2,6 @@ use evanescence_core::geometry::ComponentForm;
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::normalize;
 use evanescence_core::orbital::{self, wavefunctions, Orbital, Qn, RadialPlot};
-use inflector::Inflector;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
@@ -11,6 +10,7 @@ use crate::plotly::scatter::Line;
 use crate::plotly::scatter_3d::Marker;
 use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D};
 use crate::state::{State, Visualization};
+use crate::utils::capitalize_words;
 
 pub(crate) fn plot_isosurface(
     simulation: ComponentForm<f32>,
@@ -107,7 +107,7 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
         Visualization::RadialProbabilityDistribution => RadialPlot::ProbabilityDistribution,
         _ => unreachable!(),
     };
-    let variant_name = state.extra_visualization.to_string().to_title_case();
+    let variant_name = capitalize_words(&state.extra_visualization.to_string());
 
     let (x, y) = orbital::Real::sample_radial(state.qn, variant, state.quality.for_line());
 
