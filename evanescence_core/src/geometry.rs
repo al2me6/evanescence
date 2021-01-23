@@ -293,11 +293,11 @@ impl Plane {
     }
 
     /// Get the names of the two coordinate axes defining the plane, in order.
-    pub fn axes_names(self) -> (char, char) {
+    pub fn axes_names(self) -> (&'static str, &'static str) {
         match self {
-            Self::XY => ('x', 'y'),
-            Self::YZ => ('y', 'z'),
-            Self::ZX => ('z', 'x'),
+            Self::XY => ("x", "y"),
+            Self::YZ => ("y", "z"),
+            Self::ZX => ("z", "x"),
         }
     }
 }
