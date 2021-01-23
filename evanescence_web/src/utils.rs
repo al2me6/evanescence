@@ -11,3 +11,9 @@ pub(crate) fn capitalize_words(source: &str) -> String {
         })
         .collect()
 }
+
+pub(crate) fn min_max<'a, I: Iterator<Item = &'a f32>>(values: I) -> (f32, f32) {
+    values.fold((0.0_f32, 0.0_f32), |(curr_min, curr_max), &v| {
+        (curr_min.min(v), curr_max.max(v))
+    })
+}

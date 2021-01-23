@@ -10,7 +10,7 @@ use crate::plotly::scatter::Line;
 use crate::plotly::scatter_3d::Marker;
 use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D};
 use crate::state::{State, Visualization};
-use crate::utils::capitalize_words;
+use crate::utils::{capitalize_words, min_max};
 
 pub(crate) fn plot_isosurface(
     simulation: ComponentForm<f32>,
@@ -44,11 +44,7 @@ pub(crate) fn plot_pointillist_real(qn: Qn, quality: Quality) -> JsValue {
     let (x, y, z, values) = simulation.into_components();
 
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
-    let (min_abs, max_abs) = values_abs
-        .iter()
-        .fold((0.0_f32, 0.0_f32), |(curr_min, curr_max), &v| {
-            (curr_min.min(v), curr_max.max(v))
-        });
+    let (min_abs, max_abs) = min_max(values_abs.iter());
 
     Scatter3D {
         x,
