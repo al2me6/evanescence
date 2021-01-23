@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 
-use inflector::Inflector;
 use web_sys::HtmlSelectElement;
 use yew::{html, Callback, ChangeData, Component, ComponentLink, Html, Properties, ShouldRender};
 use yewtil::NeqAssign;
@@ -74,12 +73,7 @@ impl<T: DropdownItem> Component for Dropdown<T> {
         }
 
         fn option<T: Display + PartialEq>(value: &T, selected_value: &T) -> Html {
-            let display = value.to_string();
-            html! {
-                <option value = display selected = (value == selected_value)>
-                    { display.to_sentence_case() }
-                </option>
-            }
+            html! { <option selected = (value == selected_value)> { value }</option> }
         }
 
         html! {

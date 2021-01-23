@@ -6,8 +6,11 @@ use yew_state::SharedHandle;
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display)]
 pub(crate) enum Visualization {
     None,
+    #[strum(serialize = "Radial wavefunction")]
     RadialWavefunction,
+    #[strum(serialize = "Radial probability")]
     RadialProbability,
+    #[strum(serialize = "Radial probability distribution")]
     RadialProbabilityDistribution,
 }
 
