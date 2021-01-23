@@ -1,4 +1,4 @@
-#![recursion_limit = "512"]
+#![recursion_limit = "1024"]
 
 pub(crate) mod components;
 pub(crate) mod evanescence_bridge;
@@ -15,7 +15,7 @@ use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
 use crate::state::StateHandle;
-use crate::ui::{Controls, InfoPanel, PointillistVisualization};
+use crate::ui::{Controls, InfoPanel, PointillistVisualization, SupplementalVisualization};
 
 /// Maximum value of the principal quantum number `n` that is exposed.
 pub(crate) const MAX_N: u32 = 8;
@@ -67,10 +67,11 @@ impl Component for MainImpl {
             <main>
                 <PointillistVisualization/>
             </main>
-            <aside>
+            <aside id = "sidebar">
                 <h1>{ "Hydrogenic Orbitals" }</h1>
                 <Controls/>
                 <InfoPanel/>
+                <SupplementalVisualization/>
                 { footer }
             </aside>
             </>

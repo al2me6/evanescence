@@ -1,13 +1,16 @@
 use evanescence_core::geometry::ComponentForm;
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::normalize;
-use evanescence_core::orbital::{self, wavefunctions, Qn};
+use evanescence_core::orbital::{self, wavefunctions, Orbital, Qn, RadialPlot};
+use inflector::Inflector;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
-use crate::plotly::isosurface::Isosurface;
-use crate::plotly::layout::Anchor;
-use crate::plotly::scatter_3d::{Marker, Scatter3D};
+use crate::plotly::layout::{Anchor, Axis, Title};
+use crate::plotly::scatter::Line;
+use crate::plotly::scatter_3d::Marker;
+use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D};
+use crate::state::{State, Visualization};
 
 pub(crate) fn plot_isosurface(
     simulation: ComponentForm<f32>,
@@ -95,4 +98,48 @@ pub(crate) fn plot_angular_nodes(qn: Qn, quality: Quality) -> JsValue {
         qn.l() >= 4 && qn.m().abs() >= 4,
         color_scales::PURP,
     )
+}
+
+pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
+    let variant = match state.extra_visualization {
+        Visualization::RadialWavefunction => RadialPlot::Wavefunction,
+        Visualization::RadialProbability => RadialPlot::Probability,
+        Visualization::RadialProbabilityDistribution => RadialPlot::ProbabilityDistribution,
+        _ => unreachable!(),
+    };
+    let variant_name = state.extra_visualization.to_string().to_title_case();
+
+    let (x, y) = orbital::Real::sample_radial(state.qn, variant, state.quality.for_line());
+
+    let trace = Scatter {
+        x,
+        y,
+        line: Line {
+            color: Some("#8abeb7"),
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
+    let layout = Layout {
+        drag_mode_bool: Some(false),
+        x_axis: Some(Axis {
+            title: Some(Title {
+                text: "r",
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
+        y_axis: Some(Axis {
+            title: Some(Title {
+                text: &variant_name,
+                ..Default::default()
+            }),
+            ticks: "outside",
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    (trace.into(), layout.into())
 }

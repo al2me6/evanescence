@@ -42,6 +42,16 @@ body {
   color: #e0e0e0;
 }
 
+body > * {
+  padding: 20px;
+}
+
+@media (max-width: 1400px) {
+  body > * {
+    padding: 15px;
+  }
+}
+
 h1,
 h2,
 h3,
@@ -98,6 +108,7 @@ select {
   border: 0px;
   border-radius: 4px;
   padding: 0.15em 1.5em 0.3em 0.4em;
+  text-overflow: ellipsis;
 }
 
 select:hover {
@@ -207,7 +218,6 @@ select:focus {
 
 main {
   box-sizing: border-box;
-  padding: 20px;
   height: 100vh;
   flex: 2 1 50vh;
 }
@@ -218,29 +228,20 @@ main {
   }
 }
 
-@media (max-width: 1400px) {
-  main {
-    padding: 15px;
-  }
-}
-
-#pointillist {
+.visualization#pointillist {
   width: 100%;
   height: 100%;
 }
 
 /* Sidebar. */
 
+/* Note that scrolling is managed by JS in `index.html`. */
 aside {
   box-sizing: border-box;
-  margin: 20px;
   flex: 1 0 20rem;
-}
-
-@media (max-width: 1400px) {
-  aside {
-    margin: 15px;
-  }
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
 }
 
 aside > :first-child {
@@ -256,4 +257,11 @@ footer {
 footer p {
   text-align: right;
   font-size: 0.8rem;
+}
+
+/* Supplemental display. */
+
+.visualization#supplemental {
+  padding: 10px;
+  flex: 1 0 300px;
 }

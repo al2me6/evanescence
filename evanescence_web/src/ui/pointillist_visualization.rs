@@ -146,6 +146,7 @@ impl Component for PointillistVisualizationImpl {
             Self::ID,
             vec![plot_pointillist_real(state.qn, state.quality)].into_boxed_slice(),
             Layout {
+                drag_mode_str: Some("orbit"),
                 ui_revision: true,
                 scene: Some(Scene {
                     x_axis: axis,

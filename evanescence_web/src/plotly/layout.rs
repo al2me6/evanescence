@@ -8,6 +8,25 @@ pub(crate) enum Anchor {
     Right,
 }
 
+#[derive(Clone, Copy, Serialize, Derivative)]
+#[derivative(Default)]
+pub(crate) struct Title<'a> {
+    pub(crate) text: &'a str,
+    #[derivative(Default(value = "20"))]
+    pub(crate) standoff: usize,
+}
+
+#[derive(Serialize, Derivative)]
+#[derivative(Default)]
+pub(crate) struct Font<'a> {
+    #[derivative(Default(value = "\"Lato, sans-serif\""))]
+    pub(crate) family: &'a str,
+    #[derivative(Default(value = "13"))]
+    pub(crate) size: usize,
+    #[derivative(Default(value = "\"#d8d8d8\""))]
+    pub(crate) color: &'a str,
+}
+
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Margin {
@@ -21,20 +40,47 @@ pub(crate) struct Margin {
     pub(crate) left: u32,
 }
 
+// Colors using Base16 Tomorrow Night.
 #[derive(Clone, Copy, Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Axis<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) title: Option<Title<'a>>,
+
+    // Default = "".
+    pub(crate) ticks: &'a str,
+
+    #[serde(rename = "tickcolor")]
+    // blend of base02 and base03
+    #[derivative(Default(value = "\"#676a6c\""))]
+    pub(crate) tick_color: &'a str,
+
+    #[serde(rename = "exponentformat")]
+    #[derivative(Default(value = "\"power\""))]
+    pub(crate) exponent_format: &'a str,
+
     #[serde(rename = "gridcolor")]
-    #[derivative(Default(value = "\"#888\""))]
+    // blend of base02 and base03
+    #[derivative(Default(value = "\"#676a6c\""))]
     pub(crate) grid_color: &'a str,
 
+    #[serde(rename = "zeroline")]
+    #[derivative(Default(value = "true"))]
+    pub(crate) zero_line: bool,
+
     #[serde(rename = "zerolinecolor")]
-    #[derivative(Default(value = "\"#f8f8f8\""))]
+    // base06
+    #[derivative(Default(value = "\"#e0e0e0\""))]
     pub(crate) zero_line_color: &'a str,
 
     #[serde(rename = "showspikes")]
     pub(crate) show_spikes: bool,
 
+    #[serde(rename = "automargin")]
+    #[derivative(Default(value = "true"))]
+    pub(crate) auto_margin: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) range: Option<(f32, f32)>,
 }
 
@@ -71,15 +117,6 @@ pub(crate) struct Scene<'a> {
     pub(crate) z_axis: Axis<'a>,
 }
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Font<'a> {
-    #[derivative(Default(value = "\"Lato\""))]
-    pub(crate) family: &'a str,
-    #[derivative(Default(value = "\"#d8d8d8\""))]
-    pub(crate) color: &'a str,
-}
-
 // Colors using Base16 Tomorrow Night.
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
@@ -101,18 +138,37 @@ pub(crate) struct ModeBar<'a> {
 #[derivative(Default)]
 pub(crate) struct Layout<'a> {
     #[serde(rename = "dragmode")]
-    #[derivative(Default(value = "\"orbit\""))]
-    pub(crate) drag_mode: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) drag_mode_str: Option<&'a str>,
+
+    #[serde(rename = "dragmode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) drag_mode_bool: Option<bool>,
 
     #[serde(rename = "hovermode")]
     pub(crate) hover_mode: bool,
 
     pub(crate) margin: Margin,
+
+    /// For 3D plots only.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) scene: Option<Scene<'a>>,
+
     pub(crate) font: Font<'a>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "xaxis")]
+    pub(crate) x_axis: Option<Axis<'a>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "yaxis")]
+    pub(crate) y_axis: Option<Axis<'a>>,
 
     #[derivative(Default(value = "\"rgba(0,0,0,0)\""))]
     pub(crate) paper_bgcolor: &'a str,
+
+    #[derivative(Default(value = "\"rgba(0,0,0,0)\""))]
+    pub(crate) plot_bgcolor: &'a str,
 
     #[serde(rename = "modebar")]
     pub(crate) mode_bar: ModeBar<'a>,

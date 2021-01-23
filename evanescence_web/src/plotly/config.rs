@@ -4,8 +4,18 @@ use serde::Serialize;
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) enum ModeBarButtons {
-    ResetCameraLastSave3d,
+    AutoScale2d,
     HoverClosest3d,
+    HoverCompareCartesian,
+    Lasso2d,
+    Pan2d,
+    ResetCameraLastSave3d,
+    ResetScale2d,
+    Select2d,
+    ToggleSpikelines,
+    Zoom2d,
+    ZoomIn2d,
+    ZoomOut2d,
 }
 
 #[derive(Serialize, Derivative)]

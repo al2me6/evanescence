@@ -11,11 +11,13 @@ use wasm_bindgen::JsValue;
 pub(crate) use self::config::Config;
 pub(crate) use self::isosurface::Isosurface;
 pub(crate) use self::layout::{Layout, LayoutRangeUpdate};
+pub(crate) use self::scatter::Scatter;
 pub(crate) use self::scatter_3d::Scatter3D;
 
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
 pub(crate) enum PlotType {
+    Scatter,
     Scatter3D,
     Isosurface,
 }
@@ -26,6 +28,14 @@ pub(crate) mod Plotly {
 
     #[wasm_bindgen]
     extern "C" {
+        #[wasm_bindgen(js_namespace = Plotly, js_name = newPlot)]
+        pub(crate) fn new_plot(
+            graph_div: &str,
+            data: Box<[JsValue]>,
+            layout: JsValue,
+            config: JsValue,
+        );
+
         #[wasm_bindgen(js_namespace = Plotly, js_name = react)]
         pub(crate) fn react(
             graph_div: &str,
@@ -70,5 +80,5 @@ macro_rules! impl_into_js_value {
         }
     }
 }
-impl_into_js_value!('a; Config, Layout, Isosurface, Scatter3D);
+impl_into_js_value!('a; Config, Layout, Isosurface, Scatter, Scatter3D);
 impl_into_js_value!(LayoutRangeUpdate);

@@ -1,6 +1,6 @@
 [package]
 name = "evanescence_web"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["al2me6 <alvin.q.meng@gmail.com>"]
 edition = "2018"
 
@@ -11,6 +11,7 @@ crate-type = ["cdylib", "rlib"]
 console_error_panic_hook = "0.1"
 derivative = "2"
 evanescence_core = { path = "../evanescence_core" }
+Inflector = { version = "0.11", default-features = false }
 log = "0.4"
 pkg-version = "1"
 serde = { version = "1", features = ["derive"] }
@@ -19,6 +20,7 @@ strum = "0.20"
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 wasm-logger = "0.2"
 web-sys = { version = "0.3", features = [
+    "CssStyleDeclaration",
     "Document",
     "Element",
     "HtmlElement",

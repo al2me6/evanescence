@@ -6,7 +6,7 @@ use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
 use crate::components::{CheckBox, Dropdown};
-use crate::state::StateHandle;
+use crate::state::{StateHandle, Visualization};
 use crate::MAX_N;
 
 pub(crate) struct ControlsImpl {
@@ -89,6 +89,15 @@ impl Component for ControlsImpl {
                             onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis)
                             initial_state = self.handle.state().nodes_show_angular
                             label = "Show angular nodes"
+                        /></td>
+                    </tr>
+                    <tr>
+                        <td>{"Show supplemental visualization:"}</td>
+                        <td><Dropdown<Visualization>
+                            id = "supplement-picker"
+                            onchange = handle.reduce_callback_with(|s, ext| s.extra_visualization = ext)
+                            options = Visualization::iter().collect::<Vec<_>>()
+                            selected = state.extra_visualization
                         /></td>
                     </tr>
                 </table>
