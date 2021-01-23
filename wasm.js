@@ -208,7 +208,7 @@ function addBorrowedObject(obj) {
 }
 function __wbg_adapter_20(arg0, arg1, arg2) {
     try {
-        wasm.wasm_bindgen__convert__closures__invoke1_mut_ref__h53f949612b9b2db4(arg0, arg1, addBorrowedObject(arg2));
+        wasm.wasm_bindgen__convert__closures__invoke1_mut_ref__h7ff6f047b39bd855(arg0, arg1, addBorrowedObject(arg2));
     } finally {
         heap[stack_pointer++] = undefined;
     }
@@ -307,38 +307,33 @@ async function init(input) {
         var ret = false;
         return ret;
     };
-    imports.wbg.__wbg_deleteTraces_741952160c03ad97 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_deleteTraces_d8b44bda12d19c44 = function(arg0, arg1, arg2) {
         Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2);
     };
-    imports.wbg.__wbg_addTraces_726d0d47f56b7fe7 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_addTraces_e07b077d416a936d = function(arg0, arg1, arg2) {
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
     imports.wbg.__wbindgen_number_new = function(arg0) {
         var ret = arg0;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_deleteTraces_a7926b59b91cd5f0 = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_deleteTraces_1eb777165b855999 = function(arg0, arg1, arg2, arg3) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), v0);
     };
-    imports.wbg.__wbg_relayout_f36c605e8679206e = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_relayout_100f2dc068ae1d79 = function(arg0, arg1, arg2) {
         Plotly.relayout(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
-    imports.wbg.__wbg_addTraces_fb8ae20f39c709a2 = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_addTraces_06245b9b0918a762 = function(arg0, arg1, arg2, arg3) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), v0);
     };
-    imports.wbg.__wbg_react_6cc9bef2f2601e26 = function(arg0, arg1, arg2, arg3, arg4, arg5) {
+    imports.wbg.__wbg_react_7c27741ffa125d0d = function(arg0, arg1, arg2, arg3, arg4, arg5) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.react(getStringFromWasm0(arg0, arg1), v0, takeObject(arg4), takeObject(arg5));
-    };
-    imports.wbg.__wbg_newPlot_558d75d1e230668e = function(arg0, arg1, arg2, arg3, arg4, arg5) {
-        var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
-        wasm.__wbindgen_free(arg2, arg3 * 4);
-        Plotly.newPlot(getStringFromWasm0(arg0, arg1), v0, takeObject(arg4), takeObject(arg5));
     };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
         var ret = getStringFromWasm0(arg0, arg1);
@@ -652,8 +647,8 @@ async function init(input) {
         var ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper681 = function(arg0, arg1, arg2) {
-        var ret = makeMutClosure(arg0, arg1, 413, __wbg_adapter_20);
+    imports.wbg.__wbindgen_closure_wrapper699 = function(arg0, arg1, arg2) {
+        var ret = makeMutClosure(arg0, arg1, 422, __wbg_adapter_20);
         return addHeapObject(ret);
     };
 
