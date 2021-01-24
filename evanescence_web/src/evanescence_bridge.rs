@@ -143,18 +143,23 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
 
 pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
     let plane: Plane = state.extra_visualization.try_into().unwrap();
+    let (x_label, y_label) = plane.axes_names();
+
     let num_points = state.quality.for_grid();
     let (x, y, mut value) =
         orbital::Real::sample_cross_section(state.qn, plane, num_points).into_components();
+
     let (min, max) = min_max(value.iter().flat_map(|row| row.iter()));
-    let (x_label, y_label) = plane.axes_names();
+    let abs_max = max.max(min.abs());
 
     // If all values are within some very small bound, then it's likely that we have encountered
     // numerical errors and the values should all be zero.
     const ZERO_THRESHOLD: f32 = 1E-7_f32;
-    if min.abs() < ZERO_THRESHOLD && max < ZERO_THRESHOLD {
+    if abs_max < ZERO_THRESHOLD {
         value = vec![vec![0.0; value[0].len()]; value.len()]; // Grid of zeroes.
     }
+
+    let contour_abs_max = abs_max * 1.05;
 
     let trace = Surface {
         x,
@@ -163,9 +168,10 @@ pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
         contours: Some(Contours {
             z: Contour {
                 show: Some(true),
-                start: Some(min),
-                end: Some(max),
-                size: Some((max - min) / 19.0),
+                start: Some(-contour_abs_max),
+                end: Some(contour_abs_max),
+                // For up to 10 contour lines in each polarity, plus one at zero.
+                size: Some(contour_abs_max / 11.0),
                 use_color_map: Some(true),
                 highlight: true,
                 project: Some(Project {
@@ -206,6 +212,7 @@ pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
                     text: "Wavefunction Value",
                     ..Default::default()
                 }),
+                n_ticks: Some(7),
                 ..Default::default()
             },
             ..Default::default()

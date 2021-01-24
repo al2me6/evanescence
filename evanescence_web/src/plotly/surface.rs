@@ -69,7 +69,7 @@ pub(crate) struct Surface<'a> {
     pub(crate) c_mid: f32,
 
     #[serde(rename = "colorscale")]
-    #[derivative(Default(value = "color_scales::RED_YELLOW_BLUE_REVERSED"))]
+    #[derivative(Default(value = "color_scales::RED_BLUE_REVERSED"))]
     pub(crate) color_scale: ColorScale<'static>,
 
     #[serde(rename = "colorbar")]

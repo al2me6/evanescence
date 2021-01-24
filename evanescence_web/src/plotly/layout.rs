@@ -50,6 +50,10 @@ pub(crate) struct Axis<'a> {
     // Default = "".
     pub(crate) ticks: &'a str,
 
+    #[serde(rename="nticks")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) n_ticks: Option<u32>,
+
     #[serde(rename = "tickcolor")]
     // blend of base02 and base03
     #[derivative(Default(value = "\"#676a6c\""))]
