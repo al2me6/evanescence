@@ -49,7 +49,7 @@ impl PointillistVisualizationImpl {
         // to the state.
         Trace::iter().for_each(|t| {
             let (expected_render_state, _) = t.should_render(state);
-            assert!(!(self.rendered_traces.contains(&t) ^ expected_render_state));
+            assert!(self.rendered_traces.contains(&t) == expected_render_state);
         });
 
         // Clear all old traces.
