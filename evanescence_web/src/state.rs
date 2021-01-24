@@ -90,8 +90,7 @@ impl State {
             nodes_angular: self.nodes_show_angular != other.nodes_show_angular,
             extra_visualization,
             cross_section: extra_visualization
-                && (other.extra_visualization == Visualization::None
-                    || other.cross_section_enabled()),
+                && (self.cross_section_enabled() || other.cross_section_enabled()),
         }
     }
 }
