@@ -236,6 +236,7 @@ pub(crate) fn plot_cross_section_indicator(state: &State) -> JsValue {
         show_scale: false,
         color_scale: color_scales::ORANGES,
         surface_color: Some(vec![vec![0.0; 2]; 2]),
+        contours: Some(Contours::default()),
         ..Default::default()
     }
     .into()
