@@ -1,6 +1,8 @@
 use derivative::Derivative;
 use serde::Serialize;
 
+use crate::utils::b16_colors;
+
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
 pub(crate) enum Anchor {
@@ -23,7 +25,7 @@ pub(crate) struct Font<'a> {
     pub(crate) family: &'a str,
     #[derivative(Default(value = "13"))]
     pub(crate) size: usize,
-    #[derivative(Default(value = "\"#d8d8d8\""))]
+    #[derivative(Default(value = "b16_colors::BASE[0x05]"))]
     pub(crate) color: &'a str,
 }
 
@@ -40,7 +42,6 @@ pub(crate) struct Margin {
     pub(crate) left: u32,
 }
 
-// Colors using Base16 Tomorrow Night.
 #[derive(Clone, Copy, Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Axis<'a> {
@@ -50,13 +51,12 @@ pub(crate) struct Axis<'a> {
     // Default = "".
     pub(crate) ticks: &'a str,
 
-    #[serde(rename="nticks")]
+    #[serde(rename = "nticks")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) n_ticks: Option<u32>,
 
     #[serde(rename = "tickcolor")]
-    // blend of base02 and base03
-    #[derivative(Default(value = "\"#676a6c\""))]
+    #[derivative(Default(value = "b16_colors::BASE0203"))]
     pub(crate) tick_color: &'a str,
 
     #[serde(rename = "exponentformat")]
@@ -64,8 +64,7 @@ pub(crate) struct Axis<'a> {
     pub(crate) exponent_format: &'a str,
 
     #[serde(rename = "gridcolor")]
-    // blend of base02 and base03
-    #[derivative(Default(value = "\"#676a6c\""))]
+    #[derivative(Default(value = "b16_colors::BASE0203"))]
     pub(crate) grid_color: &'a str,
 
     #[serde(rename = "zeroline")]
@@ -73,8 +72,7 @@ pub(crate) struct Axis<'a> {
     pub(crate) zero_line: bool,
 
     #[serde(rename = "zerolinecolor")]
-    // base06
-    #[derivative(Default(value = "\"#e0e0e0\""))]
+    #[derivative(Default(value = "b16_colors::BASE[0x06]"))]
     pub(crate) zero_line_color: &'a str,
 
     #[serde(rename = "showspikes")]
@@ -121,20 +119,16 @@ pub(crate) struct Scene<'a> {
     pub(crate) z_axis: Axis<'a>,
 }
 
-// Colors using Base16 Tomorrow Night.
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct ModeBar<'a> {
     #[serde(rename = "bgcolor")]
-    // blend of base02 and base03
-    #[derivative(Default(value = "\"#676a6c\""))]
+    #[derivative(Default(value = "b16_colors::BASE0203"))]
     pub(crate) bg_color: &'a str,
-    // blend of base03 and base04
-    #[derivative(Default(value = "\"#a5a8a5\""))]
+    #[derivative(Default(value = "b16_colors::BASE0304"))]
     pub(crate) color: &'a str,
     #[serde(rename = "activecolor")]
-    // base06
-    #[derivative(Default(value = "\"#e0e0e0\""))]
+    #[derivative(Default(value = "b16_colors::BASE[0x06]"))]
     pub(crate) active_color: &'a str,
 }
 

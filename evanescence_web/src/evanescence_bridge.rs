@@ -15,7 +15,7 @@ use crate::plotly::{
 };
 use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D, Surface};
 use crate::state::State;
-use crate::utils::{capitalize_words, min_max};
+use crate::utils::{capitalize_words, min_max, b16_colors};
 
 pub(crate) fn plot_isosurface(
     simulation: ComponentForm<f32>,
@@ -112,7 +112,7 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
         x,
         y,
         line: Line {
-            color: Some("#8abeb7"),
+            color: Some(b16_colors::BASE[0x0c]),
             ..Default::default()
         },
         ..Default::default()

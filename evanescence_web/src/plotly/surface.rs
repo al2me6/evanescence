@@ -3,6 +3,7 @@ use serde::Serialize;
 
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
 use crate::plotly::PlotType;
+use crate::utils::b16_colors;
 
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
@@ -18,8 +19,7 @@ pub(crate) struct Contour<'a> {
     pub(crate) highlight: bool,
 
     #[serde(rename = "highlightcolor")]
-    // base0b
-    #[derivative(Default(value = "\"#b5bd68\""))]
+    #[derivative(Default(value = "b16_colors::BASE[0x0b]"))]
     pub(crate) highlight_color: &'a str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
