@@ -1,4 +1,5 @@
 use derivative::Derivative;
+use evanescence_core::orbital::{self, Orbital, Qn};
 use serde::Serialize;
 
 use crate::utils::b16_colors;
@@ -84,6 +85,16 @@ pub(crate) struct Axis<'a> {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) range: Option<(f32, f32)>,
+}
+
+impl<'a> Axis<'a> {
+    pub(crate) fn from_range_of(qn: Qn) -> Self {
+        let extent = orbital::Real::estimate_radius(qn);
+        Self {
+            range: Some((-extent, extent)),
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Serialize)]

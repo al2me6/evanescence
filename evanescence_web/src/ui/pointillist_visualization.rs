@@ -143,13 +143,8 @@ impl Component for PointillistVisualizationImpl {
 
         let state = self.handle.state();
 
-        // Manually set the plot range.
-        let extent = orbital::Real::estimate_radius(state.qn);
-        let axis = Axis {
-            range: Some((-extent, extent)),
-            ..Default::default()
-        };
-
+        // Manually set the plot range to prevent jumping.
+        let axis = Axis::from_range_of(state.qn);
         Plotly::react(
             Self::ID,
             vec![plot_pointillist_real(state)].into_boxed_slice(),

@@ -15,7 +15,7 @@ use crate::plotly::{
 };
 use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D, Surface};
 use crate::state::State;
-use crate::utils::{capitalize_words, min_max, b16_colors};
+use crate::utils::{abs_max, b16_colors, capitalize_words, min_max};
 
 pub(crate) fn plot_isosurface(
     simulation: ComponentForm<f32>,
@@ -149,8 +149,7 @@ pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
     let (x, y, mut value) =
         orbital::Real::sample_cross_section(state.qn, plane, num_points).into_components();
 
-    let (min, max) = min_max(value.iter().flat_map(|row| row.iter()));
-    let abs_max = max.max(min.abs());
+    let abs_max = abs_max(value.iter().flat_map(|row| row.iter()));
 
     // If all values are within some very small bound, then it's likely that we have encountered
     // numerical errors and the values should all be zero.

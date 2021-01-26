@@ -18,6 +18,11 @@ pub(crate) fn min_max<'a, I: Iterator<Item = &'a f32>>(values: I) -> (f32, f32) 
     })
 }
 
+pub(crate) fn abs_max<'a, I: Iterator<Item = &'a f32>>(values: I) -> f32 {
+    let (min, max) = min_max(values);
+    max.max(min.abs())
+}
+
 pub(crate) mod b16_colors {
     pub(crate) const BASE: &[&str; 16] = &[
         "#1d1f21", // 00
