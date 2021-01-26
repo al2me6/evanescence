@@ -56,6 +56,8 @@ impl Component for MainImpl {
                 <p>
                     { format!("Evanescence v{}.{}.{}", VER_MAJOR, VER_MINOR, VER_PATCH) }
                     { SEPARATOR }
+                    <a href = format!("{}/blob/master/changelog.md", REPO) >{ "Changelog" }</a>
+                    { SEPARATOR }
                     <a href = REPO>{ "Source" }</a>
                     { SEPARATOR }
                     <a href = BENCHMARKS_URL>{ "Benchmarks" }</a>
