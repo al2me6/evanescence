@@ -3,6 +3,7 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) enum ModeBarButtons {
     AutoScale2d,
     HoverClosest3d,
