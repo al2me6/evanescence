@@ -182,8 +182,9 @@ pub(crate) struct Layout<'a> {
     #[serde(rename = "modebar")]
     pub(crate) mode_bar: ModeBar<'a>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "uirevision")]
-    pub(crate) ui_revision: bool,
+    pub(crate) ui_revision: Option<&'a str>,
 }
 
 #[derive(Serialize)]

@@ -150,7 +150,7 @@ impl Component for PointillistVisualizationImpl {
             vec![plot_pointillist_real(state)].into_boxed_slice(),
             Layout {
                 drag_mode_str: Some("orbit"),
-                ui_revision: true,
+                ui_revision: Some("pointillist"),
                 scene: Some(Scene {
                     x_axis: axis,
                     y_axis: axis,

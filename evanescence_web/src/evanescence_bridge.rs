@@ -119,6 +119,7 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
     };
 
     let layout = Layout {
+        ui_revision: Some(&variant_name),
         drag_mode_bool: Some(false),
         x_axis: Some(Axis {
             title: Some(Title {
@@ -142,6 +143,7 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
+    let ui_revision = state.extra_visualization.to_string();
     let plane: Plane = state.extra_visualization.try_into().unwrap();
     let (x_label, y_label) = plane.axes_names();
 
@@ -190,7 +192,7 @@ pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
     };
 
     let layout = Layout {
-        ui_revision: true,
+        ui_revision: Some(&ui_revision),
         scene: Some(Scene {
             x_axis: Axis {
                 title: Some(Title {
