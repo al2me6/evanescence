@@ -1,5 +1,21 @@
 # Version History
 
+## 0.3.4, 2021-01-28
+
+### Features
+
+* Blobs! Initial implementation of 3D isosurface plots.
+* Add favicon and `meta` description tags.
+
+### Changes
+
+* Allow pan and zoom for radial plots.
+
+### Known Issues
+
+* The viewport for supplemental visualizations sometimes resets mysteriously.
+* Isosurface cutoffs are in need of fine-tuning.
+
 ## 0.3.3, 2021-01-24
 
 ### Bugfixes
