@@ -22,7 +22,7 @@ pub(crate) struct Caps {
 #[derivative(Default)]
 pub(crate) struct Surface {
     #[derivative(Default(value = "1"))]
-    count: u32,
+    pub(crate) count: u32,
 }
 
 #[derive(Serialize, Derivative)]

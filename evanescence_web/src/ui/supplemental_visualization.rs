@@ -4,7 +4,7 @@ use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::evanescence_bridge::{plot_cross_section, plot_radial};
+use crate::evanescence_bridge::{plot_cross_section, plot_isosurface_3d, plot_radial};
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::state::{State, StateHandle, Visualization};
@@ -39,6 +39,7 @@ impl SupplementalVisualizationImpl {
             Visualization::CrossSectionXY
             | Visualization::CrossSectionYZ
             | Visualization::CrossSectionZX => plot_cross_section,
+            Visualization::Isosurface3D => plot_isosurface_3d,
         };
 
         let (trace, layout) = renderer(state);

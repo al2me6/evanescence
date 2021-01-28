@@ -8,6 +8,7 @@ use wasm_bindgen::JsValue;
 
 use crate::plotly::{
     color::{color_scales, ColorBar, ColorScale},
+    isosurface,
     layout::{Anchor, Axis, Scene, Title},
     scatter::Line,
     scatter_3d::Marker,
@@ -241,4 +242,54 @@ pub(crate) fn plot_cross_section_indicator(state: &State) -> JsValue {
         ..Default::default()
     }
     .into()
+}
+
+pub(crate) fn plot_isosurface_3d(state: &State) -> (JsValue, JsValue) {
+    let (x, y, z, value) = orbital::sample_region_for::<orbital::Real>(
+        state.qn,
+        state.quality.for_isosurface() * 3 / 2,
+        None,
+    )
+    .into_components();
+
+    // Yet another heuristic for scaling the cutoff value appropriately. As the number of lobes
+    // increases, they attain increasingly small values, which require a lower cutoff to achieve
+    // an adequate appearance (i.e., not showing too small of a portion).
+    let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn);
+    let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn);
+    let num_lobes = (num_radial_nodes + 1) * (num_angular_nodes + 1);
+    let damping_factor = if num_radial_nodes == 0 && num_angular_nodes > 2 {
+        0.06
+    } else {
+        0.012
+    };
+    let cutoff = 0.003 / ((num_lobes as f32 - 1.0).powf(2.5) * damping_factor + 1.0);
+
+    let axis = Axis::from_range_of(state.qn);
+    let trace = Isosurface {
+        x,
+        y,
+        z,
+        value,
+        iso_min: -cutoff,
+        iso_max: cutoff,
+        surface: isosurface::Surface { count: 2 },
+        color_scale: color_scales::RED_BLUE_REVERSED,
+        opacity: if state.qn.l() == 0 { 0.5 } else { 1.0 },
+        ..Default::default()
+    };
+
+    let layout = Layout {
+        ui_revision: Some("isosurface"),
+        drag_mode_str: Some("orbit"),
+        scene: Some(Scene {
+            x_axis: axis,
+            y_axis: axis,
+            z_axis: axis,
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    (trace.into(), layout.into())
 }

@@ -21,6 +21,8 @@ pub(crate) enum Visualization {
     CrossSectionYZ,
     #[strum(serialize = "ZX-plane cross-section")]
     CrossSectionZX,
+    #[strum(serialize = "3D isosurface")]
+    Isosurface3D,
 }
 
 impl Default for Visualization {
