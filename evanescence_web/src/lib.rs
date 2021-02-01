@@ -1,8 +1,8 @@
 #![recursion_limit = "1024"]
 
 pub(crate) mod components;
-pub(crate) mod evanescence_bridge;
 pub(crate) mod plotly;
+pub(crate) mod plotters;
 pub(crate) mod state;
 pub(crate) mod ui;
 pub(crate) mod utils;

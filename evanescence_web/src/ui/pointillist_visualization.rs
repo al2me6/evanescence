@@ -5,12 +5,10 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::evanescence_bridge::{
-    plot_angular_nodes, plot_cross_section_indicator, plot_pointillist_real, plot_radial_nodes,
-};
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::layout::{Axis, LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
+use crate::plotters::pointillist as plot;
 use crate::state::{State, StateHandle};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
@@ -24,11 +22,11 @@ enum Trace {
 impl Trace {
     fn should_render(self, state: &State) -> (bool, fn(&State) -> JsValue) {
         match self {
-            Self::Pointillist => (true, plot_pointillist_real),
-            Self::RadialNodes => (state.nodes_show_radial, plot_radial_nodes),
-            Self::AngularNodes => (state.nodes_show_angular, plot_angular_nodes),
+            Self::Pointillist => (true, plot::real),
+            Self::RadialNodes => (state.nodes_show_radial, plot::radial_nodes),
+            Self::AngularNodes => (state.nodes_show_angular, plot::angular_nodes),
             Self::CrossSectionIndicator => {
-                (state.cross_section_enabled(), plot_cross_section_indicator)
+                (state.cross_section_enabled(), plot::cross_section_indicator)
             }
         }
     }
@@ -56,7 +54,6 @@ impl PointillistVisualizationImpl {
         Plotly::delete_traces(
             Self::ID,
             (0..self.rendered_traces.len())
-                .into_iter()
                 .map(|i| JsValue::from_f64(i as _))
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
@@ -147,7 +144,7 @@ impl Component for PointillistVisualizationImpl {
         let axis = Axis::from_range_of(state.qn);
         Plotly::react(
             Self::ID,
-            vec![plot_pointillist_real(state)].into_boxed_slice(),
+            vec![plot::real(state)].into_boxed_slice(),
             Layout {
                 drag_mode_str: Some("orbit"),
                 ui_revision: Some("pointillist"),

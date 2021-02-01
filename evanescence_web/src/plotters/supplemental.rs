@@ -1,109 +1,21 @@
 use std::convert::TryInto;
 
-use evanescence_core::geometry::{ComponentForm, Plane};
-use evanescence_core::monte_carlo::MonteCarlo;
-use evanescence_core::numerics::normalize;
-use evanescence_core::orbital::{self, wavefunctions, Orbital, RadialPlot};
+use evanescence_core::geometry::Plane;
+use evanescence_core::orbital::{self, Orbital, RadialPlot};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::{
-    color::{color_scales, ColorBar, ColorScale},
+    color::color_scales,
     isosurface,
-    layout::{Anchor, Axis, Scene, Title},
+    layout::{Axis, Scene, Title},
     scatter::Line,
-    scatter_3d::Marker,
     surface::{Contour, Contours, Lighting, Project},
 };
-use crate::plotly::{Isosurface, Layout, Scatter, Scatter3D, Surface};
+use crate::plotly::{Isosurface, Layout, Scatter, Surface};
 use crate::state::State;
-use crate::utils::{abs_max, b16_colors, capitalize_words, min_max};
+use crate::utils::{abs_max, b16_colors, capitalize_words};
 
-pub(crate) fn plot_isosurface(
-    simulation: ComponentForm<f32>,
-    correct_instability: bool,
-    color_scale: ColorScale,
-) -> JsValue {
-    let (x, y, z, mut value) = simulation.into_components();
-    if correct_instability {
-        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
-        // numerical instability/artifacting by amplifying any deviations from zero. However,
-        // this also results in crinkly-looking surfaces.
-        value = value
-            .into_iter()
-            .map(|v| v.signum() * v.abs().sqrt())
-            .collect();
-    }
-    Isosurface {
-        x,
-        y,
-        z,
-        value,
-        color_scale,
-        opacity: 0.075,
-        ..Default::default()
-    }
-    .into()
-}
-
-pub(crate) fn plot_pointillist_real(state: &State) -> JsValue {
-    let simulation = orbital::Real::monte_carlo_simulate(state.qn, state.quality);
-    let (x, y, z, values) = simulation.into_components();
-
-    let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
-    let (min_abs, max_abs) = min_max(values_abs.iter());
-
-    Scatter3D {
-        x,
-        y,
-        z,
-        marker: Marker {
-            size: values_abs
-                .into_iter()
-                .map(|v| normalize(min_abs..=max_abs, 0.2..=5.0, v))
-                .collect(),
-            color: values,
-            show_scale: true,
-            color_bar: ColorBar {
-                x: 0.0,
-                x_anchor: Anchor::Right,
-                ..Default::default()
-            },
-            ..Default::default()
-        },
-        ..Default::default()
-    }
-    .into()
-}
-
-pub(crate) fn plot_radial_nodes(state: &State) -> JsValue {
-    plot_isosurface(
-        orbital::sample_region_for::<wavefunctions::Radial>(
-            state.qn,
-            state.quality.for_isosurface(),
-            // Shrink the extent plotted since radial nodes are found in the central
-            // part of the full extent only. This is a heuristic that has been verified
-            // to cover all radial nodes from `n` = 2 through 8.
-            Some(state.qn.n() as f32 * 0.05 + 0.125),
-        ),
-        false,
-        color_scales::GREENS,
-    )
-}
-
-pub(crate) fn plot_angular_nodes(state: &State) -> JsValue {
-    let qn = state.qn;
-    plot_isosurface(
-        orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
-            qn,
-            state.quality.for_isosurface(),
-            None,
-        ),
-        qn.l() >= 4 && qn.m().abs() >= 4,
-        color_scales::PURP,
-    )
-}
-
-pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
+pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     let variant: RadialPlot = state.extra_visualization.try_into().unwrap();
     let variant_name = capitalize_words(&state.extra_visualization.to_string());
 
@@ -143,7 +55,7 @@ pub(crate) fn plot_radial(state: &State) -> (JsValue, JsValue) {
     (trace.into(), layout.into())
 }
 
-pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
+pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     let ui_revision = state.extra_visualization.to_string();
     let plane: Plane = state.extra_visualization.try_into().unwrap();
     let (x_label, y_label) = plane.axes_names();
@@ -225,26 +137,7 @@ pub(crate) fn plot_cross_section(state: &State) -> (JsValue, JsValue) {
     (trace.into(), layout.into())
 }
 
-pub(crate) fn plot_cross_section_indicator(state: &State) -> JsValue {
-    let plane: Plane = state.extra_visualization.try_into().unwrap();
-    let (x, y, z) = plane
-        .four_points_as_xy_value(orbital::Real::estimate_radius(state.qn))
-        .into_components();
-    Surface {
-        x,
-        y,
-        z,
-        opacity: 0.2,
-        show_scale: false,
-        color_scale: color_scales::ORANGES,
-        surface_color: Some(vec![vec![0.0; 2]; 2]),
-        contours: Some(Contours::default()),
-        ..Default::default()
-    }
-    .into()
-}
-
-pub(crate) fn plot_isosurface_3d(state: &State) -> (JsValue, JsValue) {
+pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     let (x, y, z, value) = orbital::sample_region_for::<orbital::Real>(
         state.qn,
         state.quality.for_isosurface() * 3 / 2,

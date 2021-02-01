@@ -4,9 +4,9 @@ use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::evanescence_bridge::{plot_cross_section, plot_isosurface_3d, plot_radial};
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
+use crate::plotters::supplemental as plot;
 use crate::state::{State, StateHandle, Visualization};
 use crate::utils::capitalize_words;
 
@@ -35,11 +35,11 @@ impl SupplementalVisualizationImpl {
             Visualization::None => return, // No need to render.
             Visualization::RadialWavefunction
             | Visualization::RadialProbability
-            | Visualization::RadialProbabilityDistribution => plot_radial,
+            | Visualization::RadialProbabilityDistribution => plot::radial,
             Visualization::CrossSectionXY
             | Visualization::CrossSectionYZ
-            | Visualization::CrossSectionZX => plot_cross_section,
-            Visualization::Isosurface3D => plot_isosurface_3d,
+            | Visualization::CrossSectionZX => plot::cross_section,
+            Visualization::Isosurface3D => plot::isosurface_3d,
         };
 
         let (trace, layout) = renderer(state);
