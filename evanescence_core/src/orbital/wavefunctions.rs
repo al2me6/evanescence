@@ -130,8 +130,8 @@ impl Evaluate for RealSphericalHarmonic {
 
 impl RealSphericalHarmonic {
     /// Give the mathematical expression for the linear combination that corresponds to a certain
-    /// set of `l` and `m` quantum numbers, as a `&str`. Superscripts are represented with the
-    /// HTML tag `<sup></sup>`.
+    /// set of `l` and `m` quantum numbers, as a `&str`. Superscripts are represented with
+    /// Unicode superscript symbols.
     ///
     /// This is only implemented for `l` up to 4 and returns `None` for larger values.
     ///
@@ -151,33 +151,33 @@ impl RealSphericalHarmonic {
                 // d orbitals.
                 -2 => "xy",
                 -1 => "yz",
-                0 => "z<sup>2</sup>",
+                0 => "z²",
                 1 => "xz",
-                2 => "x<sup>2</sup>-y<sup>2</sup>",
+                2 => "x²-y²",
                 _ => unreachable!(),
             }),
             3 => Some(match m {
                 // f orbitals.
-                -3 => "y(3x<sup>2</sup>-y<sup>2</sup>)",
+                -3 => "y(3x²-y²)",
                 -2 => "xyz",
-                -1 => "yz<sup>2</sup>",
-                0 => "z<sup>3</sup>",
-                1 => "xz<sup>2</sup>",
-                2 => "z(x<sup>2</sup>-y<sup>2</sup>)",
-                3 => "x(x<sup>2</sup>-3y<sup>2</sup>)",
+                -1 => "yz²",
+                0 => "z³",
+                1 => "xz²",
+                2 => "z(x²-y²)",
+                3 => "x(x²-3y²)",
                 _ => unreachable!(),
             }),
             4 => Some(match m {
                 // g orbitals.
-                -4 => "xy(x<sup>2</sup>-y<sup>2</sup>)",
-                -3 => "zy<sup>3</sup>",
-                -2 => "z<sup>2</sup>xy",
-                -1 => "z<sup>3</sup>y",
-                0 => "z<sup>4</sup>",
-                1 => "z<sup>3</sup>x",
-                2 => "z<sup>2</sup>(x<sup>2</sup>-y<sup>2</sup>)",
-                3 => "zx<sup>3</sup>",
-                4 => "x<sup>4</sup>+y<sup>4</sup>",
+                -4 => "xy(x²-y²)",
+                -3 => "zy³",
+                -2 => "z²xy",
+                -1 => "z³y",
+                0 => "z⁴",
+                1 => "z³x",
+                2 => "z²(x²-y²)",
+                3 => "zx³",
+                4 => "x⁴+y⁴",
                 _ => unreachable!(),
             }),
             _ => None,

@@ -90,8 +90,8 @@ pub trait Orbital: Evaluate<Parameters = Qn> {
 
     /// Give the conventional name of an orbital.
     ///
-    /// Superscripts and subscripts are represented with the HTML tags `<sup></sup>` and
-    /// `<sub></sub>`.
+    /// Superscripts are represented using Unicode superscript symbols and subscripts are
+    /// represented with the HTML tag `<sub></sub>`.
     fn name(qn: Qn) -> String;
 }
 
