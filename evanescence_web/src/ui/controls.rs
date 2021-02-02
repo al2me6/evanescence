@@ -1,12 +1,13 @@
 use evanescence_core::monte_carlo::Quality;
 use evanescence_core::orbital::Qn;
+
 use strum::IntoEnumIterator;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
 use crate::components::{CheckBox, Dropdown};
-use crate::state::{StateHandle, Visualization};
+use crate::state::{QnPreset, State, StateHandle, Visualization};
 use crate::MAX_N;
 
 pub(crate) struct ControlsImpl {
@@ -33,37 +34,63 @@ impl Component for ControlsImpl {
         let handle = &self.handle;
         let state = handle.state();
 
+        fn update_preset(state: &mut State, new_preset: QnPreset) {
+            if let QnPreset::Preset(qn) = new_preset {
+                state.qn = qn;
+            }
+            state.qn_preset = new_preset;
+        }
+
+        let qn_preset_picker = html! {
+            <tr>
+                <td>{ "Select orbital: " }</td>
+                <td><Dropdown<QnPreset>
+                    id = "preset_picker"
+                    onchange = handle.reduce_callback_with(update_preset)
+                    options = QnPreset::iter().collect::<Vec<_>>()
+                    selected = QnPreset::default()
+                /></td>
+            </tr>
+        };
+
+        let qn_pickers = html! {
+            <>
+            <tr>
+                <td>{"Principal quantum number n:"}</td>
+                <td><Dropdown<u32>
+                    id = "n-picker"
+                    onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n))
+                    options = (1..=MAX_N).collect::<Vec<_>>()
+                    selected = state.qn.n()
+                /></td>
+            </tr>
+            <tr>
+                // U+2113 SCRIPT SMALL L.
+                <td>{"Azimuthal quantum number \u{2113}:"}</td>
+                <td><Dropdown<u32>
+                    id = "l-picker"
+                    onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l))
+                    options = Qn::enumerate_l_for_n(state.qn.n()).collect::<Vec<_>>()
+                    selected = state.qn.l()
+                /></td>
+            </tr>
+            <tr>
+                <td>{"Magnetic quantum number m:"}</td>
+                <td><Dropdown<i32>
+                    id = "m-picker"
+                    onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
+                    options = Qn::enumerate_m_for_l(state.qn.l()).collect::<Vec<_>>()
+                    selected = state.qn.m()
+                /></td>
+            </tr>
+            </>
+        };
+
         html! {
             <div id = "controls">
                 <table>
-                    <tr>
-                        <td>{"Principal quantum number n:"}</td>
-                        <td><Dropdown<u32>
-                            id = "n-picker"
-                            onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n))
-                            options = (1..=MAX_N).collect::<Vec<_>>()
-                            selected = state.qn.n()
-                        /></td>
-                    </tr>
-                    <tr>
-                        // U+2113 SCRIPT SMALL L.
-                        <td>{"Azimuthal quantum number \u{2113}:"}</td>
-                        <td><Dropdown<u32>
-                            id = "l-picker"
-                            onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l)),
-                            options = Qn::enumerate_l_for_n(state.qn.n()).collect::<Vec<_>>(),
-                            selected = state.qn.l()
-                        /></td>
-                    </tr>
-                    <tr>
-                        <td>{"Magnetic quantum number m:"}</td>
-                        <td><Dropdown<i32>
-                            id = "m-picker"
-                            onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
-                            options = Qn::enumerate_m_for_l(state.qn.l()).collect::<Vec<_>>()
-                            selected = state.qn.m()
-                        /></td>
-                    </tr>
+                    { qn_preset_picker }
+                    { if state.qn_preset == QnPreset::Custom { qn_pickers } else { html! {} }}
                     <tr>
                         <td>{"Render quality:"}</td>
                         <td><Dropdown<Quality>

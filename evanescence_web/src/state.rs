@@ -1,8 +1,11 @@
 use std::convert::TryFrom;
+use std::fmt;
+use std::iter;
 
 use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::Quality;
-use evanescence_core::orbital::{Qn, RadialPlot};
+use evanescence_core::orbital::{self, Qn, RadialPlot};
+use once_cell::sync::Lazy;
 use strum::{Display, EnumIter};
 use yew_state::SharedHandle;
 
@@ -57,8 +60,54 @@ impl TryFrom<Visualization> for RadialPlot {
     }
 }
 
+static QN_PRESETS: Lazy<Vec<Qn>> = Lazy::new(|| Qn::enumerate_up_to_n(3).collect());
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub(crate) enum QnPreset {
+    Preset(Qn),
+    Custom,
+}
+
+impl Default for QnPreset {
+    fn default() -> Self {
+        Self::Preset(QN_PRESETS[0])
+    }
+}
+
+impl QnPreset {
+    pub(crate) fn iter() -> impl Iterator<Item = Self> {
+        QN_PRESETS
+            .iter()
+            .map(|&qn| Self::Preset(qn))
+            .chain(iter::once(Self::Custom))
+    }
+}
+
+impl fmt::Display for QnPreset {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Preset(qn) => {
+                let subscript =
+                    orbital::wavefunctions::RealSphericalHarmonic::linear_combination_expression(
+                        (*qn).into(),
+                    )
+                    .unwrap();
+                write!(
+                    f,
+                    "{principal}{shell} {subscript}",
+                    principal = qn.n(),
+                    shell = orbital::subshell_name(qn.l()).unwrap(),
+                    subscript = subscript
+                )
+            }
+            Self::Custom => write!(f, "Custom"),
+        }
+    }
+}
+
 #[derive(Clone, PartialEq, Eq, Default, Debug)]
 pub(crate) struct State {
+    pub(crate) qn_preset: QnPreset,
     pub(crate) qn: Qn,
     pub(crate) quality: Quality,
     pub(crate) nodes_show_radial: bool,

@@ -12,6 +12,7 @@ console_error_panic_hook = "0.1"
 derivative = "2"
 evanescence_core = { path = "../evanescence_core" }
 log = "0.4"
+once_cell = "1"
 pkg-version = "1"
 serde = { version = "1", features = ["derive"] }
 serde-wasm-bindgen = "0.1"
