@@ -31,7 +31,7 @@ impl<T: DropdownItem> Dropdown<T> {
         // ...here because we also borrow `self.props` mutably...
         self.props.options.iter().for_each(|option| {
             // ...and attempt to access `self.item_strings` while `self.props` is still borrowed.
-            item_strings.insert(option.to_string(), *option);
+            item_strings.insert(option.to_string().trim().to_owned(), *option);
         });
     }
 }
