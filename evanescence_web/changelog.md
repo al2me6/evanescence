@@ -1,5 +1,12 @@
 # Version History
 
+## 0.3.5, 2020-02-02
+
+### Features
+
+* Presets for common quantum number sets. The full quantum number selector can be enabled by selecting "Custom" from the preset dropdown.
+* Display the corresponding subshell and orbital names in dropdown menus, if applicable and possible.
+
 ## 0.3.4, 2021-01-28
 
 ### Features

@@ -21,6 +21,8 @@ pub(crate) struct ControlsProps<T: DropdownItem> {
     pub(crate) onchange: Callback<T>,
     pub(crate) options: Vec<T>,
     pub(crate) selected: T,
+    #[prop_or_default]
+    pub(crate) custom_strings: Option<Vec<String>>,
 }
 
 impl<T: DropdownItem> Dropdown<T> {
@@ -31,7 +33,7 @@ impl<T: DropdownItem> Dropdown<T> {
         // ...here because we also borrow `self.props` mutably...
         self.props.options.iter().for_each(|option| {
             // ...and attempt to access `self.item_strings` while `self.props` is still borrowed.
-            item_strings.insert(option.to_string().trim().to_owned(), *option);
+            item_strings.insert(option.to_string(), *option);
         });
     }
 }
@@ -72,16 +74,26 @@ impl<T: DropdownItem> Component for Dropdown<T> {
             }
         }
 
-        fn option<T: Display + PartialEq>(value: &T, selected_value: &T) -> Html {
-            html! { <option selected = (value == selected_value)> { value }</option> }
-        }
+        let option = |idx: usize, selected_value: &T| {
+            let value = &self.props.options[idx];
+            let display_value = if let Some(custom_strings) = &self.props.custom_strings {
+                custom_strings[idx].clone()
+            } else {
+                value.to_string()
+            };
+            html! {
+                <option selected = (value == selected_value) value = value>
+                    { display_value }
+                </option>
+            }
+        };
 
         html! {
             <select
                 id = self.props.id
                 onchange = self.link.callback(|data: ChangeData| into_select_element(data).value())
             >
-                { for self.props.options.iter().map(|opt| option(opt, &self.props.selected)) }
+                { for (0..self.props.options.len()).map(|idx| option(idx, &self.props.selected)) }
             </select>
         }
     }

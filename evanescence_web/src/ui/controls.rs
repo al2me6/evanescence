@@ -1,5 +1,7 @@
 use evanescence_core::monte_carlo::Quality;
-use evanescence_core::orbital::Qn;
+use evanescence_core::orbital::quantum_numbers::Lm;
+use evanescence_core::orbital::wavefunctions::RealSphericalHarmonic;
+use evanescence_core::orbital::{self, Qn};
 
 use strum::IntoEnumIterator;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
@@ -41,6 +43,25 @@ impl Component for ControlsImpl {
             state.qn_preset = new_preset;
         }
 
+        let format_l = |l: u32| {
+            if let Some(subshell) = orbital::subshell_name(l) {
+                format!("{} [{}]", l, subshell)
+            } else {
+                l.to_string()
+            }
+        };
+
+        let format_m = |m: i32| {
+            if let Some(expression) = RealSphericalHarmonic::linear_combination_expression(
+                Lm::new(state.qn.l(), m).unwrap(),
+            ) {
+                if !expression.is_empty() {
+                    return format!("{} [{}]", m, expression);
+                }
+            };
+            m.to_string()
+        };
+
         let qn_preset_picker = html! {
             <tr>
                 <td>{ "Select orbital: " }</td>
@@ -53,37 +74,44 @@ impl Component for ControlsImpl {
             </tr>
         };
 
-        let qn_pickers = html! {
-            <>
-            <tr>
-                <td>{"Principal quantum number n:"}</td>
-                <td><Dropdown<u32>
-                    id = "n-picker"
-                    onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n))
-                    options = (1..=MAX_N).collect::<Vec<_>>()
-                    selected = state.qn.n()
-                /></td>
-            </tr>
-            <tr>
-                // U+2113 SCRIPT SMALL L.
-                <td>{"Azimuthal quantum number \u{2113}:"}</td>
-                <td><Dropdown<u32>
-                    id = "l-picker"
-                    onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l))
-                    options = Qn::enumerate_l_for_n(state.qn.n()).collect::<Vec<_>>()
-                    selected = state.qn.l()
-                /></td>
-            </tr>
-            <tr>
-                <td>{"Magnetic quantum number m:"}</td>
-                <td><Dropdown<i32>
-                    id = "m-picker"
-                    onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
-                    options = Qn::enumerate_m_for_l(state.qn.l()).collect::<Vec<_>>()
-                    selected = state.qn.m()
-                /></td>
-            </tr>
-            </>
+        let qn_pickers = {
+            let l_options: Vec<_> = Qn::enumerate_l_for_n(state.qn.n()).collect();
+            let m_options: Vec<_> = Qn::enumerate_m_for_l(state.qn.l()).collect();
+
+            html! {
+                <>
+                <tr>
+                    <td>{"Principal quantum number n:"}</td>
+                    <td><Dropdown<u32>
+                        id = "n-picker"
+                        onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n))
+                        options = (1..=MAX_N).collect::<Vec<_>>()
+                        selected = state.qn.n()
+                    /></td>
+                </tr>
+                <tr>
+                    // U+2113 SCRIPT SMALL L.
+                    <td>{"Azimuthal quantum number \u{2113}:"}</td>
+                    <td><Dropdown<u32>
+                        id = "l-picker"
+                        onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l))
+                        options = l_options
+                        custom_strings = l_options.iter().map(|&l| format_l(l)).collect::<Vec<_>>()
+                        selected = state.qn.l()
+                    /></td>
+                </tr>
+                <tr>
+                    <td>{"Magnetic quantum number m:"}</td>
+                    <td><Dropdown<i32>
+                        id = "m-picker"
+                        onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
+                        options = m_options
+                        custom_strings = m_options.iter().map(|&m| format_m(m)).collect::<Vec<_>>()
+                        selected = state.qn.m()
+                    /></td>
+                </tr>
+                </>
+            }
         };
 
         html! {
