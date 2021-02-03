@@ -43,23 +43,16 @@ impl Component for ControlsImpl {
             state.qn_preset = new_preset;
         }
 
-        let format_l = |l: u32| {
-            if let Some(subshell) = orbital::subshell_name(l) {
-                format!("{} [{}]", l, subshell)
-            } else {
-                l.to_string()
-            }
+        let format_l = |l: u32| match orbital::subshell_name(l) {
+            Some(subshell) => format!("{} [{}]", l, subshell),
+            None => l.to_string(),
         };
 
-        let format_m = |m: i32| {
-            if let Some(expression) = RealSphericalHarmonic::linear_combination_expression(
-                Lm::new(state.qn.l(), m).unwrap(),
-            ) {
-                if !expression.is_empty() {
-                    return format!("{} [{}]", m, expression);
-                }
-            };
-            m.to_string()
+        let format_m = |m: i32| match RealSphericalHarmonic::linear_combination_expression(
+            Lm::new(state.qn.l(), m).unwrap(),
+        ) {
+            Some(expression) if !expression.is_empty() => format!("{} [{}]", m, expression),
+            _ => m.to_string(),
         };
 
         let qn_preset_picker = html! {
