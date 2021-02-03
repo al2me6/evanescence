@@ -1,5 +1,6 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 use std::fmt::Display;
+use std::str::FromStr;
 
 use web_sys::HtmlSelectElement;
 use yew::{html, Callback, ChangeData, Component, ComponentLink, Html, Properties, ShouldRender};
@@ -11,7 +12,6 @@ impl<T> DropdownItem for T where T: Copy + PartialEq + Display + 'static {}
 pub(crate) struct Dropdown<T: DropdownItem> {
     link: ComponentLink<Self>,
     props: ControlsProps<T>,
-    item_strings: HashMap<String, T>,
 }
 
 #[derive(Clone, PartialEq, Properties)]
@@ -22,20 +22,7 @@ pub(crate) struct ControlsProps<T: DropdownItem> {
     pub(crate) options: Vec<T>,
     pub(crate) selected: T,
     #[prop_or_default]
-    pub(crate) custom_strings: Option<Vec<String>>,
-}
-
-impl<T: DropdownItem> Dropdown<T> {
-    fn rebuild_hashmap(&mut self) {
-        self.item_strings.clear();
-        // Borrow `self.item_strings` mutably to get around the borrow checker...
-        let item_strings = &mut self.item_strings;
-        // ...here because we also borrow `self.props` mutably...
-        self.props.options.iter().for_each(|option| {
-            // ...and attempt to access `self.item_strings` while `self.props` is still borrowed.
-            item_strings.insert(option.to_string(), *option);
-        });
-    }
+    pub(crate) custom_display: Option<Vec<String>>,
 }
 
 impl<T: DropdownItem> Component for Dropdown<T> {
@@ -43,27 +30,18 @@ impl<T: DropdownItem> Component for Dropdown<T> {
     type Properties = ControlsProps<T>;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let mut dropdown = Self {
-            link,
-            props,
-            item_strings: HashMap::new(),
-        };
-        dropdown.rebuild_hashmap();
-        dropdown
+        Self { link, props }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        self.props.onchange.emit(self.item_strings[&msg]);
+        self.props
+            .onchange
+            .emit(self.props.options[usize::from_str(&msg).unwrap()]);
         false
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        if self.props.neq_assign(props) {
-            self.rebuild_hashmap();
-            true
-        } else {
-            false
-        }
+        self.props.neq_assign(props)
     }
 
     fn view(&self) -> Html {
@@ -74,17 +52,15 @@ impl<T: DropdownItem> Component for Dropdown<T> {
             }
         }
 
-        let option = |idx: usize, selected_value: &T| {
-            let value = &self.props.options[idx];
-            let display_value = if let Some(custom_strings) = &self.props.custom_strings {
-                custom_strings[idx].clone()
-            } else {
-                value.to_string()
+        let option = |idx: usize, selected_item: &T| {
+            let item = &self.props.options[idx];
+            // Use `Cow` to avoid unnecessary cloning.
+            let display = match &self.props.custom_display {
+                Some(custom_display) => Cow::from(&custom_display[idx]),
+                None => Cow::from(item.to_string()),
             };
             html! {
-                <option selected = (value == selected_value) value = value>
-                    { display_value }
-                </option>
+                <option selected = (item == selected_item) value = idx>{ display }</option>
             }
         };
 

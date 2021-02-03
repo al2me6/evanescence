@@ -96,7 +96,7 @@ impl Component for ControlsImpl {
                         id = "l-picker"
                         onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l))
                         options = l_options
-                        custom_strings = l_options.iter().map(|&l| format_l(l)).collect::<Vec<_>>()
+                        custom_display = l_options.iter().map(|&l| format_l(l)).collect::<Vec<_>>()
                         selected = state.qn.l()
                     /></td>
                 </tr>
@@ -106,7 +106,7 @@ impl Component for ControlsImpl {
                         id = "m-picker"
                         onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
                         options = m_options
-                        custom_strings = m_options.iter().map(|&m| format_m(m)).collect::<Vec<_>>()
+                        custom_display = m_options.iter().map(|&m| format_m(m)).collect::<Vec<_>>()
                         selected = state.qn.m()
                     /></td>
                 </tr>
