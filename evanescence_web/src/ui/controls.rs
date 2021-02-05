@@ -11,6 +11,7 @@ use yewtil::NeqAssign;
 use crate::components::{CheckBox, Dropdown, Tooltip};
 use crate::descriptions::DESC;
 use crate::state::{QnPreset, State, StateHandle, Visualization};
+use crate::utils::fire_resize_event;
 use crate::MAX_N;
 
 pub(crate) struct ControlsImpl {
@@ -38,6 +39,13 @@ impl Component for ControlsImpl {
         let state = handle.state();
 
         fn update_preset(state: &mut State, new_preset: QnPreset) {
+            // Fire resize event to update the size of the supplemental plot when switching
+            // between preset and custom modes.
+            if matches!(state.qn_preset, QnPreset::Preset(_))
+                ^ matches!(new_preset, QnPreset::Preset(_))
+            {
+                fire_resize_event()
+            }
             if let QnPreset::Preset(qn) = new_preset {
                 state.qn = qn;
             }

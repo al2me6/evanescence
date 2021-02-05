@@ -45,3 +45,10 @@ pub(crate) mod b16_colors {
     pub(crate) const BASE0203: &str = "#676a6c";
     pub(crate) const BASE0304: &str = "#a5a8a5";
 }
+
+pub(crate) fn fire_resize_event() {
+    web_sys::window()
+        .unwrap()
+        .dispatch_event(&web_sys::Event::new("resize").unwrap())
+        .unwrap();
+}

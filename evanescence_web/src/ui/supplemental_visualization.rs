@@ -9,7 +9,7 @@ use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::plotters::supplemental as plot;
 use crate::state::{State, StateHandle, Visualization};
-use crate::utils::capitalize_words;
+use crate::utils::{capitalize_words, fire_resize_event};
 
 pub(crate) struct SupplementalVisualizationImpl {
     handle: StateHandle,
@@ -88,14 +88,12 @@ impl Component for SupplementalVisualizationImpl {
     fn change(&mut self, handle: StateHandle) -> ShouldRender {
         let diff = self.handle.state().diff(handle.state());
         self.handle.neq_assign(handle);
-        if diff.extra_visualization || diff.qn_or_quality {
-            self.rerender();
-        }
-        diff.extra_visualization // We need to rerender the title if the visualization type changes.
+        diff.extra_visualization || diff.qn_or_quality
     }
 
     fn rendered(&mut self, _first_render: bool) {
         self.rerender();
+        fire_resize_event();
     }
 
     fn view(&self) -> Html {
