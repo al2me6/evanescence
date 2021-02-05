@@ -1,6 +1,6 @@
 # Version History
 
-## 0.3.6, 2020-02-04
+## 0.3.6, 2021-02-04
 
 ### Features
 
@@ -10,7 +10,7 @@
 
 * Tooltips may be cut off by the screen edge on certain screen geometries.
 
-## 0.3.5, 2020-02-02
+## 0.3.5, 2021-02-02
 
 ### Features
 
