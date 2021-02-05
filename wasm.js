@@ -307,30 +307,30 @@ async function init(input) {
         var ret = false;
         return ret;
     };
-    imports.wbg.__wbg_deleteTraces_a441c90865f9178a = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_deleteTraces_5f33fcc4eac4f827 = function(arg0, arg1, arg2) {
         Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2);
     };
-    imports.wbg.__wbg_addTraces_555068cf24db3890 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_addTraces_c609586970d275c7 = function(arg0, arg1, arg2) {
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
     imports.wbg.__wbindgen_number_new = function(arg0) {
         var ret = arg0;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_deleteTraces_790ef0fc92899b4c = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_deleteTraces_24f01e1de1c362e9 = function(arg0, arg1, arg2, arg3) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), v0);
     };
-    imports.wbg.__wbg_relayout_25eb25086298ef31 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_relayout_a44a309c562d2194 = function(arg0, arg1, arg2) {
         Plotly.relayout(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
-    imports.wbg.__wbg_addTraces_0d185b8a601c5113 = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_addTraces_0738d9889a54e523 = function(arg0, arg1, arg2, arg3) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), v0);
     };
-    imports.wbg.__wbg_react_eefad7de71d10b5f = function(arg0, arg1, arg2, arg3, arg4, arg5) {
+    imports.wbg.__wbg_react_5b88da239b5c008e = function(arg0, arg1, arg2, arg3, arg4, arg5) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.react(getStringFromWasm0(arg0, arg1), v0, takeObject(arg4), takeObject(arg5));
@@ -647,8 +647,8 @@ async function init(input) {
         var ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper736 = function(arg0, arg1, arg2) {
-        var ret = makeMutClosure(arg0, arg1, 452, __wbg_adapter_20);
+    imports.wbg.__wbindgen_closure_wrapper759 = function(arg0, arg1, arg2) {
+        var ret = makeMutClosure(arg0, arg1, 469, __wbg_adapter_20);
         return addHeapObject(ret);
     };
 
