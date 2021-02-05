@@ -8,7 +8,8 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::components::{CheckBox, Dropdown};
+use crate::components::{CheckBox, Dropdown, Tooltip};
+use crate::descriptions::DESC;
 use crate::state::{QnPreset, State, StateHandle, Visualization};
 use crate::MAX_N;
 
@@ -43,6 +44,12 @@ impl Component for ControlsImpl {
             state.qn_preset = new_preset;
         }
 
+        fn td_tooltip(text: &str, tooltip: &str) -> Html {
+            html! {
+                <td><Tooltip text = text tooltip = tooltip /></td>
+            }
+        }
+
         let format_l = |l: u32| match orbital::subshell_name(l) {
             Some(subshell) => format!("{} [{}]", l, subshell),
             None => l.to_string(),
@@ -57,7 +64,7 @@ impl Component for ControlsImpl {
 
         let qn_preset_picker = html! {
             <tr>
-                <td>{ "Select orbital: " }</td>
+                { td_tooltip("Select orbital:", DESC.qn_dropdown) }
                 <td><Dropdown<QnPreset>
                     id = "preset_picker"
                     onchange = handle.reduce_callback_with(update_preset)
@@ -74,7 +81,7 @@ impl Component for ControlsImpl {
             html! {
                 <>
                 <tr>
-                    <td>{"Principal quantum number n:"}</td>
+                    { td_tooltip("Principal quantum number n:", DESC.qn_n) }
                     <td><Dropdown<u32>
                         id = "n-picker"
                         onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n))
@@ -83,8 +90,7 @@ impl Component for ControlsImpl {
                     /></td>
                 </tr>
                 <tr>
-                    // U+2113 SCRIPT SMALL L.
-                    <td>{"Azimuthal quantum number \u{2113}:"}</td>
+                    { td_tooltip("Azimuthal quantum number ℓ:", DESC.qn_l) }
                     <td><Dropdown<u32>
                         id = "l-picker"
                         onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l))
@@ -94,7 +100,7 @@ impl Component for ControlsImpl {
                     /></td>
                 </tr>
                 <tr>
-                    <td>{"Magnetic quantum number m:"}</td>
+                    { td_tooltip("Magnetic quantum number m:", DESC.qn_m) }
                     <td><Dropdown<i32>
                         id = "m-picker"
                         onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
@@ -113,21 +119,13 @@ impl Component for ControlsImpl {
                     { qn_preset_picker }
                     { if state.qn_preset == QnPreset::Custom { qn_pickers } else { html! {} }}
                     <tr>
-                        <td>{"Render quality:"}</td>
-                        <td><Dropdown<Quality>
-                            id = "quality-picker"
-                            onchange = handle.reduce_callback_with(|s, qual| s.quality = qual)
-                            options = Quality::iter().collect::<Vec<_>>()
-                            selected = state.quality
-                        /></td>
-                    </tr>
-                    <tr>
                         <td/>
                         <td><CheckBox
                             id = "radial-nodes-toggle",
                             onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_radial = vis)
                             initial_state = self.handle.state().nodes_show_radial
                             label = "Show radial nodes"
+                            tooltip = DESC.rad_nodes
                         /></td>
                     </tr>
                     <tr>
@@ -137,15 +135,25 @@ impl Component for ControlsImpl {
                             onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis)
                             initial_state = self.handle.state().nodes_show_angular
                             label = "Show angular nodes"
+                            tooltip = DESC.ang_nodes
                         /></td>
                     </tr>
                     <tr>
-                        <td>{"Show supplemental visualization:"}</td>
+                        { td_tooltip("Show supplemental visualization:", DESC.supplement) }
                         <td><Dropdown<Visualization>
                             id = "supplement-picker"
                             onchange = handle.reduce_callback_with(|s, ext| s.extra_visualization = ext)
                             options = Visualization::iter().collect::<Vec<_>>()
                             selected = state.extra_visualization
+                        /></td>
+                    </tr>
+                    <tr>
+                        { td_tooltip("Render quality:", DESC.render_qual) }
+                        <td><Dropdown<Quality>
+                            id = "quality-picker"
+                            onchange = handle.reduce_callback_with(|s, qual| s.quality = qual)
+                            options = Quality::iter().collect::<Vec<_>>()
+                            selected = state.quality
                         /></td>
                     </tr>
                 </table>

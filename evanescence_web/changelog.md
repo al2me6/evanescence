@@ -1,5 +1,15 @@
 # Version History
 
+## 0.3.6, 2020-02-04
+
+### Features
+
+* Hover tooltips containing explanations for configuration options are now displayed.
+
+### Known Issues
+
+* Tooltips may be cut off by the screen edge on certain screen geometries.
+
 ## 0.3.5, 2020-02-02
 
 ### Features

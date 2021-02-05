@@ -1,6 +1,7 @@
 #![recursion_limit = "1024"]
 
 pub(crate) mod components;
+pub(crate) mod descriptions;
 pub(crate) mod plotly;
 pub(crate) mod plotters;
 pub(crate) mod state;
