@@ -4,6 +4,7 @@ use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
+use crate::descriptions::DESC;
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::plotters::supplemental as plot;
@@ -13,7 +14,8 @@ use crate::utils::capitalize_words;
 pub(crate) struct SupplementalVisualizationImpl {
     handle: StateHandle,
     title_ref: NodeRef,
-    div_ref: NodeRef,
+    desc_ref: NodeRef,
+    plot_ref: NodeRef,
 }
 
 impl SupplementalVisualizationImpl {
@@ -22,7 +24,7 @@ impl SupplementalVisualizationImpl {
     fn rerender(&mut self) {
         let state = self.handle.state();
 
-        for element in [&self.title_ref, &self.div_ref].iter() {
+        for element in [&self.title_ref, &self.desc_ref, &self.plot_ref].iter() {
             let style = element.cast::<HtmlElement>().unwrap().style();
             let display = match state.extra_visualization {
                 Visualization::None => "none",
@@ -74,7 +76,8 @@ impl Component for SupplementalVisualizationImpl {
         Self {
             handle,
             title_ref: NodeRef::default(),
-            div_ref: NodeRef::default(),
+            desc_ref: NodeRef::default(),
+            plot_ref: NodeRef::default(),
         }
     }
 
@@ -96,14 +99,26 @@ impl Component for SupplementalVisualizationImpl {
     }
 
     fn view(&self) -> Html {
-        let title = self.handle.state().extra_visualization.to_string();
+        let extra_visualization = self.handle.state().extra_visualization;
+        let title = extra_visualization.to_string();
+        let desc = match extra_visualization {
+            Visualization::None => "",
+            Visualization::RadialWavefunction => DESC.rad_wavefunction,
+            Visualization::RadialProbabilityDensity => DESC.rad_prob_density,
+            Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
+            Visualization::CrossSectionXY
+            | Visualization::CrossSectionYZ
+            | Visualization::CrossSectionZX => DESC.cross_section,
+            Visualization::Isosurface3D => DESC.isosurface_3d,
+        };
         html! {
             <>
                 // The title can't be in the same div as the visualization because that somehow
                 // breaks Plotly's responsive mode detection (reverts to hard-coded 450px
                 // vertical size).
                 <h3 ref = self.title_ref.clone() >{ capitalize_words(&title) }</h3>
-                <div ref = self.div_ref.clone() class = "visualization" id = Self::ID />
+                <p ref = self.desc_ref.clone() >{ desc }</p>
+                <div ref = self.plot_ref.clone() class = "visualization" id = Self::ID />
             </>
         }
     }

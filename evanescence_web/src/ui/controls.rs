@@ -58,7 +58,7 @@ impl Component for ControlsImpl {
         let format_m = |m: i32| match RealSphericalHarmonic::linear_combination_expression(
             Lm::new(state.qn.l(), m).unwrap(),
         ) {
-            Some(expression) if !expression.is_empty() => format!("{} [{}]", m, expression),
+            Some(expression) if !expression.is_empty() => format!("{} [ {} ]", m, expression),
             _ => m.to_string(),
         };
 

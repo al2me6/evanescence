@@ -17,7 +17,16 @@ use crate::utils::{abs_max, b16_colors, capitalize_words};
 
 pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     let variant: RadialPlot = state.extra_visualization.try_into().unwrap();
-    let variant_name = capitalize_words(&state.extra_visualization.to_string());
+    let function_expr = match variant {
+        RadialPlot::Wavefunction => "ψ(r)",
+        RadialPlot::ProbabilityDensity => "ψ(r)²",
+        RadialPlot::ProbabilityDistribution => "r²ψ(r)²",
+    };
+    let variant_label = format!(
+        "{} [ {} ]",
+        capitalize_words(&state.extra_visualization.to_string()),
+        function_expr
+    );
 
     let (x, y) = orbital::Real::sample_radial(state.qn, variant, state.quality.for_line());
 
@@ -32,7 +41,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     };
 
     let layout = Layout {
-        ui_revision: Some(&variant_name),
+        ui_revision: Some(&variant_label),
         drag_mode_bool: Some(false),
         x_axis: Some(Axis {
             title: Some(Title {
@@ -43,7 +52,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
         }),
         y_axis: Some(Axis {
             title: Some(Title {
-                text: &variant_name,
+                text: &variant_label,
                 standoff: Some(20),
             }),
             ticks: "outside",
@@ -123,7 +132,7 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
             },
             z_axis: Axis {
                 title: Some(Title {
-                    text: "Wavefunction Value",
+                    text: "Wavefunction Value [ ψ ]",
                     ..Default::default()
                 }),
                 n_ticks: Some(7),
