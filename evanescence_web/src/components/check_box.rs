@@ -2,6 +2,8 @@ use web_sys::HtmlInputElement;
 use yew::{html, Callback, Component, ComponentLink, Html, NodeRef, Properties, ShouldRender};
 use yewtil::NeqAssign;
 
+use super::Tooltip;
+
 pub(crate) struct CheckBox {
     link: ComponentLink<Self>,
     props: CheckBoxProps,
@@ -15,6 +17,8 @@ pub(crate) struct CheckBoxProps {
     pub(crate) onchange: Callback<bool>,
     pub(crate) initial_state: bool,
     pub(crate) label: String,
+    #[prop_or_default]
+    pub(crate) tooltip: Option<&'static str>,
 }
 
 impl Component for CheckBox {
@@ -42,6 +46,13 @@ impl Component for CheckBox {
     }
 
     fn view(&self) -> Html {
+        let label_text = match self.props.tooltip {
+            Some(tooltip) => html! {
+                // TODO: Somehow avoid cloning?
+                <Tooltip text = self.props.label.clone() tooltip = tooltip.to_owned() />
+            },
+            None => html! { <span>{ &self.props.label }</span> },
+        };
         html! {
             <label class = "checkbox">
                 <input
@@ -51,7 +62,7 @@ impl Component for CheckBox {
                     onchange = self.link.callback(|_| ()),
                     checked = self.state
                 />
-                <span>{ &self.props.label }</span>
+                { label_text }
             </label>
         }
     }
