@@ -44,10 +44,10 @@ impl Evaluate for Radial {
     }
 }
 
-/// The radial probability function, or the wavefunction squared.
-pub struct RadialProbability;
+/// The radial probability density, or the wavefunction squared.
+pub struct RadialProbabilityDensity;
 
-impl Evaluate for RadialProbability {
+impl Evaluate for RadialProbabilityDensity {
     type Output = f32;
     type Parameters = Nl;
 
@@ -59,7 +59,7 @@ impl Evaluate for RadialProbability {
     }
 }
 
-/// The radial probability distribution function, `r^2R^2`.
+/// The radial probability distribution, `r^2R^2`.
 pub struct RadialProbabilityDistribution;
 
 impl Evaluate for RadialProbabilityDistribution {

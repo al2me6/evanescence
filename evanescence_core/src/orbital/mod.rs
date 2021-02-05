@@ -14,7 +14,7 @@ pub use quantum_numbers::Qn;
 use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
 use crate::numerics::Evaluate;
 use wavefunctions::{
-    Radial, RadialProbability, RadialProbabilityDistribution, RealSphericalHarmonic,
+    Radial, RadialProbabilityDensity, RadialProbabilityDistribution, RealSphericalHarmonic,
     SphericalHarmonic,
 };
 
@@ -38,7 +38,7 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
 #[non_exhaustive]
 pub enum RadialPlot {
     Wavefunction,
-    Probability,
+    ProbabilityDensity,
     ProbabilityDistribution,
 }
 
@@ -64,7 +64,7 @@ pub trait Orbital: Evaluate<Parameters = Qn> {
     fn sample_radial(qn: Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
         let evaluator = match variant {
             RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
-            RadialPlot::Probability => RadialProbability::evaluate_on_line_segment,
+            RadialPlot::ProbabilityDensity => RadialProbabilityDensity::evaluate_on_line_segment,
             RadialPlot::ProbabilityDistribution => {
                 RadialProbabilityDistribution::evaluate_on_line_segment
             }

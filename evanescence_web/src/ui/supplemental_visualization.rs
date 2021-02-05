@@ -34,7 +34,7 @@ impl SupplementalVisualizationImpl {
         let renderer: fn(&State) -> (JsValue, JsValue) = match state.extra_visualization {
             Visualization::None => return, // No need to render.
             Visualization::RadialWavefunction
-            | Visualization::RadialProbability
+            | Visualization::RadialProbabilityDensity
             | Visualization::RadialProbabilityDistribution => plot::radial,
             Visualization::CrossSectionXY
             | Visualization::CrossSectionYZ

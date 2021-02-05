@@ -29,7 +29,7 @@ impl TryInto<RadialPlot> for Mode {
     fn try_into(self) -> Result<RadialPlot, Self::Error> {
         match self {
             Self::Radial => Ok(RadialPlot::Wavefunction),
-            Self::RadialProbability => Ok(RadialPlot::Probability),
+            Self::RadialProbability => Ok(RadialPlot::ProbabilityDensity),
             Self::RadialProbabilityDistribution => Ok(RadialPlot::ProbabilityDistribution),
             _ => Err(anyhow!("Cannot plot {} as a radial plot.", self)),
         }
