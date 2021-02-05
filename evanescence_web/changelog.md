@@ -1,5 +1,16 @@
 # Version History
 
+## 0.3.7, 2021-02-05
+
+### Features
+
+* Supplemental plots now have descriptions.
+* Annotate axes with the cooresponding functions (ex. `r`, `r^2R^2`) where necessary.
+
+### Bugfixes
+
+* Supplemental plots are now resized appropriately when the size of controls and text changes.
+
 ## 0.3.6, 2021-02-04
 
 ### Features
