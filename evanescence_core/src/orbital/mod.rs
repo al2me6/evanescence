@@ -35,7 +35,6 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
 }
 
 /// A radially symmetrical property associated with an orbital.
-#[non_exhaustive]
 pub enum RadialPlot {
     Wavefunction,
     ProbabilityDensity,
