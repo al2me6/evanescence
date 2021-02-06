@@ -1,6 +1,7 @@
 use derivative::Derivative;
 use evanescence_core::orbital::{self, Orbital, Qn};
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 use crate::utils::b16_colors;
 
@@ -11,11 +12,11 @@ pub(crate) enum Anchor {
     Right,
 }
 
+#[skip_serializing_none]
 #[derive(Clone, Copy, Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Title<'a> {
     pub(crate) text: &'a str,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) standoff: Option<usize>,
 }
 
@@ -43,17 +44,16 @@ pub(crate) struct Margin {
     pub(crate) left: u32,
 }
 
+#[skip_serializing_none]
 #[derive(Clone, Copy, Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Axis<'a> {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) title: Option<Title<'a>>,
 
     // Default = "".
     pub(crate) ticks: &'a str,
 
     #[serde(rename = "nticks")]
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) n_ticks: Option<u32>,
 
     #[serde(rename = "tickcolor")]
@@ -83,7 +83,6 @@ pub(crate) struct Axis<'a> {
     #[derivative(Default(value = "true"))]
     pub(crate) auto_margin: bool,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) range: Option<(f32, f32)>,
 }
 
@@ -143,15 +142,14 @@ pub(crate) struct ModeBar<'a> {
     pub(crate) active_color: &'a str,
 }
 
+#[skip_serializing_none]
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Layout<'a> {
     #[serde(rename = "dragmode")]
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) drag_mode_str: Option<&'a str>,
 
     #[serde(rename = "dragmode")]
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) drag_mode_bool: Option<bool>,
 
     #[serde(rename = "hovermode")]
@@ -160,16 +158,13 @@ pub(crate) struct Layout<'a> {
     pub(crate) margin: Margin,
 
     /// For 3D plots only.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) scene: Option<Scene<'a>>,
 
     pub(crate) font: Font<'a>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "xaxis")]
     pub(crate) x_axis: Option<Axis<'a>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "yaxis")]
     pub(crate) y_axis: Option<Axis<'a>>,
 
@@ -182,7 +177,6 @@ pub(crate) struct Layout<'a> {
     #[serde(rename = "modebar")]
     pub(crate) mode_bar: ModeBar<'a>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "uirevision")]
     pub(crate) ui_revision: Option<&'a str>,
 }

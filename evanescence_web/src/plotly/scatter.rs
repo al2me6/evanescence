@@ -1,5 +1,6 @@
 use derivative::Derivative;
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
 use crate::plotly::PlotType;
@@ -10,11 +11,10 @@ pub(crate) enum Mode {
     Markers,
 }
 
+#[skip_serializing_none]
 #[derive(Serialize, Default)]
 pub(crate) struct Line<'a> {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) width: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) color: Option<&'a str>,
 }
 

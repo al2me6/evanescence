@@ -1,5 +1,6 @@
 use derivative::Derivative;
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
 use crate::plotly::PlotType;
@@ -13,31 +14,19 @@ pub(crate) struct Project {
     pub(crate) z: bool,
 }
 
+#[skip_serializing_none]
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Contour<'a> {
     pub(crate) highlight: bool,
-
     #[serde(rename = "highlightcolor")]
     #[derivative(Default(value = "b16_colors::BASE[0x0b]"))]
     pub(crate) highlight_color: &'a str,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) start: Option<f32>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) end: Option<f32>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) show: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) size: Option<f32>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) project: Option<Project>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "usecolormap")]
     pub(crate) use_color_map: Option<bool>,
 }
@@ -58,6 +47,7 @@ pub(crate) struct Lighting {
     pub(crate) roughness: f32,
 }
 
+#[skip_serializing_none]
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Surface<'a> {
@@ -76,7 +66,6 @@ pub(crate) struct Surface<'a> {
     pub(crate) color_bar: ColorBar<'a>,
 
     #[serde(rename = "surfacecolor")]
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) surface_color: Option<Vec<Vec<f32>>>,
 
     #[serde(rename = "showscale")]
@@ -86,10 +75,8 @@ pub(crate) struct Surface<'a> {
     #[derivative(Default(value = "1.0"))]
     pub(crate) opacity: f32,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) contours: Option<Contours<'a>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) lighting: Option<Lighting>,
 
     #[serde(rename = "type")]
