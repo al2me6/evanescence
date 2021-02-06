@@ -81,6 +81,10 @@ impl QnPreset {
             .map(|&qn| Self::Preset(qn))
             .chain(iter::once(Self::Custom))
     }
+
+    pub(crate) fn is_preset(&self) -> bool {
+        matches!(self, Self::Preset(_))
+    }
 }
 
 impl fmt::Display for QnPreset {

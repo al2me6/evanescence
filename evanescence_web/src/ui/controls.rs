@@ -14,6 +14,12 @@ use crate::state::{QnPreset, State, StateHandle, Visualization};
 use crate::utils::fire_resize_event;
 use crate::MAX_N;
 
+fn td_tooltip(text: &str, tooltip: &str) -> Html {
+    html! {
+        <td><Tooltip text = text tooltip = tooltip /></td>
+    }
+}
+
 pub(crate) struct ControlsImpl {
     handle: StateHandle,
 }
@@ -38,25 +44,93 @@ impl Component for ControlsImpl {
         let handle = &self.handle;
         let state = handle.state();
 
-        fn update_preset(state: &mut State, new_preset: QnPreset) {
+        html! {
+            <div id = "controls">
+                <table>
+                    { self.real_mode_controls() }
+                    <tr>
+                        { td_tooltip("Render quality:", DESC.render_qual) }
+                        <td><Dropdown<Quality>
+                            id = "quality-picker"
+                            onchange = handle.reduce_callback_with(|s, qual| s.quality = qual)
+                            options = Quality::iter().collect::<Vec<_>>()
+                            selected = state.quality
+                        /></td>
+                    </tr>
+                </table>
+            </div>
+        }
+    }
+}
+
+impl ControlsImpl {
+    fn real_mode_controls(&self) -> Html {
+        let handle = &self.handle;
+        let state = handle.state();
+
+        let update_preset = |state: &mut State, new_preset: QnPreset| {
             // Fire resize event to update the size of the supplemental plot when switching
             // between preset and custom modes.
-            if matches!(state.qn_preset, QnPreset::Preset(_))
-                ^ matches!(new_preset, QnPreset::Preset(_))
-            {
+            if state.qn_preset.is_preset() != new_preset.is_preset() {
                 fire_resize_event()
             }
             if let QnPreset::Preset(qn) = new_preset {
                 state.qn = qn;
             }
             state.qn_preset = new_preset;
-        }
+        };
 
-        fn td_tooltip(text: &str, tooltip: &str) -> Html {
-            html! {
-                <td><Tooltip text = text tooltip = tooltip /></td>
-            }
+        html! {
+            <>
+            <tr>
+                { td_tooltip("Select orbital:", DESC.qn_dropdown) }
+                <td><Dropdown<QnPreset>
+                    id = "preset_picker"
+                    onchange = handle.reduce_callback_with(update_preset)
+                    options = QnPreset::iter().collect::<Vec<_>>()
+                    selected = QnPreset::default()
+                /></td>
+            </tr>
+            { if state.qn_preset == QnPreset::Custom { self.qn_pickers() } else { html! {} }}
+            <tr>
+                <td/>
+                <td><CheckBox
+                    id = "radial-nodes-toggle",
+                    onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_radial = vis)
+                    initial_state = state.nodes_show_radial
+                    label = "Show radial nodes"
+                    tooltip = DESC.rad_nodes
+                /></td>
+            </tr>
+            <tr>
+                <td/>
+                <td><CheckBox
+                    id = "angular-nodes-toggle",
+                    onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis)
+                    initial_state = state.nodes_show_angular
+                    label = "Show angular nodes"
+                    tooltip = DESC.ang_nodes
+                /></td>
+            </tr>
+            <tr>
+                { td_tooltip("Show supplemental visualization:", DESC.supplement) }
+                <td><Dropdown<Visualization>
+                    id = "supplement-picker"
+                    onchange = handle.reduce_callback_with(|s, ext| s.extra_visualization = ext)
+                    options = Visualization::iter().collect::<Vec<_>>()
+                    selected = state.extra_visualization
+                /></td>
+            </tr>
+            </>
         }
+    }
+
+    fn qn_pickers(&self) -> Html {
+        let handle = &self.handle;
+        let state = handle.state();
+
+        let l_options: Vec<_> = Qn::enumerate_l_for_n(state.qn.n()).collect();
+        let m_options: Vec<_> = Qn::enumerate_m_for_l(state.qn.l()).collect();
 
         let format_l = |l: u32| match orbital::subshell_name(l) {
             Some(subshell) => format!("{} [{}]", l, subshell),
@@ -70,102 +144,38 @@ impl Component for ControlsImpl {
             _ => m.to_string(),
         };
 
-        let qn_preset_picker = html! {
+        html! {
+            <>
             <tr>
-                { td_tooltip("Select orbital:", DESC.qn_dropdown) }
-                <td><Dropdown<QnPreset>
-                    id = "preset_picker"
-                    onchange = handle.reduce_callback_with(update_preset)
-                    options = QnPreset::iter().collect::<Vec<_>>()
-                    selected = QnPreset::default()
+                { td_tooltip("Principal quantum number n:", DESC.qn_n) }
+                <td><Dropdown<u32>
+                    id = "n-picker"
+                    onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n))
+                    options = (1..=MAX_N).collect::<Vec<_>>()
+                    selected = state.qn.n()
                 /></td>
             </tr>
-        };
-
-        let qn_pickers = {
-            let l_options: Vec<_> = Qn::enumerate_l_for_n(state.qn.n()).collect();
-            let m_options: Vec<_> = Qn::enumerate_m_for_l(state.qn.l()).collect();
-
-            html! {
-                <>
-                <tr>
-                    { td_tooltip("Principal quantum number n:", DESC.qn_n) }
-                    <td><Dropdown<u32>
-                        id = "n-picker"
-                        onchange = handle.reduce_callback_with(|s, n| s.qn.set_n_clamping(n))
-                        options = (1..=MAX_N).collect::<Vec<_>>()
-                        selected = state.qn.n()
-                    /></td>
-                </tr>
-                <tr>
-                    { td_tooltip("Azimuthal quantum number ℓ:", DESC.qn_l) }
-                    <td><Dropdown<u32>
-                        id = "l-picker"
-                        onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l))
-                        options = l_options
-                        custom_display = l_options.iter().map(|&l| format_l(l)).collect::<Vec<_>>()
-                        selected = state.qn.l()
-                    /></td>
-                </tr>
-                <tr>
-                    { td_tooltip("Magnetic quantum number m:", DESC.qn_m) }
-                    <td><Dropdown<i32>
-                        id = "m-picker"
-                        onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
-                        options = m_options
-                        custom_display = m_options.iter().map(|&m| format_m(m)).collect::<Vec<_>>()
-                        selected = state.qn.m()
-                    /></td>
-                </tr>
-                </>
-            }
-        };
-
-        html! {
-            <div id = "controls">
-                <table>
-                    { qn_preset_picker }
-                    { if state.qn_preset == QnPreset::Custom { qn_pickers } else { html! {} }}
-                    <tr>
-                        <td/>
-                        <td><CheckBox
-                            id = "radial-nodes-toggle",
-                            onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_radial = vis)
-                            initial_state = self.handle.state().nodes_show_radial
-                            label = "Show radial nodes"
-                            tooltip = DESC.rad_nodes
-                        /></td>
-                    </tr>
-                    <tr>
-                        <td/>
-                        <td><CheckBox
-                            id = "angular-nodes-toggle",
-                            onchange = handle.reduce_callback_with(|s, vis| s.nodes_show_angular = vis)
-                            initial_state = self.handle.state().nodes_show_angular
-                            label = "Show angular nodes"
-                            tooltip = DESC.ang_nodes
-                        /></td>
-                    </tr>
-                    <tr>
-                        { td_tooltip("Show supplemental visualization:", DESC.supplement) }
-                        <td><Dropdown<Visualization>
-                            id = "supplement-picker"
-                            onchange = handle.reduce_callback_with(|s, ext| s.extra_visualization = ext)
-                            options = Visualization::iter().collect::<Vec<_>>()
-                            selected = state.extra_visualization
-                        /></td>
-                    </tr>
-                    <tr>
-                        { td_tooltip("Render quality:", DESC.render_qual) }
-                        <td><Dropdown<Quality>
-                            id = "quality-picker"
-                            onchange = handle.reduce_callback_with(|s, qual| s.quality = qual)
-                            options = Quality::iter().collect::<Vec<_>>()
-                            selected = state.quality
-                        /></td>
-                    </tr>
-                </table>
-            </div>
+            <tr>
+                { td_tooltip("Azimuthal quantum number ℓ:", DESC.qn_l) }
+                <td><Dropdown<u32>
+                    id = "l-picker"
+                    onchange = handle.reduce_callback_with(|s, l| s.qn.set_l_clamping(l))
+                    options = l_options
+                    custom_display = l_options.iter().map(|&l| format_l(l)).collect::<Vec<_>>()
+                    selected = state.qn.l()
+                /></td>
+            </tr>
+            <tr>
+                { td_tooltip("Magnetic quantum number m:", DESC.qn_m) }
+                <td><Dropdown<i32>
+                    id = "m-picker"
+                    onchange = handle.reduce_callback_with(|s, m| s.qn.set_m(m))
+                    options = m_options
+                    custom_display = m_options.iter().map(|&m| format_m(m)).collect::<Vec<_>>()
+                    selected = state.qn.m()
+                /></td>
+            </tr>
+            </>
         }
     }
 }
