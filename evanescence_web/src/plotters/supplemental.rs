@@ -18,9 +18,9 @@ use crate::utils::{abs_max, b16_colors, capitalize_words};
 pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     let variant: RadialPlot = state.extra_visualization.try_into().unwrap();
     let function_expr = match variant {
-        RadialPlot::Wavefunction => "ψ(r)",
-        RadialPlot::ProbabilityDensity => "ψ(r)²",
-        RadialPlot::ProbabilityDistribution => "r²ψ(r)²",
+        RadialPlot::Wavefunction => "R(r)",
+        RadialPlot::ProbabilityDensity => "R(r)²",
+        RadialPlot::ProbabilityDistribution => "r²R(r)²",
     };
     let variant_label = format!(
         "{} [ {} ]",
