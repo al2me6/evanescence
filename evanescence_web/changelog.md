@@ -1,5 +1,12 @@
 # Version History
 
+## 0.3.8, 2021-02-11
+
+### Bugfixes
+
+* Fix depth buffer artifacts in the main pointillist by setting point opacity to 1.0. This resolves the issue of points disappearing while overlapping other lobes.
+* Correct accidental use of `ψ` instead of `R` for the radial wavefunction.
+
 ## 0.3.7, 2021-02-05
 
 ### Features
