@@ -208,7 +208,7 @@ function addBorrowedObject(obj) {
 }
 function __wbg_adapter_20(arg0, arg1, arg2) {
     try {
-        wasm.wasm_bindgen__convert__closures__invoke1_mut_ref__h8a96494e96d81620(arg0, arg1, addBorrowedObject(arg2));
+        wasm.wasm_bindgen__convert__closures__invoke1_mut_ref__hcbd6b31f5ef85531(arg0, arg1, addBorrowedObject(arg2));
     } finally {
         heap[stack_pointer++] = undefined;
     }
