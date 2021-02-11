@@ -307,30 +307,30 @@ async function init(input) {
         var ret = false;
         return ret;
     };
-    imports.wbg.__wbg_deleteTraces_a6eced8517b5feaf = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_deleteTraces_e8a93c8150696475 = function(arg0, arg1, arg2) {
         Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2);
     };
-    imports.wbg.__wbg_addTraces_c2828a6e93dd83cc = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_addTraces_3999879071837989 = function(arg0, arg1, arg2) {
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
     imports.wbg.__wbindgen_number_new = function(arg0) {
         var ret = arg0;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_deleteTraces_9ab5ff7f823cd0e1 = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_deleteTraces_b43c9d02ab7d1fd0 = function(arg0, arg1, arg2, arg3) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), v0);
     };
-    imports.wbg.__wbg_relayout_9132ee88aad9a75e = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_relayout_4587fbbfed0e5b80 = function(arg0, arg1, arg2) {
         Plotly.relayout(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
-    imports.wbg.__wbg_addTraces_05c74af1202d0588 = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_addTraces_7d178931992279c0 = function(arg0, arg1, arg2, arg3) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), v0);
     };
-    imports.wbg.__wbg_react_eef4e1d41d2d923b = function(arg0, arg1, arg2, arg3, arg4, arg5) {
+    imports.wbg.__wbg_react_fb7e04f8703dde40 = function(arg0, arg1, arg2, arg3, arg4, arg5) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.react(getStringFromWasm0(arg0, arg1), v0, takeObject(arg4), takeObject(arg5));
