@@ -75,6 +75,38 @@ pub(crate) fn real(state: &State) -> JsValue {
     .into()
 }
 
+pub(crate) fn complex(state: &State) -> JsValue {
+    let simulation = orbital::Complex::monte_carlo_simulate(state.qn, state.quality);
+    let (x, y, z, values) = simulation.into_components();
+
+    let moduli: Vec<_> = values.iter().map(|v| v.norm()).collect();
+    let arguments: Vec<_> = values.iter().map(|v| v.arg()).collect();
+    let (_, max_modulus) = min_max(moduli.iter());
+
+    Scatter3D {
+        x,
+        y,
+        z,
+        marker: Marker {
+            size: moduli
+                .into_iter()
+                .map(|m| normalize(0.0..=max_modulus, 0.4..=4.0, m))
+                .collect(),
+            color: arguments,
+            color_scale: color_scales::PHASE,
+            show_scale: true,
+            color_bar: ColorBar {
+                x: 0.0,
+                x_anchor: Anchor::Right,
+                ..Default::default()
+            },
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+    .into()
+}
+
 pub(crate) fn radial_nodes(state: &State) -> JsValue {
     isosurface(
         orbital::sample_region_for::<wavefunctions::Radial>(
@@ -104,7 +136,7 @@ pub(crate) fn angular_nodes(state: &State) -> JsValue {
 }
 
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
-    let plane: Plane = state.extra_visualization.try_into().unwrap();
+    let plane: Plane = state.supplement.try_into().unwrap();
     let (x, y, z) = plane
         .four_points_as_xy_value(orbital::Real::estimate_radius(state.qn))
         .into_components();

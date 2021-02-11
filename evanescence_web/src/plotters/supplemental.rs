@@ -16,7 +16,7 @@ use crate::state::State;
 use crate::utils::{abs_max, b16_colors, capitalize_words};
 
 pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
-    let variant: RadialPlot = state.extra_visualization.try_into().unwrap();
+    let variant: RadialPlot = state.supplement.try_into().unwrap();
     let function_expr = match variant {
         RadialPlot::Wavefunction => "R(r)",
         RadialPlot::ProbabilityDensity => "R(r)²",
@@ -24,7 +24,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     };
     let variant_label = format!(
         "{} [ {} ]",
-        capitalize_words(&state.extra_visualization.to_string()),
+        capitalize_words(&state.supplement.to_string()),
         function_expr
     );
 
@@ -65,8 +65,8 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
-    let ui_revision = state.extra_visualization.to_string();
-    let plane: Plane = state.extra_visualization.try_into().unwrap();
+    let ui_revision = state.supplement.to_string();
+    let plane: Plane = state.supplement.try_into().unwrap();
     let (x_label, y_label) = plane.axes_names();
 
     let num_points = state.quality.for_grid();

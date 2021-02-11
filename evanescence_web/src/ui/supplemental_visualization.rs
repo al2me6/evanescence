@@ -26,14 +26,14 @@ impl SupplementalVisualizationImpl {
 
         for element in [&self.title_ref, &self.desc_ref, &self.plot_ref].iter() {
             let style = element.cast::<HtmlElement>().unwrap().style();
-            let display = match state.extra_visualization {
+            let display = match state.supplement {
                 Visualization::None => "none",
                 _ => "block",
             };
             style.set_property("display", display).unwrap();
         }
 
-        let renderer: fn(&State) -> (JsValue, JsValue) = match state.extra_visualization {
+        let renderer: fn(&State) -> (JsValue, JsValue) = match state.supplement {
             Visualization::None => return, // No need to render.
             Visualization::RadialWavefunction
             | Visualization::RadialProbabilityDensity
@@ -88,7 +88,7 @@ impl Component for SupplementalVisualizationImpl {
     fn change(&mut self, handle: StateHandle) -> ShouldRender {
         let diff = self.handle.state().diff(handle.state());
         self.handle.neq_assign(handle);
-        diff.extra_visualization || diff.qn_or_quality
+        diff.supplement || diff.qn_or_quality_or_mode
     }
 
     fn rendered(&mut self, _first_render: bool) {
@@ -97,7 +97,7 @@ impl Component for SupplementalVisualizationImpl {
     }
 
     fn view(&self) -> Html {
-        let extra_visualization = self.handle.state().extra_visualization;
+        let extra_visualization = self.handle.state().supplement;
         let title = extra_visualization.to_string();
         let desc = match extra_visualization {
             Visualization::None => "",

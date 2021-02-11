@@ -1,5 +1,5 @@
 use evanescence_core::orbital::{self, Orbital};
-use strum::{EnumIter, IntoEnumIterator};
+use strum::{EnumCount, EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
@@ -9,9 +9,9 @@ use crate::plotly::config::ModeBarButtons;
 use crate::plotly::layout::{Axis, LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
 use crate::plotters::pointillist as plot;
-use crate::state::{State, StateHandle};
+use crate::state::{Mode, State, StateHandle};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, EnumCount)]
 enum Trace {
     Pointillist,
     RadialNodes,
@@ -21,13 +21,27 @@ enum Trace {
 
 impl Trace {
     fn should_render(self, state: &State) -> (bool, fn(&State) -> JsValue) {
+        let mode = state.mode();
         match self {
-            Self::Pointillist => (true, plot::real),
-            Self::RadialNodes => (state.nodes_show_radial, plot::radial_nodes),
-            Self::AngularNodes => (state.nodes_show_angular, plot::angular_nodes),
-            Self::CrossSectionIndicator => {
-                (state.cross_section_enabled(), plot::cross_section_indicator)
-            }
+            Self::Pointillist => (
+                true,
+                match mode {
+                    Mode::Real => plot::real,
+                    Mode::Complex => plot::complex,
+                },
+            ),
+            Self::RadialNodes => (
+                mode.is_real() && state.nodes_show_radial,
+                plot::radial_nodes,
+            ),
+            Self::AngularNodes => (
+                mode.is_real() && state.nodes_show_angular,
+                plot::angular_nodes,
+            ),
+            Self::CrossSectionIndicator => (
+                mode.is_real() && state.cross_section_enabled(),
+                plot::cross_section_indicator,
+            ),
         }
     }
 }
@@ -40,15 +54,8 @@ pub(crate) struct PointillistVisualizationImpl {
 impl PointillistVisualizationImpl {
     const ID: &'static str = "pointillist";
 
-    fn rerender_all(&self) {
+    fn rerender_all(&mut self) {
         let state = self.handle.state();
-
-        // Validate that the currently rendered traces match what should be rendered according
-        // to the state.
-        Trace::iter().for_each(|t| {
-            let (expected_render_state, _) = t.should_render(state);
-            assert!(self.rendered_traces.contains(&t) == expected_render_state);
-        });
 
         // Clear all old traces.
         Plotly::delete_traces(
@@ -58,6 +65,7 @@ impl PointillistVisualizationImpl {
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
         );
+        self.rendered_traces.clear();
 
         // Relayout to set new plot range. Note that we relayout when there are no points
         // displayed to improve performance.
@@ -66,13 +74,16 @@ impl PointillistVisualizationImpl {
             LayoutRangeUpdate::new(orbital::Real::estimate_radius(state.qn)).into(),
         );
 
-        // And compute new ones in the same order.
-        let traces: Vec<JsValue> = self
-            .rendered_traces
-            .iter()
-            .map(|&t| t.should_render(state))
-            .map(|(_, renderer)| renderer(state))
-            .collect();
+        // And compute new ones.
+        let rendered_traces = &mut self.rendered_traces;
+        let mut traces = Vec::with_capacity(Trace::COUNT);
+        for t in Trace::iter() {
+            let (should_render, renderer) = t.should_render(state);
+            if should_render {
+                rendered_traces.push(t);
+                traces.push(renderer(state));
+            }
+        }
         Plotly::add_traces(Self::ID, traces.into_boxed_slice());
     }
 
@@ -118,7 +129,7 @@ impl Component for PointillistVisualizationImpl {
     fn change(&mut self, handle: StateHandle) -> ShouldRender {
         let diff = self.handle.state().diff(handle.state());
         self.handle.neq_assign(handle);
-        if diff.qn_or_quality {
+        if diff.qn_or_quality_or_mode {
             self.rerender_all();
         } else {
             if diff.nodes_radial {
@@ -139,6 +150,8 @@ impl Component for PointillistVisualizationImpl {
         assert!(self.rendered_traces.is_empty());
 
         let state = self.handle.state();
+
+        assert!(state.mode().is_real());
 
         // Manually set the plot range to prevent jumping.
         let axis = Axis::from_range_of(state.qn);

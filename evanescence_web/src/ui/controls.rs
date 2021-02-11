@@ -10,7 +10,7 @@ use yewtil::NeqAssign;
 
 use crate::components::{CheckBox, Dropdown, Tooltip};
 use crate::descriptions::DESC;
-use crate::state::{QnPreset, State, StateHandle, Visualization};
+use crate::state::{Mode, QnPreset, State, StateHandle, Visualization};
 use crate::utils::fire_resize_event;
 use crate::MAX_N;
 
@@ -47,7 +47,24 @@ impl Component for ControlsImpl {
         html! {
             <div id = "controls">
                 <table>
-                    { self.real_mode_controls() }
+                    <tr>
+                        <td>{ "Select visualization type" }</td>
+                        <td><Dropdown<Mode>
+                        onchange = handle.reduce_callback_with(State::set_mode)
+                        options = Mode::iter().collect::<Vec<_>>()
+                        selected = state.mode()
+                        /></td>
+                    </tr>
+                    { if state.mode().is_real() { self.real_mode_controls() } else { self.qn_pickers() }}
+                    <tr>
+                        { td_tooltip("Show supplemental visualization:", DESC.supplement) }
+                        <td><Dropdown<Visualization>
+                            id = "supplement-picker"
+                            onchange = handle.reduce_callback_with(|s, supp| s.supplement = supp)
+                            options = state.available_supplements()
+                            selected = state.supplement
+                        /></td>
+                    </tr>
                     <tr>
                         { td_tooltip("Render quality:", DESC.render_qual) }
                         <td><Dropdown<Quality>
@@ -88,7 +105,7 @@ impl ControlsImpl {
                     id = "preset_picker"
                     onchange = handle.reduce_callback_with(update_preset)
                     options = QnPreset::iter().collect::<Vec<_>>()
-                    selected = QnPreset::default()
+                    selected = state.qn_preset
                 /></td>
             </tr>
             { if state.qn_preset == QnPreset::Custom { self.qn_pickers() } else { html! {} }}
@@ -112,15 +129,6 @@ impl ControlsImpl {
                     tooltip = DESC.ang_nodes
                 /></td>
             </tr>
-            <tr>
-                { td_tooltip("Show supplemental visualization:", DESC.supplement) }
-                <td><Dropdown<Visualization>
-                    id = "supplement-picker"
-                    onchange = handle.reduce_callback_with(|s, ext| s.extra_visualization = ext)
-                    options = Visualization::iter().collect::<Vec<_>>()
-                    selected = state.extra_visualization
-                /></td>
-            </tr>
             </>
         }
     }
@@ -137,11 +145,14 @@ impl ControlsImpl {
             None => l.to_string(),
         };
 
-        let format_m = |m: i32| match RealSphericalHarmonic::linear_combination_expression(
-            Lm::new(state.qn.l(), m).unwrap(),
-        ) {
-            Some(expression) if !expression.is_empty() => format!("{} [ {} ]", m, expression),
-            _ => m.to_string(),
+        let format_m = |m: i32| match state.mode() {
+            Mode::Real => match RealSphericalHarmonic::linear_combination_expression(
+                Lm::new(state.qn.l(), m).unwrap(),
+            ) {
+                Some(expression) if !expression.is_empty() => format!("{} [ {} ]", m, expression),
+                _ => m.to_string(),
+            },
+            Mode::Complex => m.to_string(),
         };
 
         html! {

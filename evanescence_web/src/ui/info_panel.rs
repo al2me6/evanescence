@@ -4,7 +4,7 @@ use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
 use crate::components::RawSpan;
-use crate::StateHandle;
+use crate::state::{Mode, StateHandle};
 
 pub(crate) struct InfoPanelImpl {
     handle: StateHandle,
@@ -40,22 +40,31 @@ impl Component for InfoPanelImpl {
             }
         }
 
+        let orbital_name = match state.mode() {
+            Mode::Real => orbital::Real::name,
+            Mode::Complex => orbital::Complex::name,
+        };
+
         html! {
             <div id = "info-panel">
                 <h3>{"Orbital Information"}</h3>
                 <p>
                     {"Viewing orbital "}
-                    <RawSpan inner_html = orbital::Real::name(state.qn) />
-                    {format!(
-                        ", which is {} {} orbital with {} radial {} and {} angular {}.",
-                        // English is hard.
-                        if "sfhi".contains(subshell_name) { "an" } else { "a" },
-                        subshell_name,
-                        num_radial_nodes,
-                        node_pluralize(num_radial_nodes),
-                        num_angular_nodes,
-                        node_pluralize(num_angular_nodes),
-                    )}
+                    <RawSpan inner_html = orbital_name(state.qn) />
+                    { if state.mode().is_real() {
+                        format!(
+                            ", which is {} {} orbital with {} radial {} and {} angular {}.",
+                            // English is hard.
+                            if "sfhi".contains(subshell_name) { "an" } else { "a" },
+                            subshell_name,
+                            num_radial_nodes,
+                            node_pluralize(num_radial_nodes),
+                            num_angular_nodes,
+                            node_pluralize(num_angular_nodes),
+                        )
+                    } else {
+                        ".".to_owned()
+                    }}
                 </p>
                 <p>
                 { format!("Visualized using {} points.", state.quality as usize) }

@@ -5,9 +5,28 @@ use std::iter;
 use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::Quality;
 use evanescence_core::orbital::{self, Qn, RadialPlot};
+use getset::CopyGetters;
 use once_cell::sync::Lazy;
-use strum::{Display, EnumIter};
+use strum::{Display, EnumIter, IntoEnumIterator};
 use yew_state::SharedHandle;
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display)]
+pub(crate) enum Mode {
+    Real,
+    Complex,
+}
+
+impl Default for Mode {
+    fn default() -> Self {
+        Self::Real
+    }
+}
+
+impl Mode {
+    pub(crate) fn is_real(&self) -> bool {
+        matches!(self, Self::Real)
+    }
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display)]
 pub(crate) enum Visualization {
@@ -109,21 +128,23 @@ impl fmt::Display for QnPreset {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Default, Debug)]
+#[derive(Clone, PartialEq, Eq, Default, Debug, CopyGetters)]
 pub(crate) struct State {
+    #[getset(get_copy = "pub(crate)")]
+    mode: Mode,
     pub(crate) qn_preset: QnPreset,
     pub(crate) qn: Qn,
     pub(crate) quality: Quality,
     pub(crate) nodes_show_radial: bool,
     pub(crate) nodes_show_angular: bool,
-    pub(crate) extra_visualization: Visualization,
+    pub(crate) supplement: Visualization,
 }
 
 pub(crate) struct StateDiff {
-    pub(crate) qn_or_quality: bool,
+    pub(crate) qn_or_quality_or_mode: bool,
     pub(crate) nodes_radial: bool,
     pub(crate) nodes_angular: bool,
-    pub(crate) extra_visualization: bool,
+    pub(crate) supplement: bool,
     pub(crate) cross_section: bool,
 }
 
@@ -134,18 +155,57 @@ impl State {
             Visualization::CrossSectionYZ,
             Visualization::CrossSectionZX,
         ]
-        .contains(&self.extra_visualization)
+        .contains(&self.supplement)
     }
 
     pub(crate) fn diff(&self, other: &Self) -> StateDiff {
-        let extra_visualization = self.extra_visualization != other.extra_visualization;
+        let supplement = self.supplement != other.supplement;
         StateDiff {
-            qn_or_quality: !(self.qn == other.qn && self.quality == other.quality),
+            qn_or_quality_or_mode: !(self.qn == other.qn
+                && self.quality == other.quality
+                && self.mode == other.mode),
             nodes_radial: self.nodes_show_radial != other.nodes_show_radial,
             nodes_angular: self.nodes_show_angular != other.nodes_show_angular,
-            extra_visualization,
-            cross_section: extra_visualization
+            supplement,
+            cross_section: supplement
                 && (self.cross_section_enabled() || other.cross_section_enabled()),
+        }
+    }
+
+    pub(crate) fn available_supplements(&self) -> Vec<Visualization> {
+        match self.mode {
+            Mode::Real => Visualization::iter().collect(),
+            Mode::Complex => vec![
+                Visualization::None,
+                Visualization::RadialWavefunction,
+                Visualization::RadialProbabilityDensity,
+                Visualization::RadialProbabilityDistribution,
+            ],
+        }
+    }
+
+    pub(crate) fn set_mode(&mut self, mode: Mode) {
+        self.mode = mode;
+
+        if !self
+            .available_supplements() // Note that this depends on `self.mode`!!!
+            .contains(&self.supplement)
+        {
+            log::debug!(
+                "Resetting supplement to none (current: {:?}).",
+                self.supplement
+            );
+            self.supplement = Visualization::None;
+        }
+
+        if self.mode.is_real() && self.qn_preset.is_preset() {
+            self.qn_preset = if QN_PRESETS.contains(&self.qn) {
+                log::debug!("Applying presettable qn {} in preset mode.", self.qn);
+                QnPreset::Preset(self.qn)
+            } else {
+                log::debug!("Current qn cannot be preset, activating custom mode.");
+                QnPreset::Custom
+            };
         }
     }
 }
