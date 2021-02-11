@@ -36,7 +36,7 @@ pub(crate) struct Marker<'a> {
     #[derivative(Default(value = "Line { width: Some(0.0), ..Default::default() }"))]
     pub(crate) line: Line<'a>,
 
-    #[derivative(Default(value = "0.98"))]
+    #[derivative(Default(value = "1.0"))]
     pub(crate) opacity: f32,
 
     #[serde(rename = "showscale")]
