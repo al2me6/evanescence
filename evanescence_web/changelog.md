@@ -1,5 +1,12 @@
 # Version History
 
+## 0.4.0, 2021-02-12
+
+## Features
+
+* Plotting of complex orbitals is now implemented. Bask in ~~rainbow~~ unicorn vomit glory!
+* The state management logic has been revamped, yet again. This opens the way to the plotting of hybridized and molecular orbitals in the future.
+
 ## 0.3.8, 2021-02-11
 
 ### Bugfixes
