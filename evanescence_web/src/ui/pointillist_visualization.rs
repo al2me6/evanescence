@@ -26,20 +26,14 @@ impl Trace {
             Self::Pointillist => (
                 true,
                 match mode {
-                    Mode::Real => plot::real,
+                    Mode::RealSimple | Mode::Real => plot::real,
                     Mode::Complex => plot::complex,
                 },
             ),
-            Self::RadialNodes => (
-                mode.is_real() && state.nodes_show_radial,
-                plot::radial_nodes,
-            ),
-            Self::AngularNodes => (
-                mode.is_real() && state.nodes_show_angular,
-                plot::angular_nodes,
-            ),
+            Self::RadialNodes => (state.is_real() && state.nodes_rad(), plot::radial_nodes),
+            Self::AngularNodes => (state.is_real() && state.nodes_rad(), plot::angular_nodes),
             Self::CrossSectionIndicator => (
-                mode.is_real() && state.cross_section_enabled(),
+                state.is_real() && state.supplement_is_cross_section(),
                 plot::cross_section_indicator,
             ),
         }
@@ -71,7 +65,7 @@ impl PointillistVisualizationImpl {
         // displayed to improve performance.
         Plotly::relayout(
             Self::ID,
-            LayoutRangeUpdate::new(orbital::Real::estimate_radius(state.qn)).into(),
+            LayoutRangeUpdate::new(orbital::Real::estimate_radius(state.qn())).into(),
         );
 
         // And compute new ones.
@@ -127,20 +121,27 @@ impl Component for PointillistVisualizationImpl {
     }
 
     fn change(&mut self, handle: StateHandle) -> ShouldRender {
-        let diff = self.handle.state().diff(handle.state());
+        let old_state = self.handle.state();
+        let new_state = handle.state();
+
+        let all = new_state.is_new_orbital(old_state) || new_state.quality() != old_state.quality();
+        let nodes_ang = new_state.nodes_ang() != old_state.nodes_ang();
+        let nodes_rad = new_state.nodes_rad() != old_state.nodes_rad();
+        let cross_section =
+            new_state.supplement_is_cross_section() != old_state.supplement_is_cross_section();
+
         self.handle.neq_assign(handle);
-        if diff.qn_or_quality_or_mode {
+        if all {
             self.rerender_all();
         } else {
-            if diff.nodes_radial {
-                self.add_or_remove_trace(Trace::RadialNodes);
-            }
-            if diff.nodes_angular {
-                self.add_or_remove_trace(Trace::AngularNodes);
-            }
-            if diff.cross_section {
-                self.add_or_remove_trace(Trace::CrossSectionIndicator);
-            }
+            [
+                (nodes_rad, Trace::RadialNodes),
+                (nodes_ang, Trace::AngularNodes),
+                (cross_section, Trace::CrossSectionIndicator),
+            ]
+            .iter()
+            .filter(|(should_render, _)| *should_render)
+            .for_each(|(_, kind)| self.add_or_remove_trace(*kind));
         }
         false
     }
@@ -151,10 +152,10 @@ impl Component for PointillistVisualizationImpl {
 
         let state = self.handle.state();
 
-        assert!(state.mode().is_real());
+        assert!(state.mode() == Mode::RealSimple);
 
         // Manually set the plot range to prevent jumping.
-        let axis = Axis::from_range_of(state.qn);
+        let axis = Axis::from_range_of(state.qn());
         Plotly::react(
             Self::ID,
             vec![plot::real(state)].into_boxed_slice(),

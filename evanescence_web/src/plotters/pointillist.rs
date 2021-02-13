@@ -46,7 +46,7 @@ fn isosurface(
 }
 
 pub(crate) fn real(state: &State) -> JsValue {
-    let simulation = orbital::Real::monte_carlo_simulate(state.qn, state.quality);
+    let simulation = orbital::Real::monte_carlo_simulate(state.qn(), state.quality());
     let (x, y, z, values) = simulation.into_components();
 
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
@@ -76,7 +76,7 @@ pub(crate) fn real(state: &State) -> JsValue {
 }
 
 pub(crate) fn complex(state: &State) -> JsValue {
-    let simulation = orbital::Complex::monte_carlo_simulate(state.qn, state.quality);
+    let simulation = orbital::Complex::monte_carlo_simulate(state.qn(), state.quality());
     let (x, y, z, values) = simulation.into_components();
 
     let moduli: Vec<_> = values.iter().map(|v| v.norm()).collect();
@@ -110,12 +110,12 @@ pub(crate) fn complex(state: &State) -> JsValue {
 pub(crate) fn radial_nodes(state: &State) -> JsValue {
     isosurface(
         orbital::sample_region_for::<wavefunctions::Radial>(
-            state.qn,
-            state.quality.for_isosurface(),
+            state.qn(),
+            state.quality().for_isosurface(),
             // Shrink the extent plotted since radial nodes are found in the central
             // part of the full extent only. This is a heuristic that has been verified
             // to cover all radial nodes from `n` = 2 through 8.
-            Some(state.qn.n() as f32 * 0.05 + 0.125),
+            Some(state.qn().n() as f32 * 0.05 + 0.125),
         ),
         false,
         color_scales::GREENS,
@@ -123,11 +123,11 @@ pub(crate) fn radial_nodes(state: &State) -> JsValue {
 }
 
 pub(crate) fn angular_nodes(state: &State) -> JsValue {
-    let qn = state.qn;
+    let qn = state.qn();
     isosurface(
         orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
             qn,
-            state.quality.for_isosurface(),
+            state.quality().for_isosurface(),
             None,
         ),
         qn.l() >= 4 && qn.m().abs() >= 4,
@@ -136,9 +136,9 @@ pub(crate) fn angular_nodes(state: &State) -> JsValue {
 }
 
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
-    let plane: Plane = state.supplement.try_into().unwrap();
+    let plane: Plane = state.supplement().try_into().unwrap();
     let (x, y, z) = plane
-        .four_points_as_xy_value(orbital::Real::estimate_radius(state.qn))
+        .four_points_as_xy_value(orbital::Real::estimate_radius(state.qn()))
         .into_components();
     Surface {
         x,

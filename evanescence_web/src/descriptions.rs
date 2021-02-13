@@ -7,6 +7,7 @@ macro_rules! description_items {
     }
 }
 description_items!(
+    mode_dropdown,
     qn_dropdown,
     supplement,
     rad_nodes,
@@ -23,7 +24,8 @@ description_items!(
 );
 
 pub(crate) const DESC: Descriptions = Descriptions {
-    qn_dropdown: "Select the orbital to display. Choose \"Custom\" to select arbitrary quantum numbers.",
+    mode_dropdown: "Select the kind of orbital to visualize.",
+    qn_dropdown: "Select the orbital to display. Use the \"Real (Full)\" orbital type to select arbitrary quantum numbers.",
     supplement: "Additional visualizations that highlight different aspects of orbitals.",
     rad_nodes: "Concentric, spherical surfaces where there is exactly 0 possibility of finding an electron. There are n−ℓ−1 radial nodes.",
     ang_nodes: "Planar or conical surfaces where there is exactly 0 possibility of finding an electron. There are ℓ angular nodes.",

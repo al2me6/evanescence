@@ -16,7 +16,7 @@ use crate::state::State;
 use crate::utils::{abs_max, b16_colors, capitalize_words};
 
 pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
-    let variant: RadialPlot = state.supplement.try_into().unwrap();
+    let variant: RadialPlot = state.supplement().try_into().unwrap();
     let function_expr = match variant {
         RadialPlot::Wavefunction => "R(r)",
         RadialPlot::ProbabilityDensity => "R(r)²",
@@ -24,11 +24,11 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     };
     let variant_label = format!(
         "{} [ {} ]",
-        capitalize_words(&state.supplement.to_string()),
+        capitalize_words(&state.supplement().to_string()),
         function_expr
     );
 
-    let (x, y) = orbital::Real::sample_radial(state.qn, variant, state.quality.for_line());
+    let (x, y) = orbital::Real::sample_radial(state.qn(), variant, state.quality().for_line());
 
     let trace = Scatter {
         x,
@@ -65,13 +65,13 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
-    let ui_revision = state.supplement.to_string();
-    let plane: Plane = state.supplement.try_into().unwrap();
+    let ui_revision = state.supplement().to_string();
+    let plane: Plane = state.supplement().try_into().unwrap();
     let (x_label, y_label) = plane.axes_names();
 
-    let num_points = state.quality.for_grid();
+    let num_points = state.quality().for_grid();
     let (x, y, mut value) =
-        orbital::Real::sample_cross_section(state.qn, plane, num_points).into_components();
+        orbital::Real::sample_cross_section(state.qn(), plane, num_points).into_components();
 
     let abs_max = abs_max(value.iter().flat_map(|row| row.iter()));
 
@@ -148,8 +148,8 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
 
 pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     let (x, y, z, value) = orbital::sample_region_for::<orbital::Real>(
-        state.qn,
-        state.quality.for_isosurface() * 3 / 2,
+        state.qn(),
+        state.quality().for_isosurface() * 3 / 2,
         None,
     )
     .into_components();
@@ -157,8 +157,8 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     // Yet another heuristic for scaling the cutoff value appropriately. As the number of lobes
     // increases, they attain increasingly small values, which require a lower cutoff to achieve
     // an adequate appearance (i.e., not showing too small of a portion).
-    let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn);
-    let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn);
+    let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn());
+    let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn());
     let num_lobes = (num_radial_nodes + 1) * (num_angular_nodes + 1);
     let damping_factor = if num_radial_nodes == 0 && num_angular_nodes > 2 {
         0.06
@@ -167,7 +167,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     };
     let cutoff = 0.003 / ((num_lobes as f32 - 1.0).powf(2.5) * damping_factor + 1.0);
 
-    let axis = Axis::from_range_of(state.qn);
+    let axis = Axis::from_range_of(state.qn());
     let trace = Isosurface {
         x,
         y,
@@ -177,7 +177,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         iso_max: cutoff,
         surface: isosurface::Surface { count: 2 },
         color_scale: color_scales::RED_BLUE_REVERSED,
-        opacity: if state.qn.l() == 0 { 0.5 } else { 1.0 },
+        opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
         ..Default::default()
     };
 

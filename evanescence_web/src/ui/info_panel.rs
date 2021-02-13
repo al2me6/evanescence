@@ -28,9 +28,9 @@ impl Component for InfoPanelImpl {
 
     fn view(&self) -> Html {
         let state = self.handle.state();
-        let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn);
-        let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn);
-        let subshell_name = orbital::subshell_name(state.qn.l()).unwrap();
+        let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn());
+        let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn());
+        let subshell_name = orbital::subshell_name(state.qn().l()).unwrap();
 
         fn node_pluralize(n: u32) -> &'static str {
             if n == 1 {
@@ -41,7 +41,7 @@ impl Component for InfoPanelImpl {
         }
 
         let orbital_name = match state.mode() {
-            Mode::Real => orbital::Real::name,
+            Mode::RealSimple | Mode::Real => orbital::Real::name,
             Mode::Complex => orbital::Complex::name,
         };
 
@@ -50,8 +50,8 @@ impl Component for InfoPanelImpl {
                 <h3>{"Orbital Information"}</h3>
                 <p>
                     {"Viewing orbital "}
-                    <RawSpan inner_html = orbital_name(state.qn) />
-                    { if state.mode().is_real() {
+                    <RawSpan inner_html = orbital_name(state.qn()) />
+                    { if state.is_real() {
                         format!(
                             ", which is {} {} orbital with {} radial {} and {} angular {}.",
                             // English is hard.
@@ -67,7 +67,7 @@ impl Component for InfoPanelImpl {
                     }}
                 </p>
                 <p>
-                { format!("Visualized using {} points.", state.quality as usize) }
+                { format!("Visualized using {} points.", state.quality() as usize) }
                 </p>
             </div>
         }
