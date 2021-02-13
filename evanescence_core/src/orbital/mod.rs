@@ -113,7 +113,7 @@ impl Orbital for Real {
     fn name(qn: Qn) -> String {
         if let (Some(subshell), Some(linear_combination)) = (
             subshell_name(qn.l()),
-            RealSphericalHarmonic::linear_combination_expression(qn.into()),
+            RealSphericalHarmonic::expression(qn.into()),
         ) {
             format!("{}{}<sub>{}</sub>", qn.n(), subshell, linear_combination)
         } else {

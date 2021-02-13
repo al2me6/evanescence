@@ -129,15 +129,15 @@ impl Evaluate for RealSphericalHarmonic {
 }
 
 impl RealSphericalHarmonic {
-    /// Give the mathematical expression for the linear combination that corresponds to a certain
-    /// set of `l` and `m` quantum numbers, as a `&str`. Superscripts are represented with
-    /// Unicode superscript symbols.
+    /// Give the (abbreviated) mathematical expression for the linear combination that corresponds
+    /// to a certain set of `l` and `m` quantum numbers, as a `&str`. Superscripts are represented
+    /// with Unicode superscript symbols.
     ///
     /// This is only implemented for `l` up to 4 and returns `None` for larger values.
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
     #[allow(clippy::missing_panics_doc)] // `unreachable` is an implementation detail here.
-    pub fn linear_combination_expression(lm: Lm) -> Option<&'static str> {
+    pub fn expression(lm: Lm) -> Option<&'static str> {
         let (l, m) = (lm.l(), lm.m());
         match l {
             0 => Some(""), // s orbital.

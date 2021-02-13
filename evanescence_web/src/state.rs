@@ -100,7 +100,7 @@ impl TryFrom<Qn> for QnPreset {
 impl fmt::Display for QnPreset {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let qn: Qn = (*self).into();
-        let subscript = RealSphericalHarmonic::linear_combination_expression(qn.into()).unwrap();
+        let subscript = RealSphericalHarmonic::expression(qn.into()).unwrap();
         write!(
             f,
             "{principal}{shell} {subscript}",
