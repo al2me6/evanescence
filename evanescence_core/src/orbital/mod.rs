@@ -34,13 +34,6 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
     }
 }
 
-/// A radially symmetrical property associated with an orbital.
-pub enum RadialPlot {
-    Wavefunction,
-    ProbabilityDensity,
-    ProbabilityDistribution,
-}
-
 /// Trait representing a hydrogenic orbital.
 pub trait Orbital: Evaluate<Parameters = Qn> {
     /// An empirically derived heuristic for estimating the radius of a specific orbital
@@ -51,30 +44,6 @@ pub trait Orbital: Evaluate<Parameters = Qn> {
     fn estimate_radius(qn: Qn) -> f32 {
         let n = qn.n() as f32;
         n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
-    }
-
-    /// Compute a plot of a property of an orbital's radial wavefunction (see [`RadialPlot`]).
-    ///
-    /// The property will be evaluated at `num_points` points evenly spaced between the origin
-    /// and the maximum extent of the orbital, which is automatically estimated.
-    ///
-    /// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
-    /// and the second containing the values associated with the radial points.
-    fn sample_radial(qn: Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
-        let evaluator = match variant {
-            RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
-            RadialPlot::ProbabilityDensity => RadialProbabilityDensity::evaluate_on_line_segment,
-            RadialPlot::ProbabilityDistribution => {
-                RadialProbabilityDistribution::evaluate_on_line_segment
-            }
-        };
-        let (xs, _, _, vals) = ComponentForm::from(evaluator(
-            qn.into(),
-            Vec3::ZERO..=(Vec3::I * Self::estimate_radius(qn)), // We use the x-axis for simplicity; this function is radially symmetric.
-            num_points,
-        ))
-        .into_components();
-        (xs, vals)
     }
 
     /// Compute a plot of the cross section of an orbital along a given `plane`.
@@ -152,6 +121,38 @@ impl Orbital for Complex {
     fn name(qn: Qn) -> String {
         format!("ψ<sub>{}{}{}</sub>", qn.n(), qn.l(), qn.m())
     }
+}
+
+/// A radially symmetrical property associated with an orbital.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum RadialPlot {
+    Wavefunction,
+    ProbabilityDensity,
+    ProbabilityDistribution,
+}
+
+/// Compute a plot of a property of an orbital's radial wavefunction (see [`RadialPlot`]).
+///
+/// The property will be evaluated at `num_points` points evenly spaced between the origin
+/// and the maximum extent of the orbital, which is automatically estimated.
+///
+/// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
+/// and the second containing the values associated with the radial points.
+pub fn sample_radial(qn: Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
+    let evaluator = match variant {
+        RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
+        RadialPlot::ProbabilityDensity => RadialProbabilityDensity::evaluate_on_line_segment,
+        RadialPlot::ProbabilityDistribution => {
+            RadialProbabilityDistribution::evaluate_on_line_segment
+        }
+    };
+    let (xs, _, _, vals) = ComponentForm::from(evaluator(
+        qn.into(),
+        Vec3::ZERO..=(Vec3::I * Real::estimate_radius(qn)), // We use the x-axis for simplicity; this function is radially symmetric.
+        num_points,
+    ))
+    .into_components();
+    (xs, vals)
 }
 
 /// Compute a plot of a function related to an orbital in a cube centered at the origin.

@@ -28,7 +28,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
         function_expr
     );
 
-    let (x, y) = orbital::Real::sample_radial(state.qn(), variant, state.quality().for_line());
+    let (x, y) = orbital::sample_radial(state.qn(), variant, state.quality().for_line());
 
     let trace = Scatter {
         x,

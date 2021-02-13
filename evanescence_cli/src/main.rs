@@ -10,6 +10,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyModule;
 use strum::{Display, EnumString};
 
+#[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, Display, EnumString)]
 enum Mode {
     Pointillist,
@@ -203,7 +204,7 @@ fn main() -> Result<()> {
                     let num_points = quality.for_line();
                     (
                         num_points,
-                        orbital::Real::sample_radial(qn, mode.try_into().unwrap(), num_points),
+                        orbital::sample_radial(qn, mode.try_into().unwrap(), num_points),
                     )
                 },
                 skip_render,
