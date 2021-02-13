@@ -46,12 +46,13 @@ impl Component for CheckBox {
     }
 
     fn view(&self) -> Html {
-        let label_text = match self.props.tooltip {
-            Some(tooltip) => html! {
+        let label_text = if let Some(tooltip) = self.props.tooltip {
+            html! {
                 // TODO: Somehow avoid cloning?
                 <Tooltip text = self.props.label.clone() tooltip = tooltip.to_owned() />
-            },
-            None => html! { <span>{ &self.props.label }</span> },
+            }
+        } else {
+            html! { <span>{ &self.props.label }</span> }
         };
         html! {
             <label class = "checkbox">

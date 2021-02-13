@@ -1,4 +1,8 @@
 #![recursion_limit = "1024"]
+#[warn(clippy::pedantic)]
+#[allow(
+    clippy::default_trait_access // Triggered by yew's proc macros.
+)]
 
 pub(crate) mod components;
 pub(crate) mod descriptions;
