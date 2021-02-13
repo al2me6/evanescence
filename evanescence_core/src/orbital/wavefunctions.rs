@@ -136,6 +136,7 @@ impl RealSphericalHarmonic {
     /// This is only implemented for `l` up to 4 and returns `None` for larger values.
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
+    #[allow(clippy::missing_panics_doc)] // `unreachable` is an implementation detail here.
     pub fn linear_combination_expression(lm: Lm) -> Option<&'static str> {
         let (l, m) = (lm.l(), lm.m());
         match l {

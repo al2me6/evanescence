@@ -273,6 +273,7 @@ impl Point {
 }
 
 /// Type representing a coordinate plane.
+#[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, Debug, Display)]
 pub enum Plane {
     XY,

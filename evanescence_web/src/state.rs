@@ -10,6 +10,7 @@ use once_cell::sync::Lazy;
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yew_state::SharedHandle;
 
+#[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display)]
 pub(crate) enum Visualization {
     None,
