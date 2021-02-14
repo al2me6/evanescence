@@ -85,6 +85,12 @@ impl From<QnPreset> for Qn {
     }
 }
 
+impl From<QnPreset> for &'static Qn {
+    fn from(preset: QnPreset) -> Self {
+        &QN_PRESETS[preset.0]
+    }
+}
+
 impl TryFrom<Qn> for QnPreset {
     type Error = ();
     fn try_from(qn: Qn) -> Result<Self, Self::Error> {
@@ -100,7 +106,7 @@ impl TryFrom<Qn> for QnPreset {
 impl fmt::Display for QnPreset {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let qn: Qn = (*self).into();
-        let subscript = RealSphericalHarmonic::expression(qn.into()).unwrap();
+        let subscript = RealSphericalHarmonic::expression(&qn.into()).unwrap();
         write!(
             f,
             "{principal}{shell} {subscript}",
@@ -262,11 +268,11 @@ impl State {
         self.supplement
     }
 
-    pub(crate) fn qn(&self) -> Qn {
+    pub(crate) fn qn(&self) -> &Qn {
         match &self.state {
             RealSimple(state) => state.preset.into(),
-            Real(state) => state.qn,
-            Complex(state) => state.qn,
+            Real(state) => &state.qn,
+            Complex(state) => &state.qn,
         }
     }
 

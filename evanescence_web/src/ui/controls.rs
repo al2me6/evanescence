@@ -141,7 +141,7 @@ impl ControlsImpl {
 
         let format_m = |m: i32| match state.mode() {
             Mode::RealSimple | Mode::Real => {
-                match RealSphericalHarmonic::expression(Lm::new(state.qn().l(), m).unwrap()) {
+                match RealSphericalHarmonic::expression(&Lm::new(state.qn().l(), m).unwrap()) {
                     Some(expression) if !expression.is_empty() => {
                         format!("{} [ {} ]", m, expression)
                     }

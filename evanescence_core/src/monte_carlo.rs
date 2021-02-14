@@ -93,7 +93,7 @@ pub trait MonteCarlo: Orbital {
     /// [`MonteCarlo::value_comparator`] as the metric by which values are compared. In addition
     /// to the maximum value, this function returns the points (and values) sampled for later use.
     fn estimate_maximum_value(
-        qn: Qn,
+        qn: &Qn,
         num_samples: usize,
         rng: &mut WyRand,
     ) -> (f32, Vec<PointValue<Self::Output>>) {
@@ -119,7 +119,7 @@ pub trait MonteCarlo: Orbital {
     /// Note that while slower, higher qualities may be required to ortain sufficiently detailed
     /// results for larger, more intricate orbitals. However, excessive quality for small orbitals
     /// may obstruct details while significantly degrading user experience.
-    fn monte_carlo_simulate(qn: Qn, quality: Quality) -> ComponentForm<Self::Output> {
+    fn monte_carlo_simulate(qn: &Qn, quality: Quality) -> ComponentForm<Self::Output> {
         let num_estimation_samples = (quality as usize * 2).max(Self::MINIMUM_ESTIMATION_SAMPLES);
         let mut point_rng = WyRand::new();
         let mut value_rng = WyRand::new();

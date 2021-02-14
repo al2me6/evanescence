@@ -124,24 +124,24 @@ pub mod orthogonal_polynomials {
 ///
 /// Utilities are provided for sampling the function on a line or plane.
 pub trait Evaluate {
+    type Parameters: Clone;
     type Output: Copy;
-    type Parameters: Copy;
 
     /// Evaluate `Self` at a certain point, returning the value only.
-    fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output;
+    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output;
 
     /// Evaluate `Self` at a certain point, returning the point *and* the value in the form of a
     /// [`PointValue`], or a `(Point, Self::Output)`.
     #[allow(clippy::inline_always)]
     #[inline(always)]
-    fn evaluate_at(params: Self::Parameters, point: &Point) -> PointValue<Self::Output> {
+    fn evaluate_at(params: &Self::Parameters, point: &Point) -> PointValue<Self::Output> {
         PointValue(*point, Self::evaluate(params, point))
     }
 
     /// Evaluate `Self` on a line segment running across `range` at a total of `num_points`
     /// different points, all evenly spaced (à la "`linspace`" operation).
     fn evaluate_on_line_segment(
-        params: Self::Parameters,
+        params: &Self::Parameters,
         range: RangeInclusive<Vec3>,
         num_points: usize,
     ) -> Vec<PointValue<Self::Output>> {
@@ -154,7 +154,7 @@ pub trait Evaluate {
     /// spaced values. Specifically, the grid is a square centered at the origin with side
     /// length of 2 × `extent`, and `num_points` are sampled *in each dimension*.
     fn evaluate_on_plane(
-        params: Self::Parameters,
+        params: &Self::Parameters,
         plane: Plane,
         extent: f32,
         num_points: usize,
@@ -203,7 +203,7 @@ pub trait Evaluate {
     /// That is, values are each of the form (x, y, z, val), sorted by increasing x, then y, and
     /// finally z.
     fn evaluate_in_region(
-        params: Self::Parameters,
+        params: &Self::Parameters,
         extent: f32,
         num_points: usize,
     ) -> Vec<PointValue<Self::Output>> {

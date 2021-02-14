@@ -120,6 +120,12 @@ impl std::fmt::Display for Qn {
     }
 }
 
+impl From<&Qn> for Qn {
+    fn from(qn: &Qn) -> Self {
+        *qn
+    }
+}
+
 /// Type representing the quantum numbers `n` and `l`.
 ///
 /// # Safety
@@ -151,6 +157,12 @@ impl From<Qn> for Nl {
     }
 }
 
+impl From<&Qn> for Nl {
+    fn from(&Qn { n, l, m: _ }: &Qn) -> Self {
+        Self { n, l }
+    }
+}
+
 /// Type representing the quantum numbers `l` and `m`.
 ///
 /// # Safety
@@ -178,6 +190,12 @@ impl Lm {
 
 impl From<Qn> for Lm {
     fn from(Qn { n: _, l, m }: Qn) -> Self {
+        Self { l, m }
+    }
+}
+
+impl From<&Qn> for Lm {
+    fn from(&Qn { n: _, l, m }: &Qn) -> Self {
         Self { l, m }
     }
 }

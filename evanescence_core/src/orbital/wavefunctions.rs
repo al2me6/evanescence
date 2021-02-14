@@ -8,10 +8,8 @@ use std::f32::consts::{PI, SQRT_2};
 use num_complex::Complex32;
 
 use crate::geometry::Point;
-use crate::numerics::{
-    orthogonal_polynomials::{associated_laguerre, associated_legendre},
-    Evaluate,
-};
+use crate::numerics::orthogonal_polynomials::{associated_laguerre, associated_legendre};
+use crate::numerics::Evaluate;
 use crate::orbital::quantum_numbers::{Lm, Nl};
 
 /// Implementation of the radial component of the hydrogenic wavefunction.
@@ -34,7 +32,7 @@ impl Evaluate for Radial {
     type Parameters = Nl;
 
     #[inline]
-    fn evaluate(nl: Nl, point: &Point) -> Self::Output {
+    fn evaluate(nl: &Nl, point: &Point) -> Self::Output {
         let (n, l) = (nl.n(), nl.l());
         let rho = 2.0 * point.r() / (n as f32);
         Self::normalization_factor(n, l)
@@ -52,7 +50,7 @@ impl Evaluate for RadialProbabilityDensity {
     type Parameters = Nl;
 
     #[inline]
-    fn evaluate(params: Self::Parameters, point: &Point) -> Self::Output {
+    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output {
         #[allow(non_snake_case)] // Mathematical convention.
         let R = Radial::evaluate(params, point);
         R * R
@@ -67,7 +65,7 @@ impl Evaluate for RadialProbabilityDistribution {
     type Parameters = Nl;
 
     #[inline]
-    fn evaluate(params: Self::Parameters, pt: &Point) -> Self::Output {
+    fn evaluate(params: &Self::Parameters, pt: &Point) -> Self::Output {
         let r = pt.r();
         #[allow(non_snake_case)] // Mathematical convention.
         let R = Radial::evaluate(params, pt);
@@ -95,7 +93,7 @@ impl Evaluate for SphericalHarmonic {
     type Parameters = Lm;
 
     #[inline]
-    fn evaluate(lm: Lm, point: &Point) -> Self::Output {
+    fn evaluate(lm: &Lm, point: &Point) -> Self::Output {
         let (l, m) = (lm.l(), lm.m());
         let m_abs = m.abs() as u32;
         Self::normalization_factor(l, m_abs)
@@ -114,7 +112,7 @@ impl Evaluate for RealSphericalHarmonic {
     type Parameters = Lm;
 
     #[inline]
-    fn evaluate(lm: Lm, point: &Point) -> Self::Output {
+    fn evaluate(lm: &Lm, point: &Point) -> Self::Output {
         let (l, m) = (lm.l(), lm.m());
         let m_abs = m.abs() as u32;
         SphericalHarmonic::normalization_factor(l, m_abs)
@@ -137,7 +135,7 @@ impl RealSphericalHarmonic {
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
     #[allow(clippy::missing_panics_doc)] // `unreachable` is an implementation detail here.
-    pub fn expression(lm: Lm) -> Option<&'static str> {
+    pub fn expression(lm: &Lm) -> Option<&'static str> {
         let (l, m) = (lm.l(), lm.m());
         match l {
             0 => Some(""), // s orbital.
@@ -232,7 +230,7 @@ mod tests {
             fn $fn_name() {
                 let calculated: Vec<_> = TEST_POINTS
                     .iter()
-                    .map(|pt| $target_fn($target_params, pt))
+                    .map(|pt| $target_fn(&$target_params, pt))
                     .collect();
                 assert_iterable_relative_eq!($expected, &calculated, max_relative = 1E-4_f32);
             }

@@ -87,7 +87,7 @@ pub(crate) struct Axis<'a> {
 }
 
 impl<'a> Axis<'a> {
-    pub(crate) fn from_range_of(qn: Qn) -> Self {
+    pub(crate) fn from_range_of(qn: &Qn) -> Self {
         let extent = orbital::Real::estimate_radius(qn);
         Self {
             range: Some((-extent, extent)),

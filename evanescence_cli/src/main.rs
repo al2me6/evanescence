@@ -134,7 +134,7 @@ fn main() -> Result<()> {
                 || {
                     (
                         quality as usize,
-                        orbital::Real::monte_carlo_simulate(qn, quality),
+                        orbital::Real::monte_carlo_simulate(&qn, quality),
                     )
                 },
                 skip_render,
@@ -152,8 +152,8 @@ fn main() -> Result<()> {
                         // We render the Monte Carlo points and a cube of side length num_points_iso.
                         quality as usize + num_points_iso.pow(3),
                         (
-                            orbital::Real::monte_carlo_simulate(qn, quality),
-                            orbital::sample_region_for::<orbital::Real>(qn, num_points_iso, None),
+                            orbital::Real::monte_carlo_simulate(&qn, quality),
+                            orbital::sample_region_for::<orbital::Real>(&qn, num_points_iso, None),
                         ),
                     )
                 },
@@ -182,7 +182,7 @@ fn main() -> Result<()> {
                 || {
                     (
                         quality as usize,
-                        orbital::Complex::monte_carlo_simulate(qn, quality),
+                        orbital::Complex::monte_carlo_simulate(&qn, quality),
                     )
                 },
                 skip_render,
@@ -204,7 +204,7 @@ fn main() -> Result<()> {
                     let num_points = quality.for_line();
                     (
                         num_points,
-                        orbital::sample_radial(qn, mode.try_into().unwrap(), num_points),
+                        orbital::sample_radial(&qn, mode.try_into().unwrap(), num_points),
                     )
                 },
                 skip_render,
@@ -221,7 +221,7 @@ fn main() -> Result<()> {
                     (
                         num_points * num_points, // We calculate an entire grid.
                         orbital::Real::sample_cross_section(
-                            qn,
+                            &qn,
                             mode.try_into().unwrap(),
                             num_points,
                         ),

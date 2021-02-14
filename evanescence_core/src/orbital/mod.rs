@@ -41,7 +41,7 @@ pub trait Orbital: Evaluate<Parameters = Qn> {
     /// of that radius). See the attached Mathematica notebook `radial_wavefunction.nb`
     /// for plots.
     #[inline]
-    fn estimate_radius(qn: Qn) -> f32 {
+    fn estimate_radius(qn: &Qn) -> f32 {
         let n = qn.n() as f32;
         n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
     }
@@ -52,7 +52,7 @@ pub trait Orbital: Evaluate<Parameters = Qn> {
     /// the extent of the orbital, which is automatically estimated.
     ///
     /// For more information, see the documentation on [`GridValues`].
-    fn sample_cross_section(qn: Qn, plane: Plane, num_points: usize) -> GridValues<Self::Output> {
+    fn sample_cross_section(qn: &Qn, plane: Plane, num_points: usize) -> GridValues<Self::Output> {
         Self::evaluate_on_plane(qn, plane, Self::estimate_radius(qn), num_points)
     }
 
@@ -60,7 +60,7 @@ pub trait Orbital: Evaluate<Parameters = Qn> {
     ///
     /// Superscripts are represented using Unicode superscript symbols and subscripts are
     /// represented with the HTML tag `<sub></sub>`.
-    fn name(qn: Qn) -> String;
+    fn name(qn: &Qn) -> String;
 }
 
 /// Implementation of the real hydrogenic orbitals.
@@ -71,18 +71,18 @@ impl Evaluate for Real {
     type Parameters = Qn;
 
     #[inline]
-    fn evaluate(qn: Qn, point: &Point) -> f32 {
-        Radial::evaluate(qn.into(), point) * RealSphericalHarmonic::evaluate(qn.into(), point)
+    fn evaluate(qn: &Qn, point: &Point) -> f32 {
+        Radial::evaluate(&qn.into(), point) * RealSphericalHarmonic::evaluate(&qn.into(), point)
     }
 }
 
 impl Orbital for Real {
     /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
     /// the quantum numbers only (ex. `ψ_{420}`).
-    fn name(qn: Qn) -> String {
+    fn name(qn: &Qn) -> String {
         if let (Some(subshell), Some(linear_combination)) = (
             subshell_name(qn.l()),
-            RealSphericalHarmonic::expression(qn.into()),
+            RealSphericalHarmonic::expression(&qn.into()),
         ) {
             format!("{}{}<sub>{}</sub>", qn.n(), subshell, linear_combination)
         } else {
@@ -93,12 +93,12 @@ impl Orbital for Real {
 
 impl Real {
     /// Give the number of radial nodes in an orbital.
-    pub fn num_radial_nodes(qn: Qn) -> u32 {
+    pub fn num_radial_nodes(qn: &Qn) -> u32 {
         qn.n() - qn.l() - 1
     }
 
     // Give the number of angular nodes in an orbital.
-    pub fn num_angular_nodes(qn: Qn) -> u32 {
+    pub fn num_angular_nodes(qn: &Qn) -> u32 {
         qn.l()
     }
 }
@@ -111,14 +111,14 @@ impl Evaluate for Complex {
     type Parameters = Qn;
 
     #[inline]
-    fn evaluate(qn: Qn, point: &Point) -> Complex32 {
-        Radial::evaluate(qn.into(), point) * SphericalHarmonic::evaluate(qn.into(), point)
+    fn evaluate(qn: &Qn, point: &Point) -> Complex32 {
+        Radial::evaluate(&qn.into(), point) * SphericalHarmonic::evaluate(&qn.into(), point)
     }
 }
 
 impl Orbital for Complex {
     /// Give the name of the wavefunction (ex. `ψ_{420}`).
-    fn name(qn: Qn) -> String {
+    fn name(qn: &Qn) -> String {
         format!("ψ<sub>{}{}{}</sub>", qn.n(), qn.l(), qn.m())
     }
 }
@@ -138,7 +138,7 @@ pub enum RadialPlot {
 ///
 /// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
 /// and the second containing the values associated with the radial points.
-pub fn sample_radial(qn: Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
+pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
     let evaluator = match variant {
         RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
         RadialPlot::ProbabilityDensity => RadialProbabilityDensity::evaluate_on_line_segment,
@@ -147,7 +147,7 @@ pub fn sample_radial(qn: Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32
         }
     };
     let (xs, _, _, vals) = ComponentForm::from(evaluator(
-        qn.into(),
+        &qn.into(),
         Vec3::ZERO..=(Vec3::I * Real::estimate_radius(qn)), // We use the x-axis for simplicity; this function is radially symmetric.
         num_points,
     ))
@@ -166,17 +166,17 @@ pub fn sample_radial(qn: Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32
 /// [angular](wavefunctions::RealSphericalHarmonic) nodes.
 ///
 /// For more information, see [`Evaluate::evaluate_in_region`].
-pub fn sample_region_for<E>(
-    qn: Qn,
+pub fn sample_region_for<'a, E>(
+    qn: &'a Qn,
     num_points: usize,
     extent_multiplier: Option<f32>,
 ) -> ComponentForm<E::Output>
 where
     E: Evaluate,
-    <E as Evaluate>::Parameters: From<Qn>,
+    <E as Evaluate>::Parameters: From<&'a Qn>,
 {
     E::evaluate_in_region(
-        qn.into(),
+        &qn.into(),
         Real::estimate_radius(qn) * extent_multiplier.unwrap_or(1.0),
         num_points,
     )
