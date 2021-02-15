@@ -58,7 +58,7 @@ pub trait Orbital: Evaluate {
     ///
     /// Superscripts are represented using Unicode superscript symbols and subscripts are
     /// represented with the HTML tag `<sub></sub>`.
-    fn name(qn: &Qn) -> String;
+    fn name(params: &Self::Parameters) -> String;
 }
 
 /// Implementation of the real hydrogenic orbitals.
