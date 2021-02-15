@@ -95,7 +95,7 @@ impl Evaluate for SphericalHarmonic {
     #[inline]
     fn evaluate(lm: &Lm, point: &Point) -> Self::Output {
         let (l, m) = (lm.l(), lm.m());
-        let m_abs = m.abs() as u32;
+        let m_abs = m.unsigned_abs();
         Self::normalization_factor(l, m_abs)
             * associated_legendre((l, m_abs), point.cos_theta()) // Condon-Shortley phase is included here.
             * (Complex32::i() * m as f32 * point.phi()).exp()
@@ -114,7 +114,7 @@ impl Evaluate for RealSphericalHarmonic {
     #[inline]
     fn evaluate(lm: &Lm, point: &Point) -> Self::Output {
         let (l, m) = (lm.l(), lm.m());
-        let m_abs = m.abs() as u32;
+        let m_abs = m.unsigned_abs();
         SphericalHarmonic::normalization_factor(l, m_abs)
             * if m_abs % 2 == 0 { 1.0 } else { -1.0 } // (-1)^(-m), to cancel out the Condon-Shortley phase from `associated_legendre`.
             * associated_legendre((l, m_abs), point.cos_theta())

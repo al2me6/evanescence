@@ -22,7 +22,7 @@ impl Qn {
     /// Create a new `Qn`, verifying that the passed values are valid. Returns `None` if that
     /// is not the case.
     pub const fn new(n: u32, l: u32, m: i32) -> Option<Self> {
-        if n > l && l >= m.abs() as u32 {
+        if n > l && l >= m.unsigned_abs() {
             Some(Self { n, l, m })
         } else {
             None
@@ -92,7 +92,7 @@ impl Qn {
     /// This function will panic if the passed value `l` does not satisfy `self.n > l`.
     pub fn set_l_clamping(&mut self, l: u32) {
         assert!(self.n > l);
-        if self.m.abs() as u32 > l {
+        if self.m.unsigned_abs() > l {
             self.set_m(self.m.signum() * l as i32)
         }
         self.l = l;
@@ -103,7 +103,7 @@ impl Qn {
     /// # Panics
     /// The passed value `m` must satisfy `self.l >= |m|`. Otherwise, this function will panic.
     pub fn set_m(&mut self, m: i32) {
-        assert!(self.l >= m.abs() as _);
+        assert!(self.l >= m.unsigned_abs());
         self.m = m;
     }
 }
@@ -180,7 +180,7 @@ impl Lm {
     /// Create a new `Lm`, verifying that the passed values are valid. Returns `None`
     /// if that is not the case.
     pub const fn new(l: u32, m: i32) -> Option<Self> {
-        if l >= m.abs() as u32 {
+        if l >= m.unsigned_abs() {
             Some(Self { l, m })
         } else {
             None
@@ -265,7 +265,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "assertion failed: self.l >= m.abs() as _")]
+    #[should_panic(expected = "assertion failed: self.l >= m.unsigned_abs()")]
     fn test_invalid_m_setter() {
         let mut qn = Qn::new(5, 4, -3).unwrap();
         qn.set_m(-5);
