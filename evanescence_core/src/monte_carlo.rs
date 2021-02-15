@@ -108,7 +108,8 @@ pub trait MonteCarlo: Orbital {
         let max_value = evaluated_points
             .iter()
             .map(|PointValue(_, val)| Self::value_comparator(*val))
-            .fold(0.0, f32::max);
+            .reduce(f32::max)
+            .unwrap();
         (max_value, evaluated_points)
     }
 
