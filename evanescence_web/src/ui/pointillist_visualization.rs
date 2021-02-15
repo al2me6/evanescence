@@ -31,7 +31,7 @@ impl Trace {
                 },
             ),
             Self::RadialNodes => (state.is_real() && state.nodes_rad(), plot::radial_nodes),
-            Self::AngularNodes => (state.is_real() && state.nodes_rad(), plot::angular_nodes),
+            Self::AngularNodes => (state.is_real() && state.nodes_ang(), plot::angular_nodes),
             Self::CrossSectionIndicator => (
                 state.is_real() && state.supplement_is_cross_section(),
                 plot::cross_section_indicator,
