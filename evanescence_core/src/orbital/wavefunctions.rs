@@ -135,6 +135,7 @@ impl RealSphericalHarmonic {
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
     #[allow(clippy::missing_panics_doc)] // `unreachable` is an implementation detail here.
+    #[allow(clippy::trivially_copy_pass_by_ref)] // We use `&Lm` for symmetry with `Evaluate`'s methods.
     pub fn expression(lm: &Lm) -> Option<&'static str> {
         let (l, m) = (lm.l(), lm.m());
         match l {
