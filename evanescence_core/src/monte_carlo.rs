@@ -4,7 +4,7 @@ use nanorand::WyRand;
 use strum::{Display, EnumIter, EnumString};
 
 use crate::geometry::{ComponentForm, Point, PointValue};
-use crate::orbital::{self, Orbital, Qn};
+use crate::orbital::{self, Orbital};
 use crate::rand_f32;
 
 /// A set of predefined qualities (i.e., number of points computed) for sampling orbitals, either
@@ -93,7 +93,7 @@ pub trait MonteCarlo: Orbital {
     /// [`MonteCarlo::value_comparator`] as the metric by which values are compared. In addition
     /// to the maximum value, this function returns the points (and values) sampled for later use.
     fn estimate_maximum_value(
-        qn: &Qn,
+        params: &Self::Parameters,
         num_samples: usize,
         rng: &mut WyRand,
     ) -> (f32, Vec<PointValue<Self::Output>>) {
@@ -101,8 +101,8 @@ pub trait MonteCarlo: Orbital {
         // accurately estimated: They attain their maximum value over a very small area near the
         // origin, which is difficult to hit when sampling randomly.
         let evaluated_points: Vec<_> =
-            Point::sample_from_ball_with_origin_iter(Self::estimate_radius(qn), rng)
-                .map(|pt| Self::evaluate_at(qn, &pt))
+            Point::sample_from_ball_with_origin_iter(Self::estimate_radius(params), rng)
+                .map(|pt| Self::evaluate_at(params, &pt))
                 .take(num_samples)
                 .collect();
         let max_value = evaluated_points
@@ -119,18 +119,21 @@ pub trait MonteCarlo: Orbital {
     /// Note that while slower, higher qualities may be required to ortain sufficiently detailed
     /// results for larger, more intricate orbitals. However, excessive quality for small orbitals
     /// may obstruct details while significantly degrading user experience.
-    fn monte_carlo_simulate(qn: &Qn, quality: Quality) -> ComponentForm<Self::Output> {
+    fn monte_carlo_simulate(
+        params: &Self::Parameters,
+        quality: Quality,
+    ) -> ComponentForm<Self::Output> {
         let num_estimation_samples = (quality as usize * 2).max(Self::MINIMUM_ESTIMATION_SAMPLES);
         let mut point_rng = WyRand::new();
         let mut value_rng = WyRand::new();
         let (max_value, estimation_samples) =
-            Self::estimate_maximum_value(qn, num_estimation_samples, &mut point_rng);
+            Self::estimate_maximum_value(params, num_estimation_samples, &mut point_rng);
         estimation_samples
             .into_iter() // Reuse the points sampled during estimation...
             .chain(
                 // ...before generating new ones.
-                Point::sample_from_ball_iter(Self::estimate_radius(qn), &mut point_rng)
-                    .map(|pt| Self::evaluate_at(qn, &pt)),
+                Point::sample_from_ball_iter(Self::estimate_radius(params), &mut point_rng)
+                    .map(|pt| Self::evaluate_at(params, &pt)),
             )
             .filter(|PointValue(_, val)| {
                 Self::value_comparator(*val) / max_value > rand_f32!(value_rng)

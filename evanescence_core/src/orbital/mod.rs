@@ -35,16 +35,10 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
 }
 
 /// Trait representing a hydrogenic orbital.
-pub trait Orbital: Evaluate<Parameters = Qn> {
-    /// An empirically derived heuristic for estimating the radius of a specific orbital
-    /// (in the sense that the vast majority of probability density is confined within a sphere
-    /// of that radius). See the attached Mathematica notebook `radial_wavefunction.nb`
-    /// for plots.
-    #[inline]
-    fn estimate_radius(qn: &Qn) -> f32 {
-        let n = qn.n() as f32;
-        n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
-    }
+pub trait Orbital: Evaluate {
+    /// Give an estimate for the size of the orbital, in the sense that the vast majority of
+    /// probability density is confined within a sphere of the radius returned.
+    fn estimate_radius(params: &Self::Parameters) -> f32;
 
     /// Compute a plot of the cross section of an orbital along a given `plane`.
     ///
@@ -52,8 +46,12 @@ pub trait Orbital: Evaluate<Parameters = Qn> {
     /// the extent of the orbital, which is automatically estimated.
     ///
     /// For more information, see the documentation on [`GridValues`].
-    fn sample_cross_section(qn: &Qn, plane: Plane, num_points: usize) -> GridValues<Self::Output> {
-        Self::evaluate_on_plane(qn, plane, Self::estimate_radius(qn), num_points)
+    fn sample_cross_section(
+        params: &Self::Parameters,
+        plane: Plane,
+        num_points: usize,
+    ) -> GridValues<Self::Output> {
+        Self::evaluate_on_plane(params, plane, Self::estimate_radius(params), num_points)
     }
 
     /// Give the conventional name of an orbital.
@@ -77,6 +75,14 @@ impl Evaluate for Real {
 }
 
 impl Orbital for Real {
+    /// This is an empirically derived heuristic. See the attached Mathematica notebook\
+    /// `radial_wavefunction.nb` for plots.
+    #[inline]
+    fn estimate_radius(qn: &Qn) -> f32 {
+        let n = qn.n() as f32;
+        n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
+    }
+
     /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
     /// the quantum numbers only (ex. `ψ_{420}`).
     fn name(qn: &Qn) -> String {
@@ -117,6 +123,10 @@ impl Evaluate for Complex {
 }
 
 impl Orbital for Complex {
+    fn estimate_radius(params: &Self::Parameters) -> f32 {
+        Real::estimate_radius(params)
+    }
+
     /// Give the name of the wavefunction (ex. `ψ_{420}`).
     fn name(qn: &Qn) -> String {
         format!("ψ<sub>{}{}{}</sub>", qn.n(), qn.l(), qn.m())
