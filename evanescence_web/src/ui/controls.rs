@@ -95,7 +95,7 @@ impl ControlsImpl {
     fn real_modes_controls(&self) -> Html {
         let handle = &self.handle;
         let state = handle.state();
-        assert!(state.mode().is_real());
+        assert!(state.mode().is_real_or_simple());
 
         html! {
             <>
@@ -137,7 +137,7 @@ impl ControlsImpl {
     fn qn_pickers(&self) -> Html {
         let handle = &self.handle;
         let state = handle.state();
-        assert!(state.mode().is_real() || state.mode().is_complex());
+        assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
 
         let l_options: Vec<_> = Qn::enumerate_l_for_n(state.qn().n()).collect();
         let m_options: Vec<_> = Qn::enumerate_m_for_l(state.qn().l()).collect();

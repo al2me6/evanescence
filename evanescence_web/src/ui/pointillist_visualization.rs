@@ -30,15 +30,15 @@ impl Trace {
                 },
             ),
             Self::RadialNodes => (
-                state.mode().is_real() && state.nodes_rad(),
+                state.mode().is_real_or_simple() && state.nodes_rad(),
                 plot::radial_nodes,
             ),
             Self::AngularNodes => (
-                state.mode().is_real() && state.nodes_ang(),
+                state.mode().is_real_or_simple() && state.nodes_ang(),
                 plot::angular_nodes,
             ),
             Self::CrossSectionIndicator => (
-                (state.mode().is_real() || state.mode().is_hybridized())
+                (state.mode().is_real_or_simple() || state.mode().is_hybridized())
                     && state.supplement().is_cross_section(),
                 plot::cross_section_indicator,
             ),

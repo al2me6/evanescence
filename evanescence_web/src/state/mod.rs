@@ -178,8 +178,12 @@ impl StateInner {
 }
 
 impl Mode {
-    pub(crate) fn is_real(&self) -> bool {
+    pub(crate) fn is_real_or_simple(&self) -> bool {
         matches!(self, Self::RealSimple | Self::Real)
+    }
+
+    pub(crate) fn is_real(&self) -> bool {
+        matches!(self, Self::Real)
     }
 
     pub(crate) fn is_complex(&self) -> bool {
