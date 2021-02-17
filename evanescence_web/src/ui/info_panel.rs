@@ -28,9 +28,6 @@ impl Component for InfoPanelImpl {
 
     fn view(&self) -> Html {
         let state = self.handle.state();
-        let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn());
-        let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn());
-        let subshell_name = orbital::subshell_name(state.qn().l()).unwrap();
 
         fn node_pluralize(n: u32) -> &'static str {
             if n == 1 {
@@ -40,32 +37,56 @@ impl Component for InfoPanelImpl {
             }
         }
 
-        let orbital_name = match state.mode() {
-            Mode::RealSimple | Mode::Real => orbital::Real::name,
-            Mode::Complex => orbital::Complex::name,
+        let description = match state.mode() {
+            Mode::RealSimple | Mode::Real => {
+                let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn());
+                let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn());
+                let subshell_name = orbital::subshell_name(state.qn().l()).unwrap();
+                html! {
+                    <p>
+                    {"Viewing orbital "}
+                    <RawSpan inner_html = orbital::Real::name(state.qn()) />
+                    { format!(
+                        ", which is {} {} orbital with {} radial {} and {} angular {}.",
+                        // English is hard.
+                        if "sfhi".contains(subshell_name) {
+                            "an"
+                        } else {
+                            "a"
+                        },
+                        subshell_name,
+                        num_radial_nodes,
+                        node_pluralize(num_radial_nodes),
+                        num_angular_nodes,
+                        node_pluralize(num_angular_nodes),
+                    ) }
+                    </p>
+                }
+            }
+            Mode::Complex => html! {
+                <p>
+                    {"Viewing orbital "}
+                    <RawSpan inner_html = orbital::Complex::name(state.qn()) />
+                    { "." }
+                </p>
+            },
+            Mode::Hybridized => {
+                html! {
+                    <p>
+                        {"Viewing " }
+                        { state.linear_combination().kind() }
+                        { "-hybridized orbital formed by the linear combination " }
+                        <RawSpan inner_html = state.linear_combination().expression() />
+                        { "." }
+                    </p>
+                }
+            }
         };
 
         html! {
             <div id = "info-panel">
                 <h3>{"Orbital Information"}</h3>
-                <p>
-                    {"Viewing orbital "}
-                    <RawSpan inner_html = orbital_name(state.qn()) />
-                    { if state.is_real() {
-                        format!(
-                            ", which is {} {} orbital with {} radial {} and {} angular {}.",
-                            // English is hard.
-                            if "sfhi".contains(subshell_name) { "an" } else { "a" },
-                            subshell_name,
-                            num_radial_nodes,
-                            node_pluralize(num_radial_nodes),
-                            num_angular_nodes,
-                            node_pluralize(num_angular_nodes),
-                        )
-                    } else {
-                        ".".to_owned()
-                    }}
-                </p>
+                { description }
                 <p>
                 { format!("Visualized using {} points.", state.quality() as usize) }
                 </p>

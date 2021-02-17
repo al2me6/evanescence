@@ -10,7 +10,7 @@ use yewtil::NeqAssign;
 
 use crate::components::{CheckBox, Dropdown, Tooltip};
 use crate::descriptions::DESC;
-use crate::state::{Mode, QnPreset, State, StateHandle, Visualization};
+use crate::state::{HybridizedPreset, Mode, QnPreset, State, StateHandle, Visualization};
 use crate::utils::fire_resize_event;
 use crate::MAX_N;
 
@@ -49,6 +49,12 @@ impl Component for ControlsImpl {
             fire_resize_event();
         }
 
+        let selectors = match state.mode() {
+            Mode::RealSimple | Mode::Real => self.real_modes_controls(),
+            Mode::Complex => self.qn_pickers(),
+            Mode::Hybridized => self.hybridized_picker(),
+        };
+
         html! {
             <div id = "controls">
                 <table>
@@ -60,7 +66,7 @@ impl Component for ControlsImpl {
                         selected = state.mode()
                         /></td>
                     </tr>
-                    { if state.is_real() { self.real_modes_controls() } else { self.qn_pickers() }}
+                    { selectors }
                     <tr>
                         { td_tooltip("Show supplemental visualization:", DESC.supplement) }
                         <td><Dropdown<Visualization>
@@ -97,9 +103,9 @@ impl ControlsImpl {
                     { td_tooltip("Select orbital:", DESC.qn_dropdown) }
                     <td><Dropdown<QnPreset>
                         id = "preset_picker"
-                        onchange = handle.reduce_callback_with(State::set_preset)
+                        onchange = handle.reduce_callback_with(State::set_qn_preset)
                         options = QnPreset::iter().collect::<Vec<_>>()
-                        selected = state.preset()
+                        selected = state.qn_preset()
                     /></td>
                 </tr>
             } }}
@@ -149,6 +155,7 @@ impl ControlsImpl {
                 }
             }
             Mode::Complex => m.to_string(),
+            Mode::Hybridized => unreachable!(),
         };
 
         html! {
@@ -183,6 +190,25 @@ impl ControlsImpl {
                 /></td>
             </tr>
             </>
+        }
+    }
+
+    fn hybridized_picker(&self) -> Html {
+        let handle = &self.handle;
+        let state = handle.state();
+
+        assert!(state.mode() == Mode::Hybridized);
+
+        html! {
+            <tr>
+                { td_tooltip("Select hybridization:", DESC.hybridized_dropdown) }
+                <td><Dropdown<HybridizedPreset>
+                    id = "preset_picker"
+                    onchange = handle.reduce_callback_with(State::set_hybridized_preset)
+                    options = HybridizedPreset::iter().collect::<Vec<_>>()
+                    selected = state.hybridized_preset()
+                /></td>
+            </tr>
         }
     }
 }

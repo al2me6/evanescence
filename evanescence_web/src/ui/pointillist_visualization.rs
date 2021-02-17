@@ -1,4 +1,3 @@
-use evanescence_core::orbital::{self, Orbital};
 use strum::{EnumCount, EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
@@ -26,14 +25,21 @@ impl Trace {
             Self::Pointillist => (
                 true,
                 match mode {
-                    Mode::RealSimple | Mode::Real => plot::real,
+                    Mode::RealSimple | Mode::Real | Mode::Hybridized => plot::real,
                     Mode::Complex => plot::complex,
                 },
             ),
-            Self::RadialNodes => (state.is_real() && state.nodes_rad(), plot::radial_nodes),
-            Self::AngularNodes => (state.is_real() && state.nodes_ang(), plot::angular_nodes),
+            Self::RadialNodes => (
+                state.mode().is_real() && state.nodes_rad(),
+                plot::radial_nodes,
+            ),
+            Self::AngularNodes => (
+                state.mode().is_real() && state.nodes_ang(),
+                plot::angular_nodes,
+            ),
             Self::CrossSectionIndicator => (
-                state.is_real() && state.supplement_is_cross_section(),
+                (state.mode().is_real() || state.mode().is_hybridized())
+                    && state.supplement_is_cross_section(),
                 plot::cross_section_indicator,
             ),
         }
@@ -65,7 +71,7 @@ impl PointillistVisualizationImpl {
         // displayed to improve performance.
         Plotly::relayout(
             Self::ID,
-            LayoutRangeUpdate::new(orbital::Real::estimate_radius(state.qn())).into(),
+            LayoutRangeUpdate::new(state.estimate_radius()).into(),
         );
 
         // And compute new ones.
@@ -124,7 +130,8 @@ impl Component for PointillistVisualizationImpl {
         let old_state = self.handle.state();
         let new_state = handle.state();
 
-        let all = new_state.is_new_orbital(old_state) || new_state.quality() != old_state.quality();
+        let all =
+            new_state.is_new_orbital(old_state) || (new_state.quality() != old_state.quality());
         let nodes_ang = new_state.nodes_ang() != old_state.nodes_ang();
         let nodes_rad = new_state.nodes_rad() != old_state.nodes_rad();
         let cross_section = (old_state.supplement_is_cross_section()

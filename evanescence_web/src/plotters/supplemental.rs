@@ -1,7 +1,7 @@
 use std::convert::TryInto;
 
 use evanescence_core::geometry::Plane;
-use evanescence_core::orbital::{self, Orbital, RadialPlot};
+use evanescence_core::orbital::{self, RadialPlot};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::{
@@ -69,9 +69,7 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x_label, y_label) = plane.axes_names();
 
-    let num_points = state.quality().for_grid();
-    let (x, y, mut value) =
-        orbital::Real::sample_cross_section(state.qn(), plane, num_points).into_components();
+    let (x, y, mut value) = state.sample_cross_section_real(plane).into_components();
 
     let abs_max = abs_max(value.iter().flat_map(|row| row.iter()));
 
