@@ -127,8 +127,9 @@ impl Component for PointillistVisualizationImpl {
         let all = new_state.is_new_orbital(old_state) || new_state.quality() != old_state.quality();
         let nodes_ang = new_state.nodes_ang() != old_state.nodes_ang();
         let nodes_rad = new_state.nodes_rad() != old_state.nodes_rad();
-        let cross_section =
-            new_state.supplement_is_cross_section() != old_state.supplement_is_cross_section();
+        let cross_section = (old_state.supplement_is_cross_section()
+            || new_state.supplement_is_cross_section())
+            && old_state.supplement() != new_state.supplement();
 
         self.handle.neq_assign(handle);
         if all {

@@ -1,5 +1,11 @@
 # Version History
 
+## 0.4.1, 2021-02-17
+
+### Bugfixes
+
+* Fix rendering of angular nodes and cross-section indicators. These were regressions introduced in version 0.4.0.
+
 ## 0.4.0, 2021-02-12
 
 ## Features
