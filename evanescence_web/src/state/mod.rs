@@ -10,7 +10,7 @@ use getset::CopyGetters;
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yew_state::SharedHandle;
 
-pub(crate) use self::presets::{HybridizedPreset, QnPreset};
+pub(crate) use self::presets::{LcPreset, QnPreset};
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display)]
@@ -57,7 +57,7 @@ impl TryFrom<Visualization> for Plane {
             Visualization::CrossSectionXY => Ok(Plane::XY),
             Visualization::CrossSectionYZ => Ok(Plane::YZ),
             Visualization::CrossSectionZX => Ok(Plane::ZX),
-            _ => Err(format!("{:?} does not have an associated plane.", value)),
+            _ => Err(format!("{:?} does not have an associated plane", value)),
         }
     }
 }
@@ -70,7 +70,7 @@ impl TryFrom<Visualization> for RadialPlot {
             Visualization::RadialWavefunction => Ok(RadialPlot::Wavefunction),
             Visualization::RadialProbabilityDensity => Ok(RadialPlot::ProbabilityDensity),
             Visualization::RadialProbabilityDistribution => Ok(RadialPlot::ProbabilityDistribution),
-            _ => Err(format!("{:?} is not a radial plot.", value)),
+            _ => Err(format!("{:?} is not a radial plot", value)),
         }
     }
 }
@@ -96,7 +96,7 @@ struct ComplexState {
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 struct HybridizedState {
-    preset: HybridizedPreset,
+    preset: LcPreset,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, EnumDiscriminants)]
@@ -171,9 +171,8 @@ impl StateInner {
             (Hybridized(_), Mode::Real) => *self = Real(RealState::default()),
             (Hybridized(_), Mode::Complex) => *self = Complex(ComplexState::default()),
             // Same state, do nothing.
-            (state, mode) => {
-                assert!(Mode::from(state as &_) == mode);
-            }
+            (state, mode) if Mode::from(state as &_) == mode => {}
+            _ => unreachable!("all cases should have been covered"),
         }
     }
 }
@@ -207,15 +206,15 @@ impl State {
     }
 
     pub(crate) fn available_supplements(&self) -> Vec<Visualization> {
-        match &self.state {
-            RealSimple(_) | Real(_) => Visualization::iter().collect(),
-            Complex(_) => vec![
+        match &self.mode() {
+            Mode::RealSimple | Mode::Real => Visualization::iter().collect(),
+            Mode::Complex => vec![
                 Visualization::None,
                 Visualization::RadialWavefunction,
                 Visualization::RadialProbabilityDensity,
                 Visualization::RadialProbabilityDistribution,
             ],
-            Hybridized(_) => vec![
+            Mode::Hybridized => vec![
                 Visualization::None,
                 Visualization::CrossSectionXY,
                 Visualization::CrossSectionYZ,
@@ -226,13 +225,13 @@ impl State {
 
     pub(crate) fn is_new_orbital(&self, other: &Self) -> bool {
         match (self.mode(), other.mode()) {
-            (Mode::Hybridized, Mode::Hybridized) => {
-                self.hybridized_preset() != other.hybridized_preset()
-            }
+            (Mode::Hybridized, Mode::Hybridized) => self.lc_preset() != other.lc_preset(),
+            // Both `RealSimple` or both `Real`:
             (m1, m2) if m1 == m2 => self.qn() != other.qn(),
             (Mode::RealSimple, Mode::Real) | (Mode::Real, Mode::RealSimple) => {
                 self.qn() != other.qn()
             }
+            // Different modes:
             _ => true,
         }
     }
@@ -250,37 +249,37 @@ impl State {
             RealSimple(state) => state.preset.into(),
             Real(state) => &state.qn,
             Complex(state) => &state.qn,
-            Hybridized(_) => unreachable!(),
+            Hybridized(_) => panic!("hybridized orbital does not have a `qn`"),
         }
     }
 
     pub(crate) fn qn_mut(&mut self) -> &mut Qn {
         match &mut self.state {
-            RealSimple(_) => unreachable!(),
+            RealSimple(_) => panic!("simple mode does not allow setting of arbitrary `qn`s"),
             Real(state) => &mut state.qn,
             Complex(state) => &mut state.qn,
-            Hybridized(_) => unreachable!(),
+            Hybridized(_) => panic!("hybridized orbital does not have a `qn`"),
         }
     }
 
     pub(crate) fn qn_preset(&self) -> QnPreset {
         match &self.state {
             RealSimple(state) => state.preset,
-            _ => unreachable!(),
+            _ => panic!("{:?} does not have a `qn` preset", self.mode()),
         }
     }
 
-    pub(crate) fn linear_combination(&self) -> &'static LinearCombination {
+    pub(crate) fn lc(&self) -> &'static LinearCombination {
         match &self.state {
             Hybridized(state) => state.preset.into(),
-            _ => unreachable!(),
+            _ => panic!("{:?} does not have an `lc`", self.mode()),
         }
     }
 
-    pub(crate) fn hybridized_preset(&self) -> HybridizedPreset {
+    pub(crate) fn lc_preset(&self) -> LcPreset {
         match &self.state {
             Hybridized(state) => state.preset,
-            _ => unreachable!(),
+            _ => panic!("{:?} does not have an `lc` preset", self.mode()),
         }
     }
 
@@ -324,7 +323,7 @@ impl State {
             RealSimple(state) => {
                 state.preset = preset;
             }
-            _ => unreachable!(),
+            _ => panic!("{:?} does not have a `qn` preset", self.mode()),
         }
     }
 
@@ -332,7 +331,7 @@ impl State {
         match &mut self.state {
             RealSimple(state) => state.nodes_rad = visibility,
             Real(state) => state.nodes_rad = visibility,
-            Complex(_) | Hybridized(_) => unreachable!(),
+            Complex(_) | Hybridized(_) => panic!("nodes cannot be viewed in {:?}", self.mode()),
         }
     }
 
@@ -340,16 +339,16 @@ impl State {
         match &mut self.state {
             RealSimple(state) => state.nodes_ang = visibility,
             Real(state) => state.nodes_ang = visibility,
-            Complex(_) | Hybridized(_) => unreachable!(),
+            Complex(_) | Hybridized(_) => panic!("nodes cannot be viewed in {:?}", self.mode()),
         }
     }
 
-    pub(crate) fn set_hybridized_preset(&mut self, preset: HybridizedPreset) {
+    pub(crate) fn set_lc_preset(&mut self, preset: LcPreset) {
         match &mut self.state {
             Hybridized(state) => {
                 state.preset = preset;
             }
-            _ => unreachable!(),
+            _ => panic!("{:?} does not have an `lc` preset", self.mode()),
         }
     }
 }
@@ -361,7 +360,7 @@ impl State {
             Mode::RealSimple | Mode::Real | Mode::Complex => {
                 orbital::Real::estimate_radius(self.qn())
             }
-            Mode::Hybridized => orbital::Hybridized::estimate_radius(self.linear_combination()),
+            Mode::Hybridized => orbital::Hybridized::estimate_radius(self.lc()),
         }
     }
 
@@ -371,9 +370,9 @@ impl State {
                 orbital::Real::monte_carlo_simulate(self.qn(), self.quality())
             }
             Mode::Hybridized => {
-                orbital::Hybridized::monte_carlo_simulate(self.linear_combination(), self.quality())
+                orbital::Hybridized::monte_carlo_simulate(self.lc(), self.quality())
             }
-            Mode::Complex => unreachable!(),
+            Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }
     }
 
@@ -383,11 +382,11 @@ impl State {
                 orbital::Real::sample_cross_section(self.qn(), plane, self.quality().for_grid())
             }
             Mode::Hybridized => orbital::Hybridized::sample_cross_section(
-                self.linear_combination(),
+                self.lc(),
                 plane,
                 self.quality().for_grid(),
             ),
-            Mode::Complex => unreachable!(),
+            Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }
     }
 }

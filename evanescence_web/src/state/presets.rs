@@ -42,14 +42,14 @@ impl From<QnPreset> for &'static Qn {
 }
 
 impl TryFrom<Qn> for QnPreset {
-    type Error = ();
+    type Error = String;
     fn try_from(qn: Qn) -> Result<Self, Self::Error> {
         for (idx, preset) in QN_PRESETS.iter().enumerate() {
             if preset == &qn {
                 return Ok(Self(idx));
             }
         }
-        Err(())
+        Err(format!("{} is not a valid preset", qn))
     }
 }
 
@@ -67,7 +67,7 @@ impl fmt::Display for QnPreset {
     }
 }
 
-static HYBRIDIZED_PRESETS: Lazy<Vec<LinearCombination>> = Lazy::new(|| {
+static LC_PRESETS: Lazy<Vec<LinearCombination>> = Lazy::new(|| {
     vec![
         lc! {
             kind = "sp",
@@ -136,8 +136,8 @@ static HYBRIDIZED_PRESETS: Lazy<Vec<LinearCombination>> = Lazy::new(|| {
     ]
 });
 
-static HYBRIDIZED_DISP_NAMES: Lazy<Vec<String>> = Lazy::new(|| {
-    let kinds = HYBRIDIZED_PRESETS
+static LC_DISPLAY_NAMES: Lazy<Vec<String>> = Lazy::new(|| {
+    let kinds = LC_PRESETS
         .iter()
         .map(LinearCombination::kind)
         .collect::<Vec<_>>();
@@ -167,28 +167,28 @@ static HYBRIDIZED_DISP_NAMES: Lazy<Vec<String>> = Lazy::new(|| {
 });
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub(crate) struct HybridizedPreset(usize);
+pub(crate) struct LcPreset(usize);
 
-impl HybridizedPreset {
+impl LcPreset {
     pub(crate) fn iter() -> impl Iterator<Item = Self> {
-        (0..HYBRIDIZED_PRESETS.len()).map(Self)
+        (0..LC_PRESETS.len()).map(Self)
     }
 }
 
-impl Default for HybridizedPreset {
+impl Default for LcPreset {
     fn default() -> Self {
         Self(0)
     }
 }
 
-impl From<HybridizedPreset> for &'static LinearCombination {
-    fn from(preset: HybridizedPreset) -> Self {
-        &HYBRIDIZED_PRESETS[preset.0]
+impl From<LcPreset> for &'static LinearCombination {
+    fn from(preset: LcPreset) -> Self {
+        &LC_PRESETS[preset.0]
     }
 }
 
-impl fmt::Display for HybridizedPreset {
+impl fmt::Display for LcPreset {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", HYBRIDIZED_DISP_NAMES[self.0])
+        write!(f, "{}", LC_DISPLAY_NAMES[self.0])
     }
 }
