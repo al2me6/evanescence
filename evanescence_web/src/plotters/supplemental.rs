@@ -16,6 +16,8 @@ use crate::state::State;
 use crate::utils::{abs_max, b16_colors, capitalize_words};
 
 pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
+    assert!(state.mode().is_real() || state.mode().is_complex());
+
     let variant: RadialPlot = state.supplement().try_into().unwrap();
     let function_expr = match variant {
         RadialPlot::Wavefunction => "R(r)",
@@ -65,6 +67,8 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
+    assert!(state.mode().is_real() || state.mode().is_hybridized());
+
     let ui_revision = state.supplement().to_string();
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x_label, y_label) = plane.axes_names();
@@ -145,6 +149,8 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
+    assert!(state.mode().is_real());
+    
     let (x, y, z, value) = orbital::sample_region_for::<orbital::Real>(
         state.qn(),
         state.quality().for_isosurface() * 3 / 2,

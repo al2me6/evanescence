@@ -46,6 +46,8 @@ fn isosurface(
 }
 
 pub(crate) fn real(state: &State) -> JsValue {
+    assert!(state.mode().is_real() || state.mode().is_hybridized());
+
     let simulation = state.monte_carlo_simulate_real();
     let (x, y, z, values) = simulation.into_components();
 
@@ -76,6 +78,8 @@ pub(crate) fn real(state: &State) -> JsValue {
 }
 
 pub(crate) fn complex(state: &State) -> JsValue {
+    assert!(state.mode().is_complex());
+
     let simulation = orbital::Complex::monte_carlo_simulate(state.qn(), state.quality());
     let (x, y, z, values) = simulation.into_components();
 
@@ -108,6 +112,8 @@ pub(crate) fn complex(state: &State) -> JsValue {
 }
 
 pub(crate) fn radial_nodes(state: &State) -> JsValue {
+    assert!(state.mode().is_real());
+
     isosurface(
         orbital::sample_region_for::<wavefunctions::Radial>(
             state.qn(),
@@ -123,6 +129,8 @@ pub(crate) fn radial_nodes(state: &State) -> JsValue {
 }
 
 pub(crate) fn angular_nodes(state: &State) -> JsValue {
+    assert!(state.mode().is_real());
+
     let qn = state.qn();
     isosurface(
         orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
@@ -136,6 +144,8 @@ pub(crate) fn angular_nodes(state: &State) -> JsValue {
 }
 
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
+    assert!(state.mode().is_real());
+
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x, y, z) = plane
         .four_points_as_xy_value(state.estimate_radius())

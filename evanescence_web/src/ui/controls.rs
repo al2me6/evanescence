@@ -95,10 +95,11 @@ impl ControlsImpl {
     fn real_modes_controls(&self) -> Html {
         let handle = &self.handle;
         let state = handle.state();
+        assert!(state.mode().is_real());
 
         html! {
             <>
-            { if state.mode() == Mode::Real { self.qn_pickers() } else { html! {
+            { if state.mode().is_real() { self.qn_pickers() } else { html! {
                 <tr>
                     { td_tooltip("Select orbital:", DESC.qn_dropdown) }
                     <td><Dropdown<QnPreset>
@@ -136,6 +137,7 @@ impl ControlsImpl {
     fn qn_pickers(&self) -> Html {
         let handle = &self.handle;
         let state = handle.state();
+        assert!(state.mode().is_real() || state.mode().is_complex());
 
         let l_options: Vec<_> = Qn::enumerate_l_for_n(state.qn().n()).collect();
         let m_options: Vec<_> = Qn::enumerate_m_for_l(state.qn().l()).collect();
@@ -196,8 +198,7 @@ impl ControlsImpl {
     fn hybridized_picker(&self) -> Html {
         let handle = &self.handle;
         let state = handle.state();
-
-        assert!(state.mode() == Mode::Hybridized);
+        assert!(state.mode().is_hybridized());
 
         html! {
             <tr>
