@@ -4,11 +4,13 @@
 //! and probability density) are available through the [`wavefunctions`] module.
 //!
 //! Types for quantum numbers are available through the [`quantum_numbers`] module.
+pub mod hybridized;
 pub mod quantum_numbers;
 pub mod wavefunctions;
 
 use num_complex::Complex32;
 
+pub use hybridized::{Hybridized, LinearCombination};
 pub use quantum_numbers::Qn;
 
 use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
