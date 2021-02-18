@@ -18,13 +18,20 @@ pub(crate) struct Line<'a> {
     pub(crate) color: Option<&'a str>,
 }
 
+#[skip_serializing_none]
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Marker<'a> {
     pub(crate) color: Vec<f32>,
 
+    #[serde(rename = "cmin")]
+    pub(crate) c_min: Option<f32>,
+
     #[serde(rename = "cmid")]
     pub(crate) c_mid: f32,
+
+    #[serde(rename = "cmax")]
+    pub(crate) c_max: Option<f32>,
 
     #[serde(rename = "colorbar")]
     pub(crate) color_bar: ColorBar<'a>,

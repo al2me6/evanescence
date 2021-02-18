@@ -1,4 +1,5 @@
 use std::convert::TryInto;
+use std::f32::consts::{FRAC_PI_2, PI};
 
 use evanescence_core::{
     geometry::{ComponentForm, Plane},
@@ -10,7 +11,7 @@ use wasm_bindgen::JsValue;
 
 use crate::plotly::{
     color::{color_scales, ColorBar, ColorScale},
-    layout::Anchor,
+    layout::{Anchor, Title},
     scatter_3d::Marker,
     surface::Contours,
 };
@@ -99,9 +100,18 @@ pub(crate) fn complex(state: &State) -> JsValue {
             color: arguments,
             color_scale: color_scales::PHASE,
             show_scale: true,
+            c_min: Some(-PI),
+            c_mid: 0.0,
+            c_max: Some(PI),
             color_bar: ColorBar {
                 x: 0.0,
                 x_anchor: Anchor::Right,
+                tick_vals: Some(&[-PI, -FRAC_PI_2, 0.0, FRAC_PI_2, PI]),
+                tick_text: Some(&["-π", "-π/2", "0", "π/2", "π"]),
+                title: Some(Title {
+                    text: "Phase",
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
             ..Default::default()
