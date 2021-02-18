@@ -10,15 +10,17 @@ pub mod wavefunctions;
 
 use num_complex::Complex32;
 
-pub use hybridized::{Hybridized, LinearCombination};
-pub use quantum_numbers::Qn;
-
-use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
-use crate::numerics::Evaluate;
-use wavefunctions::{
-    Radial, RadialProbabilityDensity, RadialProbabilityDistribution, RealSphericalHarmonic,
+pub use self::hybridized::{Hybridized, LinearCombination};
+pub use self::quantum_numbers::Qn;
+use self::wavefunctions::{
+    Radial,
+    RadialProbabilityDensity,
+    RadialProbabilityDistribution,
+    RealSphericalHarmonic,
     SphericalHarmonic,
 };
+use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
+use crate::numerics::Evaluate;
 
 /// Get the conventional subshell name (s, p, d, f, etc.) for common (i.e., small) values of `l`;
 /// will otherwise return `None`.

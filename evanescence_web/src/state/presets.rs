@@ -43,6 +43,7 @@ impl From<QnPreset> for &'static Qn {
 
 impl TryFrom<Qn> for QnPreset {
     type Error = String;
+
     fn try_from(qn: Qn) -> Result<Self, Self::Error> {
         for (idx, preset) in QN_PRESETS.iter().enumerate() {
             if preset == &qn {

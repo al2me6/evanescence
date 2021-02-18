@@ -27,6 +27,15 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
+    /// The î unit vector.
+    pub const I: Vec3 = Self::new(1.0, 0.0, 0.0);
+    /// The ĵ unit vector.
+    pub const J: Vec3 = Self::new(0.0, 1.0, 0.0);
+    /// The k̂ unit vector.
+    pub const K: Vec3 = Self::new(0.0, 0.0, 1.0);
+    /// The zero vector.
+    pub const ZERO: Vec3 = Self::new(0.0, 0.0, 0.0);
+
     /// Construct a new `Vec3` with value xî + yĵ + zk̂.
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
@@ -53,15 +62,6 @@ impl Vec3 {
     ) -> impl ExactSizeIterator<Item = Self> {
         Self::linspace(-extent..=extent, num_points)
     }
-
-    /// The zero vector.
-    pub const ZERO: Vec3 = Self::new(0.0, 0.0, 0.0);
-    /// The î unit vector.
-    pub const I: Vec3 = Self::new(1.0, 0.0, 0.0);
-    /// The ĵ unit vector.
-    pub const J: Vec3 = Self::new(0.0, 1.0, 0.0);
-    /// The k̂ unit vector.
-    pub const K: Vec3 = Self::new(0.0, 0.0, 1.0);
 }
 
 impl Add for Vec3 {
@@ -176,6 +176,25 @@ impl Display for Point {
 }
 
 impl Point {
+    /// A point representing the origin.
+    pub const ORIGIN: Point = Point {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+        r: 0.0,
+        cos_theta: 1.0,
+        phi: 0.0,
+    };
+    /// The origin, but offset in z by [`f32::EPSILON`] for when division-by-zero needs to be avoided.
+    pub const ORIGIN_EPSILON: Point = Point {
+        x: 0.0,
+        y: 0.0,
+        z: f32::EPSILON,
+        r: f32::EPSILON,
+        cos_theta: 1.0,
+        phi: 0.0,
+    };
+
     /// Construct a new `Point` at Cartesian position (x, y, z).
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         let r = (x * x + y * y + z * z).sqrt();
@@ -209,26 +228,6 @@ impl Point {
             phi,
         }
     }
-
-    /// A point representing the origin.
-    pub const ORIGIN: Point = Point {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-        r: 0.0,
-        cos_theta: 1.0,
-        phi: 0.0,
-    };
-
-    /// The origin, but offset in z by [`f32::EPSILON`] for when division-by-zero needs to be avoided.
-    pub const ORIGIN_EPSILON: Point = Point {
-        x: 0.0,
-        y: 0.0,
-        z: f32::EPSILON,
-        r: f32::EPSILON,
-        cos_theta: 1.0,
-        phi: 0.0,
-    };
 
     /// Produce random points uniformly distributed within a ball of the given radius.
     ///
@@ -426,9 +425,10 @@ impl<T> GridValues<T> {
     /// # use evanescence_core::geometry::{Plane, GridValues};
     /// GridValues::<f32>::new(
     ///     Plane::XY,
-    ///     vec![0.0, 1.0], // There are two columns.
+    ///     vec![0.0, 1.0],      // There are two columns.
     ///     vec![0.0, 1.0, 2.0], // There are three rows.
-    ///     vec![ // This is a column of rows.
+    ///     vec![
+    ///         // This is a column of rows.
     ///         vec![3.1, 4.1], // Each row has two values (corresponding to the two columns).
     ///         vec![1.5, 9.2],
     ///         // The third row is missing!!

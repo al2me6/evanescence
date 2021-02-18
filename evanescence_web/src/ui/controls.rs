@@ -2,7 +2,6 @@ use evanescence_core::monte_carlo::Quality;
 use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::wavefunctions::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
-
 use strum::IntoEnumIterator;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;

@@ -1,6 +1,5 @@
 //! Implementation of hybridized orbitals.
-use std::fmt;
-use std::iter;
+use std::{fmt, iter};
 
 use approx::relative_eq;
 use getset::Getters;
@@ -125,8 +124,8 @@ macro_rules! lc {
 pub struct Hybridized;
 
 impl Evaluate for Hybridized {
-    type Parameters = LinearCombination;
     type Output = f32;
+    type Parameters = LinearCombination;
 
     fn evaluate(combination: &LinearCombination, point: &Point) -> Self::Output {
         combination

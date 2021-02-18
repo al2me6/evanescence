@@ -1,20 +1,16 @@
 use std::convert::TryInto;
 use std::f32::consts::{FRAC_PI_2, PI};
 
-use evanescence_core::{
-    geometry::{ComponentForm, Plane},
-    monte_carlo::MonteCarlo,
-    numerics::normalize,
-    orbital::{self, wavefunctions},
-};
+use evanescence_core::geometry::{ComponentForm, Plane};
+use evanescence_core::monte_carlo::MonteCarlo;
+use evanescence_core::numerics::normalize;
+use evanescence_core::orbital::{self, wavefunctions};
 use wasm_bindgen::JsValue;
 
-use crate::plotly::{
-    color::{color_scales, ColorBar, ColorScale},
-    layout::{Anchor, Title},
-    scatter_3d::Marker,
-    surface::Contours,
-};
+use crate::plotly::color::{color_scales, ColorBar, ColorScale};
+use crate::plotly::layout::{Anchor, Title};
+use crate::plotly::scatter_3d::Marker;
+use crate::plotly::surface::Contours;
 use crate::plotly::{Isosurface, Scatter3D, Surface};
 use crate::state::State;
 use crate::utils::min_max;

@@ -4,14 +4,11 @@ use evanescence_core::geometry::Plane;
 use evanescence_core::orbital::{self, RadialPlot};
 use wasm_bindgen::JsValue;
 
-use crate::plotly::{
-    color::color_scales,
-    isosurface,
-    layout::{Axis, Scene, Title},
-    scatter::Line,
-    surface::{Contour, Contours, Lighting, Project},
-};
-use crate::plotly::{Isosurface, Layout, Scatter, Surface};
+use crate::plotly::color::color_scales;
+use crate::plotly::layout::{Axis, Scene, Title};
+use crate::plotly::scatter::Line;
+use crate::plotly::surface::{Contour, Contours, Lighting, Project};
+use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
 use crate::state::State;
 use crate::utils::{abs_max, b16_colors, capitalize_words};
 
