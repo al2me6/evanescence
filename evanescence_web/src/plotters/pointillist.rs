@@ -103,7 +103,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
                 x: 0.0,
                 x_anchor: Anchor::Right,
                 tick_vals: Some(&[-PI, -FRAC_PI_2, 0.0, FRAC_PI_2, PI]),
-                tick_text: Some(&["-π", "-π/2", "0", "π/2", "π"]),
+                tick_text: Some(&["−π", "−π/2", "0", "π/2", "π"]),
                 title: Some(Title {
                     text: "Phase",
                     ..Default::default()
