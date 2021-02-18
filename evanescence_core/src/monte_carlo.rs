@@ -109,7 +109,7 @@ pub trait MonteCarlo: Orbital {
             .iter()
             .map(|PointValue(_, val)| Self::value_comparator(*val))
             .reduce(f32::max)
-            .unwrap();
+            .expect("there should be at least one sample");
         (max_value, evaluated_points)
     }
 

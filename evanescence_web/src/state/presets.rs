@@ -56,12 +56,13 @@ impl TryFrom<Qn> for QnPreset {
 impl fmt::Display for QnPreset {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let qn: Qn = (*self).into();
-        let subscript = RealSphericalHarmonic::expression(&qn.into()).unwrap();
+        let subscript =
+            RealSphericalHarmonic::expression(&qn.into()).expect("failed to get expression");
         write!(
             f,
             "{principal}{shell} {subscript}",
             principal = qn.n(),
-            shell = orbital::subshell_name(qn.l()).unwrap(),
+            shell = orbital::subshell_name(qn.l()).expect("failed to get subshell name"),
             subscript = subscript
         )
     }
