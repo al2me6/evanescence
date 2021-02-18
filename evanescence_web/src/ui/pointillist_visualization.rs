@@ -1,3 +1,4 @@
+use evanescence_core::orbital::Real as RealOrbital;
 use strum::{EnumCount, EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
@@ -30,11 +31,17 @@ impl Trace {
                 },
             ),
             Self::RadialNodes => (
-                state.mode().is_real_or_simple() && state.nodes_rad(),
+                state.mode().is_real_or_simple()
+                    && state.nodes_rad()
+                    // Note that this depends on the short-circuiting behavior of `&&`!
+                    && RealOrbital::num_radial_nodes(state.qn()) > 0,
                 plot::radial_nodes,
             ),
             Self::AngularNodes => (
-                state.mode().is_real_or_simple() && state.nodes_ang(),
+                state.mode().is_real_or_simple()
+                    && state.nodes_ang()
+                    // Note that this depends on the short-circuiting behavior of `&&`!
+                    && RealOrbital::num_angular_nodes(state.qn()) > 0,
                 plot::angular_nodes,
             ),
             Self::CrossSectionIndicator => (
