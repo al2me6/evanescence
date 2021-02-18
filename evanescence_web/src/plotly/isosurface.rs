@@ -1,8 +1,8 @@
 use derivative::Derivative;
 use serde::Serialize;
 
-use crate::plotly::color::ColorScale;
-use crate::plotly::PlotType;
+use super::color::ColorScale;
+use super::PlotType;
 
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]

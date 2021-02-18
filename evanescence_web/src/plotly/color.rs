@@ -2,7 +2,7 @@ use derivative::Derivative;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
-use crate::plotly::layout::{Anchor, Title};
+use super::layout::{Anchor, Title};
 use crate::utils::b16_colors;
 
 pub(crate) type ColorScale<'a> = &'a [(&'a str, &'a str)];

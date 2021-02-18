@@ -2,8 +2,8 @@ use derivative::Derivative;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
-use crate::plotly::color::{color_scales, ColorBar, ColorScale};
-use crate::plotly::PlotType;
+use super::color::{color_scales, ColorBar, ColorScale};
+use super::PlotType;
 
 #[derive(Serialize)]
 pub(crate) enum Mode {

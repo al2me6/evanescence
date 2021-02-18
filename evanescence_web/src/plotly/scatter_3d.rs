@@ -1,8 +1,8 @@
 use derivative::Derivative;
 use serde::Serialize;
 
-pub(crate) use crate::plotly::scatter::{Marker, Mode};
-use crate::plotly::PlotType;
+pub(crate) use super::scatter::{Marker, Mode};
+use super::PlotType;
 
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
