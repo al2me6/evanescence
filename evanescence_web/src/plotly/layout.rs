@@ -168,10 +168,10 @@ pub(crate) struct Layout<'a> {
     #[serde(rename = "yaxis")]
     pub(crate) y_axis: Option<Axis<'a>>,
 
-    #[derivative(Default(value = "\"rgba(0,0,0,0)\""))]
+    #[derivative(Default(value = "b16_colors::BASE0102"))]
     pub(crate) paper_bgcolor: &'a str,
 
-    #[derivative(Default(value = "\"rgba(0,0,0,0)\""))]
+    #[derivative(Default(value = "b16_colors::BASE0102"))]
     pub(crate) plot_bgcolor: &'a str,
 
     #[serde(rename = "modebar")]

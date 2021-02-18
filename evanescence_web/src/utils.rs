@@ -42,6 +42,7 @@ pub(crate) mod b16_colors {
         "#b294bb", // 0e
         "#a3685a", // 0f
     ];
+    pub(crate) const BASE0102: &str = "#303338";
     pub(crate) const BASE0203: &str = "#676a6c";
     pub(crate) const BASE0304: &str = "#a5a8a5";
 }
