@@ -1,5 +1,12 @@
 # Version History
 
+## 0.4.2, 2021-02-17
+
+## Features
+
+* Basic plotting of hybridized orbitals is now implemented.
+* The color scale is now labeled more clearly in Complex mode.
+
 ## 0.4.1, 2021-02-17
 
 ### Bugfixes

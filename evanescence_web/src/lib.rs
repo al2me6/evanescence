@@ -60,7 +60,7 @@ impl Component for MainImpl {
                 <p>
                     { format!("Evanescence v{}.{}.{}", VER_MAJOR, VER_MINOR, VER_PATCH) }
                     { SEPARATOR }
-                    <a href = format!("{}/blob/master/evanescence_web/changelog.md", REPO) >
+                    <a href = format!("{}/blob/master/changelog.md", REPO) >
                         { "Changelog" }
                     </a>
                     { SEPARATOR }
