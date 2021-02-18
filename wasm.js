@@ -311,26 +311,26 @@ async function init(input) {
         var ret = arg0;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_deleteTraces_950d44fa018dcae6 = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_deleteTraces_e888156c9298c02b = function(arg0, arg1, arg2, arg3) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), v0);
     };
-    imports.wbg.__wbg_relayout_3077aa552f7f9c2e = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_relayout_ab6115b70aa7f43a = function(arg0, arg1, arg2) {
         Plotly.relayout(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
-    imports.wbg.__wbg_deleteTraces_82a6d6218883214e = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_deleteTraces_e38d41314affd4cd = function(arg0, arg1, arg2) {
         Plotly.deleteTraces(getStringFromWasm0(arg0, arg1), arg2);
     };
-    imports.wbg.__wbg_addTraces_89ef054275dc064b = function(arg0, arg1, arg2) {
+    imports.wbg.__wbg_addTraces_4dd35b207d2dd59a = function(arg0, arg1, arg2) {
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), takeObject(arg2));
     };
-    imports.wbg.__wbg_addTraces_007379f6a30ffd98 = function(arg0, arg1, arg2, arg3) {
+    imports.wbg.__wbg_addTraces_9bfe2306e2ae6a7f = function(arg0, arg1, arg2, arg3) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.addTraces(getStringFromWasm0(arg0, arg1), v0);
     };
-    imports.wbg.__wbg_react_bd3a819f0d0c07df = function(arg0, arg1, arg2, arg3, arg4, arg5) {
+    imports.wbg.__wbg_react_a6f2f4ed199c4024 = function(arg0, arg1, arg2, arg3, arg4, arg5) {
         var v0 = getArrayJsValueFromWasm0(arg2, arg3).slice();
         wasm.__wbindgen_free(arg2, arg3 * 4);
         Plotly.react(getStringFromWasm0(arg0, arg1), v0, takeObject(arg4), takeObject(arg5));
@@ -655,8 +655,8 @@ async function init(input) {
         var ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper795 = function(arg0, arg1, arg2) {
-        var ret = makeMutClosure(arg0, arg1, 495, __wbg_adapter_20);
+    imports.wbg.__wbindgen_closure_wrapper848 = function(arg0, arg1, arg2) {
+        var ret = makeMutClosure(arg0, arg1, 528, __wbg_adapter_20);
         return addHeapObject(ret);
     };
 
