@@ -149,7 +149,7 @@ impl From<Vec3> for Point {
 /// Note that we use the physics convention of (r, theta, phi): theta is the inclination
 /// and phi is the azimuth.
 ///
-/// # Safety
+/// # Invariants
 /// The spherical elements must be kept in sync with Cartesian elements. For this reason,
 /// direct (i.e., mutable) access to struct members is not allowed.
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
@@ -315,7 +315,7 @@ pub struct PointValue<T>(pub Point, pub T);
 /// This type cannot be manually constructed and should instead be obtained from a
 /// [`Vec<PointValue<T>>`] via conversion traits.
 ///
-/// # Safety
+/// # Invariants
 /// All four vectors must be the same length.
 #[derive(Debug, PartialEq, Getters)]
 #[getset(get = "pub")]
@@ -353,7 +353,7 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
             zs.push(pt.z());
             vals.push(val);
         });
-        // SAFETY: The four vectors, by nature, have the same length.
+        // INVARIANT: The four vectors, by nature, have the same length.
         ComponentForm { xs, ys, zs, vals }
     }
 }
@@ -400,7 +400,7 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
 ///  |
 ///  ```
 ///
-/// # Safety
+/// # Invariants
 /// `col_coords`, `row_coords`, and `vals` must have matching shapes (see [`Self::new`]).
 #[derive(Getters)]
 #[getset(get = "pub")]
@@ -441,7 +441,7 @@ impl<T> GridValues<T> {
         row_coords: Vec<f32>,
         vals: Vec<Vec<T>>,
     ) -> Self {
-        // SAFETY: Verify that the passed `Vec`s have the correct shape.
+        // INVARIANT: Verify that the passed `Vec`s have the correct shape.
         assert_eq!(row_coords.len(), vals.len());
         vals.iter()
             .for_each(|row| assert_eq!(col_coords.len(), row.len()));

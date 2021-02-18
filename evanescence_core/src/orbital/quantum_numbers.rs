@@ -5,7 +5,7 @@ use getset::CopyGetters;
 
 /// Type representing the quantum numbers `n`, `l`, and `m`.
 ///
-/// # Safety
+/// # Invariants
 /// `Qn` must satisfy that `n > 0`, `n > l` and `l >= |m|`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, CopyGetters)]
 #[getset(get_copy = "pub")]
@@ -128,7 +128,7 @@ impl From<&Qn> for Qn {
 
 /// Type representing the quantum numbers `n` and `l`.
 ///
-/// # Safety
+/// # Invariants
 /// `Nl` must satisfy that `n > 0` and `n > l`.
 #[derive(Clone, Copy, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
@@ -165,7 +165,7 @@ impl From<&Qn> for Nl {
 
 /// Type representing the quantum numbers `l` and `m`.
 ///
-/// # Safety
+/// # Invariants
 /// `Lm` must satisfy that `l >= |m|`.
 #[derive(Clone, Copy, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
