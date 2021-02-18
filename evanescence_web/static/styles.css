@@ -110,6 +110,7 @@ select {
   border-radius: 4px;
   padding: 0.15em 1.5em 0.3em 0.4em;
   text-overflow: ellipsis;
+  transition: all 0.15s;
 }
 
 select:hover {
@@ -142,6 +143,7 @@ select:focus {
   margin: 0.25em;
   flex-grow: 0;
   flex-shrink: 0;
+  transition: background-color 0.15s, box-shadow 0.15s;
 }
 
 .checkbox input:hover {
@@ -219,11 +221,13 @@ select:hover,
 .tooltip {
   position: relative;
   text-decoration: dotted underline;
+  transition: text-decoration 0.15s;
 }
 
 .tooltip .description {
   box-sizing: border-box;
   visibility: hidden;
+  opacity: 0;
   font-size: 0.85rem;
   text-align: center;
   position: absolute;
@@ -238,10 +242,16 @@ select:hover,
   background-color: #676a6c;
   /* base00 */
   box-shadow: 0px 4px 25px 4px #1d1f21;
+  transition: visibility 0.15s, opacity 0.15s 0.5s;
+}
+
+.tooltip:hover {
+  text-decoration: underline;
 }
 
 .tooltip:hover .description:not(:hover) {
   visibility: visible;
+  opacity: 1;
 }
 
 /* UI STYLING */
