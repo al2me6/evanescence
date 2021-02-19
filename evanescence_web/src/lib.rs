@@ -15,6 +15,8 @@ use std::panic;
 
 use pkg_version::{pkg_version_major, pkg_version_minor, pkg_version_patch};
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys::HtmlElement;
 use yew::{html, start_app, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
@@ -34,6 +36,33 @@ pub(crate) const BENCHMARKS_URL: &str = "https://al2me6.github.io/evanescence/de
 
 struct MainImpl {
     handle: StateHandle,
+    resize_handler: Closure<dyn Fn()>,
+}
+
+impl MainImpl {
+    const SIDEBAR_ID: &'static str = "sidebar";
+
+    fn resize_handler() {
+        let sidebar = web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .get_element_by_id(Self::SIDEBAR_ID)
+            .unwrap();
+        let style = sidebar.dyn_ref::<HtmlElement>().unwrap().style();
+
+        // If the offset is not zero, then the flexbox must have wrapped. In this case, we do not
+        // need an additional scrollbar in the sidebar (the whole page already scrolls). However,
+        // on desktop, only the sidebar should scroll.
+        let offset = sidebar.get_bounding_client_rect().y();
+        let (max_height, overflow_y) = if offset > 0.0 {
+            ("unset", "unset")
+        } else {
+            ("100vh", "auto")
+        };
+        style.set_property("max-height", max_height).unwrap();
+        style.set_property("overflow-y", overflow_y).unwrap();
+    }
 }
 
 impl Component for MainImpl {
@@ -41,7 +70,10 @@ impl Component for MainImpl {
     type Properties = StateHandle;
 
     fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
-        Self { handle }
+        Self {
+            handle,
+            resize_handler: Closure::wrap(Box::new(Self::resize_handler)),
+        }
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
@@ -49,7 +81,21 @@ impl Component for MainImpl {
     }
 
     fn change(&mut self, handle: StateHandle) -> ShouldRender {
-        self.handle.neq_assign(handle)
+        self.handle.neq_assign(handle);
+        false
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+            web_sys::window()
+                .unwrap()
+                .add_event_listener_with_callback(
+                    "resize",
+                    self.resize_handler.as_ref().unchecked_ref(),
+                )
+                .unwrap();
+            Self::resize_handler();
+        }
     }
 
     fn view(&self) -> Html {
@@ -76,7 +122,7 @@ impl Component for MainImpl {
             <main>
                 <PointillistVisualization/>
             </main>
-            <aside id = "sidebar">
+            <aside id = Self::SIDEBAR_ID>
                 <h1>{ "Hydrogenic Orbitals" }</h1>
                 <Controls/>
                 <InfoPanel/>

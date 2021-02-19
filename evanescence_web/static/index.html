@@ -24,26 +24,8 @@
     />
 
     <script type="module">
-      function setScrolling() {
-        const sidebar = document.getElementById("sidebar");
-        // If the offset is not zero, then the flexbox must have wrapped. In this case, we do not
-        // need an additional scrollbar in the sidebar (the whole page already scrolls).
-        // However, on desktop, only the sidebar should scroll.
-        const offset = sidebar.getBoundingClientRect().y + window.scrollY;
-        if (offset !== 0) {
-          sidebar.style.setProperty("max-height", "unset");
-          sidebar.style.setProperty("overflow-y", "unset");
-        } else {
-          sidebar.style.setProperty("max-height", "100vh");
-          sidebar.style.setProperty("overflow-y", "auto");
-        }
-      }
       import init from "./wasm.js";
-      (async () => {
-        await init();
-        window.addEventListener("resize", setScrolling);
-        setScrolling();
-      })();
+      init();
     </script>
   </head>
   <body></body>

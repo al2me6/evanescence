@@ -277,7 +277,7 @@ main {
 
 /* Sidebar. */
 
-/* Note that scrolling is managed by JS in `index.html`. */
+/* Note that scrolling is dynamically managed by the UI (see `lib.rs`). */
 aside {
   box-sizing: border-box;
   flex: 1 0 20rem;
