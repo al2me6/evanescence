@@ -218,6 +218,7 @@ select:focus {
   position: relative;
   text-decoration: dotted underline;
   transition: text-decoration var(--transition-time);
+  cursor: help;
 }
 
 .tooltip .description {
@@ -239,10 +240,6 @@ select:focus {
   box-shadow: 0px 4px 25px 4px var(--base-00);
   transition: visibility var(--transition-time),
     opacity var(--transition-time) 0.5s;
-}
-
-.tooltip:hover {
-  text-decoration: underline;
 }
 
 .tooltip:hover .description:not(:hover) {
