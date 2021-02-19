@@ -1,8 +1,22 @@
 # Version History
 
+## 0.4.3, 2021-02-19
+
+### Features
+
+* Plots' background colors are no longer transparent, such that useful screenshots can be exported using the built-in "download plot" function.
+* Nodal surfaces are now only computed when they are known to exist, improving performance when nodal surface display is enabled but there is no actual node to be shown.
+* The user interface now uses transitions.
+* The "help" cursor is now displayed when hovering over text that has a tooltip.
+* Mode selection now uses a tab bar instead of a dropdown menu to improve clarity and discoverability.
+
+### Changes
+
+* Viewport controls are now hidden by default.
+
 ## 0.4.2, 2021-02-17
 
-## Features
+### Features
 
 * Basic plotting of hybridized orbitals is now implemented.
 * The color scale is now labeled more clearly in Complex mode.
@@ -15,7 +29,7 @@
 
 ## 0.4.0, 2021-02-12
 
-## Features
+### Features
 
 * Plotting of complex orbitals is now implemented. Bask in ~~rainbow~~ unicorn vomit glory!
 * The state management logic has been revamped, yet again. This opens the way to the plotting of hybridized and molecular orbitals in the future.

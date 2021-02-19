@@ -1,6 +1,6 @@
 [package]
 name = "evanescence_web"
-version = "0.4.2"
+version = "0.4.3"
 authors = ["al2me6 <alvin.q.meng@gmail.com>"]
 edition = "2018"
 
