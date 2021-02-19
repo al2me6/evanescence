@@ -7,7 +7,7 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::components::{CheckBox, Dropdown, Tooltip};
+use crate::components::{CheckBox, Dropdown, TabBar, Tooltip};
 use crate::descriptions::DESC;
 use crate::state::{LcPreset, Mode, QnPreset, State, StateHandle, Visualization};
 use crate::utils::fire_resize_event;
@@ -56,15 +56,13 @@ impl Component for ControlsImpl {
 
         html! {
             <div id = "controls">
+                <TabBar<Mode>
+                    id = "mode"
+                    onchange = handle.reduce_callback_with(set_mode)
+                    modes = Mode::iter().collect::<Vec<_>>()
+                    selected = state.mode()
+                />
                 <table>
-                    <tr>
-                        { td_tooltip("Select orbital type:", DESC.mode_dropdown) }
-                        <td><Dropdown<Mode>
-                        onchange = handle.reduce_callback_with(set_mode)
-                        options = Mode::iter().collect::<Vec<_>>()
-                        selected = state.mode()
-                        /></td>
-                    </tr>
                     { selectors }
                     <tr>
                         { td_tooltip("Show supplemental visualization:", DESC.supplement) }

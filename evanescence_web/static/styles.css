@@ -169,49 +169,6 @@ select:focus {
   background-position: 50% 60%;
 }
 
-/* Controls component. */
-
-#controls table {
-  width: 100%;
-  border-spacing: 0;
-  max-width: 500px;
-  margin: auto;
-}
-
-#controls tr:first-child td {
-  padding-top: 0;
-}
-
-#controls tr:last-child td {
-  padding-bottom: 0;
-}
-
-#controls td {
-  padding-top: 0.25em;
-  padding-bottom: 0.25em;
-}
-
-#controls td + td {
-  padding-left: 0.5em;
-}
-
-#controls td:first-child {
-  text-align: right;
-}
-
-#controls td:last-child {
-  text-align: left;
-}
-
-#controls select {
-  width: 100%;
-}
-
-#controls input {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
 /* Tooltips. */
 
 .tooltip {
@@ -245,6 +202,52 @@ select:focus {
 .tooltip:hover .description:not(:hover) {
   visibility: visible;
   opacity: 1;
+}
+
+/* Tab bar. */
+
+.tab-bar {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly safe;
+  flex-wrap: wrap;
+  padding: 0.3em;
+  margin-bottom: 0.75em;
+  background-color: var(--base-00);
+  border-radius: calc(1.4 * var(--radius));
+}
+
+.tab-bar input {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  margin: 0;
+  flex: 1 0 auto;
+  font-size: 1em;
+  font-family: inherit;
+  border-radius: var(--radius);
+  transition: all var(--transition-time);
+}
+
+.tab-bar input::after {
+  box-sizing: border-box;
+  display: block;
+  content: attr(label_text_);
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0.1em 0.5em 0.15em 0.5em;
+  width: 100%;
+  text-align: center;
+  color: var(--base-06);
+}
+
+.tab-bar input:hover {
+  background-color: var(--base-02);
+}
+
+.tab-bar input:checked {
+  background-color: var(--base-0203);
 }
 
 /* UI STYLING */
@@ -293,6 +296,49 @@ footer {
 footer p {
   text-align: right;
   font-size: 0.8rem;
+}
+
+/* Controls. */
+
+#controls table {
+  width: 100%;
+  border-spacing: 0;
+  max-width: 500px;
+  margin: auto;
+}
+
+#controls tr:first-child td {
+  padding-top: 0;
+}
+
+#controls tr:last-child td {
+  padding-bottom: 0;
+}
+
+#controls td {
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+}
+
+#controls td + td {
+  padding-left: 0.5em;
+}
+
+#controls td:first-child {
+  text-align: right;
+}
+
+#controls td:last-child {
+  text-align: left;
+}
+
+#controls select {
+  width: 100%;
+}
+
+#controls input {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 /* Supplemental display. */

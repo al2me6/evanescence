@@ -11,12 +11,11 @@ impl<T> DropdownItem for T where T: Copy + PartialEq + Display + 'static {}
 
 pub(crate) struct Dropdown<T: DropdownItem> {
     link: ComponentLink<Self>,
-    props: ControlsProps<T>,
+    props: DropdownProps<T>,
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct ControlsProps<T: DropdownItem> {
-    #[prop_or_default]
+pub(crate) struct DropdownProps<T: DropdownItem> {
     pub(crate) id: String,
     pub(crate) onchange: Callback<T>,
     pub(crate) options: Vec<T>,
@@ -27,7 +26,7 @@ pub(crate) struct ControlsProps<T: DropdownItem> {
 
 impl<T: DropdownItem> Component for Dropdown<T> {
     type Message = String;
-    type Properties = ControlsProps<T>;
+    type Properties = DropdownProps<T>;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self { link, props }
