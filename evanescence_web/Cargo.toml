@@ -11,6 +11,7 @@ crate-type = ["cdylib", "rlib"]
 console_error_panic_hook = "0.1"
 derivative = "2"
 evanescence_core = { path = "../evanescence_core" }
+getrandom = { version = "*", features = ["js"] }
 getset = "0.1"
 itertools = "0.10"
 log = "0.4"
@@ -20,7 +21,7 @@ serde = { version = "1", features = ["derive"] }
 serde-wasm-bindgen = "0.1"
 serde_with = "1"
 strum = "0.20"
-wasm-bindgen = { version = "0.2" }
+wasm-bindgen = "0.2"
 wasm-logger = "0.2"
 web-sys = { version = "0.3", features = [
     "CssStyleDeclaration",
@@ -36,7 +37,7 @@ web-sys = { version = "0.3", features = [
 ] }
 yew = "0.17"
 yewtil = "0.3"
-yew-state = "0.4"
+yew-state = "0.5"
 
 [package.metadata.wasm-pack.profile.profiling]
 wasm-opt = ["-g", "-O3"]
