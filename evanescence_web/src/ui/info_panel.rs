@@ -75,9 +75,9 @@ impl Component for InfoPanelImpl {
                 html! {
                     <p>
                         {"Viewing " }
-                        { state.lc().kind() }
+                        { state.hybrid_kind().kind() }
                         { "-hybridized orbital formed by the linear combination " }
-                        <RawSpan inner_html = state.lc().expression() />
+                        <RawSpan inner_html = state.hybrid_kind().principal().expression() />
                         { "." }
                     </p>
                 }

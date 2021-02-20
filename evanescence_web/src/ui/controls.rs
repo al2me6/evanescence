@@ -9,7 +9,7 @@ use yewtil::NeqAssign;
 
 use crate::components::{CheckBox, Dropdown, TabBar, Tooltip};
 use crate::descriptions::DESC;
-use crate::state::{LcPreset, Mode, QnPreset, State, StateHandle, Visualization};
+use crate::state::{HybridPreset, Mode, QnPreset, State, StateHandle, Visualization};
 use crate::utils::fire_resize_event;
 use crate::MAX_N;
 
@@ -200,11 +200,11 @@ impl ControlsImpl {
         html! {
             <tr>
                 { td_tooltip("Select hybridization:", DESC.hybrid_dropdown) }
-                <td><Dropdown<LcPreset>
+                <td><Dropdown<HybridPreset>
                     id = "preset_picker"
-                    onchange = handle.reduce_callback_with(State::set_lc_preset)
-                    options = LcPreset::iter().collect::<Vec<_>>()
-                    selected = state.lc_preset()
+                    onchange = handle.reduce_callback_with(State::set_hybrid_preset)
+                    options = HybridPreset::iter().collect::<Vec<_>>()
+                    selected = state.hybrid_preset()
                 /></td>
             </tr>
         }

@@ -5,12 +5,12 @@ use std::fmt;
 
 use evanescence_core::geometry::{ComponentForm, GridValues, Plane};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
-use evanescence_core::orbital::{self, LinearCombination, Orbital, Qn, RadialPlot};
+use evanescence_core::orbital::{self, Orbital, Qn, RadialPlot};
 use getset::CopyGetters;
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yew_state::SharedHandle;
 
-pub(crate) use self::presets::{LcPreset, QnPreset};
+pub(crate) use self::presets::{HybridKind, HybridPreset, QnPreset};
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display)]
@@ -96,7 +96,7 @@ struct ComplexState {
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 struct HybridState {
-    preset: LcPreset,
+    preset: HybridPreset,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, EnumDiscriminants)]
@@ -229,7 +229,7 @@ impl State {
 
     pub(crate) fn is_new_orbital(&self, other: &Self) -> bool {
         match (self.mode(), other.mode()) {
-            (Mode::Hybrid, Mode::Hybrid) => self.lc_preset() != other.lc_preset(),
+            (Mode::Hybrid, Mode::Hybrid) => self.hybrid_preset() != other.hybrid_preset(),
             // Both `RealSimple` or both `Real`:
             (m1, m2) if m1 == m2 => self.qn() != other.qn(),
             (Mode::RealSimple, Mode::Real) | (Mode::Real, Mode::RealSimple) => {
@@ -273,20 +273,6 @@ impl State {
         }
     }
 
-    pub(crate) fn lc(&self) -> &'static LinearCombination {
-        match &self.state {
-            Hybrid(state) => state.preset.into(),
-            _ => panic!("{:?} does not have an `lc`", self.mode()),
-        }
-    }
-
-    pub(crate) fn lc_preset(&self) -> LcPreset {
-        match &self.state {
-            Hybrid(state) => state.preset,
-            _ => panic!("{:?} does not have an `lc` preset", self.mode()),
-        }
-    }
-
     pub(crate) fn nodes_rad(&self) -> bool {
         match &self.state {
             RealSimple(state) => state.nodes_rad,
@@ -300,6 +286,20 @@ impl State {
             RealSimple(state) => state.nodes_ang,
             Real(state) => state.nodes_ang,
             Complex(_) | Hybrid(_) => false,
+        }
+    }
+
+    pub(crate) fn hybrid_kind(&self) -> &'static HybridKind {
+        match &self.state {
+            Hybrid(state) => state.preset.into(),
+            _ => panic!("{:?} does not have a `hybrid_kind`", self.mode()),
+        }
+    }
+
+    pub(crate) fn hybrid_preset(&self) -> HybridPreset {
+        match &self.state {
+            Hybrid(state) => state.preset,
+            _ => panic!("{:?} does not have a `hybrid` preset", self.mode()),
         }
     }
 }
@@ -347,12 +347,12 @@ impl State {
         }
     }
 
-    pub(crate) fn set_lc_preset(&mut self, preset: LcPreset) {
+    pub(crate) fn set_hybrid_preset(&mut self, preset: HybridPreset) {
         match &mut self.state {
             Hybrid(state) => {
                 state.preset = preset;
             }
-            _ => panic!("{:?} does not have an `lc` preset", self.mode()),
+            _ => panic!("{:?} does not have a `hybrid` preset", self.mode()),
         }
     }
 }
@@ -364,7 +364,9 @@ impl State {
             Mode::RealSimple | Mode::Real | Mode::Complex => {
                 orbital::Real::estimate_radius(self.qn())
             }
-            Mode::Hybrid => orbital::Hybrid::estimate_radius(self.lc()),
+            Mode::Hybrid => {
+                orbital::hybrid::Hybrid::estimate_radius(self.hybrid_kind().principal())
+            }
         }
     }
 
@@ -373,7 +375,10 @@ impl State {
             Mode::RealSimple | Mode::Real => {
                 orbital::Real::monte_carlo_simulate(self.qn(), self.quality())
             }
-            Mode::Hybrid => orbital::Hybrid::monte_carlo_simulate(self.lc(), self.quality()),
+            Mode::Hybrid => orbital::Hybrid::monte_carlo_simulate(
+                self.hybrid_kind().principal(),
+                self.quality(),
+            ),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }
     }
@@ -383,9 +388,11 @@ impl State {
             Mode::RealSimple | Mode::Real => {
                 orbital::Real::sample_cross_section(self.qn(), plane, self.quality().for_grid())
             }
-            Mode::Hybrid => {
-                orbital::Hybrid::sample_cross_section(self.lc(), plane, self.quality().for_grid())
-            }
+            Mode::Hybrid => orbital::Hybrid::sample_cross_section(
+                self.hybrid_kind().principal(),
+                plane,
+                self.quality().for_grid(),
+            ),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }
     }

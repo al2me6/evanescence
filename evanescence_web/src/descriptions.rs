@@ -32,7 +32,7 @@ pub(crate) const DESC: Descriptions = Descriptions {
     qn_n: "n corresponds to the overall energy level of the orbital.",
     qn_l: "ℓ describes the amount of angular momentum possessed by the electron.",
     qn_m: "m corresponds to how angular momentum is aligned. Orbitals with the same n and ℓ values are \"degenerate\" – they all have the same energy.",
-    hybrid_dropdown: "Select the hybrid orbital to display. There are multiple orbitals with the same kind, each with a different orientation.",
+    hybrid_dropdown: "Select the hybridization to display. There are multiple orbitals of each kind with different orientations.",
     rad_wavefunction: "This is the radial component of the wavefunction. Radial nodes are found where the curve crosses 0.",
     rad_prob_density: "The radial probability density gives the probability of finding the electron at a point of radius r from the nucleus.",
     rad_prob_distr: "The radial probability distribution gives the total probability of finding the electron on a shell of radius r.",
