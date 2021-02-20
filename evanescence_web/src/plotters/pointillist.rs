@@ -3,8 +3,9 @@ use std::f32::consts::{FRAC_PI_2, PI};
 
 use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::MonteCarlo;
-use evanescence_core::numerics::normalize;
+use evanescence_core::numerics::{normalize, Evaluate};
 use evanescence_core::orbital::{self, wavefunctions};
+use orbital::Orbital;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
@@ -121,14 +122,16 @@ pub(crate) fn radial_nodes(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple());
 
     isosurface(
-        orbital::sample_region_for::<wavefunctions::Radial>(
-            state.qn(),
+        wavefunctions::Radial::evaluate_in_region(
+            &state.qn().into(),
+            // Shrink the extent plotted since radial nodes are found in the central part of the
+            // full extent only. This is a heuristic that has been verified to cover all radial
+            // nodes from `n` = 2 through 8.
+            orbital::Real::estimate_radius(state.qn()) as f32
+                * (state.qn().n() as f32 * 0.05 + 0.125),
             state.quality().for_isosurface(),
-            // Shrink the extent plotted since radial nodes are found in the central
-            // part of the full extent only. This is a heuristic that has been verified
-            // to cover all radial nodes from `n` = 2 through 8.
-            Some(state.qn().n() as f32 * 0.05 + 0.125),
-        ),
+        )
+        .into(),
         false,
         color_scales::GREENS,
     )
@@ -139,11 +142,12 @@ pub(crate) fn angular_nodes(state: &State) -> JsValue {
 
     let qn = state.qn();
     isosurface(
-        orbital::sample_region_for::<wavefunctions::RealSphericalHarmonic>(
-            qn,
+        wavefunctions::RealSphericalHarmonic::evaluate_in_region(
+            &qn.into(),
+            orbital::Real::estimate_radius(qn),
             state.quality().for_isosurface(),
-            None,
-        ),
+        )
+        .into(),
         qn.l() >= 4 && qn.m().abs() >= 4,
         color_scales::PURP,
     )

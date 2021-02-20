@@ -1,7 +1,7 @@
 use std::convert::TryInto;
 
 use evanescence_core::geometry::Plane;
-use evanescence_core::orbital::{self, RadialPlot};
+use evanescence_core::orbital::{self, Orbital, RadialPlot};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::color_scales;
@@ -148,12 +148,9 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
 pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     assert!(state.mode().is_real_or_simple());
 
-    let (x, y, z, value) = orbital::sample_region_for::<orbital::Real>(
-        state.qn(),
-        state.quality().for_isosurface() * 3 / 2,
-        None,
-    )
-    .into_components();
+    let (x, y, z, value) =
+        orbital::Real::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
+            .into_components();
 
     // Yet another heuristic for scaling the cutoff value appropriately. As the number of lobes
     // increases, they attain increasingly small values, which require a lower cutoff to achieve

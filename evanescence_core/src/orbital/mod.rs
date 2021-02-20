@@ -58,6 +58,15 @@ pub trait Orbital: Evaluate {
         Self::evaluate_on_plane(params, plane, Self::estimate_radius(params), num_points)
     }
 
+    /// Compute a plot of the orbital in a cube centered at the origin. `num_points` are sampled
+    /// in each dimension, producing an evenly-spaced lattice of values the size of the
+    /// orbital's extent.
+    ///
+    /// For more information, see [`Evaluate::evaluate_in_region`].
+    fn sample_region(params: &Self::Parameters, num_points: usize) -> ComponentForm<Self::Output> {
+        Self::evaluate_in_region(params, Self::estimate_radius(params), num_points).into()
+    }
+
     /// Give the conventional name of an orbital.
     ///
     /// Superscripts are represented using Unicode superscript symbols and subscripts are
@@ -167,32 +176,4 @@ pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f3
     ))
     .into_components();
     (xs, vals)
-}
-
-/// Compute a plot of a function related to an orbital in a cube centered at the origin.
-/// `num_points` are sampled in each dimension, producing an evenly-spaced lattice of values the
-/// size of the orbital's extent.
-///
-/// The optional value `extent_multiplier` is used to scale the extent plotted. Passing `None`
-/// retains the original extent.
-///
-/// This function is intended to be used for plotting [radial](wavefunctions::Radial) and
-/// [angular](wavefunctions::RealSphericalHarmonic) nodes.
-///
-/// For more information, see [`Evaluate::evaluate_in_region`].
-pub fn sample_region_for<'a, E>(
-    qn: &'a Qn,
-    num_points: usize,
-    extent_multiplier: Option<f32>,
-) -> ComponentForm<E::Output>
-where
-    E: Evaluate,
-    <E as Evaluate>::Parameters: From<&'a Qn>,
-{
-    E::evaluate_in_region(
-        &qn.into(),
-        Real::estimate_radius(qn) * extent_multiplier.unwrap_or(1.0),
-        num_points,
-    )
-    .into()
 }
