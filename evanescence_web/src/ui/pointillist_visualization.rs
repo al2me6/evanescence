@@ -17,6 +17,7 @@ enum Trace {
     RadialNodes,
     AngularNodes,
     CrossSectionIndicator,
+    Silhouettes,
 }
 
 enum TraceRenderer {
@@ -51,6 +52,10 @@ impl Trace {
                 (state.mode().is_real_or_simple() || state.mode().is_hybrid())
                     && state.supplement().is_cross_section(),
                 TraceRenderer::Single(plot::cross_section_indicator),
+            ),
+            Self::Silhouettes => (
+                state.mode().is_hybrid() && state.hybrid_show_silhouettes(),
+                TraceRenderer::Multiple(plot::silhouettes),
             ),
         }
     }
@@ -178,6 +183,7 @@ impl Component for PointillistVisualizationImpl {
         let cross_section = (old_state.supplement().is_cross_section()
             || new_state.supplement().is_cross_section())
             && old_state.supplement() != new_state.supplement();
+        let silhouettes = old_state.hybrid_show_silhouettes() != new_state.hybrid_show_silhouettes();
 
         self.handle.neq_assign(handle);
         if all {
@@ -187,6 +193,7 @@ impl Component for PointillistVisualizationImpl {
                 (nodes_rad, Trace::RadialNodes),
                 (nodes_ang, Trace::AngularNodes),
                 (cross_section, Trace::CrossSectionIndicator),
+                (silhouettes, Trace::Silhouettes),
             ]
             .iter()
             .filter(|(should_render, _)| *should_render)

@@ -8,11 +8,12 @@ use evanescence_core::orbital::{self, wavefunctions};
 use orbital::Orbital;
 use wasm_bindgen::JsValue;
 
+use super::isosurface_cutoff_heuristic;
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
 use crate::plotly::layout::{Anchor, Title};
 use crate::plotly::scatter_3d::Marker;
-use crate::plotly::surface::Contours;
-use crate::plotly::{Isosurface, Scatter3D, Surface};
+use crate::plotly::surface::{Contours, Lighting};
+use crate::plotly::{isosurface, Isosurface, Scatter3D, Surface};
 use crate::state::State;
 use crate::utils::min_max;
 
@@ -172,4 +173,49 @@ pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
         ..Default::default()
     }
     .into()
+}
+
+pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
+    assert!(state.mode().is_hybrid());
+
+    state
+        .hybrid_kind()
+        .rotations()
+        .iter()
+        .chain(std::iter::once(state.hybrid_kind().principal()))
+        .map(|orbital| {
+            let (x, y, z, value) =
+                orbital::Hybrid::sample_region(orbital, state.quality().for_isosurface())
+                    .into_components();
+
+            let cutoff = orbital
+                .iter()
+                .map(|(qn, _)| qn)
+                .map(isosurface_cutoff_heuristic)
+                .sum::<f32>()
+                / orbital.count() as f32
+                * 9.0;
+
+            Isosurface {
+                x,
+                y,
+                z,
+                value,
+                iso_min: -cutoff,
+                iso_max: cutoff,
+                surface: isosurface::Surface { count: 2 },
+                color_scale: color_scales::RED_BLUE_REVERSED,
+                c_min: Some(-cutoff * 1.4),
+                c_max: Some(cutoff * 1.4),
+                opacity: if orbital == state.hybrid_kind().principal() {
+                    0.3
+                } else {
+                    0.15
+                },
+                lighting: Some(Lighting::default()),
+                ..Default::default()
+            }
+            .into()
+        })
+        .collect()
 }

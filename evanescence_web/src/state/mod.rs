@@ -97,6 +97,7 @@ struct ComplexState {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 struct HybridState {
     preset: HybridPreset,
+    show_silhouettes: bool,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, EnumDiscriminants)]
@@ -302,6 +303,13 @@ impl State {
             _ => panic!("{:?} does not have a `hybrid` preset", self.mode()),
         }
     }
+
+    pub(crate) fn hybrid_show_silhouettes(&self) -> bool {
+        match &self.state {
+            Hybrid(state) => state.show_silhouettes,
+            _ => false,
+        }
+    }
 }
 
 /// Setters for specific states.
@@ -353,6 +361,13 @@ impl State {
                 state.preset = preset;
             }
             _ => panic!("{:?} does not have a `hybrid` preset", self.mode()),
+        }
+    }
+
+    pub(crate) fn set_hybrid_show_silhouettes(&mut self, show_silhouettes: bool) {
+        match &mut self.state {
+            Hybrid(state) => state.show_silhouettes = show_silhouettes,
+            _ => panic!("symmetry silhouettes do not exist for {:?}", self.mode()),
         }
     }
 }

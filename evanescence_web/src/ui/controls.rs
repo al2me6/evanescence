@@ -198,6 +198,7 @@ impl ControlsImpl {
         assert!(state.mode().is_hybrid());
 
         html! {
+            <>
             <tr>
                 { td_tooltip("Select hybridization:", DESC.hybrid_dropdown) }
                 <td><Dropdown<HybridPreset>
@@ -207,6 +208,17 @@ impl ControlsImpl {
                     selected = state.hybrid_preset()
                 /></td>
             </tr>
+            <tr>
+                <td/>
+                <td><CheckBox
+                    id = "show-symmetry-toggle"
+                    onchange = handle.reduce_callback_with(State::set_hybrid_show_silhouettes)
+                    initial_state = state.hybrid_show_silhouettes()
+                    label = "Show symmetry"
+                    tooltip = DESC.show_symmetry
+                /></td>
+            </tr>
+            </>
         }
     }
 }
