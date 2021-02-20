@@ -1,5 +1,17 @@
 # Version History
 
+## 0.4.4, 2021-02-20
+
+### Features
+
+* The handling of hybrid orbitals has been revamped. It is now possible to show silhouettes of all hybrid orbitals of a certain kind at once to illustrate symmetry.
+* More detailed information is provided about hybrid orbitals.
+* The coloring of isosurfaces has been improved.
+
+### Known Issues
+
+* Sometimes the "Show symmetry" box in hybrid mode becomes mysteriously checked if the option is enabled, a different mode is selected, and hybrid mode is activated again.
+
 ## 0.4.3, 2021-02-19
 
 ### Features
