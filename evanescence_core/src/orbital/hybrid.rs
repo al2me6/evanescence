@@ -46,6 +46,11 @@ impl LinearCombination {
         self.combination.iter()
     }
 
+    /// Get the number of orbitals this linear combination is composed of.
+    pub fn count(&self) -> usize {
+        self.combination.len()
+    }
+
     /// Pretty-print a single orbital and its weight.
     fn format_orbital_weight(weight: f32, qn: &Qn) -> String {
         format!(
