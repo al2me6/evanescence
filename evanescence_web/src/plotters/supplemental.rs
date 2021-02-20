@@ -64,7 +64,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
-    assert!(state.mode().is_real_or_simple() || state.mode().is_hybridized());
+    assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
 
     let ui_revision = state.supplement().to_string();
     let plane: Plane = state.supplement().try_into().unwrap();

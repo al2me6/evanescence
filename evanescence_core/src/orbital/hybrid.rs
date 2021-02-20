@@ -1,4 +1,4 @@
-//! Implementation of hybridized orbitals.
+//! Implementation of hybrid orbitals.
 use std::{fmt, iter};
 
 use approx::relative_eq;
@@ -107,7 +107,7 @@ macro_rules! lc {
         $(($n:literal, $l:literal, $m:literal) => $weight:expr),+
         $(,)?
     ) => {
-        $crate::orbital::hybridized::LinearCombination::new(
+        $crate::orbital::hybrid::LinearCombination::new(
             vec![
                 $((
                     $crate::orbital::Qn::new($n, $l, $m).expect("invalid quantum numbers"),
@@ -120,10 +120,10 @@ macro_rules! lc {
     };
 }
 
-/// Implementation of hybridized orbitals.
-pub struct Hybridized;
+/// Implementation of hybrid orbitals.
+pub struct Hybrid;
 
-impl Evaluate for Hybridized {
+impl Evaluate for Hybrid {
     type Output = f32;
     type Parameters = LinearCombination;
 
@@ -135,7 +135,7 @@ impl Evaluate for Hybridized {
     }
 }
 
-impl Orbital for Hybridized {
+impl Orbital for Hybrid {
     fn estimate_radius(params: &Self::Parameters) -> f32 {
         params
             .iter()

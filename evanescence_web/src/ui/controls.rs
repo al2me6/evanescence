@@ -51,7 +51,7 @@ impl Component for ControlsImpl {
         let selectors = match state.mode() {
             Mode::RealSimple | Mode::Real => self.real_modes_controls(),
             Mode::Complex => self.qn_pickers(),
-            Mode::Hybridized => self.hybridized_picker(),
+            Mode::Hybrid => self.hybrid_picker(),
         };
 
         html! {
@@ -154,7 +154,7 @@ impl ControlsImpl {
                 }
             }
             Mode::Complex => m.to_string(),
-            Mode::Hybridized => unreachable!(),
+            Mode::Hybrid => unreachable!(),
         };
 
         html! {
@@ -192,14 +192,14 @@ impl ControlsImpl {
         }
     }
 
-    fn hybridized_picker(&self) -> Html {
+    fn hybrid_picker(&self) -> Html {
         let handle = &self.handle;
         let state = handle.state();
-        assert!(state.mode().is_hybridized());
+        assert!(state.mode().is_hybrid());
 
         html! {
             <tr>
-                { td_tooltip("Select hybridization:", DESC.hybridized_dropdown) }
+                { td_tooltip("Select hybridization:", DESC.hybrid_dropdown) }
                 <td><Dropdown<LcPreset>
                     id = "preset_picker"
                     onchange = handle.reduce_callback_with(State::set_lc_preset)

@@ -71,7 +71,7 @@ impl Component for InfoPanelImpl {
                     { "." }
                 </p>
             },
-            Mode::Hybridized => {
+            Mode::Hybrid => {
                 html! {
                     <p>
                         {"Viewing " }

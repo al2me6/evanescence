@@ -43,7 +43,7 @@ fn isosurface(
 }
 
 pub(crate) fn real(state: &State) -> JsValue {
-    assert!(state.mode().is_real_or_simple() || state.mode().is_hybridized());
+    assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
 
     let simulation = state.monte_carlo_simulate_real();
     let (x, y, z, values) = simulation.into_components();
@@ -150,7 +150,7 @@ pub(crate) fn angular_nodes(state: &State) -> JsValue {
 }
 
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
-    assert!(state.mode().is_real_or_simple() || state.mode().is_hybridized());
+    assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
 
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x, y, z) = plane

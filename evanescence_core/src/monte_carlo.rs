@@ -159,7 +159,7 @@ impl MonteCarlo for orbital::Complex {
     }
 }
 
-impl MonteCarlo for orbital::Hybridized {
+impl MonteCarlo for orbital::Hybrid {
     #[inline]
     fn value_comparator(value: Self::Output) -> f32 {
         value.abs()

@@ -26,7 +26,7 @@ impl Trace {
             Self::Pointillist => (
                 true,
                 match mode {
-                    Mode::RealSimple | Mode::Real | Mode::Hybridized => plot::real,
+                    Mode::RealSimple | Mode::Real | Mode::Hybrid => plot::real,
                     Mode::Complex => plot::complex,
                 },
             ),
@@ -45,7 +45,7 @@ impl Trace {
                 plot::angular_nodes,
             ),
             Self::CrossSectionIndicator => (
-                (state.mode().is_real_or_simple() || state.mode().is_hybridized())
+                (state.mode().is_real_or_simple() || state.mode().is_hybrid())
                     && state.supplement().is_cross_section(),
                 plot::cross_section_indicator,
             ),
