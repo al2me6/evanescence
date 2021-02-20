@@ -1,4 +1,5 @@
 #![recursion_limit = "1024"]
+#![feature(drain_filter)]
 #[warn(clippy::pedantic)]
 #[allow(
     clippy::default_trait_access // Triggered by yew's proc macros.

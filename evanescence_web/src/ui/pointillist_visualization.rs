@@ -19,35 +19,38 @@ enum Trace {
     CrossSectionIndicator,
 }
 
+enum TraceRenderer {
+    Single(fn(&State) -> JsValue),
+    Multiple(fn(&State) -> Vec<JsValue>),
+}
+
 impl Trace {
-    fn should_render(self, state: &State) -> (bool, fn(&State) -> JsValue) {
+    fn should_render(self, state: &State) -> (bool, TraceRenderer) {
         let mode = state.mode();
         match self {
             Self::Pointillist => (
                 true,
-                match mode {
+                TraceRenderer::Single(match mode {
                     Mode::RealSimple | Mode::Real | Mode::Hybrid => plot::real,
                     Mode::Complex => plot::complex,
-                },
+                }),
             ),
             Self::RadialNodes => (
                 state.mode().is_real_or_simple()
                     && state.nodes_rad()
-                    // Note that this depends on the short-circuiting behavior of `&&`!
                     && RealOrbital::num_radial_nodes(state.qn()) > 0,
-                plot::radial_nodes,
+                TraceRenderer::Single(plot::radial_nodes),
             ),
             Self::AngularNodes => (
                 state.mode().is_real_or_simple()
                     && state.nodes_ang()
-                    // Note that this depends on the short-circuiting behavior of `&&`!
                     && RealOrbital::num_angular_nodes(state.qn()) > 0,
-                plot::angular_nodes,
+                TraceRenderer::Single(plot::angular_nodes),
             ),
             Self::CrossSectionIndicator => (
                 (state.mode().is_real_or_simple() || state.mode().is_hybrid())
                     && state.supplement().is_cross_section(),
-                plot::cross_section_indicator,
+                TraceRenderer::Single(plot::cross_section_indicator),
             ),
         }
     }
@@ -83,37 +86,69 @@ impl PointillistVisualizationImpl {
 
         // And compute new ones.
         let rendered_traces = &mut self.rendered_traces;
-        let mut traces = Vec::with_capacity(Trace::COUNT);
-        for t in Trace::iter() {
-            let (should_render, renderer) = t.should_render(state);
+        let mut traces_to_render = Vec::with_capacity(rendered_traces.capacity());
+        for kind in Trace::iter() {
+            let (should_render, renderer) = kind.should_render(state);
             if should_render {
-                rendered_traces.push(t);
-                traces.push(renderer(state));
+                match renderer {
+                    TraceRenderer::Single(renderer) => {
+                        rendered_traces.push(kind);
+                        traces_to_render.push(renderer(state));
+                    }
+                    TraceRenderer::Multiple(renderer) => {
+                        let traces = renderer(state);
+                        rendered_traces.extend(itertools::repeat_n(kind, traces.len()));
+                        traces_to_render.extend(traces.into_iter());
+                    }
+                }
             }
         }
-        Plotly::add_traces(Self::ID, traces.into_boxed_slice());
+        Plotly::add_traces(Self::ID, traces_to_render.into_boxed_slice());
     }
 
     fn add_or_remove_trace(&mut self, kind: Trace) {
+        // This function should not be touching the pointillist trace, since if that needs to be
+        // changed then all other traces must also change.
+        assert!(kind != Trace::Pointillist);
+
         let state = self.handle.state();
 
-        // Test if a trace of `kind` is already present.
-        if let Some(index) = self.rendered_traces.iter().position(|&t| t == kind) {
-            // If so, we always remove it.
-            Plotly::delete_trace(Self::ID, index as _);
-            self.rendered_traces.remove(index);
+        // Test if traces of this kind are already rendered.
+        if self.rendered_traces.contains(&kind) {
+            // If so, remove all traces of this kind from the plot.
+            Plotly::delete_traces(
+                Self::ID,
+                self.rendered_traces // Get all indices of matching traces.
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(idx, &t)| (t == kind).then(|| idx as f64))
+                    .map(JsValue::from_f64)
+                    .collect::<Vec<_>>()
+                    .into_boxed_slice(),
+            );
+            // And also remove them from the record.
+            let _ = self.rendered_traces.drain_filter(|&mut t| t == kind);
         }
-        // There should be at most one trace of a certain kind. Since we just removed up to one,
-        // there should be none left.
+        // There should be no traces of this kind left.
         assert!(!self.rendered_traces.contains(&kind));
 
-        // Check the current state to see if we should render a new trace.
+        // Check the current state to see if we should render new traces.
         let (should_render, renderer) = kind.should_render(state);
 
-        // If so, compute and render one.
+        // If so, compute and render them.
         if should_render {
-            Plotly::add_trace(Self::ID, renderer(state));
-            self.rendered_traces.push(kind);
+            match renderer {
+                TraceRenderer::Single(renderer) => {
+                    Plotly::add_trace(Self::ID, renderer(state));
+                    self.rendered_traces.push(kind);
+                }
+                TraceRenderer::Multiple(renderer) => {
+                    let traces = renderer(state);
+                    self.rendered_traces
+                        .extend(itertools::repeat_n(kind, traces.len()));
+                    Plotly::add_traces(Self::ID, traces.into_boxed_slice());
+                }
+            }
         }
     }
 }
@@ -166,7 +201,7 @@ impl Component for PointillistVisualizationImpl {
 
         let state = self.handle.state();
 
-        assert!(state.mode() == Mode::RealSimple);
+        assert!(state.mode().is_real_or_simple());
 
         // Manually set the plot range to prevent jumping.
         let axis = Axis::from_range_of(state.qn());
