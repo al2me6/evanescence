@@ -97,6 +97,7 @@ a:visited {
 
 select {
   appearance: none;
+  -webkit-appearance: none;
   font: inherit;
   color: inherit;
   background-color: var(--base-00);
@@ -175,9 +176,9 @@ select:focus {
   box-sizing: border-box;
   width: 100%;
   display: flex;
-  justify-content: space-evenly safe;
+  justify-content: space-evenly;
   flex-wrap: wrap;
-  padding: 0.3em;
+  padding: 0.25em;
   margin-bottom: 0.75em;
   background-color: var(--base-00);
   border-radius: calc(1.4 * var(--radius));
@@ -201,7 +202,7 @@ select:focus {
   content: attr(label_text_);
   font-size: inherit;
   font-family: inherit;
-  padding: 0.1em 0.5em 0.15em 0.5em;
+  padding: 0.1em 0.5em 0.18em 0.5em;
   width: 100%;
   text-align: center;
   color: var(--base-06);
@@ -223,7 +224,9 @@ select:focus {
 
 .tooltip {
   position: relative;
-  text-decoration: dotted underline;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  -webkit-text-decoration-style: dotted;
   transition: text-decoration var(--transition-time);
   cursor: help;
 }
@@ -305,9 +308,7 @@ footer p {
 /* Controls. */
 
 #controls table {
-  width: 100%;
   border-spacing: 0;
-  max-width: 500px;
   margin: auto;
 }
 
