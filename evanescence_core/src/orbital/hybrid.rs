@@ -148,6 +148,7 @@ impl Orbital for Hybrid {
             .map(RealOrbital::estimate_radius)
             .reduce(f32::max)
             .expect("linear combination must contain at least one orbital")
+            * 0.8
     }
 
     fn name(params: &Self::Parameters) -> String {
