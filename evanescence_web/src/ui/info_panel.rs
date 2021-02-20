@@ -72,29 +72,6 @@ impl Component for InfoPanelImpl {
                 </p>
             },
             Mode::Hybrid => {
-                let details = || {
-                    html! {
-                        <>
-                        <p>
-                            { "There are " }
-                            { state.hybrid_kind().count() }
-                            { " " }
-                            { state.hybrid_kind().kind() }
-                            { " orbitals with " }
-                            { state.hybrid_kind().symmetry() }
-                            { " symmetry. The other "}
-                            { state.hybrid_kind().kind() }
-                            { " orbitals (shown as silhouettes) are formed from the following linear combinations:" }
-                        </p>
-                        <ul>
-                            { for state.hybrid_kind().rotations().iter().map(|lc| html! {
-                                <li><RawSpan inner_html = lc.expression() /></li>
-                            })}
-                        </ul>
-                        </>
-                    }
-                };
-
                 html! {
                     <>
                     <p>
@@ -104,7 +81,22 @@ impl Component for InfoPanelImpl {
                         <RawSpan inner_html = state.hybrid_kind().principal().expression() />
                         { "." }
                     </p>
-                    { if state.hybrid_show_silhouettes() { details() } else { html! {} } }
+                    <p>
+                        { "There are " }
+                        { state.hybrid_kind().count() }
+                        { " " }
+                        { state.hybrid_kind().kind() }
+                        { " orbitals with " }
+                        { state.hybrid_kind().symmetry() }
+                        { " symmetry. The other "}
+                        { state.hybrid_kind().kind() }
+                        { " orbitals (which can be drawn by enabling \"Show symmetry\") are formed from the following linear combinations:" }
+                    </p>
+                    <ul>
+                        { for state.hybrid_kind().rotations().iter().map(|lc| html! {
+                            <li><RawSpan inner_html = lc.expression() /></li>
+                        })}
+                    </ul>
                     </>
                 }
             }
