@@ -4,6 +4,7 @@ use evanescence_core::geometry::Plane;
 use evanescence_core::orbital::{self, Orbital, RadialPlot};
 use wasm_bindgen::JsValue;
 
+use super::isosurface_cutoff_heuristic;
 use crate::plotly::color::color_scales;
 use crate::plotly::layout::{Axis, Scene, Title};
 use crate::plotly::scatter::Line;
@@ -152,18 +153,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         orbital::Real::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
             .into_components();
 
-    // Yet another heuristic for scaling the cutoff value appropriately. As the number of lobes
-    // increases, they attain increasingly small values, which require a lower cutoff to achieve
-    // an adequate appearance (i.e., not showing too small of a portion).
-    let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn());
-    let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn());
-    let num_lobes = (num_radial_nodes + 1) * (num_angular_nodes + 1);
-    let damping_factor = if num_radial_nodes == 0 && num_angular_nodes > 2 {
-        0.06
-    } else {
-        0.012
-    };
-    let cutoff = 0.003 / ((num_lobes as f32 - 1.0).powf(2.5) * damping_factor + 1.0);
+    let cutoff = isosurface_cutoff_heuristic(state.qn());
 
     let axis = Axis::from_range_of(state.qn());
     let trace = Isosurface {
