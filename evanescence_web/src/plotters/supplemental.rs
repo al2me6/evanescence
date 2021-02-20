@@ -79,7 +79,11 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     // numerical errors and the values should all be zero.
     const ZERO_THRESHOLD: f32 = 1E-7_f32;
     if abs_max < ZERO_THRESHOLD {
-        value = vec![vec![0.0; value[0].len()]; value.len()]; // Grid of zeroes.
+        // Zero all values.
+        value
+            .iter_mut()
+            .flat_map(|row| row.iter_mut())
+            .for_each(|v| *v = 0.0);
     }
 
     let contour_abs_max = abs_max * 1.05;

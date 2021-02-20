@@ -183,9 +183,11 @@ impl Component for PointillistVisualizationImpl {
         let cross_section = (old_state.supplement().is_cross_section()
             || new_state.supplement().is_cross_section())
             && old_state.supplement() != new_state.supplement();
-        let silhouettes = old_state.hybrid_show_silhouettes() != new_state.hybrid_show_silhouettes();
+        let silhouettes =
+            old_state.hybrid_show_silhouettes() != new_state.hybrid_show_silhouettes();
 
         self.handle.neq_assign(handle);
+
         if all {
             self.rerender_all();
         } else {
@@ -196,9 +198,10 @@ impl Component for PointillistVisualizationImpl {
                 (silhouettes, Trace::Silhouettes),
             ]
             .iter()
-            .filter(|(should_render, _)| *should_render)
-            .for_each(|(_, kind)| self.add_or_remove_trace(*kind));
+            .filter_map(|&(should_render, kind)| should_render.then(|| kind))
+            .for_each(|kind| self.add_or_remove_trace(kind));
         }
+
         false
     }
 
