@@ -105,11 +105,7 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
             },
             ..Default::default()
         }),
-        lighting: Some(Lighting {
-            diffuse: 0.2,
-            specular: 0.05,
-            roughness: 1.0,
-        }),
+        lighting: Some(Lighting::default()),
         ..Default::default()
     };
 
@@ -165,7 +161,10 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         iso_max: cutoff,
         surface: isosurface::Surface { count: 2 },
         color_scale: color_scales::RED_BLUE_REVERSED,
+        c_min: Some(-cutoff * 1.2),
+        c_max: Some(cutoff * 1.2),
         opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
+        lighting: Some(Lighting::default()),
         ..Default::default()
     };
 

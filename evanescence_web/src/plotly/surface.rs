@@ -40,11 +40,20 @@ pub(crate) struct Contours<'a> {
 }
 
 #[derive(Serialize, Derivative)]
-#[derivative(Default)]
 pub(crate) struct Lighting {
     pub(crate) diffuse: f32,
     pub(crate) specular: f32,
     pub(crate) roughness: f32,
+}
+
+impl Default for Lighting {
+    fn default() -> Self {
+        Self {
+            diffuse: 0.2,
+            specular: 0.05,
+            roughness: 1.0,
+        }
+    }
 }
 
 #[skip_serializing_none]

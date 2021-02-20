@@ -1,7 +1,9 @@
 use derivative::Derivative;
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 
 use super::color::ColorScale;
+use super::surface::Lighting;
 use super::PlotType;
 
 #[derive(Serialize, Derivative)]
@@ -25,6 +27,7 @@ pub(crate) struct Surface {
     pub(crate) count: u32,
 }
 
+#[skip_serializing_none]
 #[derive(Serialize, Derivative)]
 #[derivative(Default)]
 pub(crate) struct Isosurface<'a> {
@@ -49,4 +52,9 @@ pub(crate) struct Isosurface<'a> {
     #[serde(rename = "type")]
     #[derivative(Default(value = "PlotType::Isosurface"))]
     pub(crate) plot_type: PlotType,
+    #[serde(rename = "cmin")]
+    pub(crate) c_min: Option<f32>,
+    #[serde(rename = "cmax")]
+    pub(crate) c_max: Option<f32>,
+    pub(crate) lighting: Option<Lighting>,
 }
