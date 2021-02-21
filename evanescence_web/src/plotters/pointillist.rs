@@ -184,9 +184,13 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
         .iter()
         .chain(std::iter::once(state.hybrid_kind().principal()))
         .map(|orbital| {
-            let (x, y, z, value) =
-                orbital::Hybrid::sample_region(orbital, state.quality().for_isosurface())
-                    .into_components();
+            let (x, y, z, value) = ComponentForm::from(orbital::Hybrid::evaluate_in_region(
+                orbital,
+                // Manually shrink the extent sampled for higher quality.
+                orbital::Hybrid::estimate_radius(orbital) * 0.6,
+                state.quality().for_isosurface(),
+            ))
+            .into_components();
 
             let cutoff = orbital
                 .iter()
