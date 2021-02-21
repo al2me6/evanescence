@@ -212,8 +212,8 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "show-symmetry-toggle"
-                    onchange = handle.reduce_callback_with(State::set_hybrid_show_silhouettes)
-                    initial_state = state.hybrid_show_silhouettes()
+                    onchange = handle.reduce_callback_with(State::set_silhouettes)
+                    initial_state = state.silhouettes()
                     label = "Show symmetry"
                     tooltip = DESC.show_symmetry
                 /></td>

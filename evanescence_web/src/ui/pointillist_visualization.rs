@@ -11,59 +11,69 @@ use crate::plotly::{Config, Layout, Plotly};
 use crate::plotters::pointillist as plot;
 use crate::state::{Mode, State, StateHandle};
 
+enum TraceRenderer {
+    Single(fn(&State) -> JsValue),
+    Multiple(fn(&State) -> Vec<JsValue>),
+}
+
+impl TraceRenderer {
+    fn render_to_vec(self, state: &State) -> Vec<JsValue> {
+        match self {
+            TraceRenderer::Single(renderer) => vec![renderer(state)],
+            TraceRenderer::Multiple(renderer) => renderer(state),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, EnumCount)]
 enum Trace {
     Pointillist,
     RadialNodes,
     AngularNodes,
     CrossSectionIndicator,
-    Silhouettes,
-}
-
-enum TraceRenderer {
-    Single(fn(&State) -> JsValue),
-    Multiple(fn(&State) -> Vec<JsValue>),
+    Silhouette,
 }
 
 impl Trace {
-    fn should_render(self, state: &State) -> (bool, TraceRenderer) {
-        let mode = state.mode();
+    fn should_render(self, state: &State) -> bool {
         match self {
-            Self::Pointillist => (
-                true,
-                TraceRenderer::Single(match mode {
-                    Mode::RealSimple | Mode::Real | Mode::Hybrid => plot::real,
-                    Mode::Complex => plot::complex,
-                }),
-            ),
-            Self::RadialNodes => (
+            Self::Pointillist => true,
+            Self::RadialNodes => {
                 state.mode().is_real_or_simple()
                     && state.nodes_rad()
-                    && RealOrbital::num_radial_nodes(state.qn()) > 0,
-                TraceRenderer::Single(plot::radial_nodes),
-            ),
-            Self::AngularNodes => (
+                    && RealOrbital::num_radial_nodes(state.qn()) > 0
+            }
+            Self::AngularNodes => {
                 state.mode().is_real_or_simple()
                     && state.nodes_ang()
-                    && RealOrbital::num_angular_nodes(state.qn()) > 0,
-                TraceRenderer::Single(plot::angular_nodes),
-            ),
-            Self::CrossSectionIndicator => (
+                    && RealOrbital::num_angular_nodes(state.qn()) > 0
+            }
+            Self::CrossSectionIndicator => {
                 (state.mode().is_real_or_simple() || state.mode().is_hybrid())
-                    && state.supplement().is_cross_section(),
-                TraceRenderer::Single(plot::cross_section_indicator),
-            ),
-            Self::Silhouettes => (
-                state.mode().is_hybrid() && state.hybrid_show_silhouettes(),
-                TraceRenderer::Multiple(plot::silhouettes),
-            ),
+                    && state.supplement().is_cross_section()
+            }
+            Self::Silhouette => state.mode().is_hybrid() && state.silhouettes(),
+        }
+    }
+
+    fn renderer(self, state: &State) -> TraceRenderer {
+        use TraceRenderer::*;
+        match self {
+            Self::Pointillist => match state.mode() {
+                Mode::RealSimple | Mode::Real | Mode::Hybrid => Single(plot::real),
+                Mode::Complex => Single(plot::complex),
+            },
+            Self::RadialNodes => Single(plot::radial_nodes),
+            Self::AngularNodes => Single(plot::angular_nodes),
+            Self::CrossSectionIndicator => Single(plot::cross_section_indicator),
+            Self::Silhouette => Multiple(plot::silhouettes),
         }
     }
 }
 
 pub(crate) struct PointillistVisualizationImpl {
     handle: StateHandle,
-    rendered_traces: Vec<Trace>,
+    rendered_kinds: Vec<Trace>,
 }
 
 impl PointillistVisualizationImpl {
@@ -75,12 +85,12 @@ impl PointillistVisualizationImpl {
         // Clear all old traces.
         Plotly::delete_traces(
             Self::ID,
-            (0..self.rendered_traces.len())
+            (0..self.rendered_kinds.len())
                 .map(|i| JsValue::from_f64(i as _))
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
         );
-        self.rendered_traces.clear();
+        self.rendered_kinds.clear();
 
         // Relayout to set new plot range. Note that we relayout when there are no points
         // displayed to improve performance.
@@ -90,28 +100,20 @@ impl PointillistVisualizationImpl {
         );
 
         // And compute new ones.
-        let rendered_traces = &mut self.rendered_traces;
-        let mut traces_to_render = Vec::with_capacity(rendered_traces.capacity());
-        for kind in Trace::iter() {
-            let (should_render, renderer) = kind.should_render(state);
-            if should_render {
-                match renderer {
-                    TraceRenderer::Single(renderer) => {
-                        rendered_traces.push(kind);
-                        traces_to_render.push(renderer(state));
-                    }
-                    TraceRenderer::Multiple(renderer) => {
-                        let traces = renderer(state);
-                        rendered_traces.extend(itertools::repeat_n(kind, traces.len()));
-                        traces_to_render.extend(traces.into_iter());
-                    }
-                }
-            }
-        }
+        let rendered_kinds = &mut self.rendered_kinds;
+        let mut traces_to_render = Vec::with_capacity(rendered_kinds.capacity());
+        Trace::iter()
+            .filter(|kind| kind.should_render(state))
+            .for_each(|kind| {
+                log::debug!("Rerendering {:?}.", kind);
+                let traces = kind.renderer(state).render_to_vec(state);
+                rendered_kinds.extend(itertools::repeat_n(kind, traces.len()));
+                traces_to_render.extend(traces.into_iter());
+            });
         Plotly::add_traces(Self::ID, traces_to_render.into_boxed_slice());
     }
 
-    fn add_or_remove_trace(&mut self, kind: Trace) {
+    fn add_or_remove_kind(&mut self, kind: Trace) {
         // This function should not be touching the pointillist trace, since if that needs to be
         // changed then all other traces must also change.
         assert!(kind != Trace::Pointillist);
@@ -119,11 +121,11 @@ impl PointillistVisualizationImpl {
         let state = self.handle.state();
 
         // Test if traces of this kind are already rendered.
-        if self.rendered_traces.contains(&kind) {
+        if self.rendered_kinds.contains(&kind) {
             // If so, remove all traces of this kind from the plot.
             Plotly::delete_traces(
                 Self::ID,
-                self.rendered_traces // Get all indices of matching traces.
+                self.rendered_kinds // Get all indices of matching traces.
                     .iter()
                     .enumerate()
                     .filter_map(|(idx, &t)| (t == kind).then(|| idx as f64))
@@ -132,28 +134,22 @@ impl PointillistVisualizationImpl {
                     .into_boxed_slice(),
             );
             // And also remove them from the record.
-            let _ = self.rendered_traces.drain_filter(|&mut t| t == kind);
+            let _removed = self.rendered_kinds.drain_filter(|&mut t| t == kind);
+
+            #[cfg(debug_assertions)]
+            _removed.for_each(|kind| log::debug!("Removing {:?}.", kind));
         }
         // There should be no traces of this kind left.
-        assert!(!self.rendered_traces.contains(&kind));
+        assert!(!self.rendered_kinds.contains(&kind));
 
-        // Check the current state to see if we should render new traces.
-        let (should_render, renderer) = kind.should_render(state);
-
-        // If so, compute and render them.
-        if should_render {
-            match renderer {
-                TraceRenderer::Single(renderer) => {
-                    Plotly::add_trace(Self::ID, renderer(state));
-                    self.rendered_traces.push(kind);
-                }
-                TraceRenderer::Multiple(renderer) => {
-                    let traces = renderer(state);
-                    self.rendered_traces
-                        .extend(itertools::repeat_n(kind, traces.len()));
-                    Plotly::add_traces(Self::ID, traces.into_boxed_slice());
-                }
-            }
+        // Check the current state to see if we should render new traces. If so, compute and
+        // render them.
+        if kind.should_render(state) {
+            log::debug!("Adding {:?}.", kind);
+            let traces = kind.renderer(state).render_to_vec(state);
+            self.rendered_kinds
+                .extend(itertools::repeat_n(kind, traces.len()));
+            Plotly::add_traces(Self::ID, traces.into_boxed_slice());
         }
     }
 }
@@ -165,7 +161,7 @@ impl Component for PointillistVisualizationImpl {
     fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
         Self {
             handle,
-            rendered_traces: Vec::new(),
+            rendered_kinds: Vec::new(),
         }
     }
 
@@ -174,32 +170,48 @@ impl Component for PointillistVisualizationImpl {
     }
 
     fn change(&mut self, handle: StateHandle) -> ShouldRender {
-        let old_state = self.handle.state();
-        let new_state = handle.state();
+        #[derive(Clone, Copy)]
+        enum RenderDirective {
+            All,
+            Single(Trace),
+            Skip,
+        }
 
-        let all = new_state.is_new_orbital(old_state) || new_state.quality() != old_state.quality();
-        let nodes_ang = new_state.nodes_ang() != old_state.nodes_ang();
-        let nodes_rad = new_state.nodes_rad() != old_state.nodes_rad();
-        let cross_section = (old_state.supplement().is_cross_section()
-            || new_state.supplement().is_cross_section())
-            && old_state.supplement() != new_state.supplement();
-        let silhouettes =
-            old_state.hybrid_show_silhouettes() != new_state.hybrid_show_silhouettes();
+        let old = self.handle.state();
+        let new = handle.state();
 
-        self.handle.neq_assign(handle);
-
-        if all {
-            self.rerender_all();
+        let directive = if new.is_new_orbital(old) || new.quality() != old.quality() {
+            RenderDirective::All
         } else {
-            [
-                (nodes_rad, Trace::RadialNodes),
-                (nodes_ang, Trace::AngularNodes),
-                (cross_section, Trace::CrossSectionIndicator),
-                (silhouettes, Trace::Silhouettes),
+            let change = [
+                (new.nodes_rad() != old.nodes_rad(), Trace::RadialNodes),
+                (new.nodes_ang() != old.nodes_ang(), Trace::AngularNodes),
+                (
+                    (old.supplement().is_cross_section() || new.supplement().is_cross_section())
+                        && old.supplement() != new.supplement(),
+                    Trace::CrossSectionIndicator,
+                ),
+                (old.silhouettes() != new.silhouettes(), Trace::Silhouette),
             ]
             .iter()
-            .filter_map(|&(should_render, kind)| should_render.then(|| kind))
-            .for_each(|kind| self.add_or_remove_trace(kind));
+            .filter_map(|&(changed, kind)| changed.then(|| kind))
+            .collect::<Vec<_>>();
+
+            assert!(change.len() <= 1, "only one trace can be changed at once");
+
+            change
+                .get(0)
+                .map(|&kind| RenderDirective::Single(kind))
+                .unwrap_or(RenderDirective::Skip)
+        };
+
+        // Note that the rendering operation requires the state to be updated!
+        self.handle.neq_assign(handle);
+
+        match directive {
+            RenderDirective::All => self.rerender_all(),
+            RenderDirective::Single(kind) => self.add_or_remove_kind(kind),
+            RenderDirective::Skip => {}
         }
 
         false
@@ -207,17 +219,18 @@ impl Component for PointillistVisualizationImpl {
 
     fn rendered(&mut self, first_render: bool) {
         assert!(first_render);
-        assert!(self.rendered_traces.is_empty());
+        assert!(self.rendered_kinds.is_empty());
 
         let state = self.handle.state();
 
-        assert!(state.mode().is_real_or_simple());
-
         // Manually set the plot range to prevent jumping.
-        let axis = Axis::from_range_of(state.qn());
+        let axis = Axis::with_extent(state.estimate_radius());
         Plotly::react(
             Self::ID,
-            vec![plot::real(state)].into_boxed_slice(),
+            Trace::Pointillist
+                .renderer(state)
+                .render_to_vec(state)
+                .into_boxed_slice(),
             Layout {
                 drag_mode_str: Some("orbit"),
                 ui_revision: Some("pointillist"),
@@ -239,7 +252,7 @@ impl Component for PointillistVisualizationImpl {
             }
             .into(),
         );
-        self.rendered_traces.push(Trace::Pointillist);
+        self.rendered_kinds.push(Trace::Pointillist);
     }
 
     fn view(&self) -> Html {

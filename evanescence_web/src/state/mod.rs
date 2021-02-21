@@ -304,7 +304,7 @@ impl State {
         }
     }
 
-    pub(crate) fn hybrid_show_silhouettes(&self) -> bool {
+    pub(crate) fn silhouettes(&self) -> bool {
         match &self.state {
             Hybrid(state) => state.show_silhouettes,
             _ => false,
@@ -364,7 +364,7 @@ impl State {
         }
     }
 
-    pub(crate) fn set_hybrid_show_silhouettes(&mut self, show_silhouettes: bool) {
+    pub(crate) fn set_silhouettes(&mut self, show_silhouettes: bool) {
         match &mut self.state {
             Hybrid(state) => state.show_silhouettes = show_silhouettes,
             _ => panic!("symmetry silhouettes do not exist for {:?}", self.mode()),
