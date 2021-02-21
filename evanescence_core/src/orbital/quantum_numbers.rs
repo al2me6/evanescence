@@ -254,7 +254,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "assertion failed: n != 0")]
     fn test_invalid_enumerate() {
-        let _ = Qn::enumerate_up_to_n(0);
+        let _should_panic = Qn::enumerate_up_to_n(0);
     }
 
     #[test]
