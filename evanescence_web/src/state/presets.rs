@@ -27,6 +27,15 @@ impl QnPreset {
     pub(crate) fn iter() -> impl Iterator<Item = Self> {
         (0..QN_PRESETS.len()).map(Self)
     }
+
+    /// Try to convert an arbitrary [`Qn`] to a preset that has similar characteristics, falling
+    /// back to 1s if that fails.
+    pub(crate) fn from_qn_lossy(mut qn: Qn) -> Self {
+        Self::try_from(qn).unwrap_or_else(|_| {
+            qn.set_n_clamping(QN_PRESETS.last().unwrap().n());
+            Self::try_from(qn).unwrap_or_default()
+        })
+    }
 }
 
 impl From<QnPreset> for Qn {

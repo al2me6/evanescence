@@ -1,6 +1,6 @@
 mod presets;
 
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryFrom;
 use std::fmt;
 
 use evanescence_core::geometry::{ComponentForm, GridValues, Plane};
@@ -141,7 +141,7 @@ impl StateInner {
             (Real(state), Mode::RealSimple) => {
                 log::info!("Transition from Real (Full) to Real (Simple) is possibly lossy.");
                 *self = RealSimple(RealSimpleState {
-                    preset: state.qn.try_into().unwrap_or_default(),
+                    preset: QnPreset::from_qn_lossy(state.qn),
                     nodes_rad: state.nodes_rad,
                     nodes_ang: state.nodes_ang,
                 });
@@ -163,7 +163,7 @@ impl StateInner {
             (Complex(state), Mode::RealSimple) => {
                 log::info!("Transition from Complex to Real (Simple) is possibly lossy.");
                 *self = RealSimple(RealSimpleState {
-                    preset: state.qn.try_into().unwrap_or_default(),
+                    preset: QnPreset::from_qn_lossy(state.qn),
                     ..Default::default()
                 });
             }
