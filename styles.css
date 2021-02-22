@@ -307,6 +307,10 @@ footer p {
 
 /* Controls. */
 
+#controls {
+  user-select: none;
+}
+
 #controls table {
   border-spacing: 0;
   margin: auto;
@@ -331,10 +335,12 @@ footer p {
 
 #controls td:first-child {
   text-align: right;
+  width: 50%;
 }
 
-#controls td:last-child {
+#controls td:nth-child(2) {
   text-align: left;
+  width: 50%;
 }
 
 #controls select {
