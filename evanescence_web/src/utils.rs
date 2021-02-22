@@ -21,6 +21,8 @@ where
     values.into_iter().max_by(|a, b| a.partial_cmp(b).unwrap())
 }
 
+/// [Base16 Tomorrow Night](https://github.com/chriskempson/base16-tomorrow-scheme/blob/master/tomorrow-night.yaml)
+/// colors.
 pub(crate) mod b16_colors {
     pub(crate) const BASE: &[&str; 16] = &[
         "#1d1f21", // 00

@@ -34,7 +34,13 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
         x,
         y,
         line: Line {
-            color: Some(b16_colors::BASE[0x0c]),
+            color: Some(
+                b16_colors::BASE[match variant {
+                    RadialPlot::Wavefunction => 0x0c,
+                    RadialPlot::ProbabilityDensity => 0x0a,
+                    RadialPlot::ProbabilityDistribution => 0x0e,
+                }],
+            ),
             ..Default::default()
         },
         ..Default::default()
