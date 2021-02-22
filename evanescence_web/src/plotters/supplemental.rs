@@ -24,7 +24,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     };
     let variant_label = format!(
         "{} [ {} ]",
-        capitalize_words(&state.supplement().to_string()),
+        capitalize_words(state.supplement().to_string()),
         function_expr
     );
 

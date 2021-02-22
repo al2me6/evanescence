@@ -1,6 +1,7 @@
-pub(crate) fn capitalize_words(source: &str) -> String {
+pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
     let mut prev_is_space = true;
     source
+        .as_ref()
         .chars()
         .map(|mut c| {
             if prev_is_space {
