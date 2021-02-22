@@ -16,15 +16,6 @@ enum TraceRenderer {
     Multiple(fn(&State) -> Vec<JsValue>),
 }
 
-impl TraceRenderer {
-    fn render_to_vec(self, state: &State) -> Vec<JsValue> {
-        match self {
-            TraceRenderer::Single(renderer) => vec![renderer(state)],
-            TraceRenderer::Multiple(renderer) => renderer(state),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, EnumCount)]
 enum Trace {
     Pointillist,
@@ -69,6 +60,13 @@ impl Trace {
             Self::Silhouette => Multiple(plot::silhouettes),
         }
     }
+
+    fn render_to_vec(self, state: &State) -> Vec<JsValue> {
+        match self.renderer(state) {
+            TraceRenderer::Single(renderer) => vec![renderer(state)],
+            TraceRenderer::Multiple(renderer) => renderer(state),
+        }
+    }
 }
 
 pub(crate) struct PointillistVisualizationImpl {
@@ -106,7 +104,7 @@ impl PointillistVisualizationImpl {
             .filter(|kind| kind.should_render(state))
             .for_each(|kind| {
                 log::debug!("Rerendering {:?}.", kind);
-                let traces = kind.renderer(state).render_to_vec(state);
+                let traces = kind.render_to_vec(state);
                 rendered_kinds.extend(itertools::repeat_n(kind, traces.len()));
                 traces_to_render.extend(traces.into_iter());
             });
@@ -146,7 +144,7 @@ impl PointillistVisualizationImpl {
         // render them.
         if kind.should_render(state) {
             log::debug!("Adding {:?}.", kind);
-            let traces = kind.renderer(state).render_to_vec(state);
+            let traces = kind.render_to_vec(state);
             self.rendered_kinds
                 .extend(itertools::repeat_n(kind, traces.len()));
             Plotly::add_traces(Self::ID, traces.into_boxed_slice());
@@ -227,10 +225,7 @@ impl Component for PointillistVisualizationImpl {
         let axis = Axis::with_extent(state.estimate_radius());
         Plotly::react(
             Self::ID,
-            Trace::Pointillist
-                .renderer(state)
-                .render_to_vec(state)
-                .into_boxed_slice(),
+            Trace::Pointillist.render_to_vec(state).into_boxed_slice(),
             Layout {
                 drag_mode_str: Some("orbit"),
                 ui_revision: Some("pointillist"),
