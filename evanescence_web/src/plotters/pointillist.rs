@@ -15,7 +15,7 @@ use crate::plotly::scatter_3d::Marker;
 use crate::plotly::surface::{Contours, Lighting};
 use crate::plotly::{isosurface, Isosurface, Scatter3D, Surface};
 use crate::state::State;
-use crate::utils::min_max;
+use crate::utils::partial_max;
 
 fn isosurface(
     simulation: ComponentForm<f32>,
@@ -51,7 +51,7 @@ pub(crate) fn real(state: &State) -> JsValue {
     let (x, y, z, values) = simulation.into_components();
 
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
-    let (min_abs, max_abs) = min_max(values_abs.iter());
+    let max_abs = *partial_max(&values_abs).unwrap();
 
     Scatter3D {
         x,
@@ -60,7 +60,7 @@ pub(crate) fn real(state: &State) -> JsValue {
         marker: Marker {
             size: values_abs
                 .into_iter()
-                .map(|v| normalize(min_abs..=max_abs, 0.2..=5.0, v))
+                .map(|v| normalize(0.0..=max_abs, 0.2..=5.0, v))
                 .collect(),
             color: values,
             show_scale: true,
@@ -84,7 +84,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
 
     let moduli: Vec<_> = values.iter().map(|v| v.norm()).collect();
     let arguments: Vec<_> = values.iter().map(|v| v.arg()).collect();
-    let (_, max_modulus) = min_max(moduli.iter());
+    let max_modulus = *partial_max(&moduli).unwrap();
 
     Scatter3D {
         x,

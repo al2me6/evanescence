@@ -11,7 +11,7 @@ use crate::plotly::scatter::Line;
 use crate::plotly::surface::{Contour, Contours, Lighting, Project};
 use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
 use crate::state::State;
-use crate::utils::{abs_max, b16_colors, capitalize_words};
+use crate::utils::{b16_colors, capitalize_words, partial_max};
 
 pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
@@ -71,34 +71,34 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x_label, y_label) = plane.axes_names();
 
-    let (x, y, mut value) = state.sample_cross_section_real(plane).into_components();
+    let (x, y, mut values) = state.sample_cross_section_real(plane).into_components();
 
-    let abs_max = abs_max(value.iter().flat_map(|row| row.iter()));
+    let max_abs = partial_max(values.iter().flat_map(|row| row.iter()).map(|v| v.abs())).unwrap();
 
     // If all values are within some very small bound, then it's likely that we have encountered
     // numerical errors and the values should all be zero.
     const ZERO_THRESHOLD: f32 = 1E-7_f32;
-    if abs_max < ZERO_THRESHOLD {
+    if max_abs < ZERO_THRESHOLD {
         // Zero all values.
-        value
+        values
             .iter_mut()
             .flat_map(|row| row.iter_mut())
             .for_each(|v| *v = 0.0);
     }
 
-    let contour_abs_max = abs_max * 1.05;
+    let contour_max_abs = max_abs * 1.05;
 
     let trace = Surface {
         x,
         y,
-        z: value,
+        z: values,
         contours: Some(Contours {
             z: Contour {
                 show: Some(true),
-                start: Some(-contour_abs_max),
-                end: Some(contour_abs_max),
+                start: Some(-contour_max_abs),
+                end: Some(contour_max_abs),
                 // For up to 10 contour lines in each polarity, plus one at zero.
-                size: Some(contour_abs_max / 11.0),
+                size: Some(contour_max_abs / 11.0),
                 use_color_map: Some(true),
                 highlight: true,
                 project: Some(Project {

@@ -12,15 +12,12 @@ pub(crate) fn capitalize_words(source: &str) -> String {
         .collect()
 }
 
-pub(crate) fn min_max<'a, I: Iterator<Item = &'a f32>>(values: I) -> (f32, f32) {
-    values.fold((0.0_f32, 0.0_f32), |(curr_min, curr_max), &v| {
-        (curr_min.min(v), curr_max.max(v))
-    })
-}
-
-pub(crate) fn abs_max<'a, I: Iterator<Item = &'a f32>>(values: I) -> f32 {
-    let (min, max) = min_max(values);
-    max.max(min.abs())
+pub(crate) fn partial_max<I>(values: I) -> Option<<I as IntoIterator>::Item>
+where
+    I: IntoIterator,
+    <I as IntoIterator>::Item: PartialOrd,
+{
+    values.into_iter().max_by(|a, b| a.partial_cmp(b).unwrap())
 }
 
 pub(crate) mod b16_colors {
