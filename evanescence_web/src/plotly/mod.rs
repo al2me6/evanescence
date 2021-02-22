@@ -51,7 +51,7 @@ pub(crate) mod Plotly {
         pub(crate) fn add_trace(graph_div: &str, trace: JsValue);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
-        pub(crate) fn add_traces(graph_div: &str, trace: Box<[JsValue]>);
+        pub(crate) fn add_traces(graph_div: &str, traces: Box<[JsValue]>);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
         pub(crate) fn delete_trace(graph_div: &str, index: isize);
@@ -59,7 +59,7 @@ pub(crate) mod Plotly {
         /// Note that we have a `Box<[JsValue]>` and not a `Box<[isize]>`! The latter produces a
         /// `TypedArray` instead of a plain `Array` and causes problems.
         #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
-        pub(crate) fn delete_traces(graph_div: &str, index: Box<[JsValue]>);
+        pub(crate) fn delete_traces(graph_div: &str, indices: Box<[JsValue]>);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = relayout)]
         pub(crate) fn relayout(graph_div: &str, update: JsValue);
