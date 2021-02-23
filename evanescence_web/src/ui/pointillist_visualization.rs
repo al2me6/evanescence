@@ -48,7 +48,7 @@ impl Trace {
     }
 
     fn renderer(self, state: &State) -> TraceRenderer {
-        use TraceRenderer::*;
+        use TraceRenderer::{Multiple, Single};
         match self {
             Self::Pointillist => match state.mode() {
                 Mode::RealSimple | Mode::Real | Mode::Hybrid => Single(plot::real),
@@ -134,6 +134,7 @@ impl PointillistVisualizationImpl {
             // And also remove them from the record.
             let _removed = self.rendered_kinds.drain_filter(|&mut t| t == kind);
 
+            #[allow(clippy::used_underscore_binding)] // This is conditionally used.
             #[cfg(debug_assertions)]
             _removed.for_each(|kind| log::debug!("Removing {:?}.", kind));
         }
@@ -199,8 +200,7 @@ impl Component for PointillistVisualizationImpl {
 
             change
                 .get(0)
-                .map(|&kind| RenderDirective::Single(kind))
-                .unwrap_or(RenderDirective::Skip)
+                .map_or(RenderDirective::Skip, |&kind| RenderDirective::Single(kind))
         };
 
         // Note that the rendering operation requires the state to be updated!

@@ -109,6 +109,7 @@ enum StateInner {
     Hybrid(HybridState),
 }
 
+#[allow(clippy::clippy::enum_glob_use)] // Convenience.
 use StateInner::*;
 
 impl Default for StateInner {
@@ -179,19 +180,19 @@ impl StateInner {
 }
 
 impl Mode {
-    pub(crate) fn is_real_or_simple(&self) -> bool {
+    pub(crate) fn is_real_or_simple(self) -> bool {
         matches!(self, Self::RealSimple | Self::Real)
     }
 
-    pub(crate) fn is_real(&self) -> bool {
+    pub(crate) fn is_real(self) -> bool {
         matches!(self, Self::Real)
     }
 
-    pub(crate) fn is_complex(&self) -> bool {
+    pub(crate) fn is_complex(self) -> bool {
         matches!(self, Self::Complex)
     }
 
-    pub(crate) fn is_hybrid(&self) -> bool {
+    pub(crate) fn is_hybrid(self) -> bool {
         matches!(self, Self::Hybrid)
     }
 }

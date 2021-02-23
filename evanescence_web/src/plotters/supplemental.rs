@@ -71,6 +71,8 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
+    const ZERO_THRESHOLD: f32 = 1E-7_f32;
+
     assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
 
     let ui_revision = state.supplement().to_string();
@@ -83,7 +85,6 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
 
     // If all values are within some very small bound, then it's likely that we have encountered
     // numerical errors and the values should all be zero.
-    const ZERO_THRESHOLD: f32 = 1E-7_f32;
     if max_abs < ZERO_THRESHOLD {
         // Zero all values.
         values

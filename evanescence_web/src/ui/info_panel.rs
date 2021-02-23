@@ -27,8 +27,6 @@ impl Component for InfoPanelImpl {
     }
 
     fn view(&self) -> Html {
-        let state = self.handle.state();
-
         fn node_pluralize(n: u32) -> &'static str {
             if n == 1 {
                 "node"
@@ -36,6 +34,8 @@ impl Component for InfoPanelImpl {
                 "nodes"
             }
         }
+
+        let state = self.handle.state();
 
         let description = match state.mode() {
             Mode::RealSimple | Mode::Real => {

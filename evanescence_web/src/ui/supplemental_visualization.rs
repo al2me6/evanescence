@@ -24,7 +24,7 @@ impl SupplementalVisualizationImpl {
     fn rerender(&mut self) {
         let state = self.handle.state();
 
-        for element in [&self.title_ref, &self.desc_ref, &self.plot_ref].iter() {
+        for element in &[&self.title_ref, &self.desc_ref, &self.plot_ref] {
             let style = element.cast::<HtmlElement>().unwrap().style();
             let display = match state.supplement() {
                 Visualization::None => "none",

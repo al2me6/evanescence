@@ -43,10 +43,10 @@ impl Component for ControlsImpl {
         let handle = &self.handle;
         let state = handle.state();
 
-        fn set_mode(state: &mut State, mode: Mode) {
+        let set_mode = |state: &mut State, mode| {
             state.set_mode(mode);
             fire_resize_event();
-        }
+        };
 
         let selectors = match state.mode() {
             Mode::RealSimple | Mode::Real => self.real_modes_controls(),

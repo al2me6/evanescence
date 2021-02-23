@@ -8,9 +8,9 @@ use evanescence_core::orbital::{self, LinearCombination, Qn};
 use getset::Getters;
 use once_cell::sync::Lazy;
 
-const FRAC_1_SQRT_3: f32 = 0.5773503;
-const FRAC_1_SQRT_6: f32 = 0.4082483;
-const SQRT_3: f32 = 1.7320508;
+const FRAC_1_SQRT_3: f32 = 0.577_350_3;
+const FRAC_1_SQRT_6: f32 = 0.408_248_3;
+const SQRT_3: f32 = 1.732_050_8;
 
 static QN_PRESETS: Lazy<Vec<Qn>> = Lazy::new(|| Qn::enumerate_up_to_n(3).collect());
 
