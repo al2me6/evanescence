@@ -27,10 +27,9 @@ fn isosurface(
         // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
         // numerical instability/artifacting by amplifying any deviations from zero. However,
         // this also results in crinkly-looking surfaces.
-        value = value
-            .into_iter()
-            .map(|v| v.signum() * v.abs().sqrt())
-            .collect();
+        value
+            .iter_mut()
+            .for_each(|v| *v = v.signum() * v.abs().sqrt());
     }
     Isosurface {
         x,
@@ -198,7 +197,7 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
                 .map(isosurface_cutoff_heuristic)
                 .sum::<f32>()
                 / orbital.count() as f32
-                * 9.0;
+                * 6.0;
 
             Isosurface {
                 x,
