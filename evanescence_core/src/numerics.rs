@@ -219,7 +219,7 @@ pub trait Evaluate {
 }
 
 /// Verify that two iterables containing float values are approximately equal.
-#[macro_export]
+#[cfg(test)]
 macro_rules! assert_iterable_relative_eq {
     ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)*) => {{
         assert_eq!($lhs.len(), $rhs.len());
@@ -247,7 +247,6 @@ macro_rules! assert_iterable_relative_eq {
 mod tests {
     use super::orthogonal_polynomials::{associated_laguerre, associated_legendre};
     use super::Multifactorial;
-    use crate::assert_iterable_relative_eq;
 
     macro_rules! test {
         ($fn_name:ident, $target_fn:ident, $target_params:expr, $expected:expr) => {

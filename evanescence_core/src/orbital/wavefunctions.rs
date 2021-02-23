@@ -191,7 +191,6 @@ mod tests {
     use lazy_static::lazy_static;
 
     use super::{Radial, RealSphericalHarmonic};
-    use crate::assert_iterable_relative_eq;
     use crate::geometry::Point;
     use crate::numerics::Evaluate;
     use crate::orbital::quantum_numbers::{Lm, Nl};

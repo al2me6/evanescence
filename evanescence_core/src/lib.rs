@@ -37,9 +37,11 @@
     clippy::unreadable_literal, // We have many machine-generated values that are not worth fixing.
 )]
 
+#[macro_use]
+pub mod numerics;
+
 pub mod geometry;
 pub mod monte_carlo;
-pub mod numerics;
 pub mod orbital;
 
 pub(crate) mod utils {
