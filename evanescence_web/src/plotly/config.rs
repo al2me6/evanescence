@@ -1,4 +1,3 @@
-use derivative::Derivative;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -19,15 +18,11 @@ pub(crate) enum ModeBarButtons {
     ZoomOut2d,
 }
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct Config<'a> {
-    #[serde(rename = "displaylogo")]
-    pub(crate) display_logo: bool,
+def_plotly_ty! {
+    #[serde(rename_all = "camelCase")]
+    Config<'a>
 
-    pub(crate) mode_bar_buttons_to_remove: &'a [ModeBarButtons],
-
-    #[derivative(Default(value = "true"))]
-    pub(crate) responsive: bool,
+    display_logo as "displaylogo": bool,
+    mode_bar_buttons_to_remove: &'a [ModeBarButtons],
+    responsive: bool = true,
 }

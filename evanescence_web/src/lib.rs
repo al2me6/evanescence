@@ -8,6 +8,7 @@
     clippy::needless_pass_by_value, // Triggered by wasm-bindgen macro.
     clippy::non_ascii_literal, // Unicode support is expected.
 )]
+
 pub(crate) mod components;
 pub(crate) mod descriptions;
 pub(crate) mod plotly;

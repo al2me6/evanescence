@@ -1,60 +1,44 @@
-use derivative::Derivative;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
-
 use super::color::ColorScale;
 use super::surface::Lighting;
 use super::PlotType;
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct CapsConfig {
+def_plotly_ty! {
+    CapsConfig
+
     show: bool,
 }
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Caps {
+def_plotly_ty! {
+    Caps
+
     x: CapsConfig,
     y: CapsConfig,
     z: CapsConfig,
 }
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Surface {
-    #[derivative(Default(value = "1"))]
-    pub(crate) count: u32,
+def_plotly_ty! {
+    Surface
+
+    count: u32 = 1,
 }
 
-#[skip_serializing_none]
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Isosurface<'a> {
-    pub(crate) x: Vec<f32>,
-    pub(crate) y: Vec<f32>,
-    pub(crate) z: Vec<f32>,
-    pub(crate) value: Vec<f32>,
-    pub(crate) surface: Surface,
-    #[serde(rename = "isomin")]
-    pub(crate) iso_min: f32,
-    #[serde(rename = "isomax")]
-    pub(crate) iso_max: f32,
-    #[serde(rename = "flatshading")]
-    pub(crate) flat_shading: bool,
-    #[serde(rename = "colorscale")]
-    pub(crate) color_scale: ColorScale<'a>,
-    #[derivative(Default(value = "1.0"))]
-    pub(crate) opacity: f32,
-    #[serde(rename = "showscale")]
-    pub(crate) show_scale: bool,
-    pub(crate) caps: Caps,
-    #[serde(rename = "type")]
-    #[derivative(Default(value = "PlotType::Isosurface"))]
-    pub(crate) plot_type: PlotType,
-    #[serde(rename = "cmin")]
-    pub(crate) c_min: Option<f32>,
-    #[serde(rename = "cmax")]
-    pub(crate) c_max: Option<f32>,
-    pub(crate) lighting: Option<Lighting>,
+def_plotly_ty! {
+    Isosurface<'a>
+
+    x: Vec<f32>,
+    y: Vec<f32>,
+    z: Vec<f32>,
+    value: Vec<f32>,
+    surface: Surface,
+    iso_min as "isomin": f32,
+    iso_max as "isomax": f32,
+    flat_shading as "flatshading": bool,
+    color_scale as "colorscale": ColorScale<'a>,
+    opacity: f32 = 1.0,
+    show_scale as "showscale": bool,
+    caps: Caps,
+    plot_type as "type": PlotType = PlotType::Isosurface,
+    #optional c_min as "cmin": f32,
+    #optional c_max as "cmax": f32,
+    lighting: Lighting,
 }

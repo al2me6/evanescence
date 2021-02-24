@@ -12,7 +12,7 @@ use super::isosurface_cutoff_heuristic;
 use crate::plotly::color::{color_scales, ColorBar, ColorScale};
 use crate::plotly::layout::{Anchor, Title};
 use crate::plotly::scatter_3d::Marker;
-use crate::plotly::surface::{Contours, Lighting};
+use crate::plotly::surface::Contours;
 use crate::plotly::{isosurface, Isosurface, Scatter3D, Surface};
 use crate::state::State;
 use crate::utils::partial_max;
@@ -215,7 +215,6 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
                 } else {
                     0.15
                 },
-                lighting: Some(Lighting::default()),
                 ..Default::default()
             }
             .into()

@@ -1,6 +1,4 @@
-use derivative::Derivative;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 use crate::utils::b16_colors;
 
@@ -11,78 +9,46 @@ pub(crate) enum Anchor {
     Right,
 }
 
-#[skip_serializing_none]
-#[derive(Clone, Copy, Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Title<'a> {
-    pub(crate) text: &'a str,
-    pub(crate) standoff: Option<usize>,
+def_plotly_ty! {
+    #[derive(Clone, Copy)]
+    Title<'a>
+
+    text: &'a str,
+    #optional standoff: usize,
 }
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Font<'a> {
-    #[derivative(Default(value = "\"Lato, sans-serif\""))]
-    pub(crate) family: &'a str,
-    #[derivative(Default(value = "13"))]
-    pub(crate) size: usize,
-    #[derivative(Default(value = "b16_colors::BASE[0x05]"))]
-    pub(crate) color: &'a str,
+def_plotly_ty! {
+    Font<'a>
+
+    family: &'a str = "Lato, sans-serif",
+    size: usize = 13,
+    color: &'a str = b16_colors::BASE[0x05],
 }
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Margin {
-    #[serde(rename = "t")]
-    pub(crate) top: u32,
-    #[serde(rename = "r")]
-    pub(crate) right: u32,
-    #[serde(rename = "b")]
-    pub(crate) bottom: u32,
-    #[serde(rename = "l")]
-    pub(crate) left: u32,
+def_plotly_ty! {
+    Margin
+
+    top    as "t": u32,
+    right  as "r": u32,
+    bottom as "b": u32,
+    left   as "l": u32,
 }
 
-#[skip_serializing_none]
-#[derive(Clone, Copy, Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Axis<'a> {
-    pub(crate) title: Option<Title<'a>>,
+def_plotly_ty! {
+    #[derive(Clone, Copy)]
+    Axis<'a>
 
-    // Default = "".
-    pub(crate) ticks: &'a str,
-
-    #[serde(rename = "nticks")]
-    pub(crate) n_ticks: Option<u32>,
-
-    #[serde(rename = "tickcolor")]
-    #[derivative(Default(value = "b16_colors::BASE0203"))]
-    pub(crate) tick_color: &'a str,
-
-    #[serde(rename = "exponentformat")]
-    #[derivative(Default(value = "\"power\""))]
-    pub(crate) exponent_format: &'a str,
-
-    #[serde(rename = "gridcolor")]
-    #[derivative(Default(value = "b16_colors::BASE0203"))]
-    pub(crate) grid_color: &'a str,
-
-    #[serde(rename = "zeroline")]
-    #[derivative(Default(value = "true"))]
-    pub(crate) zero_line: bool,
-
-    #[serde(rename = "zerolinecolor")]
-    #[derivative(Default(value = "b16_colors::BASE[0x06]"))]
-    pub(crate) zero_line_color: &'a str,
-
-    #[serde(rename = "showspikes")]
-    pub(crate) show_spikes: bool,
-
-    #[serde(rename = "automargin")]
-    #[derivative(Default(value = "true"))]
-    pub(crate) auto_margin: bool,
-
-    pub(crate) range: Option<(f32, f32)>,
+    #optional title: Title<'a>,
+    ticks: &'a str,
+    #optional n_ticks as "nticks": u32,
+    tick_color as "tickcolor": &'a str = b16_colors::BASE0203,
+    exponent_format as "exponentformat": &'a str = "power",
+    grid_color as "gridcolor": &'a str = b16_colors::BASE0203,
+    zero_line as "zeroline": bool = true,
+    zero_line_color as "zerolinecolor": &'a str = b16_colors::BASE[0x06],
+    show_spikes as "showspikes": bool,
+    auto_margin as "automargin": bool = true,
+    #optional range: (f32, f32),
 }
 
 impl<'a> Axis<'a> {
@@ -94,99 +60,58 @@ impl<'a> Axis<'a> {
     }
 }
 
-#[derive(Serialize)]
-pub(crate) struct AspectRatio {
-    pub(crate) x: f32,
-    pub(crate) y: f32,
-    pub(crate) z: f32,
+def_plotly_ty! {
+    AspectRatio
+
+    x: f32 = 1.0,
+    y: f32 = 1.0,
+    z: f32 = 1.0,
 }
 
-impl Default for AspectRatio {
-    fn default() -> Self {
-        Self {
-            x: 1.0,
-            y: 1.0,
-            z: 1.0,
-        }
-    }
+def_plotly_ty! {
+    Scene<'a>
+
+    aspect_mode as "aspectmode": &'a str = "manual",
+    aspect_ratio as "aspectratio": AspectRatio,
+    x_axis as "xaxis": Axis<'a>,
+    y_axis as "yaxis": Axis<'a>,
+    z_axis as "zaxis": Axis<'a>,
 }
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default())]
-pub(crate) struct Scene<'a> {
-    #[serde(rename = "aspectmode")]
-    #[derivative(Default(value = "\"manual\""))]
-    pub(crate) aspect_mode: &'a str,
-    #[serde(rename = "aspectratio")]
-    pub(crate) aspect_ratio: AspectRatio,
-    #[serde(rename = "xaxis")]
-    pub(crate) x_axis: Axis<'a>,
-    #[serde(rename = "yaxis")]
-    pub(crate) y_axis: Axis<'a>,
-    #[serde(rename = "zaxis")]
-    pub(crate) z_axis: Axis<'a>,
+def_plotly_ty! {
+    ModeBar<'a>
+
+    bg_color as "bgcolor": &'a str = b16_colors::BASE0203,
+    color: &'a str = b16_colors::BASE0304,
+    active_color as "activecolor": &'a str = b16_colors::BASE[0x06],
 }
 
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct ModeBar<'a> {
-    #[serde(rename = "bgcolor")]
-    #[derivative(Default(value = "b16_colors::BASE0203"))]
-    pub(crate) bg_color: &'a str,
-    #[derivative(Default(value = "b16_colors::BASE0304"))]
-    pub(crate) color: &'a str,
-    #[serde(rename = "activecolor")]
-    #[derivative(Default(value = "b16_colors::BASE[0x06]"))]
-    pub(crate) active_color: &'a str,
-}
+def_plotly_ty! {
+    Layout<'a>
 
-#[skip_serializing_none]
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct Layout<'a> {
-    #[serde(rename = "dragmode")]
-    pub(crate) drag_mode_str: Option<&'a str>,
-
-    #[serde(rename = "dragmode")]
-    pub(crate) drag_mode_bool: Option<bool>,
-
-    #[serde(rename = "hovermode")]
-    pub(crate) hover_mode: bool,
-
-    pub(crate) margin: Margin,
-
+    #optional drag_mode_str as "dragmode": &'a str,
+    #optional drag_mode_bool as "dragmode": bool,
+    hover_mode as "hovermode": bool,
+    margin: Margin,
     /// For 3D plots only.
-    pub(crate) scene: Option<Scene<'a>>,
-
-    pub(crate) font: Font<'a>,
-
-    #[serde(rename = "xaxis")]
-    pub(crate) x_axis: Option<Axis<'a>>,
-
-    #[serde(rename = "yaxis")]
-    pub(crate) y_axis: Option<Axis<'a>>,
-
-    #[derivative(Default(value = "b16_colors::BASE0102"))]
-    pub(crate) paper_bgcolor: &'a str,
-
-    #[derivative(Default(value = "b16_colors::BASE0102"))]
-    pub(crate) plot_bgcolor: &'a str,
-
-    #[serde(rename = "modebar")]
-    pub(crate) mode_bar: ModeBar<'a>,
-
-    #[serde(rename = "uirevision")]
-    pub(crate) ui_revision: Option<&'a str>,
+    #optional scene: Scene<'a>,
+    font: Font<'a>,
+    /// For 2D plots only.
+    #optional x_axis as "xaxis": Axis<'a>,
+    /// For 2D plots only.
+    #optional y_axis as "yaxis": Axis<'a>,
+    paper_bgcolor: &'a str = b16_colors::BASE0102,
+    plot_bgcolor: &'a str = b16_colors::BASE0102,
+    mode_bar as "modebar": ModeBar<'a>,
+    #optional ui_revision as "uirevision": &'a str,
 }
 
-#[derive(Serialize)]
-pub(crate) struct LayoutRangeUpdate {
-    #[serde(rename = "scene.xaxis.range")]
-    pub(crate) x_axis_range: (f32, f32),
-    #[serde(rename = "scene.yaxis.range")]
-    pub(crate) y_axis_range: (f32, f32),
-    #[serde(rename = "scene.zaxis.range")]
-    pub(crate) z_axis_range: (f32, f32),
+def_plotly_ty! {
+    LayoutRangeUpdate
+
+    x_axis_range as "scene.xaxis.range": (f32, f32),
+    y_axis_range as "scene.yaxis.range": (f32, f32),
+    z_axis_range as "scene.zaxis.range": (f32, f32),
 }
 
 impl LayoutRangeUpdate {

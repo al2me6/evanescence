@@ -1,37 +1,18 @@
-use derivative::Derivative;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
-
 use super::layout::{Anchor, Title};
 use crate::utils::b16_colors;
 
 pub(crate) type ColorScale<'a> = &'a [(&'a str, &'a str)];
 
-#[skip_serializing_none]
-#[derive(Serialize, Derivative)]
-#[derivative(Default)]
-pub(crate) struct ColorBar<'a> {
-    #[derivative(Default(value = "1.02"))]
-    pub(crate) x: f32,
+def_plotly_ty! {
+    ColorBar<'a>
 
-    #[serde(rename = "xanchor")]
-    #[derivative(Default(value = "Anchor::Left"))]
-    pub(crate) x_anchor: Anchor,
-
-    #[serde(rename = "outlinecolor")]
-    #[derivative(Default(value = "b16_colors::BASE[0x06]"))]
-    pub(crate) outline_color: &'a str,
-
-    #[derivative(Default(value = "20"))]
-    pub(crate) thickness: u32,
-
-    #[serde(rename = "tickvals")]
-    pub(crate) tick_vals: Option<&'a [f32]>,
-
-    #[serde(rename = "ticktext")]
-    pub(crate) tick_text: Option<&'a [&'a str]>,
-
-    pub(crate) title: Option<Title<'a>>,
+    x: f32 = 1.02,
+    x_anchor as "xanchor": Anchor = Anchor::Left,
+    outline_color as "outlinecolor": &'a str = b16_colors::BASE[0x06],
+    thickness: u32 = 20,
+    #optional tick_vals as "tickvals": &'a [f32],
+    #optional tick_text as "ticktext": &'a [&'a str],
+    #optional title: Title<'a>,
 }
 
 #[allow(dead_code)]

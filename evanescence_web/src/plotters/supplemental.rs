@@ -8,7 +8,7 @@ use super::isosurface_cutoff_heuristic;
 use crate::plotly::color::color_scales;
 use crate::plotly::layout::{Axis, Scene, Title};
 use crate::plotly::scatter::Line;
-use crate::plotly::surface::{Contour, Contours, Lighting, Project};
+use crate::plotly::surface::{Contour, Contours, Project};
 use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
 use crate::state::State;
 use crate::utils::{b16_colors, capitalize_words, partial_max};
@@ -116,7 +116,6 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
             },
             ..Default::default()
         }),
-        lighting: Some(Lighting::default()),
         ..Default::default()
     };
 
@@ -176,7 +175,6 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         c_min: Some(-cutoff * 1.2),
         c_max: Some(cutoff * 1.2),
         opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
-        lighting: Some(Lighting::default()),
         ..Default::default()
     };
 
