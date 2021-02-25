@@ -1,5 +1,6 @@
 use std::convert::TryInto;
 use std::f32::consts::{FRAC_PI_2, PI};
+use std::iter;
 
 use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::MonteCarlo;
@@ -181,7 +182,7 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
         .hybrid_kind()
         .rotations()
         .iter()
-        .chain(std::iter::once(state.hybrid_kind().principal()))
+        .chain(iter::once(state.hybrid_kind().principal()))
         .map(|orbital| {
             let (x, y, z, value) = ComponentForm::from(orbital::Hybrid::evaluate_in_region(
                 orbital,

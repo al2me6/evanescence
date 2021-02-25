@@ -98,11 +98,6 @@ impl Component for SupplementalVisualizationImpl {
         should_render
     }
 
-    fn rendered(&mut self, _first_render: bool) {
-        self.rerender();
-        fire_resize_event();
-    }
-
     fn view(&self) -> Html {
         let extra_visualization = self.handle.state().supplement();
         let title = extra_visualization.to_string();
@@ -126,6 +121,11 @@ impl Component for SupplementalVisualizationImpl {
                 <div ref = self.plot_ref.clone() class = "visualization" id = Self::ID />
             </>
         }
+    }
+
+    fn rendered(&mut self, _first_render: bool) {
+        self.rerender();
+        fire_resize_event();
     }
 }
 

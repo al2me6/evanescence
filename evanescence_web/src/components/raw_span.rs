@@ -1,5 +1,6 @@
 use web_sys::HtmlSpanElement;
 use yew::{html, Component, ComponentLink, Html, NodeRef, Properties, ShouldRender};
+use yewtil::NeqAssign;
 
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub(crate) struct RawHtmlProps {
@@ -27,8 +28,11 @@ impl Component for RawSpan {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.inner_html = props.inner_html;
-        true
+        self.inner_html.neq_assign(props.inner_html)
+    }
+
+    fn view(&self) -> Html {
+        html! { <span ref = self.span_ref.clone() /> }
     }
 
     fn rendered(&mut self, _first_render: bool) {
@@ -36,9 +40,5 @@ impl Component for RawSpan {
             .cast::<HtmlSpanElement>()
             .unwrap()
             .set_inner_html(&self.inner_html);
-    }
-
-    fn view(&self) -> Html {
-        html! { <span ref = self.span_ref.clone() /> }
     }
 }

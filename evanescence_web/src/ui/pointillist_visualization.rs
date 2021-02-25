@@ -1,5 +1,5 @@
 use evanescence_core::orbital::Real as RealOrbital;
-use strum::{EnumCount, EnumIter, IntoEnumIterator};
+use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
@@ -16,7 +16,7 @@ enum TraceRenderer {
     Multiple(fn(&State) -> Vec<JsValue>),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter, EnumCount)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 enum Trace {
     Pointillist,
     RadialNodes,
@@ -77,6 +77,40 @@ pub(crate) struct PointillistVisualizationImpl {
 impl PointillistVisualizationImpl {
     const ID: &'static str = "pointillist";
 
+    fn init_plot(&mut self) {
+        assert!(self.rendered_kinds.is_empty());
+
+        let state = self.handle.state();
+
+        // Manually set the plot range to prevent jumping.
+        let axis = Axis::with_extent(state.estimate_radius());
+        Plotly::react(
+            Self::ID,
+            Trace::Pointillist.render_to_vec(state).into_boxed_slice(),
+            Layout {
+                drag_mode_str: Some("orbit"),
+                ui_revision: Some("pointillist"),
+                scene: Some(Scene {
+                    x_axis: axis,
+                    y_axis: axis,
+                    z_axis: axis,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }
+            .into(),
+            Config {
+                mode_bar_buttons_to_remove: &[
+                    ModeBarButtons::ResetCameraLastSave3d,
+                    ModeBarButtons::HoverClosest3d,
+                ],
+                ..Default::default()
+            }
+            .into(),
+        );
+        self.rendered_kinds.push(Trace::Pointillist);
+    }
+
     fn rerender_all(&mut self) {
         let state = self.handle.state();
 
@@ -114,7 +148,7 @@ impl PointillistVisualizationImpl {
     fn add_or_remove_kind(&mut self, kind: Trace) {
         // This function should not be touching the pointillist trace, since if that needs to be
         // changed then all other traces must also change.
-        assert!(kind != Trace::Pointillist);
+        assert_ne!(kind, Trace::Pointillist);
 
         let state = self.handle.state();
 
@@ -215,45 +249,15 @@ impl Component for PointillistVisualizationImpl {
         false
     }
 
-    fn rendered(&mut self, first_render: bool) {
-        assert!(first_render);
-        assert!(self.rendered_kinds.is_empty());
-
-        let state = self.handle.state();
-
-        // Manually set the plot range to prevent jumping.
-        let axis = Axis::with_extent(state.estimate_radius());
-        Plotly::react(
-            Self::ID,
-            Trace::Pointillist.render_to_vec(state).into_boxed_slice(),
-            Layout {
-                drag_mode_str: Some("orbit"),
-                ui_revision: Some("pointillist"),
-                scene: Some(Scene {
-                    x_axis: axis,
-                    y_axis: axis,
-                    z_axis: axis,
-                    ..Default::default()
-                }),
-                ..Default::default()
-            }
-            .into(),
-            Config {
-                mode_bar_buttons_to_remove: &[
-                    ModeBarButtons::ResetCameraLastSave3d,
-                    ModeBarButtons::HoverClosest3d,
-                ],
-                ..Default::default()
-            }
-            .into(),
-        );
-        self.rendered_kinds.push(Trace::Pointillist);
-    }
-
     fn view(&self) -> Html {
         html! {
             <div class="visualization" id = Self::ID />
         }
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        assert!(first_render);
+        self.init_plot();
     }
 }
 
