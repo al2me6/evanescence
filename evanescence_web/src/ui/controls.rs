@@ -7,10 +7,9 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::components::{CheckBox, Dropdown, TabBar, Tooltip};
+use crate::components::{CheckBox, Dropdown, Tooltip};
 use crate::descriptions::DESC;
 use crate::state::{HybridPreset, Mode, QnPreset, State, StateHandle, Visualization};
-use crate::utils::fire_resize_event;
 use crate::MAX_N;
 
 fn td_tooltip(text: &str, tooltip: &str) -> Html {
@@ -43,11 +42,6 @@ impl Component for ControlsImpl {
         let handle = &self.handle;
         let state = handle.state();
 
-        let set_mode = |state: &mut State, mode| {
-            state.set_mode(mode);
-            fire_resize_event();
-        };
-
         let selectors = match state.mode() {
             Mode::RealSimple | Mode::Real => self.real_modes_controls(),
             Mode::Complex => self.qn_pickers(),
@@ -56,12 +50,6 @@ impl Component for ControlsImpl {
 
         html! {
             <div id = "controls">
-                <TabBar<Mode>
-                    id = "mode"
-                    onchange = handle.reduce_callback_with(set_mode)
-                    modes = Mode::iter().collect::<Vec<_>>()
-                    selected = state.mode()
-                />
                 <table>
                     { selectors }
                     <tr>

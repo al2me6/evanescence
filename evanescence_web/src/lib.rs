@@ -28,7 +28,13 @@ use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
 use crate::state::StateHandle;
-use crate::ui::{Controls, InfoPanel, PointillistVisualization, SupplementalVisualization};
+use crate::ui::{
+    Controls,
+    InfoPanel,
+    ModeBar,
+    PointillistVisualization,
+    SupplementalVisualization,
+};
 
 /// Maximum value of the principal quantum number `n` that is exposed.
 pub(crate) const MAX_N: u32 = 8;
@@ -128,13 +134,18 @@ impl Component for MainImpl {
             <main>
                 <PointillistVisualization/>
             </main>
-            <aside id = Self::SIDEBAR_ID>
-                <h1>{ "Hydrogenic Orbitals" }</h1>
-                <Controls/>
+            <div id = Self::SIDEBAR_ID>
+                <header>
+                    <div id = "title-and-help-btn">
+                        <h1>{ "Hydrogenic Orbitals" }</h1>
+                    </div>
+                    <ModeBar/> // Mutates state!
+                </header>
+                <Controls/> // Mutates state!
                 <InfoPanel/>
                 <SupplementalVisualization/>
                 { footer }
-            </aside>
+            </div>
             </>
         }
     }

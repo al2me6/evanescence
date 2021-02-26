@@ -281,7 +281,7 @@ main {
 /* Sidebar. */
 
 /* Note that scrolling is dynamically managed by the UI (see `lib.rs`). */
-aside {
+#sidebar {
   box-sizing: border-box;
   flex: 1 0 20rem;
   display: flex;
@@ -290,7 +290,7 @@ aside {
   overflow-x: hidden;
 }
 
-aside > :first-child {
+#title-and-help-btn > h1 {
   margin-top: 0.2em;
 }
 
