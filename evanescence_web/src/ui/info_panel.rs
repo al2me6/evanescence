@@ -3,7 +3,7 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
-use crate::components::RawSpan;
+use crate::components::raw::RawSpan;
 use crate::state::{Mode, StateHandle};
 
 pub(crate) struct InfoPanelImpl {
