@@ -1,4 +1,4 @@
-use web_sys::{HtmlDivElement, HtmlSpanElement};
+use web_sys::HtmlElement;
 use yew::{html, Component, ComponentLink, Html, NodeRef, Properties, ShouldRender};
 use yewtil::NeqAssign;
 
@@ -8,7 +8,7 @@ pub(crate) struct RawProps {
 }
 
 macro_rules! raw_element_type {
-    ($name:ident, $element:ident, $element_ty:ty) => {
+    ($name:ident, $element:ident) => {
         pub(crate) struct $name {
             inner_html: String,
             inner_ref: NodeRef,
@@ -39,7 +39,7 @@ macro_rules! raw_element_type {
 
             fn rendered(&mut self, _first_render: bool) {
                 self.inner_ref
-                    .cast::<$element_ty>()
+                    .cast::<HtmlElement>()
                     .unwrap()
                     .set_inner_html(&self.inner_html);
             }
@@ -47,5 +47,5 @@ macro_rules! raw_element_type {
     };
 }
 
-raw_element_type!(RawSpan, span, HtmlSpanElement);
-raw_element_type!(RawDiv, div, HtmlDivElement);
+raw_element_type!(RawSpan, span);
+raw_element_type!(RawDiv, div);
