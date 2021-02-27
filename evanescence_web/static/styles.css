@@ -30,6 +30,7 @@ html {
 
   --transition-time: 0.15s;
   --radius: 0.25em;
+  --shadow: 0.03em 0.125em 0.3em 0.03em var(--base-00);
 }
 
 @media (max-width: 1400px) {
@@ -62,7 +63,7 @@ h3,
 h4,
 h5,
 h6 {
-  margin-top: 0.8em;
+  margin-top: 1em;
   margin-bottom: 0.5em;
 }
 
@@ -75,7 +76,7 @@ h2 {
 }
 
 h3 {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
 }
 
 p {
@@ -116,7 +117,7 @@ select {
 
 select:active,
 select:hover {
-  box-shadow: 0.03em 0.125em 0.3em 0.03em var(--base-00);
+  box-shadow: var(--shadow);
 }
 
 select:hover {
@@ -153,7 +154,7 @@ select:focus {
 }
 
 .checkbox input:hover {
-  box-shadow: 0.03em 0.125em 0.3em 0.03em var(--base-00);
+  box-shadow: var(--shadow);
   background-color: var(--base-0203);
 }
 
@@ -212,6 +213,7 @@ select:focus {
   background-color: var(--base-02);
 }
 
+.tab-bar input:active,
 .tab-bar input:checked {
   background-color: var(--base-0203);
 }
@@ -232,18 +234,17 @@ select:focus {
 }
 
 .tooltip .description {
-  --computed-width: min(240px, 80vw);
+  --width: min(240px, 80vw);
   box-sizing: border-box;
   visibility: hidden;
   opacity: 0;
   font-size: 0.85rem;
   text-align: center;
   position: absolute;
-  z-index: 1;
   bottom: 100%;
   left: 50%;
-  width: var(--computed-width);
-  margin-left: calc(-0.5 * var(--computed-width));
+  width: var(--width);
+  margin-left: calc(-0.5 * var(--width));
   padding: 0.3em 0.8em;
   border-radius: var(--radius);
   background-color: var(--base-0203);
