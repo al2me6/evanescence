@@ -154,13 +154,13 @@ impl Component for MainImpl {
 type Main = SharedStateComponent<MainImpl>;
 
 #[wasm_bindgen(start)]
-pub fn main() {
+pub fn run() {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
-    let config = if cfg!(debug_assertions) {
-        wasm_logger::Config::default()
-    } else {
-        wasm_logger::Config::new(log::Level::Warn)
-    };
+
+    #[cfg(debug_assertions)]
+    let config = wasm_logger::Config::default();
+    #[cfg(not(debug_assertions))]
+    let config = wasm_logger::Config::new(log::Level::Warn);
     wasm_logger::init(config);
 
     start_app::<Main>();
