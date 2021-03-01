@@ -402,13 +402,16 @@ main {
 
 footer {
   margin-top: 40px;
-  width: 100%;
-  align-items: right;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
 }
 
-footer p {
-  text-align: right;
-  font-size: 0.8rem;
+footer > *:not(:first-child)::before {
+  content: "|";
+  margin-left: 0.4em;
+  margin-right: 0.4em;
 }
 
 /* Controls. */
@@ -435,7 +438,7 @@ footer p {
   padding-bottom: 0.25em;
 }
 
-#controls td + td {
+#controls td:not(:first-child) {
   padding-left: 0.5em;
 }
 
@@ -444,7 +447,7 @@ footer p {
   width: 50%;
 }
 
-#controls td:nth-child(2) {
+#controls td:last-child {
   text-align: left;
   width: 50%;
 }

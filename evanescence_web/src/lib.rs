@@ -115,21 +115,12 @@ impl Component for MainImpl {
     }
 
     fn view(&self) -> Html {
-        const SEPARATOR: &str = " | ";
-
         let footer = html! {
             <footer>
-                <p>
-                    { format!("Evanescence v{}.{}.{}", VER_MAJOR, VER_MINOR, VER_PATCH) }
-                    { SEPARATOR }
-                    <a href = format!("{}/blob/master/changelog.md", REPO) >
-                        { "Changelog" }
-                    </a>
-                    { SEPARATOR }
-                    <a href = REPO>{ "Source" }</a>
-                    { SEPARATOR }
-                    <a href = BENCHMARKS_URL>{ "Benchmarks" }</a>
-                </p>
+                <p>{ format!("Evanescence v{}.{}.{}", VER_MAJOR, VER_MINOR, VER_PATCH) }</p>
+                <span><a href = format!("{}/blob/master/changelog.md", REPO) >{ "Changelog" }</a></span>
+                <span><a href = REPO>{ "Source" }</a></span>
+                <span><a href = BENCHMARKS_URL>{ "Benchmarks" }</a></span>
             </footer>
         };
 
