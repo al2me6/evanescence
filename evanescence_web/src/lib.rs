@@ -27,6 +27,8 @@ use yew::{html, start_app, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
+use crate::components::raw::RawDiv;
+use crate::components::Window;
 use crate::state::StateHandle;
 use crate::ui::{
     Controls,
@@ -45,6 +47,8 @@ pub(crate) const VER_PATCH: u32 = pkg_version_patch!();
 
 pub(crate) const REPO: &str = "https://github.com/al2me6/evanescence";
 pub(crate) const BENCHMARKS_URL: &str = "https://al2me6.github.io/evanescence/dev/bench";
+
+pub(crate) const HELP_HTML: &str = include_str!(concat!(env!("OUT_DIR"), "/help.html"));
 
 struct MainImpl {
     handle: StateHandle,
@@ -138,6 +142,14 @@ impl Component for MainImpl {
                 <header>
                     <div id = "title-and-help-btn">
                         <h1>{ "Hydrogenic Orbitals" }</h1>
+                        <Window
+                            title = "Help"
+                            content_id = "help-window"
+                            open_button_text = "?"
+                            open_button_hover = "Help"
+                        >
+                            <RawDiv inner_html = HELP_HTML />
+                        </Window>
                     </div>
                     <ModeBar/> // Mutates state!
                 </header>

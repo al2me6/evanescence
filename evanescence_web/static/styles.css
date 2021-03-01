@@ -80,9 +80,14 @@ h3 {
   font-size: 1.25rem;
 }
 
-p {
+p,
+ul {
   margin-top: 0;
   margin-bottom: 0.7em;
+}
+
+ul ul {
+  margin-bottom: 0;
 }
 
 a {
@@ -91,6 +96,10 @@ a {
 
 a:visited {
   color: var(--base-0e);
+}
+
+img {
+  max-width: 100%;
 }
 
 /* COMPONENT STYLING */
@@ -454,4 +463,15 @@ footer p {
 .visualization#supplemental {
   padding: 10px;
   flex: 1 0 350px;
+}
+
+/* Help panel. */
+
+#title-and-help-btn {
+  display: flex;
+  justify-content: space-between;
+}
+
+#title-and-help-btn .raw > :first-child {
+  margin-top: 0;
 }

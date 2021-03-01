@@ -36,6 +36,9 @@ yew = "0.17"
 yewtil = "0.3"
 yew-state = "0.5"
 
+[build-dependencies]
+pulldown-cmark = "0.8"
+
 [package.metadata.wasm-pack.profile.profiling]
 wasm-opt = ["-g", "-O3"]
 
