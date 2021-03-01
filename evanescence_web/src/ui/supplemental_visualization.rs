@@ -1,6 +1,5 @@
 use wasm_bindgen::JsValue;
-use web_sys::HtmlElement;
-use yew::{html, Component, ComponentLink, Html, NodeRef, ShouldRender};
+use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
@@ -13,9 +12,6 @@ use crate::utils::{capitalize_words, fire_resize_event};
 
 pub(crate) struct SupplementalVisualizationImpl {
     handle: StateHandle,
-    title_ref: NodeRef,
-    desc_ref: NodeRef,
-    plot_ref: NodeRef,
 }
 
 impl SupplementalVisualizationImpl {
@@ -23,15 +19,6 @@ impl SupplementalVisualizationImpl {
 
     fn rerender(&mut self) {
         let state = self.handle.state();
-
-        for element in &[&self.title_ref, &self.desc_ref, &self.plot_ref] {
-            let style = element.cast::<HtmlElement>().unwrap().style();
-            let display = match state.supplement() {
-                Visualization::None => "none",
-                _ => "block",
-            };
-            style.set_property("display", display).unwrap();
-        }
 
         let renderer: fn(&State) -> (JsValue, JsValue) = match state.supplement() {
             Visualization::None => return, // No need to render.
@@ -43,6 +30,8 @@ impl SupplementalVisualizationImpl {
             | Visualization::CrossSectionZX => plot::cross_section,
             Visualization::Isosurface3D => plot::isosurface_3d,
         };
+
+        log::debug!("Rerendering {:?}.", state.supplement());
 
         let (trace, layout) = renderer(state);
         Plotly::react(
@@ -73,12 +62,7 @@ impl Component for SupplementalVisualizationImpl {
     type Properties = StateHandle;
 
     fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
-        Self {
-            handle,
-            title_ref: NodeRef::default(),
-            desc_ref: NodeRef::default(),
-            plot_ref: NodeRef::default(),
-        }
+        Self { handle }
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
@@ -99,33 +83,37 @@ impl Component for SupplementalVisualizationImpl {
     }
 
     fn view(&self) -> Html {
-        let extra_visualization = self.handle.state().supplement();
-        let title = extra_visualization.to_string();
-        let desc = match extra_visualization {
-            Visualization::None => "",
-            Visualization::RadialWavefunction => DESC.rad_wavefunction,
-            Visualization::RadialProbabilityDensity => DESC.rad_prob_density,
-            Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
-            Visualization::CrossSectionXY
-            | Visualization::CrossSectionYZ
-            | Visualization::CrossSectionZX => DESC.cross_section,
-            Visualization::Isosurface3D => DESC.isosurface_3d,
-        };
-        html! {
-            <>
-                // The title can't be in the same div as the visualization because that somehow
-                // breaks Plotly's responsive mode detection (reverts to hard-coded 450px
-                // vertical size).
-                <h3 ref = self.title_ref.clone() >{ capitalize_words(&title) }</h3>
-                <p ref = self.desc_ref.clone() >{ desc }</p>
-                <div ref = self.plot_ref.clone() class = "visualization" id = Self::ID />
-            </>
+        let supplement = self.handle.state().supplement();
+        if supplement.is_enabled() {
+            let title = supplement.to_string();
+            let desc = match supplement {
+                Visualization::None => "",
+                Visualization::RadialWavefunction => DESC.rad_wavefunction,
+                Visualization::RadialProbabilityDensity => DESC.rad_prob_density,
+                Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
+                Visualization::CrossSectionXY
+                | Visualization::CrossSectionYZ
+                | Visualization::CrossSectionZX => DESC.cross_section,
+                Visualization::Isosurface3D => DESC.isosurface_3d,
+            };
+            html! {
+                <>
+                    <h3>{ capitalize_words(&title) }</h3>
+                    <p>{ desc }</p>
+                    <div class = "visualization" id = Self::ID />
+                </>
+            }
+        } else {
+            html! {}
         }
     }
 
     fn rendered(&mut self, _first_render: bool) {
-        self.rerender();
-        fire_resize_event();
+        if self.handle.state().supplement().is_enabled() {
+            self.rerender();
+            // Fire resize event since the size of the description may change.
+            fire_resize_event();
+        }
     }
 }
 

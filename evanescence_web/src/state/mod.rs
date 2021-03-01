@@ -34,12 +34,14 @@ pub(crate) enum Visualization {
 
 impl Visualization {
     pub(crate) fn is_cross_section(self) -> bool {
-        [
-            Self::CrossSectionXY,
-            Self::CrossSectionYZ,
-            Self::CrossSectionZX,
-        ]
-        .contains(&self)
+        matches!(
+            self,
+            Self::CrossSectionXY | Self::CrossSectionYZ | Self::CrossSectionZX
+        )
+    }
+
+    pub(crate) fn is_enabled(self) -> bool {
+        !matches!(self, Self::None)
     }
 }
 
