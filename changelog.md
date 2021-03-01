@@ -1,5 +1,11 @@
 # Version History
 
+## 0.4.5, 2021-03-01
+
+### Features
+
+* There is now a brief help page, accessed through the "?" button in the top-right corner.
+
 ## 0.4.4, 2021-02-20
 
 ### Features
