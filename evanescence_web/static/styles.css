@@ -27,6 +27,7 @@ html {
   --base-0f: #a3685a;
   --base-0102: #303338;
   --base-0203: #676a6c;
+  --base-00-semitransparent: #1d1f2199;
 
   --transition-time: 0.15s;
   --radius: 0.25em;
@@ -256,6 +257,101 @@ select:focus {
 .tooltip:hover .description:not(:hover) {
   visibility: visible;
   opacity: 1;
+}
+
+/* Popup windows. */
+
+.window-button {
+  appearance: none;
+  -webkit-appearance: none;
+  --size: 1.8rem;
+  width: var(--size);
+  height: var(--size);
+  border-radius: calc(var(--size) / 2);
+  border: none;
+  background-color: var(--base-00);
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  font-size: calc(var(--size) * 0.7);
+  line-height: var(--size);
+  transition: var(--transition-time);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.window-button:hover {
+  background-color: var(--base-02);
+  box-shadow: var(--shadow);
+}
+
+.window-button:active {
+  background-color: var(--base-0203);
+}
+
+.window-bg {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  background-color: var(--base-00-semitransparent);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: visibility var(--transition-time), opacity var(--transition-time);
+}
+
+.window-bg[window_vis_="hidden"] {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.window-bg[window_vis="visible"] {
+  visibility: visible;
+  opacity: 1;
+}
+
+.window-container {
+  position: relative;
+  box-sizing: border-box;
+  --width: min(90vw, 55em);
+  --height: 85vh;
+  width: var(--width);
+  min-height: min(var(--height), 350px);
+  max-height: var(--height);
+  display: flex;
+  flex-direction: column;
+  padding: 3rem;
+  padding-top: 0;
+  background-color: var(--base-0102);
+  border-radius: calc(var(--radius) * 4);
+  box-shadow: 5px 15px 40px 20px var(--base-00);
+}
+
+.window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: -1em;
+}
+
+.window-close-button {
+  /* Icon source: https://thenounproject.com/term/close/1609004/. */
+  /* base06 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23e0e0e0" d="M61.2,50.5l32.1,32.1c3,3,3,7.7,0,10.7c-3,3-7.7,3-10.7,0L50.5,61.2L18.4,93.3c-3,3-7.7,3-10.7,0c-3-3-3-7.7,0-10.7l32.1-32.1L7.7,18.4c-3-3-3-7.7,0-10.7s7.7-3,10.7,0l32.1,32.1L82.6,7.7c3-3,7.7-3,10.7,0c3,3,3,7.7,0,10.7L61.2,50.5z"/></svg>');
+  background-repeat: no-repeat;
+  background-size: 45% auto;
+  background-position: center;
+}
+
+.window-content {
+  width: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* UI STYLING */
