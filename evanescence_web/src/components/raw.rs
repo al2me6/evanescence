@@ -11,7 +11,7 @@ macro_rules! raw_element_type {
     ($name:ident, $element:ident) => {
         pub(crate) struct $name {
             inner_html: String,
-            inner_ref: NodeRef,
+            node_ref: NodeRef,
         }
 
         impl Component for $name {
@@ -21,7 +21,7 @@ macro_rules! raw_element_type {
             fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
                 Self {
                     inner_html: props.inner_html,
-                    inner_ref: NodeRef::default(),
+                    node_ref: NodeRef::default(),
                 }
             }
 
@@ -34,11 +34,11 @@ macro_rules! raw_element_type {
             }
 
             fn view(&self) -> Html {
-                html! { <$element class = "raw" ref = self.inner_ref.clone() /> }
+                html! { <$element class = "raw" ref = self.node_ref.clone() /> }
             }
 
             fn rendered(&mut self, _first_render: bool) {
-                self.inner_ref
+                self.node_ref
                     .cast::<HtmlElement>()
                     .unwrap()
                     .set_inner_html(&self.inner_html);
