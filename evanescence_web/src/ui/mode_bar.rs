@@ -33,7 +33,9 @@ impl Component for ModeBarImpl {
 
         let set_mode = |state: &mut State, mode| {
             state.set_mode(mode);
-            fire_resize_event();
+            if state.supplement().is_enabled() {
+                fire_resize_event();
+            }
         };
 
         html! {
