@@ -1,5 +1,11 @@
 /* BASIC PAGE STYLING */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html {
   font-family: "Lato", sans-serif;
   font-size: 16px;
@@ -184,7 +190,6 @@ select:focus {
 /* Tab bar component. */
 
 .tab-bar {
-  box-sizing: border-box;
   width: 100%;
   display: flex;
   justify-content: space-evenly;
@@ -208,7 +213,6 @@ select:focus {
 }
 
 .tab-bar input::after {
-  box-sizing: border-box;
   display: block;
   content: attr(label_text_);
   font-size: inherit;
@@ -245,7 +249,6 @@ select:focus {
 
 .tooltip .description {
   --width: min(240px, 80vw);
-  box-sizing: border-box;
   visibility: hidden;
   opacity: 0;
   font-size: 0.85rem;
@@ -284,7 +287,6 @@ select:focus {
   font: inherit;
   color: inherit;
   font-size: calc(var(--size) * 0.7);
-  line-height: var(--size);
   transition: var(--transition-time);
   display: flex;
   align-items: center;
@@ -326,7 +328,6 @@ select:focus {
 
 .window-container {
   position: relative;
-  box-sizing: border-box;
   --width: min(90vw, 55em);
   --height: 85vh;
   width: var(--width);
@@ -334,8 +335,7 @@ select:focus {
   max-height: var(--height);
   display: flex;
   flex-direction: column;
-  padding: 3rem;
-  padding-top: 0;
+  padding: 0 3rem 3rem 3rem;
   background-color: var(--base-0102);
   border-radius: calc(var(--radius) * 4);
   box-shadow: 5px 15px 40px 20px var(--base-00);
@@ -346,6 +346,16 @@ select:focus {
   justify-content: space-between;
   align-items: center;
   margin-right: -1em;
+}
+
+@media (max-width: 800px) {
+  .window-container {
+    padding: 0 2rem 2rem 2rem;
+  }
+
+  .window-header {
+    margin-right: 0;
+  }
 }
 
 .window-close-button {
@@ -360,7 +370,14 @@ select:focus {
 .window-content {
   width: 100%;
   overflow-y: auto;
-  overscroll-behavior: contain;
+}
+
+/*
+This class is added and removed dynamically (see `components/window.rs`).
+Disable scroll in the body if there is a window overlaid.
+*/
+body.window-open {
+  overflow: hidden;
 }
 
 /* UI STYLING */
@@ -368,7 +385,6 @@ select:focus {
 /* Pointillist display. */
 
 main {
-  box-sizing: border-box;
   height: 100vh;
   flex: 2 1 50vh;
 }
@@ -386,14 +402,25 @@ main {
 
 /* Sidebar. */
 
-/* Note that scrolling is dynamically managed by the UI (see `lib.rs`). */
 #sidebar {
-  box-sizing: border-box;
   flex: 1 0 20rem;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   overflow-x: hidden;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+/* This class is added and removed dynamically (see `lib.rs`). */
+#sidebar.mobile-layout {
+  overflow-y: unset;
+  max-height: unset;
+}
+
+#title-and-help-btn {
+  display: flex;
+  justify-content: space-between;
 }
 
 #title-and-help-btn > h1 {

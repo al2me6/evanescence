@@ -22,7 +22,6 @@ use std::panic;
 use pkg_version::{pkg_version_major, pkg_version_minor, pkg_version_patch};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
 use yew::{html, start_app, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
@@ -59,25 +58,16 @@ impl MainImpl {
     const SIDEBAR_ID: &'static str = "sidebar";
 
     fn resize_handler() {
-        let sidebar = web_sys::window()
-            .unwrap()
-            .document()
-            .unwrap()
-            .get_element_by_id(Self::SIDEBAR_ID)
-            .unwrap();
-        let style = sidebar.dyn_ref::<HtmlElement>().unwrap().style();
+        let document = web_sys::window().unwrap().document().unwrap();
+        let sidebar = document.get_element_by_id(Self::SIDEBAR_ID).unwrap();
 
-        // If the offset is not zero, then the flexbox must have wrapped. In this case, we do not
-        // need an additional scrollbar in the sidebar (the whole page already scrolls). However,
-        // on desktop, only the sidebar should scroll.
-        let offset = sidebar.get_bounding_client_rect().y();
-        let (max_height, overflow_y) = if offset > 0.0 {
-            ("unset", "unset")
+        // If the offset is not zero, then the flexbox must have wrapped. If so, we activate the
+        // mobile layout.
+        if sidebar.get_bounding_client_rect().y() > 0.0 {
+            sidebar.class_list().add_1("mobile-layout").unwrap();
         } else {
-            ("100vh", "auto")
-        };
-        style.set_property("max-height", max_height).unwrap();
-        style.set_property("overflow-y", overflow_y).unwrap();
+            sidebar.class_list().remove_1("mobile-layout").unwrap();
+        }
     }
 }
 
