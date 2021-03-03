@@ -40,12 +40,26 @@ html {
   }
 }
 
+/* Force 16px font on iOS devices. Otherwise they will zoom in when a `select` is activated. */
+@supports (-webkit-overflow-scrolling: touch) {
+  html {
+    font-size: 16px;
+  }
+}
+
 body {
+  width: 100vw;
+  height: 100vh;
   margin: 0;
   display: flex;
   flex-wrap: wrap;
   background-color: var(--base-0102);
   color: var(--base-06);
+  overflow: hidden;
+}
+
+body.mobile-layout {
+  overflow-y: auto;
 }
 
 body > * {
@@ -107,8 +121,8 @@ img {
 /* Dropdown component. */
 
 select {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   font: inherit;
   color: inherit;
   background-color: var(--base-00);
@@ -148,17 +162,17 @@ select:focus {
 }
 
 .checkbox input {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
+  font: inherit; /* Fix sizing on iOS. */
   width: 1.2em;
   height: 1.2em;
+  padding: 0;
+  margin: 0.25em;
+  flex: 0 0 auto;
   background-color: var(--base-00);
   border: 0;
   border-radius: var(--radius);
-  padding: 0;
-  margin: 0.25em;
-  flex-grow: 0;
-  flex-shrink: 0;
   transition: background-color var(--transition-time),
     box-shadow var(--transition-time);
 }
@@ -196,13 +210,16 @@ select:focus {
 }
 
 .tab-bar input {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
+  width: unset;
+  height: unset;
   padding: 0;
   margin: 0;
   flex: 1 0 auto;
   font-size: 1em;
   font-family: inherit;
+  border: none;
   border-radius: var(--radius);
   transition: all var(--transition-time);
 }
@@ -237,8 +254,8 @@ select:focus {
 .tooltip {
   position: relative;
   text-decoration: underline;
-  text-decoration-style: dotted;
   -webkit-text-decoration-style: dotted;
+  text-decoration-style: dotted;
   transition: text-decoration var(--transition-time);
   cursor: help;
 }
@@ -271,8 +288,8 @@ select:focus {
 /* Popup windows. */
 
 .window-button {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   --size: 1.8rem;
   width: var(--size);
   height: var(--size);
@@ -326,8 +343,8 @@ select:focus {
 .window-container {
   box-sizing: border-box;
   position: relative;
-  --width: min(90vw, 55em);
-  --height: 85vh;
+  --width: min(90%, 55em);
+  --height: 85%;
   width: var(--width);
   min-height: min(var(--height), 350px);
   max-height: var(--height);
@@ -340,6 +357,7 @@ select:focus {
 }
 
 .window-header {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -373,6 +391,8 @@ select:focus {
 /*
 This class is added and removed dynamically (see `components/window.rs`).
 Disable scroll in the body if there is a window overlaid.
+Note that disabling scroll is *intentionally* not implemented on iOS (WTF Apple!!) if the address
+bar is collapsed; see https://bugs.webkit.org/show_bug.cgi?id=153852#c34.
 */
 body.window-open {
   overflow: hidden;
@@ -384,14 +404,12 @@ body.window-open {
 
 main {
   box-sizing: border-box;
-  height: 100vh;
+  height: 100%;
   flex: 2 1 50vh;
 }
 
-@media (orientation: portrait) {
-  main {
-    height: 100vw;
-  }
+.mobile-layout main {
+  height: min(120vw, 60vh);
 }
 
 .visualization#pointillist {
@@ -402,17 +420,18 @@ main {
 /* Sidebar. */
 
 #sidebar {
-  flex: 1 0 20rem;
+  box-sizing: border-box;
+  max-height: 100%;
+  flex: 1 1 20rem;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   overflow-x: hidden;
   overflow-y: auto;
-  max-height: 100vh;
 }
 
 /* This class is added and removed dynamically (see `lib.rs`). */
-#sidebar.mobile-layout {
+.mobile-layout #sidebar {
   overflow-y: unset;
   max-height: unset;
 }
@@ -425,22 +444,6 @@ main {
 #title-and-help-btn > h1 {
   margin-top: 0.2em;
 }
-
-footer {
-  margin-top: 40px;
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  font-size: 0.8rem;
-}
-
-footer > *:not(:first-child)::before {
-  content: "|";
-  margin-left: 0.4em;
-  margin-right: 0.4em;
-}
-
-/* Controls. */
 
 #controls {
   user-select: none;
@@ -487,19 +490,27 @@ footer > *:not(:first-child)::before {
   margin-bottom: 0;
 }
 
-/* Supplemental display. */
-
 .visualization#supplemental {
   padding: 10px;
   flex: 1 0 350px;
 }
 
-/* Help panel. */
-
-#title-and-help-btn {
+footer {
+  margin-top: 40px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  font-size: 0.8rem;
 }
+
+footer > *:not(:first-child)::before {
+  content: "|";
+  margin-left: 0.4em;
+  margin-right: 0.4em;
+}
+
+/* Help panel. */
 
 #title-and-help-btn .raw > :first-child {
   margin-top: 0;

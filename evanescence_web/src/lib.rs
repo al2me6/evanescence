@@ -57,17 +57,30 @@ struct MainImpl {
 impl MainImpl {
     const SIDEBAR_ID: &'static str = "sidebar";
 
-    fn resize_handler() {
-        let document = web_sys::window().unwrap().document().unwrap();
+    fn viewport_change_handler() {
+        let window = web_sys::window().unwrap();
+        let document = window.document().unwrap();
+        let body = document.body().unwrap();
         let sidebar = document.get_element_by_id(Self::SIDEBAR_ID).unwrap();
 
         // If the offset is not zero, then the flexbox must have wrapped. If so, we activate the
-        // mobile layout.
+        // mobile layout. There does not appear to be a way to detect wrapping in CSS.
         if sidebar.get_bounding_client_rect().y() > 0.0 {
-            sidebar.class_list().add_1("mobile-layout").unwrap();
+            body.class_list().add_1("mobile-layout").unwrap();
         } else {
-            sidebar.class_list().remove_1("mobile-layout").unwrap();
+            body.class_list().remove_1("mobile-layout").unwrap();
         }
+
+        // HACK: Force the page height to be the same as `innerHeight`. This prevents browsers'
+        // navigation bars from overlapping with content. Ideally this would be done in CSS, but
+        // there doesn't appear to be a great way. `height: -webkit-fill-available;` appears to
+        // behave erratically as of March 2021.
+        body.style()
+            .set_property(
+                "height",
+                &format!("{}px", window.inner_height().unwrap().as_f64().unwrap()),
+            )
+            .unwrap();
     }
 }
 
@@ -78,7 +91,7 @@ impl Component for MainImpl {
     fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
         Self {
             handle,
-            resize_handler: Closure::wrap(Box::new(Self::resize_handler)),
+            resize_handler: Closure::wrap(Box::new(Self::viewport_change_handler)),
         }
     }
 
@@ -89,19 +102,6 @@ impl Component for MainImpl {
     fn change(&mut self, handle: StateHandle) -> ShouldRender {
         self.handle.neq_assign(handle);
         false
-    }
-
-    fn rendered(&mut self, first_render: bool) {
-        if first_render {
-            web_sys::window()
-                .unwrap()
-                .add_event_listener_with_callback(
-                    "resize",
-                    self.resize_handler.as_ref().unchecked_ref(),
-                )
-                .unwrap();
-            Self::resize_handler();
-        }
     }
 
     fn view(&self) -> Html {
@@ -140,6 +140,21 @@ impl Component for MainImpl {
                 { footer }
             </div>
             </>
+        }
+    }
+
+    fn rendered(&mut self, first_render: bool) {
+        if first_render {
+            let window = web_sys::window().unwrap();
+            ["resize", "orientationchange"].iter().for_each(|event| {
+                window
+                    .add_event_listener_with_callback(
+                        event,
+                        self.resize_handler.as_ref().unchecked_ref(),
+                    )
+                    .unwrap();
+            });
+            Self::viewport_change_handler();
         }
     }
 }
