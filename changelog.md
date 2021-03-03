@@ -1,5 +1,17 @@
 # Version History
 
+## 0.4.6, 2021-03-02
+
+### Bugfixes
+
+* Fixed styling of help page title on iOS.
+* Fixed styling of tab bar on iOS.
+* Do not scroll the page itself when the help window is open on mobile devices.
+  * Note that this is [known to be (intentionally) broken](https://bugs.webkit.org/show_bug.cgi?id=153852#c34) on iOS when the navigation bar is collapsed.
+* Always set correct page height on mobile devices (this is now done in Rust by setting the height to `window.innerHeight`, or the space available after the navigation bars have been accounted for).
+* Do not zoom in when using selectors on iOS.
+* Correctly update layout on orientation change.
+
 ## 0.4.5, 2021-03-01
 
 ### Features
@@ -10,7 +22,7 @@
 
 ### Features
 
-* The handling of hybrid orbitals has been revamped. It is now possible to show silhouettes of all hybrid orbitals of a certain kind at once to illustrate symmetry.
+* The handling of hybrid orbitals has been revamped. It is now possible to show silhouettes of all hybrid orbitals of a certain kind to illustrate symmetry.
 * More detailed information is provided about hybrid orbitals.
 * The coloring of isosurfaces has been improved.
 
@@ -30,7 +42,7 @@
 
 ### Changes
 
-* Viewport controls are now hidden by default.
+* Plot controls are now hidden by default.
 
 ## 0.4.2, 2021-02-17
 
