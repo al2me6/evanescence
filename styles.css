@@ -40,12 +40,26 @@ html {
   }
 }
 
+/* Force 16px font on iOS devices. Otherwise they will zoom in when a `select` is activated. */
+@supports (-webkit-overflow-scrolling: touch) {
+  html {
+    font-size: 16px;
+  }
+}
+
 body {
+  width: 100vw;
+  height: 100vh;
   margin: 0;
   display: flex;
   flex-wrap: wrap;
   background-color: var(--base-0102);
   color: var(--base-06);
+  overflow: hidden;
+}
+
+body.mobile-layout {
+  overflow-y: auto;
 }
 
 body > * {
@@ -107,8 +121,8 @@ img {
 /* Dropdown component. */
 
 select {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   font: inherit;
   color: inherit;
   background-color: var(--base-00);
@@ -148,17 +162,17 @@ select:focus {
 }
 
 .checkbox input {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
+  font: inherit; /* Fix sizing on iOS. */
   width: 1.2em;
   height: 1.2em;
+  padding: 0;
+  margin: 0.25em;
+  flex: 0 0 auto;
   background-color: var(--base-00);
   border: 0;
   border-radius: var(--radius);
-  padding: 0;
-  margin: 0.25em;
-  flex-grow: 0;
-  flex-shrink: 0;
   transition: background-color var(--transition-time),
     box-shadow var(--transition-time);
 }
@@ -196,13 +210,16 @@ select:focus {
 }
 
 .tab-bar input {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
+  width: unset;
+  height: unset;
   padding: 0;
   margin: 0;
   flex: 1 0 auto;
   font-size: 1em;
   font-family: inherit;
+  border: none;
   border-radius: var(--radius);
   transition: all var(--transition-time);
 }
@@ -237,15 +254,15 @@ select:focus {
 .tooltip {
   position: relative;
   text-decoration: underline;
-  text-decoration-style: dotted;
   -webkit-text-decoration-style: dotted;
+  text-decoration-style: dotted;
   transition: text-decoration var(--transition-time);
   cursor: help;
 }
 
 .tooltip .description {
-  --width: min(240px, 80vw);
   box-sizing: border-box;
+  --width: min(240px, 80vw);
   visibility: hidden;
   opacity: 0;
   font-size: 0.85rem;
@@ -271,8 +288,8 @@ select:focus {
 /* Popup windows. */
 
 .window-button {
-  appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   --size: 1.8rem;
   width: var(--size);
   height: var(--size);
@@ -284,7 +301,6 @@ select:focus {
   font: inherit;
   color: inherit;
   font-size: calc(var(--size) * 0.7);
-  line-height: var(--size);
   transition: var(--transition-time);
   display: flex;
   align-items: center;
@@ -325,27 +341,37 @@ select:focus {
 }
 
 .window-container {
-  position: relative;
   box-sizing: border-box;
-  --width: min(90vw, 55em);
-  --height: 85vh;
+  position: relative;
+  --width: min(90%, 55em);
+  --height: 85%;
   width: var(--width);
   min-height: min(var(--height), 350px);
   max-height: var(--height);
   display: flex;
   flex-direction: column;
-  padding: 3rem;
-  padding-top: 0;
+  padding: 0 3rem 3rem 3rem;
   background-color: var(--base-0102);
   border-radius: calc(var(--radius) * 4);
   box-shadow: 5px 15px 40px 20px var(--base-00);
 }
 
 .window-header {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-right: -1em;
+}
+
+@media (max-width: 800px) {
+  .window-container {
+    padding: 0 2rem 2rem 2rem;
+  }
+
+  .window-header {
+    margin-right: 0;
+  }
 }
 
 .window-close-button {
@@ -360,7 +386,16 @@ select:focus {
 .window-content {
   width: 100%;
   overflow-y: auto;
-  overscroll-behavior: contain;
+}
+
+/*
+This class is added and removed dynamically (see `components/window.rs`).
+Disable scroll in the body if there is a window overlaid.
+Note that disabling scroll is *intentionally* not implemented on iOS (WTF Apple!!) if the address
+bar is collapsed; see https://bugs.webkit.org/show_bug.cgi?id=153852#c34.
+*/
+body.window-open {
+  overflow: hidden;
 }
 
 /* UI STYLING */
@@ -369,14 +404,12 @@ select:focus {
 
 main {
   box-sizing: border-box;
-  height: 100vh;
+  height: 100%;
   flex: 2 1 50vh;
 }
 
-@media (orientation: portrait) {
-  main {
-    height: 100vw;
-  }
+.mobile-layout main {
+  height: min(120vw, 60vh);
 }
 
 .visualization#pointillist {
@@ -386,32 +419,31 @@ main {
 
 /* Sidebar. */
 
-/* Note that scrolling is dynamically managed by the UI (see `lib.rs`). */
 #sidebar {
   box-sizing: border-box;
-  flex: 1 0 20rem;
+  max-height: 100%;
+  flex: 1 1 20rem;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* This class is added and removed dynamically (see `lib.rs`). */
+.mobile-layout #sidebar {
+  overflow-y: unset;
+  max-height: unset;
+}
+
+#title-and-help-btn {
+  display: flex;
+  justify-content: space-between;
 }
 
 #title-and-help-btn > h1 {
   margin-top: 0.2em;
 }
-
-footer {
-  margin-top: 40px;
-  width: 100%;
-  align-items: right;
-}
-
-footer p {
-  text-align: right;
-  font-size: 0.8rem;
-}
-
-/* Controls. */
 
 #controls {
   user-select: none;
@@ -435,7 +467,7 @@ footer p {
   padding-bottom: 0.25em;
 }
 
-#controls td + td {
+#controls td:not(:first-child) {
   padding-left: 0.5em;
 }
 
@@ -444,7 +476,7 @@ footer p {
   width: 50%;
 }
 
-#controls td:nth-child(2) {
+#controls td:last-child {
   text-align: left;
   width: 50%;
 }
@@ -458,19 +490,27 @@ footer p {
   margin-bottom: 0;
 }
 
-/* Supplemental display. */
-
 .visualization#supplemental {
   padding: 10px;
   flex: 1 0 350px;
 }
 
-/* Help panel. */
-
-#title-and-help-btn {
+footer {
+  margin-top: 40px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  font-size: 0.8rem;
 }
+
+footer > *:not(:first-child)::before {
+  content: "|";
+  margin-left: 0.4em;
+  margin-right: 0.4em;
+}
+
+/* Help panel. */
 
 #title-and-help-btn .raw > :first-child {
   margin-top: 0;
