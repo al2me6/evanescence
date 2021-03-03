@@ -38,7 +38,7 @@ fn isosurface(
         z,
         value,
         color_scale,
-        opacity: 0.075,
+        opacity: 0.125,
         ..Default::default()
     }
     .into()
