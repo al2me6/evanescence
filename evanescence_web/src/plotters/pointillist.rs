@@ -53,6 +53,13 @@ pub(crate) fn real(state: &State) -> JsValue {
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
     let max_abs = *partial_max(&values_abs).unwrap();
 
+    // Special handling for s orbitals.
+    let min_point_size = if state.mode().is_real_or_simple() && state.qn().l() == 0 {
+        0.6
+    } else {
+        0.3
+    };
+
     Scatter3D {
         x,
         y,
@@ -60,7 +67,7 @@ pub(crate) fn real(state: &State) -> JsValue {
         marker: Marker {
             size: values_abs
                 .into_iter()
-                .map(|v| normalize(0.0..=max_abs, 0.2..=5.0, v))
+                .map(|v| normalize(0.0..=max_abs, min_point_size..=5.0, v))
                 .collect(),
             color: values,
             show_scale: true,
@@ -86,6 +93,9 @@ pub(crate) fn complex(state: &State) -> JsValue {
     let arguments: Vec<_> = values.iter().map(|v| v.arg()).collect();
     let max_modulus = *partial_max(&moduli).unwrap();
 
+    // Special handling for s orbitals.
+    let min_point_size = if state.qn().l() == 0 { 0.8 } else { 0.4 };
+
     Scatter3D {
         x,
         y,
@@ -93,7 +103,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
         marker: Marker {
             size: moduli
                 .into_iter()
-                .map(|m| normalize(0.0..=max_modulus, 0.4..=4.0, m))
+                .map(|m| normalize(0.0..=max_modulus, min_point_size..=3.0, m))
                 .collect(),
             color: arguments,
             color_scale: color_scales::PHASE,
