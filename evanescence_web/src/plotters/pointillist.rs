@@ -20,8 +20,8 @@ use crate::utils::partial_max;
 
 fn isosurface(
     simulation: ComponentForm<f32>,
-    correct_instability: bool,
     color_scale: ColorScale,
+    correct_instability: bool,
 ) -> JsValue {
     let (x, y, z, mut value) = simulation.into_components();
     if correct_instability {
@@ -143,8 +143,8 @@ pub(crate) fn radial_nodes(state: &State) -> JsValue {
             state.quality().for_isosurface(),
         )
         .into(),
-        false,
         color_scales::GREENS,
+        false,
     )
 }
 
@@ -159,8 +159,8 @@ pub(crate) fn angular_nodes(state: &State) -> JsValue {
             state.quality().for_isosurface(),
         )
         .into(),
-        qn.l() >= 4 && qn.m().abs() >= 4,
         color_scales::PURP,
+        qn.l() >= 4 && qn.m().abs() >= 4,
     )
 }
 
