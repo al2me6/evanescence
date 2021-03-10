@@ -43,6 +43,9 @@ pub trait Orbital: Evaluate {
     /// probability density is confined within a sphere of the radius returned.
     fn estimate_radius(params: &Self::Parameters) -> f32;
 
+    /// Give the probability value corresponding to a certain wavefunction value.
+    fn probability(value: Self::Output) -> f32;
+
     /// Compute a plot of the cross section of an orbital along a given `plane`.
     ///
     /// `num_points` points will be evaluated in a grid centered at the origin and covering
@@ -95,6 +98,11 @@ impl Orbital for Real {
         n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
     }
 
+    #[inline]
+    fn probability(value: f32) -> f32 {
+        value * value
+    }
+
     /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
     /// the quantum numbers only (ex. `ψ_{420}`).
     fn name(qn: &Qn) -> String {
@@ -137,6 +145,12 @@ impl Evaluate for Complex {
 impl Orbital for Complex {
     fn estimate_radius(params: &Self::Parameters) -> f32 {
         Real::estimate_radius(params)
+    }
+
+    #[inline]
+    fn probability(value: Self::Output) -> f32 {
+        let norm = value.norm();
+        norm * norm
     }
 
     /// Give the name of the wavefunction (ex. `ψ_{420}`).

@@ -151,6 +151,11 @@ impl Orbital for Hybrid {
             * 0.8
     }
 
+    #[inline]
+    fn probability(value: Self::Output) -> f32 {
+        value * value
+    }
+
     fn name(params: &Self::Parameters) -> String {
         params.to_string()
     }
