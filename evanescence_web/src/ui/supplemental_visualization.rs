@@ -3,6 +3,7 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
+use crate::components::raw::RawSpan;
 use crate::descriptions::DESC;
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
@@ -22,9 +23,9 @@ impl SupplementalVisualizationImpl {
 
         let renderer: fn(&State) -> (JsValue, JsValue) = match state.supplement() {
             Visualization::None => return, // No need to render.
-            Visualization::RadialWavefunction
-            | Visualization::RadialProbabilityDensity
-            | Visualization::RadialProbabilityDistribution => plot::radial,
+            Visualization::RadialWavefunction | Visualization::RadialProbabilityDistribution => {
+                plot::radial
+            }
             Visualization::CrossSectionXY
             | Visualization::CrossSectionYZ
             | Visualization::CrossSectionZX => plot::cross_section,
@@ -89,7 +90,6 @@ impl Component for SupplementalVisualizationImpl {
             let desc = match supplement {
                 Visualization::None => "",
                 Visualization::RadialWavefunction => DESC.rad_wavefunction,
-                Visualization::RadialProbabilityDensity => DESC.rad_prob_density,
                 Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
                 Visualization::CrossSectionXY
                 | Visualization::CrossSectionYZ
@@ -99,7 +99,7 @@ impl Component for SupplementalVisualizationImpl {
             html! {
                 <>
                     <h3>{ capitalize_words(&title) }</h3>
-                    <p>{ desc }</p>
+                    <p><RawSpan inner_html = desc /></p>
                     <div class = "visualization" id = Self::ID />
                 </>
             }

@@ -42,21 +42,6 @@ impl Evaluate for Radial {
     }
 }
 
-/// The radial probability density, or the wavefunction squared.
-pub struct RadialProbabilityDensity;
-
-impl Evaluate for RadialProbabilityDensity {
-    type Output = f32;
-    type Parameters = Nl;
-
-    #[inline]
-    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output {
-        #[allow(non_snake_case)] // Mathematical convention.
-        let R = Radial::evaluate(params, point);
-        R * R
-    }
-}
-
 /// The radial probability distribution, `r^2R^2`.
 pub struct RadialProbabilityDistribution;
 

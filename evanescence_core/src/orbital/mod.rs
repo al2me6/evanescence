@@ -14,7 +14,6 @@ pub use self::hybrid::{Hybrid, LinearCombination};
 pub use self::quantum_numbers::Qn;
 use self::wavefunctions::{
     Radial,
-    RadialProbabilityDensity,
     RadialProbabilityDistribution,
     RealSphericalHarmonic,
     SphericalHarmonic,
@@ -150,7 +149,6 @@ impl Orbital for Complex {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum RadialPlot {
     Wavefunction,
-    ProbabilityDensity,
     ProbabilityDistribution,
 }
 
@@ -164,7 +162,6 @@ pub enum RadialPlot {
 pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
     let evaluator = match variant {
         RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
-        RadialPlot::ProbabilityDensity => RadialProbabilityDensity::evaluate_on_line_segment,
         RadialPlot::ProbabilityDistribution => {
             RadialProbabilityDistribution::evaluate_on_line_segment
         }

@@ -18,7 +18,6 @@ description_items!(
     hybrid_dropdown,
     show_symmetry,
     rad_wavefunction,
-    rad_prob_density,
     rad_prob_distr,
     cross_section,
     isosurface_3d,

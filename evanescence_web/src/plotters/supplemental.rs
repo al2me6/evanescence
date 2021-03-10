@@ -19,7 +19,6 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     let variant: RadialPlot = state.supplement().try_into().unwrap();
     let function_expr = match variant {
         RadialPlot::Wavefunction => "R(r)",
-        RadialPlot::ProbabilityDensity => "R(r)²",
         RadialPlot::ProbabilityDistribution => "r²R(r)²",
     };
     let variant_label = format!(
@@ -37,8 +36,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
             color: Some(
                 b16_colors::BASE[match variant {
                     RadialPlot::Wavefunction => 0x0c,
-                    RadialPlot::ProbabilityDensity => 0x0a,
-                    RadialPlot::ProbabilityDistribution => 0x0e,
+                    RadialPlot::ProbabilityDistribution => 0x0a,
                 }],
             ),
             ..Default::default()

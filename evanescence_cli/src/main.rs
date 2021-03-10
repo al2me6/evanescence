@@ -17,7 +17,6 @@ enum Mode {
     PointillistWithNodes,
     PointillistComplex,
     Radial,
-    RadialProbability,
     RadialProbabilityDistribution,
     CrossSectionXY,
     CrossSectionYZ,
@@ -30,7 +29,6 @@ impl TryInto<RadialPlot> for Mode {
     fn try_into(self) -> Result<RadialPlot, Self::Error> {
         match self {
             Self::Radial => Ok(RadialPlot::Wavefunction),
-            Self::RadialProbability => Ok(RadialPlot::ProbabilityDensity),
             Self::RadialProbabilityDistribution => Ok(RadialPlot::ProbabilityDistribution),
             _ => Err(anyhow!("Cannot plot {} as a radial plot.", self)),
         }
@@ -198,7 +196,7 @@ fn main() -> Result<()> {
                 },
             )?;
         }
-        Mode::Radial | Mode::RadialProbability | Mode::RadialProbabilityDistribution => {
+        Mode::Radial | Mode::RadialProbabilityDistribution => {
             run_simulation(
                 || {
                     let num_points = quality.for_line();

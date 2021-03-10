@@ -18,8 +18,6 @@ pub(crate) enum Visualization {
     None,
     #[strum(serialize = "Radial wavefunction")]
     RadialWavefunction,
-    #[strum(serialize = "Radial probability density")]
-    RadialProbabilityDensity,
     #[strum(serialize = "Radial probability distribution")]
     RadialProbabilityDistribution,
     #[strum(serialize = "XY-plane cross section")]
@@ -70,7 +68,6 @@ impl TryFrom<Visualization> for RadialPlot {
     fn try_from(value: Visualization) -> Result<Self, Self::Error> {
         match value {
             Visualization::RadialWavefunction => Ok(RadialPlot::Wavefunction),
-            Visualization::RadialProbabilityDensity => Ok(RadialPlot::ProbabilityDensity),
             Visualization::RadialProbabilityDistribution => Ok(RadialPlot::ProbabilityDistribution),
             _ => Err(format!("{:?} is not a radial plot", value)),
         }
@@ -219,7 +216,6 @@ impl State {
             Mode::Complex => vec![
                 Visualization::None,
                 Visualization::RadialWavefunction,
-                Visualization::RadialProbabilityDensity,
                 Visualization::RadialProbabilityDistribution,
             ],
             Mode::Hybrid => vec![
