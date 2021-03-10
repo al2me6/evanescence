@@ -54,7 +54,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
         drag_mode_bool: Some(false),
         x_axis: Some(Axis {
             title: Some(Title {
-                text: "r",
+                text: "r (Bohr radii)",
                 standoff: Some(20),
             }),
             ticks: "outside",
