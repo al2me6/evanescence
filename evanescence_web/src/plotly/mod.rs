@@ -14,6 +14,7 @@ pub(crate) use self::surface::Surface;
 #[serde(rename_all = "lowercase")]
 pub(crate) enum PlotType {
     Isosurface,
+    #[serde(rename = "scattergl")]
     Scatter,
     Scatter3D,
     Surface,

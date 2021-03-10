@@ -40,5 +40,6 @@ def_plotly_ty! {
     x: Vec<f32>,
     y: Vec<f32>,
     line: Line<'a>,
+    #optional fill: &'a str,
     plot_type as "type": PlotType = PlotType::Scatter,
 }

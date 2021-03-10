@@ -39,8 +39,10 @@ def_plotly_ty! {
     Axis<'a>
 
     #optional title: Title<'a>,
+    #optional range_mode as "rangemode": &'a str,
     ticks: &'a str,
     #optional n_ticks as "nticks": u32,
+    tick_length as "ticklen": u32 = 6,
     tick_color as "tickcolor": &'a str = b16_colors::BASE0203,
     exponent_format as "exponentformat": &'a str = "power",
     grid_color as "gridcolor": &'a str = b16_colors::BASE0203,

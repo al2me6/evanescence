@@ -41,6 +41,11 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
             ),
             ..Default::default()
         },
+        fill: if matches!(variant, RadialPlot::ProbabilityDistribution) {
+            Some("tozeroy")
+        } else {
+            None
+        },
         ..Default::default()
     };
 
@@ -52,6 +57,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
                 text: "r",
                 standoff: Some(20),
             }),
+            ticks: "outside",
             ..Default::default()
         }),
         y_axis: Some(Axis {
@@ -59,6 +65,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
                 text: &variant_label,
                 standoff: Some(20),
             }),
+            range_mode: Some("tozero"),
             ticks: "outside",
             ..Default::default()
         }),
