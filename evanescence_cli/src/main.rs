@@ -132,7 +132,7 @@ fn main() -> Result<()> {
                 || {
                     (
                         quality as usize,
-                        orbital::Real::monte_carlo_simulate(&qn, quality),
+                        orbital::Real::monte_carlo_simulate(&qn, quality, false),
                     )
                 },
                 skip_render,
@@ -150,7 +150,7 @@ fn main() -> Result<()> {
                         // We render the Monte Carlo points and a cube of side length num_points_iso.
                         quality as usize + num_points_iso.pow(3),
                         (
-                            orbital::Real::monte_carlo_simulate(&qn, quality),
+                            orbital::Real::monte_carlo_simulate(&qn, quality, false),
                             orbital::Real::sample_region(&qn, num_points_iso),
                         ),
                     )
@@ -180,7 +180,7 @@ fn main() -> Result<()> {
                 || {
                     (
                         quality as usize,
-                        orbital::Complex::monte_carlo_simulate(&qn, quality),
+                        orbital::Complex::monte_carlo_simulate(&qn, quality, false),
                     )
                 },
                 skip_render,

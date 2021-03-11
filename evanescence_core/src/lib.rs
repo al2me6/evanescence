@@ -21,7 +21,7 @@
 //!
 //! let qn = Qn::new(4, 2, 0).unwrap();
 //! let quality = Quality::Low; // Quality controls the number of points sampled.
-//! let results = orbital::Real::monte_carlo_simulate(&qn, quality);
+//! let results = orbital::Real::monte_carlo_simulate(&qn, quality, false);
 //! ```
 
 #![feature(destructuring_assignment)]

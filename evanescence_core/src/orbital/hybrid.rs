@@ -152,7 +152,7 @@ impl Orbital for Hybrid {
     }
 
     #[inline]
-    fn probability(value: Self::Output) -> f32 {
+    fn probability_density_of(value: Self::Output) -> f32 {
         value * value
     }
 

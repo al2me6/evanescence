@@ -55,9 +55,9 @@ pub(crate) fn real(state: &State) -> JsValue {
 
     // Special handling for s orbitals.
     let min_point_size = if state.mode().is_real_or_simple() && state.qn().l() == 0 {
-        0.6
+        0.8
     } else {
-        0.3
+        0.4
     };
 
     Scatter3D {
@@ -67,7 +67,7 @@ pub(crate) fn real(state: &State) -> JsValue {
         marker: Marker {
             size: values_abs
                 .into_iter()
-                .map(|v| normalize(0.0..=max_abs, min_point_size..=5.0, v))
+                .map(|v| normalize(0.0..=max_abs, min_point_size..=4.5, v))
                 .collect(),
             color: values,
             show_scale: true,
@@ -86,7 +86,7 @@ pub(crate) fn real(state: &State) -> JsValue {
 pub(crate) fn complex(state: &State) -> JsValue {
     assert!(state.mode().is_complex());
 
-    let simulation = orbital::Complex::monte_carlo_simulate(state.qn(), state.quality());
+    let simulation = orbital::Complex::monte_carlo_simulate(state.qn(), state.quality(), true);
     let (x, y, z, values) = simulation.into_components();
 
     let moduli: Vec<_> = values.iter().map(|v| v.norm()).collect();

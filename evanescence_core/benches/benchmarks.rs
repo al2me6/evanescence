@@ -54,7 +54,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
                 ),
             ),
             &qn,
-            |b, qn| b.iter(|| orbital::Real::monte_carlo_simulate(qn, Quality::Extreme)),
+            |b, qn| b.iter(|| orbital::Real::monte_carlo_simulate(qn, Quality::Extreme, true)),
         );
     }
 }

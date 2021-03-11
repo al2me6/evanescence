@@ -387,11 +387,12 @@ impl State {
     pub(crate) fn monte_carlo_simulate_real(&self) -> ComponentForm<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::Real => {
-                orbital::Real::monte_carlo_simulate(self.qn(), self.quality())
+                orbital::Real::monte_carlo_simulate(self.qn(), self.quality(), true)
             }
             Mode::Hybrid => orbital::Hybrid::monte_carlo_simulate(
                 self.hybrid_kind().principal(),
                 self.quality(),
+                true,
             ),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }

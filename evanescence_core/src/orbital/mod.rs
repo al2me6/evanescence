@@ -43,8 +43,8 @@ pub trait Orbital: Evaluate {
     /// probability density is confined within a sphere of the radius returned.
     fn estimate_radius(params: &Self::Parameters) -> f32;
 
-    /// Give the probability value corresponding to a certain wavefunction value.
-    fn probability(value: Self::Output) -> f32;
+    /// Give the probability density value corresponding to a certain wavefunction value.
+    fn probability_density_of(value: Self::Output) -> f32;
 
     /// Compute a plot of the cross section of an orbital along a given `plane`.
     ///
@@ -99,7 +99,7 @@ impl Orbital for Real {
     }
 
     #[inline]
-    fn probability(value: f32) -> f32 {
+    fn probability_density_of(value: f32) -> f32 {
         value * value
     }
 
@@ -148,7 +148,7 @@ impl Orbital for Complex {
     }
 
     #[inline]
-    fn probability(value: Self::Output) -> f32 {
+    fn probability_density_of(value: Self::Output) -> f32 {
         let norm = value.norm();
         norm * norm
     }
