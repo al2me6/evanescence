@@ -14,6 +14,8 @@ use crate::state::State;
 use crate::utils::{b16_colors, capitalize_words, partial_max};
 
 pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
+    const NUM_POINTS: usize = 600;
+
     assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
 
     let variant: RadialPlot = state.supplement().try_into().unwrap();
@@ -27,7 +29,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
         function_expr
     );
 
-    let (x, y) = orbital::sample_radial(state.qn(), variant, state.quality().for_line());
+    let (x, y) = orbital::sample_radial(state.qn(), variant, NUM_POINTS);
 
     let trace = Scatter {
         x,

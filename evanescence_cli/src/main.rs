@@ -199,10 +199,10 @@ fn main() -> Result<()> {
         Mode::Radial | Mode::RadialProbabilityDistribution => {
             run_simulation(
                 || {
-                    let num_points = quality.for_line();
+                    const NUM_POINTS: usize = 1_000;
                     (
-                        num_points,
-                        orbital::sample_radial(&qn, mode.try_into().unwrap(), num_points),
+                        NUM_POINTS,
+                        orbital::sample_radial(&qn, mode.try_into().unwrap(), NUM_POINTS),
                     )
                 },
                 skip_render,

@@ -13,16 +13,13 @@ use crate::rand_f32;
 /// These values have been empirically observed to produce reasonable results.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, EnumString, EnumIter)]
 pub enum Quality {
-    /// Produces "recognizable" results, but not much more.
-    Minimum = 5_000,
-    Low = 10_000,
-    Medium = 25_000,
-    /// Generally a good middle ground between performance and quality.
-    High = 50_000,
+    Minimum = 1 << 12,
+    Low = 1 << 13,
+    Medium = 1 << 14,
+    High = 1 << 15,
     #[strum(serialize = "Very high")]
-    VeryHigh = 100_000,
-    /// Should likely be avoided for all but the largest orbitals.
-    Extreme = 250_000,
+    VeryHigh = 1 << 16,
+    Extreme = 1 << 17,
 }
 
 impl Default for Quality {
@@ -37,22 +34,16 @@ impl Default for Quality {
     clippy::integer_division, // Intentional.
 )]
 impl Quality {
-    /// Get the number of points that should be sampled for a line plot.
-    #[inline]
-    pub fn for_line(self) -> usize {
-        self as usize / 100
-    }
-
     /// Get the number of points that should be sampled for a plane/cross-section plot.
     #[inline]
     pub fn for_grid(self) -> usize {
-        ((self as usize as f32).sqrt() as usize / 2) | 0b1 // Force the number to be odd.
+        ((self as usize as f32).sqrt() * 0.75) as usize | 0b1 // Force the number to be odd.
     }
 
     /// Get the number of points that should be sampled for an isosurface plot.
     #[inline]
     pub fn for_isosurface(self) -> usize {
-        (self as usize as f32 * 2.0).cbrt() as usize | 0b1 // Force the number to be odd.
+        (self as usize as f32 * 4.0).cbrt() as usize | 0b1 // Force the number to be odd.
     }
 }
 
