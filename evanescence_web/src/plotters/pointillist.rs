@@ -55,9 +55,9 @@ pub(crate) fn real(state: &State) -> JsValue {
 
     // Special handling for s orbitals.
     let min_point_size = if state.mode().is_real_or_simple() && state.qn().l() == 0 {
-        0.8
+        0.6
     } else {
-        0.4
+        0.3
     };
 
     Scatter3D {
@@ -67,7 +67,7 @@ pub(crate) fn real(state: &State) -> JsValue {
         marker: Marker {
             size: values_abs
                 .into_iter()
-                .map(|v| normalize(0.0..=max_abs, min_point_size..=4.5, v))
+                .map(|v| normalize(0.0..=max_abs, min_point_size..=4.0, v))
                 .collect(),
             color: values,
             show_scale: true,
