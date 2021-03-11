@@ -139,7 +139,7 @@ pub(crate) fn radial_nodes(state: &State) -> JsValue {
             // full extent only. This is a heuristic that has been verified to cover all radial
             // nodes from `n` = 2 through 8.
             orbital::Real::estimate_radius(state.qn()) as f32
-                * (state.qn().n() as f32 * 0.05 + 0.125),
+                * (state.qn().n() as f32 * 0.06 + 0.125),
             state.quality().for_isosurface(),
         )
         .into(),
