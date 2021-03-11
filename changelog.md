@@ -1,5 +1,21 @@
 # Version History
 
+## 0.4.7, 2021-03-11
+
+### Features
+
+* The isosurface cutoff value is now shown for 3D isosurface plots.
+
+### Changes
+
+* Pointillist plots are now based on probability density instead of wavefunction value. This is more correct and produces higher-quality, more well-defined plots. Unfortunately, this also has a rather significant perform cost that can only be partially ameliorated.
+* Quality values have been adjusted to improve performance, since fewer points are now needed to achieve the same visual quality.
+* Various descriptions have been clarified and made more rigorous.
+* Point sizes have been adjusted to emphasize the outer lobes of *s* orbitals.
+* Nodal surfaces are now more opaque and clearer.
+* Removed the "radial probability density" plot. This plot is somewhat confusing and does not have a signifcant use when "radial probability distribution" is also provided.
+  * The probability distribution curve is now shaded to reflect that its integral corresponds to probability.
+
 ## 0.4.6, 2021-03-02
 
 ### Bugfixes
