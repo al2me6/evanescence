@@ -95,7 +95,7 @@ impl Orbital for Real {
     #[inline]
     fn estimate_radius(qn: &Qn) -> f32 {
         let n = qn.n() as f32;
-        n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
+        0.9 * n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
     }
 
     #[inline]
