@@ -7,9 +7,9 @@ use crate::components::raw::RawSpan;
 use crate::descriptions::DESC;
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
-use crate::plotters::supplemental as plot;
+use crate::plotters::{self, supplemental as plot};
 use crate::state::{State, StateHandle, Visualization};
-use crate::utils::{capitalize_words, fire_resize_event};
+use crate::utils::{capitalize_words, fire_resize_event, fmt_scientific_notation};
 
 pub(crate) struct SupplementalVisualizationImpl {
     handle: StateHandle,
@@ -84,7 +84,8 @@ impl Component for SupplementalVisualizationImpl {
     }
 
     fn view(&self) -> Html {
-        let supplement = self.handle.state().supplement();
+        let state = self.handle.state();
+        let supplement = state.supplement();
         if supplement.is_enabled() {
             let title = supplement.to_string();
             let desc = match supplement {
@@ -96,10 +97,29 @@ impl Component for SupplementalVisualizationImpl {
                 | Visualization::CrossSectionZX => DESC.cross_section,
                 Visualization::Isosurface3D => DESC.isosurface_3d,
             };
+
+            let isosurface_cutoff_text = if supplement == Visualization::Isosurface3D {
+                html! {
+                    <p>
+                        { "Specifically, the cutoff value used is " }
+                        <RawSpan
+                            inner_html = fmt_scientific_notation(
+                                plotters::isosurface_cutoff_heuristic(state.qn()).powi(2),
+                                3,
+                            )
+                        />
+                        { "." }
+                    </p>
+                }
+            } else {
+                html! {}
+            };
+
             html! {
                 <>
                     <h3>{ capitalize_words(&title) }</h3>
                     <p><RawSpan inner_html = desc /></p>
+                    { isosurface_cutoff_text }
                     <div class = "visualization" id = Self::ID />
                 </>
             }

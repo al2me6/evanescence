@@ -1,3 +1,5 @@
+use std::fmt::LowerExp;
+
 pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
     let mut prev_is_space = true;
     source
@@ -11,6 +13,11 @@ pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
             c
         })
         .collect()
+}
+pub(crate) fn fmt_scientific_notation<T: LowerExp>(source: T, precision: usize) -> String {
+    format!("{:.*e}</sup>", precision, source)
+        .replace("-", "−") // "hyphen" -> "minus".
+        .replace("e", " × 10<sup>")
 }
 
 pub(crate) fn partial_max<I>(values: I) -> Option<<I as IntoIterator>::Item>

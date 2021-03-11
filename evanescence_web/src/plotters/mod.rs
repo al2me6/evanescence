@@ -6,7 +6,7 @@ use evanescence_core::orbital::{self, Qn};
 /// Yet another heuristic for scaling the cutoff value appropriately. As the number of lobes
 /// increases, they attain increasingly small values, which require a lower cutoff to achieve
 /// an adequate appearance (i.e., not showing too small of a portion).
-fn isosurface_cutoff_heuristic(qn: &Qn) -> f32 {
+pub(crate) fn isosurface_cutoff_heuristic(qn: &Qn) -> f32 {
     let num_radial_nodes = orbital::Real::num_radial_nodes(qn);
     let num_angular_nodes = orbital::Real::num_angular_nodes(qn);
     let num_lobes = (num_radial_nodes + 1) * (num_angular_nodes + 1);

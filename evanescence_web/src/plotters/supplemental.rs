@@ -167,7 +167,6 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
             .into_components();
 
     let cutoff = isosurface_cutoff_heuristic(state.qn());
-    log::info!("Using isosurface cutoff value {:.3e}.", cutoff);
 
     let axis = Axis::with_extent(state.estimate_radius());
     let trace = Isosurface {

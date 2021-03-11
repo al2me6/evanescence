@@ -37,5 +37,5 @@ pub(crate) const DESC: Descriptions = Descriptions {
     rad_wavefunction: "This is the radial component of the wavefunction. Radial nodes are found where the curve crosses 0.",
     rad_prob_distr: "The probability of finding the electron within a shell of inner radius <i>a</i> and outer radius <i>b</i> is given by the area under the portion of this curve running from <i>a</i> to <i>b</i>. By definition, the total area under this curve from 0 to infinity, corresponding to the probability of finding the electron anywhere in space, is 1.",
     cross_section: "This plot displays the behavior of the wavefunction along a given plane (drawn in orange). The wavefunction value is displayed using the third vertical axis, and a contour plot is also projected onto the plane.",
-    isosurface_3d: "This plot displays all the surfaces where the wavefunction is exactly equal to a certain value. It provides a general sense of the structure of the orbital, but does not indicate its probabilistic nature.",
+    isosurface_3d: "This plot displays all the surfaces where the probability density is equal to a certain value. It provides a general sense of the structure of the orbital, but does not indicate its probabilistic nature.",
 };
