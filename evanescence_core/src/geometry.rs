@@ -203,7 +203,7 @@ impl Point {
             y,
             z,
             r,
-            cos_theta: z / r,
+            cos_theta: if r == 0.0 { 1.0 } else { z / r }, // Handle degeneracy.
             phi: {
                 let atan2 = y.atan2(x);
                 if atan2.is_sign_positive() {
