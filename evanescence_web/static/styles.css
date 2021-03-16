@@ -262,7 +262,7 @@ select:focus {
 
 .tooltip .description {
   box-sizing: border-box;
-  --width: min(240px, 80vw);
+  --width: min(15rem, 80vw);
   visibility: hidden;
   opacity: 0;
   font-size: 0.85rem;
@@ -272,7 +272,7 @@ select:focus {
   left: 50%;
   width: var(--width);
   margin-left: calc(-0.5 * var(--width));
-  padding: 0.3em 0.8em;
+  padding: 0.5em 0.8em;
   border-radius: var(--radius);
   background-color: var(--base-0203);
   box-shadow: 0 0.25rem 1.5rem 0.25rem var(--base-00);
