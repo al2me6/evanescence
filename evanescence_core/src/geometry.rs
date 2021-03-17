@@ -9,7 +9,6 @@ use getset::{CopyGetters, Getters};
 use nanorand::WyRand;
 use strum::Display;
 
-use crate::numerics::FastOps;
 use crate::rand_f32;
 
 /// A vector (the mathematical kind) in `R^3`.
@@ -238,7 +237,7 @@ impl Point {
         iter::repeat_with(move || {
             // For an explanation of taking the cube root of the random value, see
             // https://stackoverflow.com/a/50746409.
-            let r /* [0, radius] */ = rand_f32!(rng).fast_cbrt() * radius;
+            let r /* [0, radius] */ = rand_f32!(rng).cbrt() * radius;
             let cos_theta /* [-1, 1] */ = rand_f32!(rng) * 2.0 - 1.0;
             // Pythagorean identity: sin^2(x) + cos^2(x) = 1.
             let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
