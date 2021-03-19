@@ -19,7 +19,11 @@ Each mode offers a different type of orbital to visualize.
 
 ### Help for specific features
 
-Text with <span style="text-decoration: underline; text-decoration-style: dotted; -webkit-text-decoration-style: dotted;">dotted underlines</span> have explanations. Hover over them with your cursor to read them.
+Text with <span class="tooltip">dotted underlines<div class="description"><div><p>I'm a tooltip!</p></div></div></span> have explanations. Hover over them with your cursor to read them.
+
+#### 3D isosurface visualization is blank
+
+If you see a blank isosurface plot, try increasing the quality – the orbital may be too intricate to be sufficiently well sampled at the current quality.
 
 ### Interacting with visualizations
 
