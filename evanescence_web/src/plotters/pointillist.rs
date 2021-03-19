@@ -208,7 +208,7 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
                 .map(isosurface_cutoff_heuristic)
                 .sum::<f32>()
                 / orbital.count() as f32
-                * 6.0;
+                * 6.5;
 
             Isosurface {
                 x,
