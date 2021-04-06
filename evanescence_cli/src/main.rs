@@ -1,4 +1,5 @@
 use std::convert::TryInto;
+use std::fmt;
 use std::time::Instant;
 
 use anyhow::{anyhow, Context, Result};
@@ -6,6 +7,7 @@ use argh::FromArgs;
 use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::orbital::{self, Orbital, Qn, RadialPlot};
+use once_cell::sync::OnceCell;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
 use strum::{Display, EnumString};
@@ -60,8 +62,8 @@ struct Args {
     m: i32,
     #[argh(option, short = 'm', default = "Mode::Pointillist")]
     /// select the visualization computed: Pointillist (default), PointillistWithNodes,
-    /// PointillistComplex, Radial, RadialProbability, RadialProbabilityDensity, CrossSectionXY,
-    /// CrossSectionYZ, CrossSectionZX,
+    /// PointillistComplex, Radial, RadialProbabilityDistribution, CrossSectionXY, CrossSectionYZ,
+    /// CrossSectionZX,
     mode: Mode,
     #[argh(option, short = 'q', default = "Quality::High")]
     /// render quality: Minimum, Low, Medium, High (default), VeryHigh, or Extreme
@@ -69,12 +71,24 @@ struct Args {
     #[argh(switch)]
     /// skip rendering (effectively a benchmark for computation speed)
     skip_render: bool,
+    #[argh(switch)]
+    /// dump computation result to console
+    dump_computation: bool,
 }
 
-fn run_simulation<P, R, T>(prepare: P, skip_render: bool, render: R) -> Result<()>
+#[derive(Debug)]
+struct RunConfig {
+    skip_render: bool,
+    dump_computation: bool,
+}
+
+static RUN_CONFIG: OnceCell<RunConfig> = OnceCell::new();
+
+fn run_simulation<P, R, T>(prepare: P, render: R) -> Result<()>
 where
     P: Fn() -> (usize, T),
     R: Fn(T) -> Result<()>,
+    T: fmt::Debug,
 {
     let now = Instant::now();
     let (num_points, sim_result) = prepare();
@@ -84,7 +98,14 @@ where
         now.elapsed().as_secs_f64()
     );
 
-    if skip_render {
+    let config = RUN_CONFIG.get().unwrap();
+
+    if config.dump_computation {
+        println!("{:?}", sim_result);
+        return Ok(());
+    }
+
+    if config.skip_render {
         println!("Skipping rendering.");
         return Ok(());
     }
@@ -103,11 +124,19 @@ fn main() -> Result<()> {
         mode,
         quality,
         skip_render,
+        dump_computation,
     } = argh::from_env();
+
+    RUN_CONFIG
+        .set(RunConfig {
+            skip_render,
+            dump_computation,
+        })
+        .unwrap();
 
     let qn = Qn::new(n, l, m).with_context(|| {
         format!(
-            "received illegal quantum numbers: n={}, l={}, m={}; must satisfy n > l and l >= |m|",
+            "Received illegal quantum numbers: n={}, l={}, m={}; must satisfy n > l and l >= |m|.",
             n, l, m
         )
     })?;
@@ -135,7 +164,6 @@ fn main() -> Result<()> {
                         orbital::Real::monte_carlo_simulate(&qn, quality, false),
                     )
                 },
-                skip_render,
                 |sim_result| {
                     renderer.call1("render_pointillist", sim_result.into_components())?;
                     Ok(())
@@ -155,7 +183,6 @@ fn main() -> Result<()> {
                         ),
                     )
                 },
-                skip_render,
                 |(pointillist, isosurface)| {
                     let (xs_pt, ys_pt, zs_pt, vals_pt) = pointillist.into_components();
                     let (xs_iso, ys_iso, zs_iso, vals_iso) = isosurface.into_components();
@@ -183,7 +210,6 @@ fn main() -> Result<()> {
                         orbital::Complex::monte_carlo_simulate(&qn, quality, false),
                     )
                 },
-                skip_render,
                 |sim_result| {
                     let (xs, ys, zs, vals) = sim_result.into_components();
                     let vals_moduli: Vec<_> = vals.iter().map(|val| val.norm()).collect();
@@ -205,7 +231,6 @@ fn main() -> Result<()> {
                         orbital::sample_radial(&qn, mode.try_into().unwrap(), NUM_POINTS),
                     )
                 },
-                skip_render,
                 |(xs, ys)| {
                     renderer.call1("render_1d", (xs, "r", ys, mode.to_string()))?;
                     Ok(())
@@ -225,7 +250,6 @@ fn main() -> Result<()> {
                         ),
                     )
                 },
-                skip_render,
                 |sim_result| {
                     let (x_name, y_name) = sim_result.plane().axes_names();
                     let (xs, ys, vals) = sim_result.into_components();
