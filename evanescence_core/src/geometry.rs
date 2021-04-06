@@ -273,7 +273,7 @@ impl Point {
 
 /// Type representing a coordinate plane.
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
-#[derive(Clone, Copy, Debug, Display)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Display)]
 pub enum Plane {
     XY,
     YZ,
@@ -402,7 +402,7 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
 ///
 /// # Invariants
 /// `col_coords`, `row_coords`, and `vals` must have matching shapes (see [`Self::new`]).
-#[derive(Getters)]
+#[derive(Getters, Debug, PartialEq)]
 #[getset(get = "pub")]
 pub struct GridValues<T> {
     /// The plane on which the grid is situated.
