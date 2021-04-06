@@ -38,12 +38,6 @@
 )]
 
 #[macro_use]
-pub mod numerics;
-
-pub mod geometry;
-pub mod monte_carlo;
-pub mod orbital;
-
 pub(crate) mod utils {
     /// Generated an `f32` value in the range \[0, 1\) from a source `u32` value.
     ///
@@ -60,7 +54,6 @@ pub(crate) mod utils {
     /// Generated a random `f32` value in the range \[0, 1\).
     ///
     /// This is somehow faster when implemented as a macro wrapper around a function...
-    #[macro_export]
     macro_rules! rand_f32 {
         ($rng:expr) => {{
             use nanorand::RNG;
@@ -68,3 +61,9 @@ pub(crate) mod utils {
         }};
     }
 }
+
+pub mod geometry;
+pub mod monte_carlo;
+#[macro_use]
+pub mod numerics;
+pub mod orbital;

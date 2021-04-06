@@ -9,8 +9,6 @@ use getset::{CopyGetters, Getters};
 use nanorand::WyRand;
 use strum::Display;
 
-use crate::rand_f32;
-
 /// A vector (the mathematical kind) in `R^3`.
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
 pub struct Vec3 {
