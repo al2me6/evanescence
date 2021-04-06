@@ -14,13 +14,15 @@ Continuous benchmarks can be viewed [here](https://al2me6.github.io/evanescence/
 
 ## Features
 
-This project is very much a work-in-progress. Currently, the following features are implemented:
+This project is a work-in-progress. Currently, the following features are implemented:
 
-* Computation of arbitrary real and complex hydrogen orbitals
-* Computation of radial wavefunction, probability, and probability density values
-* Sampling of values on a line or plane
-* A variant of the "pointillist" visualization algorithm presented in [Tully et al. 2013](https://doi.org/10.1021/ed300393s)
-* Rudimentary plotting of nodal surfaces
+* Computation of arbitrary real and complex hydrogen orbitals (up to *n* = 8 exposed)
+* Computation of arbitrary linear combinations of real orbitals (a common selection exposed)
+* A variant of the "pointillist" visualization presented in [Tully et al. 2013](https://doi.org/10.1021/ed300393s)
+* Plotting of nodal surfaces
+* Plotting of wavefunction cross-sections
+* Plotting of radial wavefunction and probability density values
+* Plotting of 3D isosurfaces
 
 ## CLI
 
@@ -28,20 +30,22 @@ The CLI can be used to generate plots for preview/debugging purposes. Do note th
 
 ```terminal
 $ cargo run -- --help
-Usage: evanescence_cli <n> <l> <m> [-m <mode>] [-q <quality>] [--skip-render]
+Usage: evanescence_cli <n> <l> <m> [-m <mode>] [-q <quality>] [--skip-render] [--dump-computation]
 
 Simple CLI for evanescence_core, using the Plotly Python library for plotting.
 Note: pass two dashes before arguments for negative values: `evanescence_cli -- 4 2 -1`.
 
 Options:
   -m, --mode        select the visualization computed: Pointillist (default),
-                    PointillistWithNodes, Radial, RadialProbability,
-                    RadialProbabilityDensity, CrossSectionXY, CrossSectionYZ,
-                    CrossSectionZX,
+                    PointillistWithNodes, PointillistComplex, Radial,
+                    RadialProbabilityDistribution, CrossSectionXY,
+                    CrossSectionYZ, CrossSectionZX,
   -q, --quality     render quality: Minimum, Low, Medium, High (default),
                     VeryHigh, or Extreme
   --skip-render     skip rendering (effectively a benchmark for computation
                     speed)
+  --dump-computation
+                    dump computation result to console
   --help            display usage information
 ```
 
