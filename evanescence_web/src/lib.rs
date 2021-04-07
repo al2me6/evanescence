@@ -64,11 +64,11 @@ impl MainImpl {
         let sidebar = document.get_element_by_id(Self::SIDEBAR_ID).unwrap();
 
         // If the offset is not zero, then the flexbox must have wrapped. If so, we activate the
-        // mobile layout. There does not appear to be a way to detect wrapping in CSS.
+        // vertical layout. There does not appear to be a way to detect wrapping in CSS.
         if sidebar.get_bounding_client_rect().y() > 0.0 {
-            body.class_list().add_1("mobile-layout").unwrap();
+            body.class_list().add_1("vertical-layout").unwrap();
         } else {
-            body.class_list().remove_1("mobile-layout").unwrap();
+            body.class_list().remove_1("vertical-layout").unwrap();
         }
 
         // HACK: Force the page height to be the same as `innerHeight`. This prevents browsers'

@@ -58,7 +58,7 @@ body {
   overflow: hidden;
 }
 
-body.mobile-layout {
+body.vertical-layout {
   overflow-y: auto;
 }
 
@@ -408,7 +408,7 @@ main {
   flex: 2 1 50vh;
 }
 
-.mobile-layout main {
+.vertical-layout main {
   height: min(120vw, 60vh);
 }
 
@@ -431,7 +431,7 @@ main {
 }
 
 /* This class is added and removed dynamically (see `lib.rs`). */
-.mobile-layout #sidebar {
+.vertical-layout #sidebar {
   overflow-y: unset;
   max-height: unset;
 }
