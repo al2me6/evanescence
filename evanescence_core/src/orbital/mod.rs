@@ -90,7 +90,7 @@ impl Evaluate for Real {
 }
 
 impl Orbital for Real {
-    /// This is an empirically derived heuristic. See the attached Mathematica notebook\
+    /// This is an empirically derived heuristic. See the attached Mathematica notebook
     /// `radial_wavefunction.nb` for plots.
     #[inline]
     fn estimate_radius(qn: &Qn) -> f32 {

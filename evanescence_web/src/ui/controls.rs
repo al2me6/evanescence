@@ -67,6 +67,7 @@ impl Component for ControlsImpl {
                             id = "quality-picker"
                             onchange = handle.reduce_callback_with(State::set_quality)
                             options = Quality::iter().collect::<Vec<_>>()
+                            custom_display = Quality::iter().map(Quality::to_text).collect::<Vec<_>>()
                             selected = state.quality()
                         /></td>
                     </tr>

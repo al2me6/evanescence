@@ -16,7 +16,6 @@ pub enum Quality {
     Low = 1 << 13,
     Medium = 1 << 14,
     High = 1 << 15,
-    #[strum(serialize = "Very high")]
     VeryHigh = 1 << 16,
     Extreme = 1 << 17,
 }
@@ -24,6 +23,15 @@ pub enum Quality {
 impl Default for Quality {
     fn default() -> Self {
         Self::Low
+    }
+}
+
+impl Quality {
+    pub fn to_text(self) -> String {
+        match self {
+            Self::VeryHigh => "Very high".into(),
+            quality => quality.to_string(),
+        }
     }
 }
 
