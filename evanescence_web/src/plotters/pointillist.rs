@@ -72,7 +72,7 @@ pub(crate) fn real(state: &State) -> JsValue {
             color: values,
             show_scale: true,
             color_bar: ColorBar {
-                x: 0.0,
+                x: -0.02,
                 x_anchor: Anchor::Right,
                 ..Default::default()
             },
@@ -112,7 +112,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
             c_mid: 0.0,
             c_max: Some(PI),
             color_bar: ColorBar {
-                x: 0.0,
+                x: -0.02,
                 x_anchor: Anchor::Right,
                 tick_vals: Some(&[-PI, -FRAC_PI_2, 0.0, FRAC_PI_2, PI]),
                 tick_text: Some(&["−π", "−π/2", "0", "π/2", "π"]),
