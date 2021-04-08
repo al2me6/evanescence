@@ -19,7 +19,7 @@ Each mode offers a different type of orbital to visualize.
 
 ### Help for specific features
 
-Text with <span class="tooltip">dotted underlines<div class="description"><div><p>I'm a tooltip!</p></div></div></span> have explanations. Hover over them with your cursor to read them.
+Text with <span class="tooltip">dotted underlines<span class="description">I'm a tooltip!</span></span> have explanations. Hover over them with your cursor to read them.
 
 #### 3D isosurface visualization is blank
 
