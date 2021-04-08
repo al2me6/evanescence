@@ -17,12 +17,10 @@ pub(crate) mod state;
 pub(crate) mod ui;
 pub(crate) mod utils;
 
-use std::panic;
-
 use pkg_version::{pkg_version_major, pkg_version_minor, pkg_version_patch};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use yew::{html, start_app, Component, ComponentLink, Html, ShouldRender};
+use yew::{html, App, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
@@ -162,8 +160,17 @@ impl Component for MainImpl {
 type Main = SharedStateComponent<MainImpl>;
 
 #[wasm_bindgen(start)]
+#[allow(clippy::missing_panics_doc)]
 pub fn run() {
-    panic::set_hook(Box::new(console_error_panic_hook::hook));
+    std::panic::set_hook(Box::new(|info| {
+        console_error_panic_hook::hook(info);
+        web_sys::window()
+            .unwrap()
+            .alert_with_message(
+                "Unfortunately, Evanescence encountered a serious error. Please refresh the page.",
+            )
+            .unwrap();
+    }));
 
     #[cfg(debug_assertions)]
     let config = wasm_logger::Config::default();
@@ -171,5 +178,5 @@ pub fn run() {
     let config = wasm_logger::Config::new(log::Level::Warn);
     wasm_logger::init(config);
 
-    start_app::<Main>();
+    App::<Main>::new().mount_to_body();
 }
