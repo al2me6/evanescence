@@ -25,7 +25,7 @@ description_items!(
 
 pub(crate) const DESC: Descriptions = Descriptions {
     qn_dropdown: "Select the orbital to display. Use the \"Real (Full)\" orbital type to select arbitrary quantum numbers.",
-    supplement: "Additional visualizations that highlight different aspects of orbitals.",
+    supplement: "Select additional visualizations to highlight specific features of orbitals.",
     rad_nodes: "Draw radial nodes in green, if they exist. These are concentric, spherical surfaces where there is exactly 0 possibility of finding an electron. There are <i>n</i>−<i>ℓ</i>−1 radial nodes.",
     ang_nodes: "Draw angular nodes in purple, if they exist. These are planar or conical surfaces where there is exactly 0 possibility of finding an electron. There are <i>ℓ</i> angular nodes.",
     render_qual: "More points can be sampled for higher quality visualizations, at the cost of performance.",
