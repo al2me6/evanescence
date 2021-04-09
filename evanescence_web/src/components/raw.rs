@@ -5,12 +5,14 @@ use yewtil::NeqAssign;
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub(crate) struct RawProps {
     pub(crate) inner_html: String,
+    #[prop_or_default]
+    pub(crate) class: String,
 }
 
 macro_rules! raw_element_type {
     ($name:ident, $element:ident) => {
         pub(crate) struct $name {
-            inner_html: String,
+            props: RawProps,
             node_ref: NodeRef,
         }
 
@@ -20,7 +22,7 @@ macro_rules! raw_element_type {
 
             fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
                 Self {
-                    inner_html: props.inner_html,
+                    props,
                     node_ref: NodeRef::default(),
                 }
             }
@@ -30,18 +32,23 @@ macro_rules! raw_element_type {
             }
 
             fn change(&mut self, props: Self::Properties) -> ShouldRender {
-                self.inner_html.neq_assign(props.inner_html)
+                self.props.neq_assign(props)
             }
 
             fn view(&self) -> Html {
-                html! { <$element class = "raw" ref = self.node_ref.clone() /> }
+                html! {
+                    <$element
+                        class = format!("raw {}", self.props.class)
+                        ref = self.node_ref.clone()
+                    />
+                }
             }
 
             fn rendered(&mut self, _first_render: bool) {
                 self.node_ref
                     .cast::<HtmlElement>()
                     .unwrap()
-                    .set_inner_html(&self.inner_html);
+                    .set_inner_html(&self.props.inner_html);
             }
         }
     };
