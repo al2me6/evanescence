@@ -1,4 +1,5 @@
 pub(crate) mod controls;
+pub(crate) mod descriptions;
 pub(crate) mod info_panel;
 pub(crate) mod mode_bar;
 pub(crate) mod pointillist_visualization;

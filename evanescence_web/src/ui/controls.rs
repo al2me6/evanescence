@@ -7,8 +7,8 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
+use super::descriptions::DESC;
 use crate::components::{CheckBox, Dropdown, Tooltip};
-use crate::descriptions::DESC;
 use crate::state::{HybridPreset, Mode, QnPreset, State, StateHandle, Visualization};
 use crate::MAX_N;
 
@@ -149,7 +149,7 @@ impl ControlsImpl {
         html! {
             <>
             <tr>
-                { td_tooltip("Principal quantum number n:", DESC.qn_n) }
+                { td_tooltip("Principal quantum number <i>n</i>:", DESC.qn_n) }
                 <td><Dropdown<u32>
                     id = "n-picker"
                     onchange = handle.reduce_callback_with(|s, n| s.qn_mut().set_n_clamping(n))
@@ -158,7 +158,7 @@ impl ControlsImpl {
                 /></td>
             </tr>
             <tr>
-                { td_tooltip("Azimuthal quantum number ℓ:", DESC.qn_l) }
+                { td_tooltip("Azimuthal quantum number <i>ℓ</i>:", DESC.qn_l) }
                 <td><Dropdown<u32>
                     id = "l-picker"
                     onchange = handle.reduce_callback_with(|s, l| s.qn_mut().set_l_clamping(l))
@@ -168,7 +168,7 @@ impl ControlsImpl {
                 /></td>
             </tr>
             <tr>
-                { td_tooltip("Magnetic quantum number m:", DESC.qn_m) }
+                { td_tooltip("Magnetic quantum number <i>m</i>:", DESC.qn_m) }
                 <td><Dropdown<i32>
                     id = "m-picker"
                     onchange = handle.reduce_callback_with(|s, m| s.qn_mut().set_m(m))

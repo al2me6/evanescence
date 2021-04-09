@@ -1,6 +1,8 @@
 use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
 use yewtil::NeqAssign;
 
+use super::raw::RawSpan;
+
 pub(crate) struct Tooltip {
     props: TooltipProps,
 }
@@ -30,8 +32,8 @@ impl Component for Tooltip {
     fn view(&self) -> Html {
         html! {
             <span class = "tooltip">
-                { &self.props.text }
-                <span class = "description">{ &self.props.tooltip }</span>
+                <RawSpan inner_html = &self.props.text />
+                <RawSpan class = "description", inner_html = &self.props.tooltip />
             </span>
         }
     }

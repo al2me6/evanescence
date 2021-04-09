@@ -3,8 +3,8 @@ use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
+use super::descriptions::DESC;
 use crate::components::raw::RawSpan;
-use crate::descriptions::DESC;
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::plotters::{self, supplemental as plot};
