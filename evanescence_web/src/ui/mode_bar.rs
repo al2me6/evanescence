@@ -5,7 +5,7 @@ use yewtil::NeqAssign;
 
 use crate::components::TabBar;
 use crate::state::{Mode, State, StateHandle};
-use crate::utils::fire_resize_event;
+use crate::utils;
 
 pub(crate) struct ModeBarImpl {
     handle: StateHandle,
@@ -34,7 +34,7 @@ impl Component for ModeBarImpl {
         let set_mode = |state: &mut State, mode| {
             state.set_mode(mode);
             if state.supplement().is_enabled() {
-                fire_resize_event();
+                utils::fire_resize_event();
             }
         };
 
