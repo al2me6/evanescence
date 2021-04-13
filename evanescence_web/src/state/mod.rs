@@ -139,7 +139,6 @@ impl StateInner {
                 });
             }
             (Real(state), Mode::RealSimple) => {
-                log::info!("Transition from Real (Full) to Real (Simple) is possibly lossy.");
                 *self = RealSimple(RealSimpleState {
                     preset: QnPreset::from_qn_lossy(state.qn),
                     nodes_rad: state.nodes_rad,
@@ -161,7 +160,6 @@ impl StateInner {
                 });
             }
             (Complex(state), Mode::RealSimple) => {
-                log::info!("Transition from Complex to Real (Simple) is possibly lossy.");
                 *self = RealSimple(RealSimpleState {
                     preset: QnPreset::from_qn_lossy(state.qn),
                     ..Default::default()

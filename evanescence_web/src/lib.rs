@@ -174,7 +174,7 @@ pub fn run() {
     #[cfg(debug_assertions)]
     let config = wasm_logger::Config::default();
     #[cfg(not(debug_assertions))]
-    let config = wasm_logger::Config::new(log::Level::Warn);
+    let config = wasm_logger::Config::new(log::Level::Info);
     wasm_logger::init(config);
 
     App::<Main>::new().mount_to_body();
