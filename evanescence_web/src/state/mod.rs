@@ -251,6 +251,15 @@ impl State {
         self.supplement
     }
 
+    pub(crate) fn debug_description(&self) -> String {
+        match &self.state {
+            RealSimple(_) | Real(_) | Complex(_) => {
+                format!("ψ{}{}{}", self.qn().n(), self.qn().l(), self.qn().m())
+            }
+            Hybrid(_) => self.hybrid_kind().kind().clone(),
+        }
+    }
+
     pub(crate) fn qn(&self) -> &Qn {
         match &self.state {
             RealSimple(state) => state.preset.into(),

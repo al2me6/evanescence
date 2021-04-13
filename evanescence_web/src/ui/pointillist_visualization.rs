@@ -10,6 +10,7 @@ use crate::plotly::layout::{LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
 use crate::plotters::pointillist as plot;
 use crate::state::{Mode, State, StateHandle};
+use crate::utils::Timer;
 
 enum TraceRenderer {
     Single(fn(&State) -> JsValue),
@@ -104,6 +105,12 @@ impl PointillistVisualizationImpl {
     fn rerender_all(&mut self) {
         let state = self.handle.state();
 
+        let _timer = Timer::time_current_scope(format!(
+            "[{}][{}] Full Pointillist render",
+            state.debug_description(),
+            state.quality(),
+        ));
+
         // Clear all old traces.
         Plotly::delete_traces(
             Self::ID,
@@ -141,6 +148,13 @@ impl PointillistVisualizationImpl {
         assert_ne!(kind, Trace::Pointillist);
 
         let state = self.handle.state();
+
+        let _timer = Timer::time_current_scope(format!(
+            "[{}][{}] Render {:?} trace",
+            state.debug_description(),
+            state.quality(),
+            kind,
+        ));
 
         // Test if traces of this kind are already rendered.
         if self.rendered_kinds.contains(&kind) {

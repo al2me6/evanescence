@@ -9,7 +9,7 @@ use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::plotters::{self, supplemental as plot};
 use crate::state::{State, StateHandle, Visualization};
-use crate::utils::{capitalize_words, fire_resize_event, fmt_scientific_notation};
+use crate::utils::{self, Timer};
 
 pub(crate) struct SupplementalVisualizationImpl {
     handle: StateHandle,
@@ -33,6 +33,13 @@ impl SupplementalVisualizationImpl {
         };
 
         log::debug!("Rerendering {:?}.", state.supplement());
+
+        let _timer = Timer::time_current_scope(format!(
+            "[{}][{}] Render {:?} supplement",
+            state.debug_description(),
+            state.quality(),
+            state.supplement(),
+        ));
 
         let (trace, layout) = renderer(state);
         Plotly::react(
@@ -103,7 +110,7 @@ impl Component for SupplementalVisualizationImpl {
                     <p>
                         { "Specifically, the cutoff value used is " }
                         <RawSpan
-                            inner_html = fmt_scientific_notation(
+                            inner_html = utils::fmt_scientific_notation(
                                 plotters::isosurface_cutoff_heuristic(state.qn()).powi(2),
                                 3,
                             )
@@ -117,7 +124,7 @@ impl Component for SupplementalVisualizationImpl {
 
             html! {
                 <>
-                    <h3>{ capitalize_words(&title) }</h3>
+                    <h3>{ utils::capitalize_words(&title) }</h3>
                     <p><RawSpan inner_html = desc /></p>
                     { isosurface_cutoff_text }
                     <div class = "visualization" id = Self::ID />
@@ -132,7 +139,7 @@ impl Component for SupplementalVisualizationImpl {
         if self.handle.state().supplement().is_enabled() {
             self.rerender();
             // Fire resize event since the size of the description may change.
-            fire_resize_event();
+            utils::fire_resize_event();
         }
     }
 }

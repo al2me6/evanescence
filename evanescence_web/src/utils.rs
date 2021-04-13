@@ -1,5 +1,7 @@
 use std::fmt::LowerExp;
 
+use instant::Instant;
+
 pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
     let mut prev_is_word_separator = true;
     source
@@ -60,4 +62,27 @@ pub(crate) fn fire_resize_event() {
         .unwrap()
         .dispatch_event(&web_sys::Event::new("resize").unwrap())
         .unwrap();
+}
+
+/// Simple RAII timer.
+#[must_use = "timer is useless if dropped immediately"]
+pub(crate) struct Timer {
+    action_description: String,
+    begin: Instant,
+}
+
+impl Timer {
+    pub(crate) fn time_current_scope(action_description: String) -> Self {
+        Self {
+            action_description,
+            begin: Instant::now(),
+        }
+    }
+}
+
+impl Drop for Timer {
+    fn drop(&mut self) {
+        let time = self.begin.elapsed().as_millis();
+        log::info!("{}: {}ms", self.action_description, time);
+    }
 }
