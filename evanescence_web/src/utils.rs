@@ -1,19 +1,20 @@
 use std::fmt::LowerExp;
 
 pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
-    let mut prev_is_space = true;
+    let mut prev_is_word_separator = true;
     source
         .as_ref()
         .chars()
         .map(|mut c| {
-            if prev_is_space {
+            if prev_is_word_separator {
                 c = c.to_ascii_uppercase();
             }
-            prev_is_space = " -".contains(c);
+            prev_is_word_separator = " -".contains(c);
             c
         })
         .collect()
 }
+
 pub(crate) fn fmt_scientific_notation<T: LowerExp>(source: T, precision: usize) -> String {
     format!("{:.*e}</sup>", precision, source)
         .replace("-", "−") // "hyphen" -> "minus".
