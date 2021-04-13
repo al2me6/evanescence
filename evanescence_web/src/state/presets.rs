@@ -7,6 +7,7 @@ use evanescence_core::orbital::wavefunctions::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, LinearCombination, Qn};
 use getset::Getters;
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
 
 const FRAC_1_SQRT_3: f32 = 0.577_350_3;
 const FRAC_1_SQRT_6: f32 = 0.408_248_3;
@@ -14,7 +15,7 @@ const SQRT_3: f32 = 1.732_050_8;
 
 static QN_PRESETS: Lazy<Vec<Qn>> = Lazy::new(|| Qn::enumerate_up_to_n(3).collect());
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub(crate) struct QnPreset(usize);
 
 impl Default for QnPreset {
@@ -184,7 +185,7 @@ static HYBRID_PRESETS: Lazy<Vec<HybridKind>> = Lazy::new(|| {
     ]
 });
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub(crate) struct HybridPreset(usize);
 
 impl HybridPreset {

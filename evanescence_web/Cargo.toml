@@ -9,7 +9,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 console_error_panic_hook = "0.1"
-evanescence_core = { path = "../evanescence_core" }
+evanescence_core = { path = "../evanescence_core", features = ["serde"] }
 getrandom = { version = "*", features = ["js"] }
 getset = "0.1"
 instant = { version = "0.1", features = ["wasm-bindgen"] }
@@ -37,6 +37,10 @@ web-sys = { version = "0.3", features = [
 yew = "0.17"
 yewdux = "0.6"
 yewtil = "0.3"
+
+[features]
+default = ["persistent"]
+persistent = []
 
 [build-dependencies]
 pulldown-cmark = "0.8"

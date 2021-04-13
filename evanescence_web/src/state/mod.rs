@@ -7,13 +7,14 @@ use evanescence_core::geometry::{ComponentForm, GridValues, Plane};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::orbital::{self, Orbital, Qn, RadialPlot};
 use getset::CopyGetters;
+use serde::{Deserialize, Serialize};
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yewdux::prelude::*;
 
 pub(crate) use self::presets::{HybridKind, HybridPreset, QnPreset};
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display, Serialize, Deserialize)]
 pub(crate) enum Visualization {
     None,
     #[strum(serialize = "Radial wavefunction")]
@@ -74,32 +75,32 @@ impl TryFrom<Visualization> for RadialPlot {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
 struct RealSimpleState {
     preset: QnPreset,
     nodes_rad: bool,
     nodes_ang: bool,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
 struct RealState {
     qn: Qn,
     nodes_rad: bool,
     nodes_ang: bool,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
 struct ComplexState {
     qn: Qn,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
 struct HybridState {
     preset: HybridPreset,
     show_silhouettes: bool,
 }
 
-#[derive(Clone, PartialEq, Eq, Debug, EnumDiscriminants)]
+#[derive(Clone, PartialEq, Eq, Debug, EnumDiscriminants, Serialize, Deserialize)]
 #[strum_discriminants(vis(pub(crate)), name(Mode), derive(EnumIter))]
 enum StateInner {
     RealSimple(RealSimpleState),
@@ -108,12 +109,21 @@ enum StateInner {
     Hybrid(HybridState),
 }
 
-#[allow(clippy::clippy::enum_glob_use)] // Convenience.
-use StateInner::*;
+impl Mode {
+    pub(crate) fn is_real_or_simple(self) -> bool {
+        matches!(self, Self::RealSimple | Self::Real)
+    }
 
-impl Default for StateInner {
-    fn default() -> Self {
-        RealSimple(RealSimpleState::default())
+    pub(crate) fn is_real(self) -> bool {
+        matches!(self, Self::Real)
+    }
+
+    pub(crate) fn is_complex(self) -> bool {
+        matches!(self, Self::Complex)
+    }
+
+    pub(crate) fn is_hybrid(self) -> bool {
+        matches!(self, Self::Hybrid)
     }
 }
 
@@ -125,6 +135,15 @@ impl fmt::Display for Mode {
             Self::Complex => write!(f, "Complex"),
             Self::Hybrid => write!(f, "Hybrid"),
         }
+    }
+}
+
+#[allow(clippy::clippy::enum_glob_use)] // Convenience.
+use StateInner::*;
+
+impl Default for StateInner {
+    fn default() -> Self {
+        RealSimple(RealSimpleState::default())
     }
 }
 
@@ -176,25 +195,7 @@ impl StateInner {
     }
 }
 
-impl Mode {
-    pub(crate) fn is_real_or_simple(self) -> bool {
-        matches!(self, Self::RealSimple | Self::Real)
-    }
-
-    pub(crate) fn is_real(self) -> bool {
-        matches!(self, Self::Real)
-    }
-
-    pub(crate) fn is_complex(self) -> bool {
-        matches!(self, Self::Complex)
-    }
-
-    pub(crate) fn is_hybrid(self) -> bool {
-        matches!(self, Self::Hybrid)
-    }
-}
-
-#[derive(Clone, PartialEq, Eq, Debug, CopyGetters, Default)]
+#[derive(Clone, PartialEq, Eq, Debug, CopyGetters, Default, Serialize, Deserialize)]
 pub(crate) struct State {
     state: StateInner,
     #[getset(get_copy = "pub(crate)")]
@@ -423,4 +424,13 @@ impl State {
     }
 }
 
+impl Persistent for State {
+    fn area() -> Area {
+        Area::Session
+    }
+}
+
+#[cfg(feature = "persistent")]
+pub(crate) type AppDispatch = DispatchProps<PersistentStore<State>>;
+#[cfg(not(feature = "persistent"))]
 pub(crate) type AppDispatch = DispatchProps<BasicStore<State>>;
