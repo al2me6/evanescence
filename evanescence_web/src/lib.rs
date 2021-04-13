@@ -143,14 +143,14 @@ impl Component for MainImpl {
     fn rendered(&mut self, first_render: bool) {
         if first_render {
             let window = web_sys::window().unwrap();
-            ["resize", "orientationchange"].iter().for_each(|event| {
+            for event in &["resize", "orientationchange"] {
                 window
                     .add_event_listener_with_callback(
                         event,
                         self.resize_handler.as_ref().unchecked_ref(),
                     )
                     .unwrap();
-            });
+            }
             Self::viewport_change_handler();
         }
     }
