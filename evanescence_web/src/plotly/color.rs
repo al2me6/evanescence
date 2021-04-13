@@ -1,3 +1,5 @@
+use std::f32::consts::{FRAC_PI_2, PI};
+
 use super::layout::{Anchor, Title};
 use crate::utils::b16_colors;
 
@@ -96,3 +98,6 @@ pub(crate) mod color_scales {
         ("1.0", "rgb(167, 119, 12)"),
     ];
 }
+
+pub(crate) const PHASE_BAR_LABELS: &[&str] = &["−π", "−π/2", "0", "π/2", "π"];
+pub(crate) const PHASE_BAR_TICKS: &[f32] = &[-PI, -FRAC_PI_2, 0.0, FRAC_PI_2, PI];

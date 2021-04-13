@@ -39,10 +39,7 @@ impl Trace {
                     && state.nodes_ang()
                     && RealOrbital::num_angular_nodes(state.qn()) > 0
             }
-            Self::CrossSectionIndicator => {
-                (state.mode().is_real_or_simple() || state.mode().is_hybrid())
-                    && state.supplement().is_cross_section()
-            }
+            Self::CrossSectionIndicator => state.supplement().is_cross_section(),
             Self::Silhouette => state.mode().is_hybrid() && state.silhouettes(),
         }
     }

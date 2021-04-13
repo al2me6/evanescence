@@ -217,6 +217,9 @@ impl State {
                 Visualization::None,
                 Visualization::RadialWavefunction,
                 Visualization::RadialProbabilityDistribution,
+                Visualization::CrossSectionXY,
+                Visualization::CrossSectionYZ,
+                Visualization::CrossSectionZX,
             ],
             Mode::Hybrid => vec![
                 Visualization::None,

@@ -1,22 +1,23 @@
 use std::convert::TryInto;
-use std::f32::consts::{FRAC_PI_2, PI};
+use std::default::default;
+use std::f32::consts::PI;
 use std::iter;
 
 use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::MonteCarlo;
-use evanescence_core::numerics::{normalize, Evaluate};
+use evanescence_core::numerics::{self, Evaluate};
 use evanescence_core::orbital::{self, wavefunctions};
 use orbital::Orbital;
 use wasm_bindgen::JsValue;
 
 use super::isosurface_cutoff_heuristic;
-use crate::plotly::color::{color_scales, ColorBar, ColorScale};
+use crate::plotly::color::{self, color_scales, ColorBar, ColorScale};
 use crate::plotly::layout::{Anchor, Title};
 use crate::plotly::scatter_3d::Marker;
 use crate::plotly::surface::Contours;
 use crate::plotly::{isosurface, Isosurface, Scatter3D, Surface};
 use crate::state::State;
-use crate::utils::partial_max;
+use crate::utils;
 
 fn isosurface(
     simulation: ComponentForm<f32>,
@@ -39,7 +40,7 @@ fn isosurface(
         value,
         color_scale,
         opacity: 0.125,
-        ..Default::default()
+        ..default()
     }
     .into()
 }
@@ -51,7 +52,7 @@ pub(crate) fn real(state: &State) -> JsValue {
     let (x, y, z, values) = simulation.into_components();
 
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
-    let max_abs = *partial_max(&values_abs).unwrap();
+    let max_abs = *utils::partial_max(&values_abs).unwrap();
 
     // Special handling for s orbitals.
     let min_point_size = if state.mode().is_real_or_simple() && state.qn().l() == 0 {
@@ -67,18 +68,18 @@ pub(crate) fn real(state: &State) -> JsValue {
         marker: Marker {
             size: values_abs
                 .into_iter()
-                .map(|v| normalize(0.0..=max_abs, min_point_size..=4.0, v))
+                .map(|v| numerics::normalize(0.0..=max_abs, min_point_size..=4.0, v))
                 .collect(),
             color: values,
             show_scale: true,
             color_bar: ColorBar {
                 x: -0.02,
                 x_anchor: Anchor::Right,
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         },
-        ..Default::default()
+        ..default()
     }
     .into()
 }
@@ -91,7 +92,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
 
     let moduli: Vec<_> = values.iter().map(|v| v.norm()).collect();
     let arguments: Vec<_> = values.iter().map(|v| v.arg()).collect();
-    let max_modulus = *partial_max(&moduli).unwrap();
+    let max_modulus = *utils::partial_max(&moduli).unwrap();
 
     // Special handling for s orbitals.
     let min_point_size = if state.qn().l() == 0 { 0.8 } else { 0.4 };
@@ -103,7 +104,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
         marker: Marker {
             size: moduli
                 .into_iter()
-                .map(|m| normalize(0.0..=max_modulus, min_point_size..=3.0, m))
+                .map(|m| numerics::normalize(0.0..=max_modulus, min_point_size..=3.0, m))
                 .collect(),
             color: arguments,
             color_scale: color_scales::PHASE,
@@ -114,17 +115,17 @@ pub(crate) fn complex(state: &State) -> JsValue {
             color_bar: ColorBar {
                 x: -0.02,
                 x_anchor: Anchor::Right,
-                tick_vals: Some(&[-PI, -FRAC_PI_2, 0.0, FRAC_PI_2, PI]),
-                tick_text: Some(&["−π", "−π/2", "0", "π/2", "π"]),
+                tick_vals: Some(color::PHASE_BAR_TICKS),
+                tick_text: Some(color::PHASE_BAR_LABELS),
                 title: Some(Title {
                     text: "Phase",
-                    ..Default::default()
+                    ..default()
                 }),
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         },
-        ..Default::default()
+        ..default()
     }
     .into()
 }
@@ -165,8 +166,6 @@ pub(crate) fn angular_nodes(state: &State) -> JsValue {
 }
 
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
-    assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
-
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x, y, z) = plane
         .four_points_as_xy_value(state.estimate_radius())
@@ -180,7 +179,7 @@ pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
         color_scale: color_scales::ORANGES,
         surface_color: Some(vec![vec![0.0; 2]; 2]),
         contours: Some(Contours::default()),
-        ..Default::default()
+        ..default()
     }
     .into()
 }
@@ -226,7 +225,7 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
                 } else {
                     0.15
                 },
-                ..Default::default()
+                ..default()
             }
             .into()
         })

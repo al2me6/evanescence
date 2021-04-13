@@ -13,6 +13,7 @@ def_plotly_ty! {
 def_plotly_ty! {
     Contour<'a>
 
+    #optional color: &'a str,
     highlight: bool,
     highlight_color as "highlightcolor": &'a str = b16_colors::BASE[0x0b],
     #optional start: f32,
@@ -45,7 +46,9 @@ def_plotly_ty! {
     x: Vec<f32>,
     y: Vec<f32>,
     z: Vec<Vec<f32>>,
+    #optional c_min as "cmin": f32,
     c_mid as "cmid": f32,
+    #optional c_max as "cmax": f32,
     color_scale as "colorscale": ColorScale<'static> = color_scales::RED_BLUE_REVERSED,
     color_bar as "colorbar": ColorBar<'a>,
     #optional surface_color as "surfacecolor": Vec<Vec<f32>>,
