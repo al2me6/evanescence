@@ -8,7 +8,7 @@ use wasm_bindgen::JsValue;
 
 use super::isosurface_cutoff_heuristic;
 use crate::plotly::color::{self, color_scales, ColorBar};
-use crate::plotly::layout::{Axis, Scene, Title};
+use crate::plotly::layout::{Axis, Font, Scene, Title};
 use crate::plotly::scatter::Line;
 use crate::plotly::surface::{Contour, Contours, Project};
 use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
@@ -56,6 +56,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
             title: Some(Title {
                 text: "r (Bohr radii)",
                 standoff: Some(20),
+                ..default()
             }),
             ticks: "outside",
             ..default()
@@ -64,6 +65,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
             title: Some(Title {
                 text: &variant_label,
                 standoff: Some(20),
+                ..default()
             }),
             range_mode: Some("tozero"),
             ticks: "outside",
@@ -189,6 +191,10 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
             z_axis: Axis {
                 title: Some(Title {
                     text: &z_axis_title,
+                    font: Some(Font {
+                        size: 14.5,
+                        ..default()
+                    }),
                     ..default()
                 }),
                 n_ticks: Some(6),

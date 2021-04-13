@@ -11,18 +11,20 @@ pub(crate) enum Anchor {
 
 def_plotly_ty! {
     #[derive(Clone, Copy)]
-    Title<'a>
-
-    text: &'a str,
-    #optional standoff: usize,
-}
-
-def_plotly_ty! {
     Font<'a>
 
     family: &'a str = "Lato, sans-serif",
-    size: usize = 13,
+    size: f32 = 13.0,
     color: &'a str = b16_colors::BASE[0x05],
+}
+
+def_plotly_ty! {
+    #[derive(Clone, Copy)]
+    Title<'a>
+
+    text: &'a str,
+    #optional font: Font<'a>,
+    #optional standoff: usize,
 }
 
 def_plotly_ty! {
