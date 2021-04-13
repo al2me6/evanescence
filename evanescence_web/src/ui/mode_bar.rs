@@ -1,35 +1,35 @@
 use strum::IntoEnumIterator;
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
-use yew_state::SharedStateComponent;
+use yew::prelude::*;
+use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use crate::components::TabBar;
-use crate::state::{Mode, State, StateHandle};
+use crate::state::{AppDispatch, Mode, State};
 use crate::utils;
 
 pub(crate) struct ModeBarImpl {
-    handle: StateHandle,
+    dispatch: AppDispatch,
 }
 
 impl Component for ModeBarImpl {
     type Message = ();
-    type Properties = StateHandle;
+    type Properties = AppDispatch;
 
-    fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
-        Self { handle }
+    fn create(dispatch: AppDispatch, _link: ComponentLink<Self>) -> Self {
+        Self { dispatch }
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
         false
     }
 
-    fn change(&mut self, handle: StateHandle) -> ShouldRender {
-        self.handle.neq_assign(handle)
+    fn change(&mut self, dispatch: AppDispatch) -> ShouldRender {
+        self.dispatch.neq_assign(dispatch)
     }
 
     fn view(&self) -> Html {
-        let handle = &self.handle;
-        let state = handle.state();
+        let dispatch = &self.dispatch;
+        let state = dispatch.state();
 
         let set_mode = |state: &mut State, mode| {
             state.set_mode(mode);
@@ -41,7 +41,7 @@ impl Component for ModeBarImpl {
         html! {
             <TabBar<Mode>
                 id = "mode"
-                onchange = handle.reduce_callback_with(set_mode)
+                onchange = dispatch.reduce_callback_with(set_mode)
                 modes = Mode::iter().collect::<Vec<_>>()
                 selected = state.mode()
             />
@@ -49,4 +49,4 @@ impl Component for ModeBarImpl {
     }
 }
 
-pub(crate) type ModeBar = SharedStateComponent<ModeBarImpl>;
+pub(crate) type ModeBar = WithDispatch<ModeBarImpl>;

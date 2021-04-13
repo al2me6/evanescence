@@ -113,8 +113,7 @@ impl_into_js_value!(LayoutRangeUpdate);
 /// is transformed into:
 ///
 /// ```
-/// #[derive(serde::Serialize)]
-/// #[derive(Clone)]
+/// #[derive(serde::Serialize, Clone)]
 /// pub(crate) struct Config<'a> {
 ///     pub(crate) required_config: f32,
 ///     #[doc = " Doc comments are allowed. This config is optional!"]

@@ -1,6 +1,6 @@
 use wasm_bindgen::JsValue;
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
-use yew_state::SharedStateComponent;
+use yew::prelude::*;
+use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use super::descriptions::DESC;
@@ -8,18 +8,18 @@ use crate::components::raw::RawSpan;
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::plotters::{self, supplemental as plot};
-use crate::state::{State, StateHandle, Visualization};
+use crate::state::{AppDispatch, State, Visualization};
 use crate::utils::{self, Timer};
 
 pub(crate) struct SupplementalVisualizationImpl {
-    handle: StateHandle,
+    dispatch: AppDispatch,
 }
 
 impl SupplementalVisualizationImpl {
     const ID: &'static str = "supplemental";
 
     fn rerender(&mut self) {
-        let state = self.handle.state();
+        let state = self.dispatch.state();
 
         let renderer: fn(&State) -> (JsValue, JsValue) = match state.supplement() {
             Visualization::None => return, // No need to render.
@@ -67,31 +67,31 @@ impl SupplementalVisualizationImpl {
 
 impl Component for SupplementalVisualizationImpl {
     type Message = ();
-    type Properties = StateHandle;
+    type Properties = AppDispatch;
 
-    fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
-        Self { handle }
+    fn create(dispatch: Self::Properties, _link: ComponentLink<Self>) -> Self {
+        Self { dispatch }
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
         false
     }
 
-    fn change(&mut self, handle: StateHandle) -> ShouldRender {
-        let old_state = self.handle.state();
-        let new_state = handle.state();
+    fn change(&mut self, dispatch: Self::Properties) -> ShouldRender {
+        let old_state = self.dispatch.state();
+        let new_state = dispatch.state();
 
         let should_render = new_state.is_new_orbital(old_state)
             || new_state.quality() != old_state.quality()
             || new_state.supplement() != old_state.supplement();
 
-        self.handle.neq_assign(handle);
+        self.dispatch.neq_assign(dispatch);
 
         should_render
     }
 
     fn view(&self) -> Html {
-        let state = self.handle.state();
+        let state = self.dispatch.state();
         let supplement = state.supplement();
         if supplement.is_enabled() {
             let title = supplement.to_string();
@@ -136,7 +136,7 @@ impl Component for SupplementalVisualizationImpl {
     }
 
     fn rendered(&mut self, _first_render: bool) {
-        if self.handle.state().supplement().is_enabled() {
+        if self.dispatch.state().supplement().is_enabled() {
             self.rerender();
             // Fire resize event since the size of the description may change.
             utils::fire_resize_event();
@@ -144,4 +144,4 @@ impl Component for SupplementalVisualizationImpl {
     }
 }
 
-pub(crate) type SupplementalVisualization = SharedStateComponent<SupplementalVisualizationImpl>;
+pub(crate) type SupplementalVisualization = WithDispatch<SupplementalVisualizationImpl>;

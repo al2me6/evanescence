@@ -1,5 +1,5 @@
 use web_sys::HtmlInputElement;
-use yew::{html, Callback, Component, ComponentLink, Html, NodeRef, Properties, ShouldRender};
+use yew::prelude::*;
 use yewtil::NeqAssign;
 
 use super::Tooltip;

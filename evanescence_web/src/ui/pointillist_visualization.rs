@@ -1,15 +1,15 @@
 use evanescence_core::orbital::Real as RealOrbital;
 use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
-use yew_state::SharedStateComponent;
+use yew::prelude::*;
+use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::layout::{LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
 use crate::plotters::pointillist as plot;
-use crate::state::{Mode, State, StateHandle};
+use crate::state::{AppDispatch, Mode, State};
 use crate::utils::Timer;
 
 enum TraceRenderer {
@@ -68,7 +68,7 @@ impl Trace {
 }
 
 pub(crate) struct PointillistVisualizationImpl {
-    handle: StateHandle,
+    dispatch: AppDispatch,
     rendered_kinds: Vec<Trace>,
 }
 
@@ -103,7 +103,7 @@ impl PointillistVisualizationImpl {
     }
 
     fn rerender_all(&mut self) {
-        let state = self.handle.state();
+        let state = self.dispatch.state();
 
         let _timer = Timer::time_current_scope(format!(
             "[{}][{}] Full Pointillist render",
@@ -147,7 +147,7 @@ impl PointillistVisualizationImpl {
         // changed then all other traces must also change.
         assert_ne!(kind, Trace::Pointillist);
 
-        let state = self.handle.state();
+        let state = self.dispatch.state();
 
         let _timer = Timer::time_current_scope(format!(
             "[{}][{}] Render {:?} trace",
@@ -193,11 +193,11 @@ impl PointillistVisualizationImpl {
 
 impl Component for PointillistVisualizationImpl {
     type Message = ();
-    type Properties = StateHandle;
+    type Properties = AppDispatch;
 
-    fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
+    fn create(dispatch: Self::Properties, _link: ComponentLink<Self>) -> Self {
         Self {
-            handle,
+            dispatch,
             rendered_kinds: Vec::new(),
         }
     }
@@ -206,7 +206,7 @@ impl Component for PointillistVisualizationImpl {
         false
     }
 
-    fn change(&mut self, handle: StateHandle) -> ShouldRender {
+    fn change(&mut self, dispatch: Self::Properties) -> ShouldRender {
         #[derive(Clone, Copy)]
         enum RenderDirective {
             All,
@@ -214,8 +214,8 @@ impl Component for PointillistVisualizationImpl {
             Skip,
         }
 
-        let old = self.handle.state();
-        let new = handle.state();
+        let old = self.dispatch.state();
+        let new = dispatch.state();
 
         let directive = if new.is_new_orbital(old) || new.quality() != old.quality() {
             RenderDirective::All
@@ -242,7 +242,7 @@ impl Component for PointillistVisualizationImpl {
         };
 
         // Note that the rendering operation requires the state to be updated!
-        self.handle.neq_assign(handle);
+        self.dispatch.neq_assign(dispatch);
 
         match directive {
             RenderDirective::All => self.rerender_all(),
@@ -265,4 +265,4 @@ impl Component for PointillistVisualizationImpl {
     }
 }
 
-pub(crate) type PointillistVisualization = SharedStateComponent<PointillistVisualizationImpl>;
+pub(crate) type PointillistVisualization = WithDispatch<PointillistVisualizationImpl>;

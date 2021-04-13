@@ -8,7 +8,7 @@ use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::orbital::{self, Orbital, Qn, RadialPlot};
 use getset::CopyGetters;
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
-use yew_state::SharedHandle;
+use yewdux::prelude::*;
 
 pub(crate) use self::presets::{HybridKind, HybridPreset, QnPreset};
 
@@ -423,4 +423,4 @@ impl State {
     }
 }
 
-pub(crate) type StateHandle = SharedHandle<State>;
+pub(crate) type AppDispatch = DispatchProps<BasicStore<State>>;

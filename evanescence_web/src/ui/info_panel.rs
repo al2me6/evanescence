@@ -1,29 +1,29 @@
 use evanescence_core::orbital::{self, Orbital};
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
-use yew_state::SharedStateComponent;
+use yew::prelude::*;
+use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use crate::components::raw::RawSpan;
-use crate::state::{Mode, StateHandle};
+use crate::state::{AppDispatch, Mode};
 
 pub(crate) struct InfoPanelImpl {
-    handle: StateHandle,
+    dispatch: AppDispatch,
 }
 
 impl Component for InfoPanelImpl {
     type Message = ();
-    type Properties = StateHandle;
+    type Properties = AppDispatch;
 
-    fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
-        Self { handle }
+    fn create(dispatch: AppDispatch, _link: ComponentLink<Self>) -> Self {
+        Self { dispatch }
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
         false
     }
 
-    fn change(&mut self, handle: StateHandle) -> ShouldRender {
-        self.handle.neq_assign(handle)
+    fn change(&mut self, dispatch: AppDispatch) -> ShouldRender {
+        self.dispatch.neq_assign(dispatch)
     }
 
     fn view(&self) -> Html {
@@ -35,7 +35,7 @@ impl Component for InfoPanelImpl {
             }
         }
 
-        let state = self.handle.state();
+        let state = self.dispatch.state();
 
         let description = match state.mode() {
             Mode::RealSimple | Mode::Real => {
@@ -72,28 +72,29 @@ impl Component for InfoPanelImpl {
                 </p>
             },
             Mode::Hybrid => {
+                let kind = state.hybrid_kind();
                 html! {
                     <>
                     <p>
                         {"Viewing " }
-                        { state.hybrid_kind().kind() }
+                        { kind.kind() }
                         { "-hybridized orbital formed by the linear combination " }
-                        <RawSpan inner_html = state.hybrid_kind().principal().expression() />
+                        <RawSpan inner_html = kind.principal().expression() />
                         { "." }
                     </p>
                     <p>
                         { "There are " }
-                        { state.hybrid_kind().count() }
+                        { kind.count() }
                         { " " }
-                        { state.hybrid_kind().kind() }
+                        { kind.kind() }
                         { " orbitals with " }
-                        { state.hybrid_kind().symmetry() }
+                        { kind.symmetry() }
                         { " symmetry. The other "}
-                        { state.hybrid_kind().kind() }
+                        { kind.kind() }
                         { " orbitals (which can be drawn by enabling \"Show symmetry\") are formed from the following linear combinations:" }
                     </p>
                     <ul>
-                        { for state.hybrid_kind().rotations().iter().map(|lc| html! {
+                        { for kind.rotations().iter().map(|lc| html! {
                             <li><RawSpan inner_html = lc.expression() /></li>
                         })}
                     </ul>
@@ -114,4 +115,4 @@ impl Component for InfoPanelImpl {
     }
 }
 
-pub(crate) type InfoPanel = SharedStateComponent<InfoPanelImpl>;
+pub(crate) type InfoPanel = WithDispatch<InfoPanelImpl>;

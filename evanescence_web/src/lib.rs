@@ -19,13 +19,13 @@ pub(crate) mod utils;
 use pkg_version::{pkg_version_major, pkg_version_minor, pkg_version_patch};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use yew::{html, App, Component, ComponentLink, Html, ShouldRender};
-use yew_state::SharedStateComponent;
+use yew::prelude::*;
+use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use crate::components::raw::RawDiv;
 use crate::components::Window;
-use crate::state::StateHandle;
+use crate::state::AppDispatch;
 use crate::ui::{
     Controls,
     InfoPanel,
@@ -47,7 +47,7 @@ pub(crate) const BENCHMARKS_URL: &str = "https://al2me6.github.io/evanescence/de
 pub(crate) const HELP_HTML: &str = include_str!(concat!(env!("OUT_DIR"), "/help.html"));
 
 struct MainImpl {
-    handle: StateHandle,
+    dispatch: AppDispatch,
     resize_handler: Closure<dyn Fn()>,
 }
 
@@ -83,11 +83,11 @@ impl MainImpl {
 
 impl Component for MainImpl {
     type Message = ();
-    type Properties = StateHandle;
+    type Properties = AppDispatch;
 
-    fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
+    fn create(dispatch: AppDispatch, _link: ComponentLink<Self>) -> Self {
         Self {
-            handle,
+            dispatch,
             resize_handler: Closure::wrap(Box::new(Self::viewport_change_handler)),
         }
     }
@@ -96,8 +96,8 @@ impl Component for MainImpl {
         false
     }
 
-    fn change(&mut self, handle: StateHandle) -> ShouldRender {
-        self.handle.neq_assign(handle);
+    fn change(&mut self, dispatch: AppDispatch) -> ShouldRender {
+        self.dispatch.neq_assign(dispatch);
         false
     }
 
@@ -156,7 +156,7 @@ impl Component for MainImpl {
     }
 }
 
-type Main = SharedStateComponent<MainImpl>;
+type Main = WithDispatch<MainImpl>;
 
 #[wasm_bindgen(start)]
 #[allow(clippy::missing_panics_doc)]

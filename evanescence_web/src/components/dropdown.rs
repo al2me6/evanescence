@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::str::FromStr;
 
 use web_sys::HtmlSelectElement;
-use yew::{html, Callback, ChangeData, Component, ComponentLink, Html, Properties, ShouldRender};
+use yew::prelude::*;
 use yewtil::NeqAssign;
 
 pub(crate) trait DropdownItem: Copy + PartialEq + Display + 'static {}

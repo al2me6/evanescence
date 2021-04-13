@@ -35,8 +35,8 @@ web-sys = { version = "0.3", features = [
     "Window",
 ] }
 yew = "0.17"
+yewdux = "0.6"
 yewtil = "0.3"
-yew-state = "0.5"
 
 [build-dependencies]
 pulldown-cmark = "0.8"

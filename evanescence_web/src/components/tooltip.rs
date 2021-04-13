@@ -1,4 +1,4 @@
-use yew::{html, Component, ComponentLink, Html, Properties, ShouldRender};
+use yew::prelude::*;
 use yewtil::NeqAssign;
 
 use super::raw::RawSpan;

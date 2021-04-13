@@ -1,5 +1,5 @@
 use web_sys::HtmlElement;
-use yew::{html, Component, ComponentLink, Html, NodeRef, Properties, ShouldRender};
+use yew::prelude::*;
 use yewtil::NeqAssign;
 
 #[derive(Clone, Debug, PartialEq, Properties)]

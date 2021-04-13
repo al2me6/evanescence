@@ -3,13 +3,13 @@ use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::wavefunctions::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
 use strum::IntoEnumIterator;
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
-use yew_state::SharedStateComponent;
+use yew::prelude::*;
+use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use super::descriptions::DESC;
 use crate::components::{CheckBox, Dropdown, Tooltip};
-use crate::state::{HybridPreset, Mode, QnPreset, State, StateHandle, Visualization};
+use crate::state::{AppDispatch, HybridPreset, Mode, QnPreset, State, Visualization};
 use crate::MAX_N;
 
 fn td_tooltip(text: &str, tooltip: &str) -> Html {
@@ -19,28 +19,28 @@ fn td_tooltip(text: &str, tooltip: &str) -> Html {
 }
 
 pub(crate) struct ControlsImpl {
-    handle: StateHandle,
+    dispatch: AppDispatch,
 }
 
 impl Component for ControlsImpl {
     type Message = ();
-    type Properties = StateHandle;
+    type Properties = AppDispatch;
 
-    fn create(handle: StateHandle, _link: ComponentLink<Self>) -> Self {
-        Self { handle }
+    fn create(dispatch: AppDispatch, _link: ComponentLink<Self>) -> Self {
+        Self { dispatch }
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
         false
     }
 
-    fn change(&mut self, handle: StateHandle) -> ShouldRender {
-        self.handle.neq_assign(handle)
+    fn change(&mut self, dispatch: AppDispatch) -> ShouldRender {
+        self.dispatch.neq_assign(dispatch)
     }
 
     fn view(&self) -> Html {
-        let handle = &self.handle;
-        let state = handle.state();
+        let dispatch = &self.dispatch;
+        let state = dispatch.state();
 
         let selectors = match state.mode() {
             Mode::RealSimple | Mode::Real => self.real_modes_controls(),
@@ -56,7 +56,7 @@ impl Component for ControlsImpl {
                         { td_tooltip("Show supplemental visualization:", DESC.supplement) }
                         <td><Dropdown<Visualization>
                             id = "supplement-picker"
-                            onchange = handle.reduce_callback_with(State::set_supplement)
+                            onchange = dispatch.reduce_callback_with(State::set_supplement)
                             options = state.available_supplements()
                             selected = state.supplement()
                         /></td>
@@ -65,7 +65,7 @@ impl Component for ControlsImpl {
                         { td_tooltip("Render quality:", DESC.render_qual) }
                         <td><Dropdown<Quality>
                             id = "quality-picker"
-                            onchange = handle.reduce_callback_with(State::set_quality)
+                            onchange = dispatch.reduce_callback_with(State::set_quality)
                             options = Quality::iter().collect::<Vec<_>>()
                             custom_display = Quality::iter().map(Quality::to_text).collect::<Vec<_>>()
                             selected = state.quality()
@@ -79,8 +79,8 @@ impl Component for ControlsImpl {
 
 impl ControlsImpl {
     fn real_modes_controls(&self) -> Html {
-        let handle = &self.handle;
-        let state = handle.state();
+        let dispatch = &self.dispatch;
+        let state = dispatch.state();
         assert!(state.mode().is_real_or_simple());
 
         html! {
@@ -90,7 +90,7 @@ impl ControlsImpl {
                     { td_tooltip("Select orbital:", DESC.qn_dropdown) }
                     <td><Dropdown<QnPreset>
                         id = "preset_picker"
-                        onchange = handle.reduce_callback_with(State::set_qn_preset)
+                        onchange = dispatch.reduce_callback_with(State::set_qn_preset)
                         options = QnPreset::iter().collect::<Vec<_>>()
                         selected = state.qn_preset()
                     /></td>
@@ -100,7 +100,7 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "radial-nodes-toggle",
-                    onchange = handle.reduce_callback_with(State::set_nodes_rad)
+                    onchange = dispatch.reduce_callback_with(State::set_nodes_rad)
                     initial_state = state.nodes_rad()
                     label = "Show radial nodes"
                     tooltip = DESC.rad_nodes
@@ -110,7 +110,7 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "angular-nodes-toggle",
-                    onchange = handle.reduce_callback_with(State::set_nodes_ang)
+                    onchange = dispatch.reduce_callback_with(State::set_nodes_ang)
                     initial_state = state.nodes_ang()
                     label = "Show angular nodes"
                     tooltip = DESC.ang_nodes
@@ -121,8 +121,8 @@ impl ControlsImpl {
     }
 
     fn qn_pickers(&self) -> Html {
-        let handle = &self.handle;
-        let state = handle.state();
+        let dispatch = &self.dispatch;
+        let state = dispatch.state();
         assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
 
         let l_options: Vec<_> = Qn::enumerate_l_for_n(state.qn().n()).collect();
@@ -152,7 +152,7 @@ impl ControlsImpl {
                 { td_tooltip("Principal quantum number <i>n</i>:", DESC.qn_n) }
                 <td><Dropdown<u32>
                     id = "n-picker"
-                    onchange = handle.reduce_callback_with(|s, n| s.qn_mut().set_n_clamping(n))
+                    onchange = dispatch.reduce_callback_with(|s, n| s.qn_mut().set_n_clamping(n))
                     options = (1..=MAX_N).collect::<Vec<_>>()
                     selected = state.qn().n()
                 /></td>
@@ -161,7 +161,7 @@ impl ControlsImpl {
                 { td_tooltip("Azimuthal quantum number <i>ℓ</i>:", DESC.qn_l) }
                 <td><Dropdown<u32>
                     id = "l-picker"
-                    onchange = handle.reduce_callback_with(|s, l| s.qn_mut().set_l_clamping(l))
+                    onchange = dispatch.reduce_callback_with(|s, l| s.qn_mut().set_l_clamping(l))
                     options = l_options
                     custom_display = l_options.iter().map(|&l| format_l(l)).collect::<Vec<_>>()
                     selected = state.qn().l()
@@ -171,7 +171,7 @@ impl ControlsImpl {
                 { td_tooltip("Magnetic quantum number <i>m</i>:", DESC.qn_m) }
                 <td><Dropdown<i32>
                     id = "m-picker"
-                    onchange = handle.reduce_callback_with(|s, m| s.qn_mut().set_m(m))
+                    onchange = dispatch.reduce_callback_with(|s, m| s.qn_mut().set_m(m))
                     options = m_options
                     custom_display = m_options.iter().map(|&m| format_m(m)).collect::<Vec<_>>()
                     selected = state.qn().m()
@@ -182,8 +182,8 @@ impl ControlsImpl {
     }
 
     fn hybrid_picker(&self) -> Html {
-        let handle = &self.handle;
-        let state = handle.state();
+        let dispatch = &self.dispatch;
+        let state = dispatch.state();
         assert!(state.mode().is_hybrid());
 
         html! {
@@ -192,7 +192,7 @@ impl ControlsImpl {
                 { td_tooltip("Select hybridization:", DESC.hybrid_dropdown) }
                 <td><Dropdown<HybridPreset>
                     id = "preset_picker"
-                    onchange = handle.reduce_callback_with(State::set_hybrid_preset)
+                    onchange = dispatch.reduce_callback_with(State::set_hybrid_preset)
                     options = HybridPreset::iter().collect::<Vec<_>>()
                     selected = state.hybrid_preset()
                 /></td>
@@ -201,7 +201,7 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "show-symmetry-toggle"
-                    onchange = handle.reduce_callback_with(State::set_silhouettes)
+                    onchange = dispatch.reduce_callback_with(State::set_silhouettes)
                     initial_state = state.silhouettes()
                     label = "Show symmetry"
                     tooltip = DESC.show_symmetry
@@ -212,4 +212,4 @@ impl ControlsImpl {
     }
 }
 
-pub(crate) type Controls = SharedStateComponent<ControlsImpl>;
+pub(crate) type Controls = WithDispatch<ControlsImpl>;
