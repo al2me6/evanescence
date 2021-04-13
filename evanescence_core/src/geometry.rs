@@ -10,6 +10,7 @@ use nanorand::WyRand;
 use strum::Display;
 
 /// A vector (the mathematical kind) in `R^3`.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
 pub struct Vec3 {
     // The `with_prefix` attribute doesn't appear to work on the entire struct.
@@ -150,6 +151,7 @@ impl From<Vec3> for Point {
 /// # Invariants
 /// The spherical elements must be kept in sync with Cartesian elements. For this reason,
 /// direct (i.e., mutable) access to struct members is not allowed.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct Point {
@@ -271,6 +273,7 @@ impl Point {
 
 /// Type representing a coordinate plane.
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display)]
 pub enum Plane {
     XY,
@@ -301,6 +304,7 @@ impl Plane {
 }
 
 /// A point and the value of a function evaluated at that point.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PointValue<T>(pub Point, pub T);
 
@@ -315,6 +319,7 @@ pub struct PointValue<T>(pub Point, pub T);
 ///
 /// # Invariants
 /// All four vectors must be the same length.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Getters)]
 #[getset(get = "pub")]
 pub struct ComponentForm<T> {
@@ -400,6 +405,7 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
 ///
 /// # Invariants
 /// `col_coords`, `row_coords`, and `vals` must have matching shapes (see [`Self::new`]).
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Getters, Debug, PartialEq)]
 #[getset(get = "pub")]
 pub struct GridValues<T> {

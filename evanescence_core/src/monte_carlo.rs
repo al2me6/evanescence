@@ -10,6 +10,7 @@ use crate::orbital::{self, Orbital};
 /// for Monte Carlo simulations or plotting.
 ///
 /// These values have been empirically observed to produce reasonable results.
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, EnumString, EnumIter)]
 pub enum Quality {
     Minimum = 1 << 12,
