@@ -6,7 +6,7 @@ use yew_state::SharedStateComponent;
 use yewtil::NeqAssign;
 
 use crate::plotly::config::ModeBarButtons;
-use crate::plotly::layout::{Axis, LayoutRangeUpdate, Scene};
+use crate::plotly::layout::{LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
 use crate::plotters::pointillist as plot;
 use crate::state::{Mode, State, StateHandle};
@@ -77,22 +77,14 @@ impl PointillistVisualizationImpl {
     fn init_plot(&mut self) {
         assert!(self.rendered_kinds.is_empty());
 
-        let state = self.handle.state();
-
-        // Manually set the plot range to prevent jumping.
-        let axis = Axis::with_extent(state.estimate_radius());
+        // Initialize empty plot.
         Plotly::react(
             Self::ID,
-            Trace::Pointillist.render_to_vec(state).into_boxed_slice(),
+            vec![].into_boxed_slice(),
             Layout {
                 drag_mode_str: Some("orbit"),
                 ui_revision: Some("pointillist"),
-                scene: Some(Scene {
-                    x_axis: axis,
-                    y_axis: axis,
-                    z_axis: axis,
-                    ..Default::default()
-                }),
+                scene: Some(Scene::default()),
                 ..Default::default()
             }
             .into(),
@@ -105,7 +97,8 @@ impl PointillistVisualizationImpl {
             }
             .into(),
         );
-        self.rendered_kinds.push(Trace::Pointillist);
+
+        self.rerender_all();
     }
 
     fn rerender_all(&mut self) {
