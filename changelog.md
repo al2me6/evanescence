@@ -1,5 +1,30 @@
 # Version History
 
+## 0.4.8, 2021-04-13
+
+### Features
+
+* Cross-section plots are now available in Complex mode.
+* Plot updates are now timed, and the times are printed to console.
+* The z-axis label for cross-section plots now clearly indicates which variable is zero.
+* A message is now displayed if Evanescence crashes to notify the user to refresh the page.
+
+### Changes
+
+* The help page has been expanded.
+* Minor improvements to help tooltips.
+* The font size of the z-axis label for cross-section plots has been reduced.
+* Symbols for quantum numbers are now italicized where possible.
+
+### Bugfixes
+
+* Silhouettes in Hybrid mode are no longer cropped. This was a regression introduced in version 0.4.7.
+* The example tooltip on the help page now works again.
+
+### Known issues
+
+* Complex cross-section plots tend to have more significant numerical instability artifacts than other cross-section plots. This is due to the nature of modulus plots and cannot be resolved.
+
 ## 0.4.7, 2021-03-11
 
 ### Features
