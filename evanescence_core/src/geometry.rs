@@ -345,12 +345,12 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
             Vec::with_capacity(len),
             Vec::with_capacity(len),
         );
-        v.into_iter().for_each(|PointValue(pt, val)| {
+        for PointValue(pt, val) in v {
             xs.push(pt.x());
             ys.push(pt.y());
             zs.push(pt.z());
             vals.push(val);
-        });
+        }
         // INVARIANT: The four vectors, by nature, have the same length.
         ComponentForm { xs, ys, zs, vals }
     }
@@ -441,8 +441,9 @@ impl<T> GridValues<T> {
     ) -> Self {
         // INVARIANT: Verify that the passed `Vec`s have the correct shape.
         assert_eq!(row_coords.len(), vals.len());
-        vals.iter()
-            .for_each(|row| assert_eq!(col_coords.len(), row.len()));
+        for row in vals.iter() {
+            assert_eq!(col_coords.len(), row.len());
+        }
         Self {
             plane,
             col_coords,
