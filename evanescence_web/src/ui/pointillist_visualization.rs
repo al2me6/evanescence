@@ -220,25 +220,27 @@ impl Component for PointillistVisualizationImpl {
         let directive = if new.is_new_orbital(old) || new.quality() != old.quality() {
             RenderDirective::All
         } else {
-            let change = [
+            let mut possible_changes = std::array::IntoIter::new([
                 (new.nodes_rad() != old.nodes_rad(), Trace::RadialNodes),
                 (new.nodes_ang() != old.nodes_ang(), Trace::AngularNodes),
                 (
-                    (old.supplement().is_cross_section() || new.supplement().is_cross_section())
-                        && old.supplement() != new.supplement(),
+                    (new.supplement().is_cross_section() || old.supplement().is_cross_section())
+                        && new.supplement() != old.supplement(),
                     Trace::CrossSectionIndicator,
                 ),
-                (old.silhouettes() != new.silhouettes(), Trace::Silhouette),
-            ]
-            .iter()
-            .filter_map(|&(changed, kind)| changed.then(|| kind))
-            .collect::<Vec<_>>();
+                (new.silhouettes() != old.silhouettes(), Trace::Silhouette),
+            ])
+            .filter_map(|(changed, kind)| changed.then(|| kind));
 
-            assert!(change.len() <= 1, "only one trace can be changed at once");
-
-            change
-                .get(0)
-                .map_or(RenderDirective::Skip, |&kind| RenderDirective::Single(kind))
+            let directive = possible_changes
+                .next()
+                // Tuple enum variant is used as a function in the second argument.
+                .map_or(RenderDirective::Skip, RenderDirective::Single);
+            assert!(
+                possible_changes.next().is_none(),
+                "at most one trace can be changed"
+            );
+            directive
         };
 
         // Note that the rendering operation requires the state to be updated!
@@ -255,7 +257,7 @@ impl Component for PointillistVisualizationImpl {
 
     fn view(&self) -> Html {
         html! {
-            <div class="visualization" id = Self::ID />
+            <div class = "visualization" id = Self::ID />
         }
     }
 

@@ -6,6 +6,7 @@ use strum::IntoEnumIterator;
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
+use itertools::Itertools;
 
 use super::descriptions::DESC;
 use crate::components::{CheckBox, Dropdown, Tooltip};
@@ -66,8 +67,8 @@ impl Component for ControlsImpl {
                         <td><Dropdown<Quality>
                             id = "quality-picker"
                             onchange = dispatch.reduce_callback_with(State::set_quality)
-                            options = Quality::iter().collect::<Vec<_>>()
-                            custom_display = Quality::iter().map(Quality::to_text).collect::<Vec<_>>()
+                            options = Quality::iter().collect_vec()
+                            custom_display = Quality::iter().map(Quality::to_text).collect_vec()
                             selected = state.quality()
                         /></td>
                     </tr>
@@ -91,11 +92,11 @@ impl ControlsImpl {
                     <td><Dropdown<QnPreset>
                         id = "preset_picker"
                         onchange = dispatch.reduce_callback_with(State::set_qn_preset)
-                        options = QnPreset::iter().collect::<Vec<_>>()
+                        options = QnPreset::iter().collect_vec()
                         selected = state.qn_preset()
                     /></td>
                 </tr>
-            } }}
+            }} }
             <tr>
                 <td/>
                 <td><CheckBox
@@ -125,8 +126,8 @@ impl ControlsImpl {
         let state = dispatch.state();
         assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
 
-        let l_options: Vec<_> = Qn::enumerate_l_for_n(state.qn().n()).collect();
-        let m_options: Vec<_> = Qn::enumerate_m_for_l(state.qn().l()).collect();
+        let l_options = Qn::enumerate_l_for_n(state.qn().n()).collect_vec();
+        let m_options = Qn::enumerate_m_for_l(state.qn().l()).collect_vec();
 
         let format_l = |l: u32| match orbital::subshell_name(l) {
             Some(subshell) => format!("{} [{}]", l, subshell),
@@ -153,7 +154,7 @@ impl ControlsImpl {
                 <td><Dropdown<u32>
                     id = "n-picker"
                     onchange = dispatch.reduce_callback_with(|s, n| s.qn_mut().set_n_clamping(n))
-                    options = (1..=MAX_N).collect::<Vec<_>>()
+                    options = (1..=MAX_N).collect_vec()
                     selected = state.qn().n()
                 /></td>
             </tr>
@@ -163,7 +164,7 @@ impl ControlsImpl {
                     id = "l-picker"
                     onchange = dispatch.reduce_callback_with(|s, l| s.qn_mut().set_l_clamping(l))
                     options = l_options
-                    custom_display = l_options.iter().map(|&l| format_l(l)).collect::<Vec<_>>()
+                    custom_display = l_options.iter().map(|&l| format_l(l)).collect_vec()
                     selected = state.qn().l()
                 /></td>
             </tr>
@@ -173,7 +174,7 @@ impl ControlsImpl {
                     id = "m-picker"
                     onchange = dispatch.reduce_callback_with(|s, m| s.qn_mut().set_m(m))
                     options = m_options
-                    custom_display = m_options.iter().map(|&m| format_m(m)).collect::<Vec<_>>()
+                    custom_display = m_options.iter().map(|&m| format_m(m)).collect_vec()
                     selected = state.qn().m()
                 /></td>
             </tr>
@@ -193,7 +194,7 @@ impl ControlsImpl {
                 <td><Dropdown<HybridPreset>
                     id = "preset_picker"
                     onchange = dispatch.reduce_callback_with(State::set_hybrid_preset)
-                    options = HybridPreset::iter().collect::<Vec<_>>()
+                    options = HybridPreset::iter().collect_vec()
                     selected = state.hybrid_preset()
                 /></td>
             </tr>

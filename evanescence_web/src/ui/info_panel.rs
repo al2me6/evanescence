@@ -89,14 +89,14 @@ impl Component for InfoPanelImpl {
                         { kind.kind() }
                         { " orbitals with " }
                         { kind.symmetry() }
-                        { " symmetry. The other "}
+                        { " symmetry. The other " }
                         { kind.kind() }
                         { " orbitals (which can be drawn by enabling \"Show symmetry\") are formed from the following linear combinations:" }
                     </p>
                     <ul>
                         { for kind.rotations().iter().map(|lc| html! {
                             <li><RawSpan inner_html = lc.expression() /></li>
-                        })}
+                        }) }
                     </ul>
                     </>
                 }

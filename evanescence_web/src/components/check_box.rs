@@ -38,7 +38,7 @@ impl Component for CheckBox {
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
         self.state = self.node_ref.cast::<HtmlInputElement>().unwrap().checked();
         self.props.onchange.emit(self.state);
-        true
+        false
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
@@ -48,8 +48,7 @@ impl Component for CheckBox {
     fn view(&self) -> Html {
         let label_text = if let Some(tooltip) = self.props.tooltip {
             html! {
-                // TODO: Somehow avoid cloning?
-                <Tooltip text = self.props.label.clone() tooltip = tooltip.to_owned() />
+                <Tooltip text = &self.props.label tooltip = tooltip />
             }
         } else {
             html! { <span>{ &self.props.label }</span> }
@@ -60,7 +59,7 @@ impl Component for CheckBox {
                     ref = self.node_ref.clone(),
                     type = "checkbox",
                     id = self.props.id,
-                    onchange = self.link.callback(|_| ()),
+                    onchange = self.link.callback(|_| ()),  // All hail the toilet closure.
                     checked = self.state
                 />
                 { label_text }

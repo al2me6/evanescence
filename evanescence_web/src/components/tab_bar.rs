@@ -61,14 +61,14 @@ impl<T: TabBarItem> Component for TabBar<T> {
                     checked = (mode == selected_mode)
                     value = idx
                     label_text_ = mode
-                    onchange = self.link.callback(|cd| into_value(cd))
+                    onchange = self.link.callback(into_value)
                 />
             }
         };
 
         html! {
-            <div class="tab-bar">
-                { for (0..self.props.modes.len()).map(|idx| tab(idx, &self.props.selected))}
+            <div class = "tab-bar">
+                { for (0..self.props.modes.len()).map(|idx| tab(idx, &self.props.selected)) }
             </div>
         }
     }
