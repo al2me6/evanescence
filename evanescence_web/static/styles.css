@@ -26,6 +26,7 @@ html {
   --base-0e: #b294bb;
   --base-0f: #a3685a;
   --base-0102: #303338;
+  --base-02020203: #4f5256;
   --base-0203: #676a6c;
   --base-00-semitransparent: #1d1f2199;
 
@@ -87,11 +88,15 @@ h1 {
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.55rem;
 }
 
 h3 {
   font-size: 1.25rem;
+}
+
+h4 {
+  font-size: 1.1rem;
 }
 
 p,
@@ -124,7 +129,7 @@ select {
   -webkit-appearance: none;
   appearance: none;
   font: inherit;
-  color: inherit;
+  color: var(--base-06);
   background-color: var(--base-00);
   /* Icon source: https://fontawesome.com/icons/chevron-down?style=solid. */
   /* base06 */
@@ -146,6 +151,10 @@ select:hover {
 
 select:hover {
   background-color: var(--base-0203);
+}
+
+select:active {
+  background-color: var(--base-02020203);
 }
 
 select:focus {
@@ -180,6 +189,11 @@ select:focus {
 .checkbox input:hover {
   box-shadow: var(--shadow);
   background-color: var(--base-0203);
+}
+
+.checkbox:active input,
+.checkbox input:active {
+  background-color: var(--base-02020203);
 }
 
 .checkbox input:focus {
@@ -234,6 +248,7 @@ select:focus {
   width: 100%;
   text-align: center;
   color: var(--base-06);
+  transition: all var(--transition-time);
 }
 
 .tab-bar input:hover {
@@ -247,6 +262,10 @@ select:focus {
 
 .tab-bar input:focus {
   outline: none;
+}
+
+.tab-bar input:active::after {
+  color: var(--base-04);
 }
 
 /* Tooltips. */
@@ -268,7 +287,7 @@ select:focus {
   font-size: 0.85rem;
   text-align: center;
   position: absolute;
-  bottom: 100%;
+  bottom: calc(100% + 0.5em);
   left: 50%;
   width: var(--width);
   margin-left: calc(-0.5 * var(--width));
@@ -308,12 +327,12 @@ select:focus {
 }
 
 .window-button:hover {
-  background-color: var(--base-02);
+  background-color: var(--base-0203);
   box-shadow: var(--shadow);
 }
 
 .window-button:active {
-  background-color: var(--base-0203);
+  background-color: var(--base-02020203);
 }
 
 .window-bg {
@@ -379,7 +398,7 @@ select:focus {
   /* base06 */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23e0e0e0" d="M61.2,50.5l32.1,32.1c3,3,3,7.7,0,10.7c-3,3-7.7,3-10.7,0L50.5,61.2L18.4,93.3c-3,3-7.7,3-10.7,0c-3-3-3-7.7,0-10.7l32.1-32.1L7.7,18.4c-3-3-3-7.7,0-10.7s7.7-3,10.7,0l32.1,32.1L82.6,7.7c3-3,7.7-3,10.7,0c3,3,3,7.7,0,10.7L61.2,50.5z"/></svg>');
   background-repeat: no-repeat;
-  background-size: 45% auto;
+  background-size: 43.5% auto;
   background-position: center;
 }
 
