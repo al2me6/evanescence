@@ -4,7 +4,7 @@ use std::fs::{self, File};
 use std::io::{BufWriter, Write};
 use std::path::Path;
 
-use pulldown_cmark::{html as html_renderer, CowStr, Event, Options, Parser, Tag};
+use pulldown_cmark::{html as html_renderer, CowStr, Event, LinkType, Options, Parser, Tag};
 
 const INPUT: &str = "src/ui/help.md";
 const OUTPUT: &str = "help.html"; // In the `OUT_DIR` folder.
@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             heading_level = Some(level);
             None
         }
-        Event::Text(ref heading_text) if heading_level.is_some() => {
+        Event::Text(heading_text) if heading_level.is_some() => {
             Some(Event::Html(CowStr::from(format!(
                 r#"<h{} id="{}">{}"#,
                 heading_level.take().unwrap(),
@@ -36,7 +36,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 heading_text,
             ))))
         }
-        _ => Some(event),
+        rest => Some(rest),
+    });
+
+    // Open all inline links in a new tab.
+    let parser = parser.map(|event| match event {
+        Event::Start(Tag::Link(LinkType::Autolink | LinkType::Inline, dest, title)) => Event::Html(
+            CowStr::from(format!(r#"<a href="{}" target="_blank">{}"#, dest, title)),
+        ),
+        rest => rest,
     });
 
     html_renderer::write_html(&mut writer, parser)?;
