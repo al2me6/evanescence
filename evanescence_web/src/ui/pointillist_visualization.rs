@@ -10,7 +10,7 @@ use crate::plotly::layout::{LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
 use crate::plotters::pointillist as plot;
 use crate::state::{AppDispatch, Mode, State};
-use crate::utils::Timer;
+use crate::utils::ScopeTimer;
 
 enum TraceRenderer {
     Single(fn(&State) -> JsValue),
@@ -105,7 +105,7 @@ impl PointillistVisualizationImpl {
     fn rerender_all(&mut self) {
         let state = self.dispatch.state();
 
-        let _timer = Timer::time_current_scope(format!(
+        let _timer = ScopeTimer::new(format!(
             "[{}][{}] Full Pointillist render",
             state.debug_description(),
             state.quality(),
@@ -149,7 +149,7 @@ impl PointillistVisualizationImpl {
 
         let state = self.dispatch.state();
 
-        let _timer = Timer::time_current_scope(format!(
+        let _timer = ScopeTimer::new(format!(
             "[{}][{}] Render {:?} trace",
             state.debug_description(),
             state.quality(),

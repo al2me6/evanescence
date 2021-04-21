@@ -9,7 +9,7 @@ use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
 use crate::plotters::{self, supplemental as plot};
 use crate::state::{AppDispatch, State, Visualization};
-use crate::utils::{self, Timer};
+use crate::utils::{self, ScopeTimer};
 
 pub(crate) struct SupplementalVisualizationImpl {
     dispatch: AppDispatch,
@@ -34,7 +34,7 @@ impl SupplementalVisualizationImpl {
 
         log::debug!("Rerendering {:?}.", state.supplement());
 
-        let _timer = Timer::time_current_scope(format!(
+        let _timer = ScopeTimer::new(format!(
             "[{}][{}] Render {:?} supplement",
             state.debug_description(),
             state.quality(),

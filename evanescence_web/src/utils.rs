@@ -66,13 +66,13 @@ pub(crate) fn fire_resize_event() {
 
 /// Simple RAII timer.
 #[must_use = "timer is useless if dropped immediately"]
-pub(crate) struct Timer {
+pub(crate) struct ScopeTimer {
     action_description: String,
     begin: Instant,
 }
 
-impl Timer {
-    pub(crate) fn time_current_scope(action_description: String) -> Self {
+impl ScopeTimer {
+    pub(crate) fn new(action_description: String) -> Self {
         Self {
             action_description,
             begin: Instant::now(),
@@ -80,7 +80,7 @@ impl Timer {
     }
 }
 
-impl Drop for Timer {
+impl Drop for ScopeTimer {
     fn drop(&mut self) {
         let time = self.begin.elapsed().as_millis();
         log::info!("{}: {}ms", self.action_description, time);
