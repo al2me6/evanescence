@@ -1,6 +1,7 @@
 use std::fmt::LowerExp;
 
 use instant::Instant;
+use itertools::Itertools;
 
 pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
     let mut prev_is_word_separator = true;
@@ -21,6 +22,26 @@ pub(crate) fn fmt_scientific_notation<T: LowerExp>(source: T, precision: usize) 
     format!("{:.*e}</sup>", precision, source)
         .replace("-", "−") // "hyphen" -> "minus".
         .replace("e", " × 10<sup>")
+}
+
+/// Italicize the parts of an orbital name that should be italicized (i.e., the alpha characters).
+/// It is probably wiser to outsource this kind of work to Latex...
+pub(crate) fn italicize_orbital_name<T: AsRef<str>>(source: T) -> String {
+    source
+        .as_ref()
+        .chars()
+        .group_by(char::is_ascii_alphabetic)
+        .into_iter()
+        .map(|(is_letter, chars)| {
+            let group = chars.collect::<String>();
+            // HACK: In this context "sub" is an HTML tag.
+            if is_letter && group != "sub" {
+                format!("<i>{}</i>", group)
+            } else {
+                group
+            }
+        })
+        .collect()
 }
 
 pub(crate) fn partial_max<I>(values: I) -> Option<<I as IntoIterator>::Item>

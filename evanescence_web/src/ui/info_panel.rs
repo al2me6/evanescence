@@ -5,6 +5,7 @@ use yewtil::NeqAssign;
 
 use crate::components::raw::RawSpan;
 use crate::state::{AppDispatch, Mode};
+use crate::utils;
 
 pub(crate) struct InfoPanelImpl {
     dispatch: AppDispatch,
@@ -45,22 +46,20 @@ impl Component for InfoPanelImpl {
                     orbital::subshell_name(state.qn().l()).expect("failed to get subshell name");
                 html! {
                     <p>
-                    {"Viewing orbital "}
-                    <RawSpan inner_html = orbital::Real::name(state.qn()) />
-                    { format!(
-                        ", which is {} {} orbital with {} radial {} and {} angular {}.",
-                        // English is hard.
-                        if "sfhi".contains(subshell_name) {
-                            "an"
-                        } else {
-                            "a"
-                        },
-                        subshell_name,
-                        num_radial_nodes,
-                        node_pluralize(num_radial_nodes),
-                        num_angular_nodes,
-                        node_pluralize(num_angular_nodes),
-                    ) }
+                        { "Viewing orbital " }
+                        <RawSpan
+                            inner_html = utils::italicize_orbital_name(orbital::Real::name(state.qn()))
+                        />
+                        { ", which is " }
+                        { if "sfhi".contains(subshell_name) { "an " } else { "a " } } // English is hard.
+                        <i>{ subshell_name }</i>
+                        { format!(
+                            " orbital with {} radial {} and {} angular {}.",
+                            num_radial_nodes,
+                            node_pluralize(num_radial_nodes),
+                            num_angular_nodes,
+                            node_pluralize(num_angular_nodes),
+                        ) }
                     </p>
                 }
             }
