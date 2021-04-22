@@ -6,7 +6,6 @@ use evanescence_core::geometry::Plane;
 use evanescence_core::orbital::{self, Orbital, RadialPlot};
 use wasm_bindgen::JsValue;
 
-use super::isosurface_cutoff_heuristic;
 use crate::plotly::color::{self, color_scales, ColorBar};
 use crate::plotly::layout::{Axis, Font, Scene, Title};
 use crate::plotly::scatter::Line;
@@ -209,37 +208,43 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
 }
 
 pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
-    assert!(state.mode().is_real_or_simple());
+    assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
 
-    let (x, y, z, value) =
-        orbital::Real::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
-            .into_components();
-
-    let cutoff = isosurface_cutoff_heuristic(state.qn());
-
-    let axis = Axis::with_extent(state.estimate_radius());
+    let trace = if state.mode().is_hybrid() {
+        super::compute_isosurface_hybrid(state.hybrid_kind().principal(), state.quality())
+    } else {
+        let (x, y, z, value) =
+            orbital::Real::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
+                .into_components();
+        let cutoff = super::isosurface_cutoff_heuristic_real(state.qn());
+        Isosurface {
+            x,
+            y,
+            z,
+            value,
+            iso_min: -cutoff,
+            iso_max: cutoff,
+            surface: isosurface::Surface { count: 2 },
+            color_scale: color_scales::RED_BLUE_REVERSED,
+            opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
+            ..default()
+        }
+    };
+    let cutoff = trace.iso_max;
     let trace = Isosurface {
-        x,
-        y,
-        z,
-        value,
-        iso_min: -cutoff,
-        iso_max: cutoff,
-        surface: isosurface::Surface { count: 2 },
-        color_scale: color_scales::RED_BLUE_REVERSED,
         c_min: Some(-cutoff * 1.2),
         c_max: Some(cutoff * 1.2),
-        opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
-        ..default()
+        ..trace
     };
 
+    let axis = Axis::with_extent(state.estimate_radius());
     let layout = Layout {
         ui_revision: Some("isosurface"),
         drag_mode_str: Some("orbit"),
         scene: Some(Scene {
-            x_axis: axis,
-            y_axis: axis,
-            z_axis: axis,
+            x_axis: axis.clone(),
+            y_axis: axis.clone(),
+            z_axis: axis.clone(),
             ..default()
         }),
         ..default()

@@ -7,7 +7,7 @@ use super::descriptions::DESC;
 use crate::components::raw::RawSpan;
 use crate::plotly::config::ModeBarButtons;
 use crate::plotly::{Config, Plotly};
-use crate::plotters::{self, supplemental as plot};
+use crate::plotters::supplemental as plot;
 use crate::state::{AppDispatch, State, Visualization};
 use crate::utils::{self, ScopeTimer};
 
@@ -109,12 +109,10 @@ impl Component for SupplementalVisualizationImpl {
                 html! {
                     <p>
                         { "Specifically, the cutoff value used is " }
-                        <RawSpan
-                            inner_html = utils::fmt_scientific_notation(
-                                plotters::isosurface_cutoff_heuristic(state.qn()).powi(2),
-                                3,
-                            )
-                        />
+                        <RawSpan inner_html = utils::fmt_scientific_notation(
+                            state.isosurface_cutoff().powi(2),
+                            3,
+                        ) />
                         { "." }
                     </p>
                 }

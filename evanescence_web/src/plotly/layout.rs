@@ -19,7 +19,7 @@ def_plotly_ty! {
 }
 
 def_plotly_ty! {
-    #[derive(Clone, Copy)]
+    #[derive(Clone)]
     Title<'a>
 
     text: &'a str,
@@ -37,7 +37,7 @@ def_plotly_ty! {
 }
 
 def_plotly_ty! {
-    #[derive(Clone, Copy)]
+    #[derive(Clone)]
     Axis<'a>
 
     #optional title: Title<'a>,

@@ -12,6 +12,7 @@ use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yewdux::prelude::*;
 
 pub(crate) use self::presets::{HybridKind, HybridPreset, QnPreset};
+use crate::plotters;
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display, Serialize, Deserialize)]
@@ -225,6 +226,7 @@ impl State {
                 Visualization::CrossSectionXY,
                 Visualization::CrossSectionYZ,
                 Visualization::CrossSectionZX,
+                Visualization::Isosurface3D,
             ],
         }
     }
@@ -318,6 +320,16 @@ impl State {
         match &self.state {
             Hybrid(state) => state.show_silhouettes,
             _ => false,
+        }
+    }
+
+    pub(crate) fn isosurface_cutoff(&self) -> f32 {
+        match self.mode() {
+            Mode::Real | Mode::RealSimple => plotters::isosurface_cutoff_heuristic_real(self.qn()),
+            Mode::Hybrid => {
+                plotters::isosurface_cutoff_heuristic_hybrid(self.hybrid_kind().principal())
+            }
+            Mode::Complex => panic!("isosurface not available in `Complex` mode"),
         }
     }
 }

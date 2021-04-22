@@ -7,15 +7,13 @@ use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate};
 use evanescence_core::orbital::{self, wavefunctions};
-use orbital::Orbital;
 use wasm_bindgen::JsValue;
 
-use super::isosurface_cutoff_heuristic;
 use crate::plotly::color::{self, color_scales, ColorBar, ColorScale};
 use crate::plotly::layout::{Anchor, Title};
 use crate::plotly::scatter_3d::Marker;
 use crate::plotly::surface::Contours;
-use crate::plotly::{isosurface, Isosurface, Scatter3D, Surface};
+use crate::plotly::{Isosurface, Scatter3D, Surface};
 use crate::state::State;
 use crate::utils;
 
@@ -139,7 +137,7 @@ pub(crate) fn radial_nodes(state: &State) -> JsValue {
             // Shrink the extent plotted since radial nodes are found in the central part of the
             // full extent only. This is a heuristic that has been verified to cover all radial
             // nodes from `n` = 2 through 8.
-            orbital::Real::estimate_radius(state.qn()) as f32
+            state.estimate_radius() as f32
                 * (state.qn().n() as f32 * 0.06 + 0.125),
             state.quality().for_isosurface(),
         )
@@ -156,7 +154,7 @@ pub(crate) fn angular_nodes(state: &State) -> JsValue {
     isosurface(
         wavefunctions::RealSphericalHarmonic::evaluate_in_region(
             &qn.into(),
-            orbital::Real::estimate_radius(qn),
+            state.estimate_radius(),
             state.quality().for_isosurface(),
         )
         .into(),
@@ -192,40 +190,21 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
         .rotations()
         .iter()
         .chain(iter::once(state.hybrid_kind().principal()))
-        .map(|orbital| {
-            let (x, y, z, value) = ComponentForm::from(orbital::Hybrid::evaluate_in_region(
-                orbital,
-                // Manually shrink the extent sampled for higher quality.
-                orbital::Hybrid::estimate_radius(orbital) * 0.6,
-                state.quality().for_isosurface(),
-            ))
-            .into_components();
-
-            let cutoff = orbital
-                .iter()
-                .map(|(qn, _)| qn)
-                .map(isosurface_cutoff_heuristic)
-                .sum::<f32>()
-                / orbital.count() as f32
-                * 6.5;
-
+        .map(|lc| {
+            let surface = super::compute_isosurface_hybrid(lc, state.quality());
+            // Shrink the surface for silhouettes so they overlap less.
+            let cutoff = surface.iso_max * 1.625;
             Isosurface {
-                x,
-                y,
-                z,
-                value,
                 iso_min: -cutoff,
                 iso_max: cutoff,
-                surface: isosurface::Surface { count: 2 },
-                color_scale: color_scales::RED_BLUE_REVERSED,
                 c_min: Some(-cutoff * 1.4),
                 c_max: Some(cutoff * 1.4),
-                opacity: if orbital == state.hybrid_kind().principal() {
-                    0.3
+                opacity: if lc == state.hybrid_kind().principal() {
+                    0.35
                 } else {
                     0.15
                 },
-                ..default()
+                ..surface
             }
             .into()
         })
