@@ -83,7 +83,7 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     let is_complex = state.mode().is_complex();
     let plane: Plane = state.supplement().try_into().unwrap();
 
-    let (x, y, mut z, custom_color) = if is_complex {
+    let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) =
             orbital::Complex::sample_cross_section(state.qn(), plane, state.quality().for_grid())
                 .into_components();
@@ -107,6 +107,12 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
         z.iter_mut()
             .flat_map(|row| row.iter_mut())
             .for_each(|v| *v = 0.0);
+        if let Some(ref mut color) = custom_color {
+            color
+                .iter_mut()
+                .flat_map(|row| row.iter_mut())
+                .for_each(|v| *v = 0.0);
+        }
     }
 
     let ui_revision = state.supplement().to_string();
