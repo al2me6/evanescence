@@ -6,14 +6,14 @@ use evanescence_core::numerics::orthogonal_polynomials::{
     associated_laguerre,
     associated_legendre,
 };
-use evanescence_core::numerics::Multifactorial;
+use evanescence_core::numerics::DoubleFactorial;
 use evanescence_core::orbital::{self, Qn};
 
 pub fn bench_numerics(c: &mut Criterion) {
     let mut fact_group = c.benchmark_group("factorials");
     for n in 0_u64..=14 {
         fact_group.bench_with_input(BenchmarkId::new("multifactorial_2", n), &n, |b, n| {
-            b.iter(|| n.multifactorial::<2>())
+            b.iter(|| n.double_factorial())
         });
     }
     fact_group.finish();

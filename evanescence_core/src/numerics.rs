@@ -5,20 +5,20 @@ use std::ops::RangeInclusive;
 use crate::geometry::{GridValues, Plane, Point, PointValue, Vec3};
 
 /// Compute the `N`-th [multifactorial](https://en.wikipedia.org/wiki/Factorial#Multifactorials).
-pub trait Multifactorial {
-    fn multifactorial<const N: u8>(self) -> Self;
+pub trait DoubleFactorial {
+    fn double_factorial(self) -> Self;
 }
 
-macro_rules! impl_multifactorial {
+macro_rules! impl_double_factorial {
     ($($T:ty),+) => {
-        $(impl Multifactorial for $T {
+        $(impl DoubleFactorial for $T {
             #[inline]
-            fn multifactorial<const N: u8>(self) -> Self {
+            fn double_factorial(self) -> Self {
                 if self <= 1 {
                     return 1;
                 }
                 let mut acc = self;
-                let delta = N as $T;
+                let delta = 2;
                 let mut mul = acc - delta;
                 while mul >= delta {
                     acc *= mul;
@@ -29,7 +29,7 @@ macro_rules! impl_multifactorial {
         })+
     }
 }
-impl_multifactorial!(u8, u16, u32, u64, usize);
+impl_double_factorial!(u8, u16, u32, u64, usize);
 
 pub fn normalize(
     source_range: RangeInclusive<f32>,
@@ -44,7 +44,7 @@ pub fn normalize(
 pub mod orthogonal_polynomials {
     //! Implementations of the the associated Legendre functions and the associated Laguerre
     //! polynomials.
-    use super::Multifactorial;
+    use super::DoubleFactorial;
 
     /// The associated Laguerre polynomials, `L_{q}^{p}(x)`.
     ///
@@ -93,7 +93,7 @@ pub mod orthogonal_polynomials {
         } else {
             // P_m^m(x) = (-1)^l (2m - 1)!! (1 - x^2)^(m/2).
             (if m % 2 == 0 { 1.0 } else { -1.0 })  // (-1)^l
-                * (2 * m - 1).multifactorial::<2>() as f32
+                * (2 * m - 1).double_factorial() as f32
                 * (1.0 - x * x).powi(m as _).sqrt()
         };
         if l == m {
@@ -246,7 +246,6 @@ macro_rules! assert_iterable_relative_eq {
 #[cfg(test)]
 mod tests {
     use super::orthogonal_polynomials::{associated_laguerre, associated_legendre};
-    use super::Multifactorial;
 
     macro_rules! test {
         ($fn_name:ident, $target_fn:ident, $target_params:expr, $expected:expr) => {
@@ -368,14 +367,4 @@ mod tests {
             1.00000000000000
         ]
     );
-
-    #[test]
-    fn test_double_factorial() {
-        assert_eq!(
-            vec![1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840],
-            (0_u32..=10)
-                .map(Multifactorial::multifactorial::<2>)
-                .collect::<Vec<_>>()
-        );
-    }
 }

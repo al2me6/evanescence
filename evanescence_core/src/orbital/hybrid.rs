@@ -96,8 +96,8 @@ impl fmt::Display for LinearCombination {
 /// let linear_combination = lc! {
 ///     kind = "sp",
 ///     overall = std::f32::consts::FRAC_1_SQRT_2, // Overall factor.
-///     (2, 0, 0) => 1.0, // Quantum numbers and their associated weights.
-///     (2, 1, 0) => 1.0,
+///     (2, 0, 0) * 1.0, // Quantum numbers and their associated weights.
+///     (2, 1, 0) * 1.0,
 /// };
 /// ```
 ///
@@ -109,7 +109,7 @@ macro_rules! lc {
     (
         kind = $kind:literal,
         overall = $overall_factor:expr,
-        $(($n:literal, $l:literal, $m:literal) => $weight:expr),+
+        $(($n:literal, $l:literal, $m:literal) * $weight:expr),+
         $(,)?
     ) => {
         $crate::orbital::hybrid::LinearCombination::new(

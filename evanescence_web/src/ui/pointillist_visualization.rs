@@ -1,4 +1,4 @@
-use evanescence_core::orbital::Real as RealOrbital;
+use evanescence_core::orbital;
 use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
@@ -33,12 +33,12 @@ impl Trace {
             Self::RadialNodes => {
                 state.mode().is_real_or_simple()
                     && state.nodes_rad()
-                    && RealOrbital::num_radial_nodes(state.qn()) > 0
+                    && orbital::Real::num_radial_nodes(state.qn()) > 0
             }
             Self::AngularNodes => {
                 state.mode().is_real_or_simple()
                     && state.nodes_ang()
-                    && RealOrbital::num_angular_nodes(state.qn()) > 0
+                    && orbital::Real::num_angular_nodes(state.qn()) > 0
             }
             Self::CrossSectionIndicator => state.supplement().is_cross_section(),
             Self::Silhouette => state.mode().is_hybrid() && state.silhouettes(),

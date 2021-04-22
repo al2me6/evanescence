@@ -138,7 +138,7 @@ impl fmt::Display for Mode {
     }
 }
 
-#[allow(clippy::clippy::enum_glob_use)] // Convenience.
+#[allow(clippy::enum_glob_use)] // Convenience.
 use StateInner::*;
 
 impl Default for StateInner {

@@ -2,11 +2,11 @@ use evanescence_core::monte_carlo::Quality;
 use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::wavefunctions::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
+use itertools::Itertools;
 use strum::IntoEnumIterator;
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
-use itertools::Itertools;
 
 use super::descriptions::DESC;
 use crate::components::{CheckBox, Dropdown, Tooltip};
