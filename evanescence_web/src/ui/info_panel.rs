@@ -48,7 +48,7 @@ impl Component for InfoPanelImpl {
                     <p>
                         { "Viewing orbital " }
                         <RawSpan
-                            inner_html = utils::italicize_orbital_name(orbital::Real::name(state.qn()))
+                            inner_html = utils::fmt_orbital_name_html(orbital::Real::name(state.qn()))
                         />
                         { ", which is " }
                         { if "sfhi".contains(subshell_name) { "an " } else { "a " } } // English is hard.
@@ -72,29 +72,36 @@ impl Component for InfoPanelImpl {
             },
             Mode::Hybrid => {
                 let kind = state.hybrid_kind();
+                let kind_name = html! {
+                    <RawSpan inner_html = utils::fmt_orbital_name_html(kind.kind()) />
+                };
                 html! {
                     <>
                     <p>
                         {"Viewing " }
-                        { kind.kind() }
+                        { kind_name.clone() }
                         { "-hybridized orbital formed by the linear combination " }
-                        <RawSpan inner_html = kind.principal().expression() />
+                        <RawSpan inner_html = utils::fmt_orbital_name_html(
+                            kind.principal().expression()
+                        ) />
                         { "." }
                     </p>
                     <p>
                         { "There are " }
                         { kind.count() }
                         { " " }
-                        { kind.kind() }
+                        { kind_name.clone() }
                         { " orbitals with " }
                         { kind.symmetry() }
                         { " symmetry. The other " }
-                        { kind.kind() }
+                        { kind_name.clone() }
                         { " orbitals (which can be drawn by enabling \"Show symmetry\") are formed from the following linear combinations:" }
                     </p>
                     <ul>
                         { for kind.rotations().iter().map(|lc| html! {
-                            <li><RawSpan inner_html = lc.expression() /></li>
+                            <li><RawSpan inner_html = utils::fmt_orbital_name_html(
+                                lc.expression()
+                            ) /></li>
                         }) }
                     </ul>
                     </>
