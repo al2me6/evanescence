@@ -44,6 +44,17 @@ pub(crate) fn fmt_orbital_name_html<T: AsRef<str>>(source: T) -> String {
         .collect()
 }
 
+pub(crate) fn fmt_thousands_separated(n: usize) -> String {
+    let string = n.to_string();
+    // Comparing `len` directly is fine because the string should only contain ASCII (1-byte) chars.
+    if string.len() <= 4 {
+        return string;
+    }
+    Iterator::intersperse(string.chars().collect_vec().rchunks(3).rev(), &[' '])
+        .flatten()
+        .collect()
+}
+
 pub(crate) fn partial_max<I>(values: I) -> Option<<I as IntoIterator>::Item>
 where
     I: IntoIterator,

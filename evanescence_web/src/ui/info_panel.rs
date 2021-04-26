@@ -114,7 +114,10 @@ impl Component for InfoPanelImpl {
                 <h3>{"Orbital Information"}</h3>
                 { description }
                 <p>
-                { format!("Visualized using {} points.", state.quality() as usize) }
+                { format!(
+                    "Visualized using {} points.",
+                    utils::fmt_thousands_separated(state.quality() as usize)
+                ) }
                 </p>
             </div>
         }
