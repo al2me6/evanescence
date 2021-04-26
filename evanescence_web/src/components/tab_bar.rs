@@ -62,6 +62,7 @@ impl<T: TabBarItem> Component for TabBar<T> {
                     value = idx
                     label_text_ = mode
                     onchange = self.link.callback(into_value)
+                    aria-label = mode
                 />
             }
         };

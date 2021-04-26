@@ -465,6 +465,7 @@ main {
 }
 
 #controls {
+  -webkit-user-select: none;
   user-select: none;
 }
 

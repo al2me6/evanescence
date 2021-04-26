@@ -67,6 +67,7 @@ impl<T: DropdownItem> Component for Dropdown<T> {
             <select
                 id = self.props.id
                 onchange = self.link.callback(|data: ChangeData| into_select_element(data).value())
+                aria-label = self.props.id
             >
                 { for (0..self.props.options.len()).map(|idx| option(idx, &self.props.selected)) }
             </select>

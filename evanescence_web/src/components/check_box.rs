@@ -61,6 +61,7 @@ impl Component for CheckBox {
                     id = self.props.id,
                     onchange = self.link.callback(|_| ()),  // All hail the toilet closure.
                     checked = self.state
+                    aria-label = &self.props.label
                 />
                 { label_text }
             </label>
