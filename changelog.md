@@ -1,5 +1,24 @@
 # Version History
 
+## 0.4.9, 2021-04-27
+
+### Features
+
+* State is now persisted across reloads.
+* Cross-sections are now available in Complex mode.
+* Nodal surfaces and 3D isosurfaces are now available in Hybrid mode.
+
+### Changes
+
+* The help page has been expanded and reorganized.
+* All links now open in a new tab.
+* Orbital names are correctly italicized where possible.
+* Minor styling improvements.
+
+### Bugfixes
+
+* There are no longer color artifacts in complex cross-section plots if all values are zero.
+
 ## 0.4.8, 2021-04-13
 
 ### Features
