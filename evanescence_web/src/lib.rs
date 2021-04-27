@@ -105,9 +105,13 @@ impl Component for MainImpl {
         let footer = html! {
             <footer>
                 <p>{ format!("Evanescence v{}.{}.{}", VER_MAJOR, VER_MINOR, VER_PATCH) }</p>
-                <span><a href = format!("{}/blob/master/changelog.md", REPO) >{ "Changelog" }</a></span>
-                <span><a href = REPO>{ "Source" }</a></span>
-                <span><a href = BENCHMARKS_URL>{ "Benchmarks" }</a></span>
+                <span>
+                    <a href = format!("{}/blob/master/changelog.md", REPO) target = "_blank">
+                        { "Changelog" }
+                    </a>
+                </span>
+                <span><a href = REPO target = "_blank">{ "Source" }</a></span>
+                <span><a href = BENCHMARKS_URL target = "_blank">{ "Benchmarks" }</a></span>
             </footer>
         };
 
