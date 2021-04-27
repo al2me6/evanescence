@@ -459,7 +459,7 @@ impl<T> GridValues<T> {
         if row_coords.len() != vals.len() {
             return Err(InvalidGridValuesError::Row);
         }
-        for row in vals.iter() {
+        for row in &vals {
             if col_coords.len() != row.len() {
                 return Err(InvalidGridValuesError::Column);
             }

@@ -94,7 +94,7 @@ pub mod orthogonal_polynomials {
             // P_m^m(x) = (-1)^l (2m - 1)!! (1 - x^2)^(m/2).
             (if m % 2 == 0 { 1.0 } else { -1.0 })  // (-1)^l
                 * (2 * m - 1).double_factorial() as f32
-                * (1.0 - x * x).powi(m as _).sqrt()
+                * (1.0 - x * x).powi(m as i32).sqrt()
         };
         if l == m {
             return P;
@@ -180,9 +180,9 @@ pub trait Evaluate {
 
         let mut vals = Vec::with_capacity(num_points);
 
-        for &col_pt in points_in_col.iter() {
+        for &col_pt in &points_in_col {
             let mut row = Vec::with_capacity(num_points);
-            for &row_pt in points_in_row.iter() {
+            for &row_pt in &points_in_row {
                 row.push(Self::evaluate(params, &(row_pt + col_pt).into()));
             }
             vals.push(row);

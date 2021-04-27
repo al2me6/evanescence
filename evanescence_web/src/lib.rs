@@ -4,7 +4,7 @@
 #![allow(
     clippy::cast_precision_loss, // We work with smaller values, so this should not be a concern.
     clippy::default_trait_access, // Triggered by yew's proc macros.
-    clippy::filter_map, // Semantics.
+    clippy::manual_filter_map, // Semantics.
     clippy::needless_pass_by_value, // Triggered by wasm-bindgen macro.
     clippy::non_ascii_literal, // Unicode support is expected.
 )]
