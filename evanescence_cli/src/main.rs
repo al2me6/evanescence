@@ -6,7 +6,8 @@ use anyhow::{anyhow, Context, Result};
 use argh::FromArgs;
 use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
-use evanescence_core::orbital::{self, Orbital, Qn, RadialPlot};
+use evanescence_core::numerics::EvaluateBounded;
+use evanescence_core::orbital::{self, Complex, Qn, RadialPlot, Real};
 use once_cell::sync::OnceCell;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
@@ -161,7 +162,7 @@ fn main() -> Result<()> {
                 || {
                     (
                         quality as usize,
-                        orbital::Real::monte_carlo_simulate(&qn, quality, false),
+                        Real::monte_carlo_simulate(&qn, quality, false),
                     )
                 },
                 |sim_result| {
@@ -178,8 +179,8 @@ fn main() -> Result<()> {
                         // We render the Monte Carlo points and a cube of side length num_points_iso.
                         quality as usize + num_points_iso.pow(3),
                         (
-                            orbital::Real::monte_carlo_simulate(&qn, quality, false),
-                            orbital::Real::sample_region(&qn, num_points_iso),
+                            Real::monte_carlo_simulate(&qn, quality, false),
+                            Real::sample_region(&qn, num_points_iso),
                         ),
                     )
                 },
@@ -207,7 +208,7 @@ fn main() -> Result<()> {
                 || {
                     (
                         quality as usize,
-                        orbital::Complex::monte_carlo_simulate(&qn, quality, false),
+                        Complex::monte_carlo_simulate(&qn, quality, false),
                     )
                 },
                 |sim_result| {
@@ -243,11 +244,7 @@ fn main() -> Result<()> {
                     let num_points = quality.for_grid();
                     (
                         num_points * num_points, // We calculate an entire grid.
-                        orbital::Real::sample_cross_section(
-                            &qn,
-                            mode.try_into().unwrap(),
-                            num_points,
-                        ),
+                        Real::sample_plane(&qn, mode.try_into().unwrap(), num_points),
                     )
                 },
                 |sim_result| {

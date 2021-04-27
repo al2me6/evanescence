@@ -13,13 +13,10 @@ use num_complex::Complex32;
 pub use self::hybrid::{Hybrid, LinearCombination};
 pub use self::quantum_numbers::Qn;
 use self::wavefunctions::{
-    Radial,
-    RadialProbabilityDistribution,
-    RealSphericalHarmonic,
-    SphericalHarmonic,
+    Radial, RadialProbabilityDistribution, RealSphericalHarmonic, SphericalHarmonic,
 };
-use crate::geometry::{ComponentForm, GridValues, Plane, Point, Vec3};
-use crate::numerics::Evaluate;
+use crate::geometry::{ComponentForm, Point, Vec3};
+use crate::numerics::{Evaluate, EvaluateBounded};
 
 /// Get the conventional subshell name (s, p, d, f, etc.) for common (i.e., small) values of `l`;
 /// will otherwise return `None`.
@@ -37,37 +34,10 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
     }
 }
 
-/// Trait representing a hydrogenic orbital.
-pub trait Orbital: Evaluate {
-    /// Give an estimate for the size of the orbital, in the sense that the vast majority of
-    /// probability density is confined within a sphere of the radius returned.
-    fn estimate_radius(params: &Self::Parameters) -> f32;
-
+/// Trait representing a type of wavefunction.
+pub trait Orbital: EvaluateBounded {
     /// Give the probability density value corresponding to a certain wavefunction value.
     fn probability_density_of(value: Self::Output) -> f32;
-
-    /// Compute a plot of the cross section of an orbital along a given `plane`.
-    ///
-    /// `num_points` points will be evaluated in a grid centered at the origin and covering
-    /// the extent of the orbital, which is automatically estimated.
-    ///
-    /// For more information, see the documentation on [`GridValues`].
-    fn sample_cross_section(
-        params: &Self::Parameters,
-        plane: Plane,
-        num_points: usize,
-    ) -> GridValues<Self::Output> {
-        Self::evaluate_on_plane(params, plane, Self::estimate_radius(params), num_points)
-    }
-
-    /// Compute a plot of the orbital in a cube centered at the origin. `num_points` are sampled
-    /// in each dimension, producing an evenly-spaced lattice of values the size of the
-    /// orbital's extent.
-    ///
-    /// For more information, see [`Evaluate::evaluate_in_region`].
-    fn sample_region(params: &Self::Parameters, num_points: usize) -> ComponentForm<Self::Output> {
-        Self::evaluate_in_region(params, Self::estimate_radius(params), num_points).into()
-    }
 
     /// Give the conventional name of an orbital.
     ///
@@ -89,15 +59,17 @@ impl Evaluate for Real {
     }
 }
 
-impl Orbital for Real {
+impl EvaluateBounded for Real {
     /// This is an empirically derived heuristic. See the attached Mathematica notebook
     /// `radial_wavefunction.nb` for plots.
     #[inline]
-    fn estimate_radius(qn: &Qn) -> f32 {
+    fn bound(qn: &Qn) -> f32 {
         let n = qn.n() as f32;
         0.9 * n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
     }
+}
 
+impl Orbital for Real {
     #[inline]
     fn probability_density_of(value: f32) -> f32 {
         value * value
@@ -142,11 +114,14 @@ impl Evaluate for Complex {
     }
 }
 
-impl Orbital for Complex {
-    fn estimate_radius(params: &Self::Parameters) -> f32 {
-        Real::estimate_radius(params)
+impl EvaluateBounded for Complex {
+    #[inline]
+    fn bound(params: &Self::Parameters) -> f32 {
+        Real::bound(params)
     }
+}
 
+impl Orbital for Complex {
     #[inline]
     fn probability_density_of(value: Self::Output) -> f32 {
         let norm = value.norm();
@@ -182,7 +157,7 @@ pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f3
     };
     let (xs, _, _, vals) = ComponentForm::from(evaluator(
         &qn.into(),
-        Vec3::ZERO..=(Vec3::I * Real::estimate_radius(qn)), // We use the x-axis for simplicity; this function is radially symmetric.
+        Vec3::ZERO..=(Vec3::I * Real::bound(qn)), // We use the x-axis for simplicity; this function is radially symmetric.
         num_points,
     ))
     .into_components();

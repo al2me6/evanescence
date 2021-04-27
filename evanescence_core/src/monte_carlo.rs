@@ -4,7 +4,7 @@ use nanorand::WyRand;
 use strum::{Display, EnumIter, EnumString};
 
 use crate::geometry::{ComponentForm, Point, PointValue};
-use crate::orbital::{self, Orbital};
+use crate::orbital::{Complex, Hybrid, Orbital, Real};
 
 /// A set of predefined qualities (i.e., number of points computed) for sampling orbitals, either
 /// for Monte Carlo simulations or plotting.
@@ -61,7 +61,8 @@ impl Quality {
 /// The algorithm operates as follows:
 ///
 /// 1. Determine the maximum probability density attained by the wavefunction.
-/// 2. Determine the radius of the ball sampled (see [`Orbital::estimate_radius`]).
+/// 2. Determine the radius of the ball sampled (see
+///    [`EvaluateBounded::bound`](crate::numerics::EvaluateBounded::bound)).
 /// 2. Repeat the following steps until the desired number of points is generated:
 ///     1. Generate a point randomly distributed within the ball of the aforementioned radius.
 ///     2. Generate a random number on \[0, 1\].
@@ -104,7 +105,7 @@ pub trait MonteCarlo: Orbital {
         // accurately estimated: They attain their maximum probability density over a very small
         // area near the origin, which is difficult to hit when sampling randomly.
         let evaluated_points: Vec<_> =
-            Point::sample_from_ball_with_origin_iter(Self::estimate_radius(params), rng)
+            Point::sample_from_ball_with_origin_iter(Self::bound(params), rng)
                 .map(|pt| Self::evaluate_at(params, &pt))
                 .take(num_samples)
                 .collect();
@@ -154,7 +155,7 @@ pub trait MonteCarlo: Orbital {
             .into_iter() // Reuse the points sampled during estimation...
             .chain(
                 // ...before generating new ones.
-                Point::sample_from_ball_iter(Self::estimate_radius(params), &mut point_rng)
+                Point::sample_from_ball_iter(Self::bound(params), &mut point_rng)
                     .map(|pt| Self::evaluate_at(params, &pt)),
             )
             .filter(|PointValue(_, val)| {
@@ -166,16 +167,16 @@ pub trait MonteCarlo: Orbital {
     }
 }
 
-impl MonteCarlo for orbital::Real {
+impl MonteCarlo for Real {
     fn max_value_multiplier(params: &Self::Parameters) -> Option<f32> {
         Some(1.0 / (0.05 * (Self::num_radial_nodes(params) as f32).powi(3) + 1.0))
     }
 }
 
-impl MonteCarlo for orbital::Complex {
+impl MonteCarlo for Complex {
     fn max_value_multiplier(params: &Self::Parameters) -> Option<f32> {
-        orbital::Real::max_value_multiplier(params)
+        Real::max_value_multiplier(params)
     }
 }
 
-impl MonteCarlo for orbital::Hybrid {}
+impl MonteCarlo for Hybrid {}

@@ -3,7 +3,8 @@ use std::default::default;
 use std::f32::consts::PI;
 
 use evanescence_core::geometry::Plane;
-use evanescence_core::orbital::{self, Orbital, RadialPlot};
+use evanescence_core::numerics::EvaluateBounded;
+use evanescence_core::orbital::{self, Complex, RadialPlot, Real};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -85,8 +86,7 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
 
     let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) =
-            orbital::Complex::sample_cross_section(state.qn(), plane, state.quality().for_grid())
-                .into_components();
+            Complex::sample_plane(state.qn(), plane, state.quality().for_grid()).into_components();
         let moduli = values
             .iter()
             .map(|row| row.iter().map(|v| v.norm()).collect())
@@ -97,7 +97,7 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
             .collect();
         (x, y, moduli, Some(arguments))
     } else {
-        let (x, y, z) = state.sample_cross_section_real(plane).into_components();
+        let (x, y, z) = state.sample_plane_real(plane).into_components();
         (x, y, z, None)
     };
 
@@ -220,7 +220,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         super::compute_isosurface_hybrid(state.hybrid_kind().principal(), state.quality())
     } else {
         let (x, y, z, value) =
-            orbital::Real::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
+            Real::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
                 .into_components();
         let cutoff = super::isosurface_cutoff_heuristic_real(state.qn());
         Isosurface {
@@ -243,7 +243,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         ..trace
     };
 
-    let axis = Axis::with_extent(state.estimate_radius());
+    let axis = Axis::with_extent(state.bound());
     let layout = Layout {
         ui_revision: Some("isosurface"),
         drag_mode_str: Some("orbit"),

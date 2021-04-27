@@ -1,4 +1,4 @@
-use evanescence_core::orbital;
+use evanescence_core::orbital::Real;
 use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
@@ -34,12 +34,12 @@ impl Trace {
             Self::NodesRadial => {
                 state.mode().is_real_or_simple()
                     && state.nodes_rad()
-                    && orbital::Real::num_radial_nodes(state.qn()) > 0
+                    && Real::num_radial_nodes(state.qn()) > 0
             }
             Self::NodesAngular => {
                 state.mode().is_real_or_simple()
                     && state.nodes_ang()
-                    && orbital::Real::num_angular_nodes(state.qn()) > 0
+                    && Real::num_angular_nodes(state.qn()) > 0
             }
             Self::CrossSectionIndicator => state.supplement().is_cross_section(),
             Self::Silhouettes => state.mode().is_hybrid() && state.silhouettes(),
@@ -126,10 +126,7 @@ impl PointillistVisualizationImpl {
 
         // Relayout to set new plot range. Note that we relayout when there are no points
         // displayed to improve performance.
-        Plotly::relayout(
-            Self::ID,
-            LayoutRangeUpdate::new(state.estimate_radius()).into(),
-        );
+        Plotly::relayout(Self::ID, LayoutRangeUpdate::new(state.bound()).into());
 
         // And compute new ones.
         let rendered_kinds = &mut self.rendered_kinds;

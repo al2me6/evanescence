@@ -2,7 +2,7 @@
 
 use std::ops::RangeInclusive;
 
-use crate::geometry::{GridValues, Plane, Point, PointValue, Vec3};
+use crate::geometry::{ComponentForm, GridValues, Plane, Point, PointValue, Vec3};
 
 /// Compute the `N`-th [multifactorial](https://en.wikipedia.org/wiki/Factorial#Multifactorials).
 pub trait DoubleFactorial {
@@ -207,7 +207,7 @@ pub trait Evaluate {
         params: &Self::Parameters,
         extent: f32,
         num_points: usize,
-    ) -> Vec<PointValue<Self::Output>> {
+    ) -> ComponentForm<Self::Output> {
         Vec3::symmetric_linspace(Vec3::I * extent, num_points)
             .flat_map(|x_pt| {
                 Vec3::symmetric_linspace(Vec3::J * extent, num_points).flat_map(move |y_pt| {
@@ -215,7 +215,40 @@ pub trait Evaluate {
                         .map(move |z_pt| Self::evaluate_at(params, &(x_pt + y_pt + z_pt).into()))
                 })
             })
-            .collect()
+            .collect::<Vec<_>>()
+            .into()
+    }
+}
+
+/// Trait representing a function for which a spherical "bound" centered at the origin can be
+/// reasonably defined.
+pub trait EvaluateBounded: Evaluate {
+    /// Give an approximate bound for the function, in the sense that the function is "sufficiently
+    /// close to zero" everywhere outside a sphere whose radius is the returned value and whose
+    /// center is the origin.
+    fn bound(params: &Self::Parameters) -> f32;
+
+    /// Compute a plot of the cross section of the function along a given `plane`.
+    ///
+    /// `num_points` points will be evaluated in a grid centered at the origin, extending to the
+    /// bound of the function.
+    ///
+    /// For more information, see the documentation on [`GridValues`].
+    fn sample_plane(
+        params: &Self::Parameters,
+        plane: Plane,
+        num_points: usize,
+    ) -> GridValues<Self::Output> {
+        Self::evaluate_on_plane(params, plane, Self::bound(params), num_points)
+    }
+
+    /// Compute a plot of the function in a cube centered at the origin. `num_points` are sampled
+    /// in each dimension, producing an evenly-spaced lattice of values the size of the
+    /// function's bound.
+    ///
+    /// For more information, see [`Evaluate::evaluate_in_region`].
+    fn sample_region(params: &Self::Parameters, num_points: usize) -> ComponentForm<Self::Output> {
+        Self::evaluate_in_region(params, Self::bound(params), num_points)
     }
 }
 

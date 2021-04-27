@@ -5,7 +5,7 @@ use approx::relative_eq;
 use getset::Getters;
 
 use super::quantum_numbers::Qn;
-use super::{Orbital, Real as RealOrbital};
+use super::{EvaluateBounded, Orbital, Real};
 use crate::geometry::Point;
 use crate::numerics::Evaluate;
 
@@ -56,7 +56,7 @@ impl LinearCombination {
         format!(
             "{} {}",
             format!("{:.3}", weight).trim_end_matches('0'),
-            RealOrbital::name(qn)
+            Real::name(qn)
         )
     }
 
@@ -135,22 +135,24 @@ impl Evaluate for Hybrid {
     fn evaluate(combination: &LinearCombination, point: &Point) -> Self::Output {
         combination
             .iter()
-            .map(|(qn, weight)| weight * RealOrbital::evaluate(qn, point))
+            .map(|(qn, weight)| weight * Real::evaluate(qn, point))
             .sum()
     }
 }
 
-impl Orbital for Hybrid {
-    fn estimate_radius(params: &Self::Parameters) -> f32 {
+impl EvaluateBounded for Hybrid {
+    fn bound(params: &Self::Parameters) -> f32 {
         params
             .iter()
             .map(|(qn, _)| qn)
-            .map(RealOrbital::estimate_radius)
+            .map(Real::bound)
             .reduce(f32::max)
             .expect("linear combination must contain at least one orbital")
             * 0.8
     }
+}
 
+impl Orbital for Hybrid {
     #[inline]
     fn probability_density_of(value: Self::Output) -> f32 {
         value * value

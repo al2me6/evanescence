@@ -1,4 +1,4 @@
-use evanescence_core::orbital::{self, Orbital};
+use evanescence_core::orbital::{self, Complex, Orbital, Real};
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
@@ -40,15 +40,15 @@ impl Component for InfoPanelImpl {
 
         let description = match state.mode() {
             Mode::RealSimple | Mode::Real => {
-                let num_radial_nodes = orbital::Real::num_radial_nodes(state.qn());
-                let num_angular_nodes = orbital::Real::num_angular_nodes(state.qn());
+                let num_radial_nodes = Real::num_radial_nodes(state.qn());
+                let num_angular_nodes = Real::num_angular_nodes(state.qn());
                 let subshell_name =
                     orbital::subshell_name(state.qn().l()).expect("failed to get subshell name");
                 html! {
                     <p>
                         { "Viewing orbital " }
                         <RawSpan
-                            inner_html = utils::fmt_orbital_name_html(orbital::Real::name(state.qn()))
+                            inner_html = utils::fmt_orbital_name_html(Real::name(state.qn()))
                         />
                         { ", which is " }
                         { if "sfhi".contains(subshell_name) { "an " } else { "a " } } // English is hard.
@@ -66,7 +66,7 @@ impl Component for InfoPanelImpl {
             Mode::Complex => html! {
                 <p>
                     {"Viewing orbital "}
-                    <RawSpan inner_html = orbital::Complex::name(state.qn()) />
+                    <RawSpan inner_html = Complex::name(state.qn()) />
                     { "." }
                 </p>
             },

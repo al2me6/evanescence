@@ -6,7 +6,8 @@ use std::fmt;
 
 use evanescence_core::geometry::{ComponentForm, GridValues, Plane};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
-use evanescence_core::orbital::{self, Orbital, Qn, RadialPlot};
+use evanescence_core::numerics::EvaluateBounded;
+use evanescence_core::orbital::{self, Qn, RadialPlot};
 use getset::CopyGetters;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
@@ -436,14 +437,10 @@ impl State {
 
 /// Plotting function wrappers.
 impl State {
-    pub(crate) fn estimate_radius(&self) -> f32 {
+    pub(crate) fn bound(&self) -> f32 {
         match self.mode() {
-            Mode::RealSimple | Mode::Real | Mode::Complex => {
-                orbital::Real::estimate_radius(self.qn())
-            }
-            Mode::Hybrid => {
-                orbital::hybrid::Hybrid::estimate_radius(self.hybrid_kind().principal())
-            }
+            Mode::RealSimple | Mode::Real | Mode::Complex => orbital::Real::bound(self.qn()),
+            Mode::Hybrid => orbital::hybrid::Hybrid::bound(self.hybrid_kind().principal()),
         }
     }
 
@@ -461,12 +458,12 @@ impl State {
         }
     }
 
-    pub(crate) fn sample_cross_section_real(&self, plane: Plane) -> GridValues<f32> {
+    pub(crate) fn sample_plane_real(&self, plane: Plane) -> GridValues<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::Real => {
-                orbital::Real::sample_cross_section(self.qn(), plane, self.quality().for_grid())
+                orbital::Real::sample_plane(self.qn(), plane, self.quality().for_grid())
             }
-            Mode::Hybrid => orbital::Hybrid::sample_cross_section(
+            Mode::Hybrid => orbital::Hybrid::sample_plane(
                 self.hybrid_kind().principal(),
                 plane,
                 self.quality().for_grid(),

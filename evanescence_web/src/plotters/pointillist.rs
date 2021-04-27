@@ -6,7 +6,7 @@ use std::iter;
 use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate};
-use evanescence_core::orbital::{self, wavefunctions};
+use evanescence_core::orbital::{wavefunctions, Complex, Hybrid};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar, ColorScale};
@@ -85,7 +85,7 @@ pub(crate) fn real(state: &State) -> JsValue {
 pub(crate) fn complex(state: &State) -> JsValue {
     assert!(state.mode().is_complex());
 
-    let simulation = orbital::Complex::monte_carlo_simulate(state.qn(), state.quality(), true);
+    let simulation = Complex::monte_carlo_simulate(state.qn(), state.quality(), true);
     let (x, y, z, values) = simulation.into_components();
 
     let moduli: Vec<_> = values.iter().map(|v| v.norm()).collect();
@@ -137,10 +137,9 @@ pub(crate) fn nodes_radial(state: &State) -> JsValue {
             // Shrink the extent plotted since radial nodes are found in the central part of the
             // full extent only. This is a heuristic that has been verified to cover all radial
             // nodes from `n` = 2 through 8.
-            state.estimate_radius() as f32 * (state.qn().n() as f32 * 0.06 + 0.125),
+            state.bound() as f32 * (state.qn().n() as f32 * 0.06 + 0.125),
             state.quality().for_isosurface(),
-        )
-        .into(),
+        ),
         color_scales::GREENS,
         false,
     )
@@ -153,10 +152,9 @@ pub(crate) fn nodes_angular(state: &State) -> JsValue {
     nodal_surface(
         wavefunctions::RealSphericalHarmonic::evaluate_in_region(
             &qn.into(),
-            state.estimate_radius(),
+            state.bound(),
             state.quality().for_isosurface(),
-        )
-        .into(),
+        ),
         color_scales::PURP,
         qn.l() >= 4 && qn.m().abs() >= 4,
     )
@@ -165,7 +163,7 @@ pub(crate) fn nodes_angular(state: &State) -> JsValue {
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x, y, z) = plane
-        .four_points_as_xy_value(state.estimate_radius())
+        .four_points_as_xy_value(state.bound())
         .into_components();
     Surface {
         x,
@@ -215,12 +213,7 @@ pub(crate) fn nodes_hybrid(state: &State) -> JsValue {
 
     let lc = state.hybrid_kind().principal();
     nodal_surface(
-        orbital::Hybrid::evaluate_in_region(
-            &lc,
-            state.estimate_radius(),
-            state.quality().for_isosurface(),
-        )
-        .into(),
+        Hybrid::evaluate_in_region(&lc, state.bound(), state.quality().for_isosurface()),
         color_scales::PURP,
         false,
     )
