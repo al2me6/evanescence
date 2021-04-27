@@ -20,28 +20,30 @@ enum TraceRenderer {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 enum Trace {
     Pointillist,
-    RadialNodes,
-    AngularNodes,
+    NodesRadial,
+    NodesAngular,
     CrossSectionIndicator,
-    Silhouette,
+    Silhouettes,
+    NodesHybrid,
 }
 
 impl Trace {
     fn should_render(self, state: &State) -> bool {
         match self {
             Self::Pointillist => true,
-            Self::RadialNodes => {
+            Self::NodesRadial => {
                 state.mode().is_real_or_simple()
                     && state.nodes_rad()
                     && orbital::Real::num_radial_nodes(state.qn()) > 0
             }
-            Self::AngularNodes => {
+            Self::NodesAngular => {
                 state.mode().is_real_or_simple()
                     && state.nodes_ang()
                     && orbital::Real::num_angular_nodes(state.qn()) > 0
             }
             Self::CrossSectionIndicator => state.supplement().is_cross_section(),
-            Self::Silhouette => state.mode().is_hybrid() && state.silhouettes(),
+            Self::Silhouettes => state.mode().is_hybrid() && state.silhouettes(),
+            Self::NodesHybrid => state.mode().is_hybrid() && state.nodes_hybrid(),
         }
     }
 
@@ -52,10 +54,11 @@ impl Trace {
                 Mode::RealSimple | Mode::Real | Mode::Hybrid => Single(plot::real),
                 Mode::Complex => Single(plot::complex),
             },
-            Self::RadialNodes => Single(plot::radial_nodes),
-            Self::AngularNodes => Single(plot::angular_nodes),
+            Self::NodesRadial => Single(plot::nodes_radial),
+            Self::NodesAngular => Single(plot::nodes_angular),
             Self::CrossSectionIndicator => Single(plot::cross_section_indicator),
-            Self::Silhouette => Multiple(plot::silhouettes),
+            Self::Silhouettes => Multiple(plot::silhouettes),
+            Self::NodesHybrid => Single(plot::nodes_hybrid),
         }
     }
 
@@ -170,11 +173,8 @@ impl PointillistVisualizationImpl {
                     .into_boxed_slice(),
             );
             // And also remove them from the record.
-            let _removed = self.rendered_kinds.drain_filter(|&mut t| t == kind);
-
-            #[allow(clippy::used_underscore_binding)] // This is conditionally used.
-            #[cfg(debug_assertions)]
-            _removed.for_each(|kind| log::debug!("Removing {:?}.", kind));
+            let removed = self.rendered_kinds.drain_filter(|&mut t| t == kind);
+            removed.for_each(|kind| log::debug!("Removing {:?}.", kind));
         }
         // There should be no traces of this kind left.
         assert!(!self.rendered_kinds.contains(&kind));
@@ -221,14 +221,15 @@ impl Component for PointillistVisualizationImpl {
             RenderDirective::All
         } else {
             let mut possible_changes = std::array::IntoIter::new([
-                (new.nodes_rad() != old.nodes_rad(), Trace::RadialNodes),
-                (new.nodes_ang() != old.nodes_ang(), Trace::AngularNodes),
+                (new.nodes_rad() != old.nodes_rad(), Trace::NodesRadial),
+                (new.nodes_ang() != old.nodes_ang(), Trace::NodesAngular),
                 (
                     (new.supplement().is_cross_section() || old.supplement().is_cross_section())
                         && new.supplement() != old.supplement(),
                     Trace::CrossSectionIndicator,
                 ),
-                (new.silhouettes() != old.silhouettes(), Trace::Silhouette),
+                (new.silhouettes() != old.silhouettes(), Trace::Silhouettes),
+                (new.nodes_hybrid() != old.nodes_hybrid(), Trace::NodesHybrid),
             ])
             .filter_map(|(changed, kind)| changed.then(|| kind));
 

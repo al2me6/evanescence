@@ -104,7 +104,7 @@ impl ControlsImpl {
                     onchange = dispatch.reduce_callback_with(State::set_nodes_rad)
                     initial_state = state.nodes_rad()
                     label = "Show radial nodes"
-                    tooltip = DESC.rad_nodes
+                    tooltip = DESC.nodes_rad
                 /></td>
             </tr>
             <tr>
@@ -114,7 +114,7 @@ impl ControlsImpl {
                     onchange = dispatch.reduce_callback_with(State::set_nodes_ang)
                     initial_state = state.nodes_ang()
                     label = "Show angular nodes"
-                    tooltip = DESC.ang_nodes
+                    tooltip = DESC.nodes_ang
                 /></td>
             </tr>
             </>
@@ -206,6 +206,16 @@ impl ControlsImpl {
                     initial_state = state.silhouettes()
                     label = "Show symmetry"
                     tooltip = DESC.show_symmetry
+                /></td>
+            </tr>
+            <tr>
+                <td/>
+                <td><CheckBox
+                    id = "hybrid-nodes-toggle",
+                    onchange = dispatch.reduce_callback_with(State::set_nodes_hybrid)
+                    initial_state = state.nodes_hybrid()
+                    label = "Show nodes"
+                    tooltip = DESC.nodes_hybrid
                 /></td>
             </tr>
             </>

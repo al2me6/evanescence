@@ -29,6 +29,7 @@ pub(crate) fn isosurface_cutoff_heuristic_real(qn: &Qn) -> f32 {
 }
 
 pub(crate) fn isosurface_cutoff_heuristic_hybrid(lc: &LinearCombination) -> f32 {
+    // FIXME: This doesn't work for higher values of n.
     lc.iter()
         .map(|(qn, _)| qn)
         .map(isosurface_cutoff_heuristic_real)

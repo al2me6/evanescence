@@ -18,6 +18,7 @@ def_plotly_ty! {
 }
 
 #[allow(dead_code)]
+/// Color scales extracted from Plotly.py.
 pub(crate) mod color_scales {
     use super::ColorScale;
 

@@ -1,6 +1,7 @@
 mod presets;
 
 use std::convert::TryFrom;
+use std::default::default;
 use std::fmt;
 
 use evanescence_core::geometry::{ComponentForm, GridValues, Plane};
@@ -98,7 +99,8 @@ struct ComplexState {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
 struct HybridState {
     preset: HybridPreset,
-    show_silhouettes: bool,
+    silhouettes: bool,
+    nodes: bool,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, EnumDiscriminants, Serialize, Deserialize)]
@@ -158,6 +160,17 @@ impl StateInner {
                     nodes_ang: state.nodes_ang,
                 });
             }
+            (RealSimple(state), Mode::Complex) => {
+                *self = Complex(ComplexState {
+                    qn: state.preset.into(),
+                });
+            }
+            (RealSimple(state), Mode::Hybrid) => {
+                *self = Hybrid(HybridState {
+                    nodes: state.nodes_rad || state.nodes_ang,
+                    ..default()
+                })
+            }
             (Real(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
                     preset: QnPreset::from_qn_lossy(state.qn),
@@ -165,29 +178,42 @@ impl StateInner {
                     nodes_ang: state.nodes_ang,
                 });
             }
-            (RealSimple(state), Mode::Complex) => {
-                *self = Complex(ComplexState {
-                    qn: state.preset.into(),
-                });
-            }
             (Real(state), Mode::Complex) => {
                 *self = Complex(ComplexState { qn: state.qn });
             }
-            (Complex(state), Mode::Real) => {
-                *self = Real(RealState {
-                    qn: state.qn,
-                    ..Default::default()
-                });
+            (Real(state), Mode::Hybrid) => {
+                *self = Hybrid(HybridState {
+                    nodes: state.nodes_rad || state.nodes_ang,
+                    ..default()
+                })
             }
             (Complex(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
                     preset: QnPreset::from_qn_lossy(state.qn),
-                    ..Default::default()
+                    ..default()
                 });
             }
-            (_, Mode::Hybrid) => *self = Hybrid(HybridState::default()),
-            (Hybrid(_), Mode::RealSimple) => *self = RealSimple(RealSimpleState::default()),
-            (Hybrid(_), Mode::Real) => *self = Real(RealState::default()),
+            (Complex(state), Mode::Real) => {
+                *self = Real(RealState {
+                    qn: state.qn,
+                    ..default()
+                });
+            }
+            (Complex(_), Mode::Hybrid) => *self = Hybrid(HybridState::default()),
+            (Hybrid(state), Mode::RealSimple) => {
+                *self = RealSimple(RealSimpleState {
+                    nodes_rad: state.nodes,
+                    nodes_ang: state.nodes,
+                    ..default()
+                })
+            }
+            (Hybrid(state), Mode::Real) => {
+                *self = Real(RealState {
+                    nodes_rad: state.nodes,
+                    nodes_ang: state.nodes,
+                    ..default()
+                })
+            }
             (Hybrid(_), Mode::Complex) => *self = Complex(ComplexState::default()),
             // Same state, do nothing.
             (state, mode) if Mode::from(state as &_) == mode => {}
@@ -318,7 +344,14 @@ impl State {
 
     pub(crate) fn silhouettes(&self) -> bool {
         match &self.state {
-            Hybrid(state) => state.show_silhouettes,
+            Hybrid(state) => state.silhouettes,
+            _ => false,
+        }
+    }
+
+    pub(crate) fn nodes_hybrid(&self) -> bool {
+        match &self.state {
+            Hybrid(state) => state.nodes,
             _ => false,
         }
     }
@@ -386,10 +419,17 @@ impl State {
         }
     }
 
-    pub(crate) fn set_silhouettes(&mut self, show_silhouettes: bool) {
+    pub(crate) fn set_silhouettes(&mut self, silhouettes: bool) {
         match &mut self.state {
-            Hybrid(state) => state.show_silhouettes = show_silhouettes,
+            Hybrid(state) => state.silhouettes = silhouettes,
             _ => panic!("symmetry silhouettes do not exist for {:?}", self.mode()),
+        }
+    }
+
+    pub(crate) fn set_nodes_hybrid(&mut self, nodes_hybrid: bool) {
+        match &mut self.state {
+            Hybrid(state) => state.nodes = nodes_hybrid,
+            _ => panic!("hybrid nodes cannot be set for {:?}", self.mode()),
         }
     }
 }

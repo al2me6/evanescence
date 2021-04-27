@@ -17,7 +17,7 @@ use crate::plotly::{Isosurface, Scatter3D, Surface};
 use crate::state::State;
 use crate::utils;
 
-fn isosurface(
+fn nodal_surface(
     simulation: ComponentForm<f32>,
     color_scale: ColorScale,
     correct_instability: bool,
@@ -128,17 +128,16 @@ pub(crate) fn complex(state: &State) -> JsValue {
     .into()
 }
 
-pub(crate) fn radial_nodes(state: &State) -> JsValue {
+pub(crate) fn nodes_radial(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple());
 
-    isosurface(
+    nodal_surface(
         wavefunctions::Radial::evaluate_in_region(
             &state.qn().into(),
             // Shrink the extent plotted since radial nodes are found in the central part of the
             // full extent only. This is a heuristic that has been verified to cover all radial
             // nodes from `n` = 2 through 8.
-            state.estimate_radius() as f32
-                * (state.qn().n() as f32 * 0.06 + 0.125),
+            state.estimate_radius() as f32 * (state.qn().n() as f32 * 0.06 + 0.125),
             state.quality().for_isosurface(),
         )
         .into(),
@@ -147,11 +146,11 @@ pub(crate) fn radial_nodes(state: &State) -> JsValue {
     )
 }
 
-pub(crate) fn angular_nodes(state: &State) -> JsValue {
+pub(crate) fn nodes_angular(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple());
 
     let qn = state.qn();
-    isosurface(
+    nodal_surface(
         wavefunctions::RealSphericalHarmonic::evaluate_in_region(
             &qn.into(),
             state.estimate_radius(),
@@ -209,4 +208,20 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
             .into()
         })
         .collect()
+}
+
+pub(crate) fn nodes_hybrid(state: &State) -> JsValue {
+    assert!(state.mode().is_hybrid());
+
+    let lc = state.hybrid_kind().principal();
+    nodal_surface(
+        orbital::Hybrid::evaluate_in_region(
+            &lc,
+            state.estimate_radius(),
+            state.quality().for_isosurface(),
+        )
+        .into(),
+        color_scales::PURP,
+        false,
+    )
 }
