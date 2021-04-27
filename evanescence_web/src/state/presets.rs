@@ -13,7 +13,7 @@ const FRAC_1_SQRT_3: f32 = 0.577_350_3;
 const FRAC_1_SQRT_6: f32 = 0.408_248_3;
 const SQRT_3: f32 = 1.732_050_8;
 
-static QN_PRESETS: Lazy<Vec<Qn>> = Lazy::new(|| Qn::enumerate_up_to_n(3).collect());
+static QN_PRESETS: Lazy<Vec<Qn>> = Lazy::new(|| Qn::enumerate_up_to_n(3).unwrap().collect());
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub(crate) struct QnPreset(usize);
@@ -33,7 +33,7 @@ impl QnPreset {
     /// back to 1s if that fails.
     pub(crate) fn from_qn_lossy(mut qn: Qn) -> Self {
         Self::try_from(qn).unwrap_or_else(|_| {
-            qn.set_n_clamping(QN_PRESETS.last().unwrap().n());
+            qn.set_n_clamping(QN_PRESETS.last().unwrap().n()).unwrap();
             Self::try_from(qn).unwrap_or_default()
         })
     }

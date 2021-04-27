@@ -8,6 +8,7 @@ use std::ops::{Add, AddAssign, Div, Mul, Neg, RangeInclusive, Sub};
 use getset::{CopyGetters, Getters};
 use nanorand::WyRand;
 use strum::Display;
+use thiserror::Error;
 
 /// A vector (the mathematical kind) in `R^3`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -419,15 +420,23 @@ pub struct GridValues<T> {
     vals: Vec<Vec<T>>,
 }
 
+#[derive(PartialEq, Eq, Debug, Error)]
+pub enum InvalidGridValuesError {
+    #[error("number of row coordinates does not match number of value rows")]
+    Row,
+    #[error("number of column coordinates does not match length of value row")]
+    Column,
+}
+
 impl<T> GridValues<T> {
     /// Create a new `GridValues` from components.
     ///
-    /// # Panics
-    /// This function will panic if the `Vec`s passed in do not have the correct shape:
+    /// # Errors
+    /// This function will return an `[Err]` if the `Vec`s passed in do not have the correct shape:
     ///
-    /// ```should_panic
-    /// # use evanescence_core::geometry::{Plane, GridValues};
-    /// GridValues::<f32>::new(
+    /// ```
+    /// # use evanescence_core::geometry::{GridValues, InvalidGridValuesError, Plane};
+    /// let wrong_rows = GridValues::<f32>::new(
     ///     Plane::XY,
     ///     vec![0.0, 1.0],      // There are two columns.
     ///     vec![0.0, 1.0, 2.0], // There are three rows.
@@ -438,24 +447,29 @@ impl<T> GridValues<T> {
     ///         // The third row is missing!!
     ///     ],
     /// );
+    /// assert_eq!(Err(InvalidGridValuesError::Row), wrong_rows);
     /// ```
     pub fn new(
         plane: Plane,
         col_coords: Vec<f32>,
         row_coords: Vec<f32>,
         vals: Vec<Vec<T>>,
-    ) -> Self {
+    ) -> Result<Self, InvalidGridValuesError> {
         // INVARIANT: Verify that the passed `Vec`s have the correct shape.
-        assert_eq!(row_coords.len(), vals.len());
-        for row in vals.iter() {
-            assert_eq!(col_coords.len(), row.len());
+        if row_coords.len() != vals.len() {
+            return Err(InvalidGridValuesError::Row);
         }
-        Self {
+        for row in vals.iter() {
+            if col_coords.len() != row.len() {
+                return Err(InvalidGridValuesError::Column);
+            }
+        }
+        Ok(Self {
             plane,
             col_coords,
             row_coords,
             vals,
-        }
+        })
     }
 
     /// Decompose `self` into a 3-tuple of column coordinates ("x coordinates"), row coordinates

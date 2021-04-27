@@ -42,7 +42,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
         .warm_up_time(Duration::from_secs(10))
         .measurement_time(Duration::from_secs(30));
     group.throughput(Throughput::Elements(Quality::Extreme as _));
-    for qn in Qn::enumerate_up_to_n(5) {
+    for qn in Qn::enumerate_up_to_n(5).unwrap() {
         group.bench_with_input(
             BenchmarkId::new(
                 "real",

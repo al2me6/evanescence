@@ -194,6 +194,7 @@ pub trait Evaluate {
             points_in_col.iter().map(extract_component.1).collect(),
             vals,
         )
+        .expect("rows and columns should be equal in length by construction")
     }
 
     /// Evaluate `Self` on a cube of side length 2 × `extent`, centered at the origin, producing

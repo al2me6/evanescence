@@ -36,6 +36,7 @@
     clippy::non_ascii_literal, // It's 2021... Unicode support is expected.
     clippy::unreadable_literal, // We have many machine-generated values that are not worth fixing.
 )]
+#![cfg_attr(not(test), deny(clippy::unwrap_used))]
 
 #[macro_use]
 pub(crate) mod utils {
@@ -62,8 +63,9 @@ pub(crate) mod utils {
     }
 }
 
-pub mod geometry;
-pub mod monte_carlo;
 #[macro_use]
 pub mod numerics;
+
+pub mod geometry;
+pub mod monte_carlo;
 pub mod orbital;

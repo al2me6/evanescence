@@ -126,7 +126,7 @@ impl ControlsImpl {
         let state = dispatch.state();
         assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
 
-        let l_options = Qn::enumerate_l_for_n(state.qn().n()).collect_vec();
+        let l_options = Qn::enumerate_l_for_n(state.qn().n()).unwrap().collect_vec();
         let m_options = Qn::enumerate_m_for_l(state.qn().l()).collect_vec();
 
         let format_l = |l: u32| match orbital::subshell_name(l) {
@@ -153,7 +153,7 @@ impl ControlsImpl {
                 { td_tooltip("Principal quantum number <i>n</i>:", DESC.qn_n) }
                 <td><Dropdown<u32>
                     id = "n-picker"
-                    onchange = dispatch.reduce_callback_with(|s, n| s.qn_mut().set_n_clamping(n))
+                    onchange = dispatch.reduce_callback_with(|s, n| s.qn_mut().set_n_clamping(n).unwrap())
                     options = (1..=MAX_N).collect_vec()
                     selected = state.qn().n()
                 /></td>
@@ -162,7 +162,7 @@ impl ControlsImpl {
                 { td_tooltip("Azimuthal quantum number <i>ℓ</i>:", DESC.qn_l) }
                 <td><Dropdown<u32>
                     id = "l-picker"
-                    onchange = dispatch.reduce_callback_with(|s, l| s.qn_mut().set_l_clamping(l))
+                    onchange = dispatch.reduce_callback_with(|s, l| s.qn_mut().set_l_clamping(l).unwrap())
                     options = l_options
                     custom_display = l_options.iter().map(|&l| format_l(l)).collect_vec()
                     selected = state.qn().l()
@@ -172,7 +172,7 @@ impl ControlsImpl {
                 { td_tooltip("Magnetic quantum number <i>m</i>:", DESC.qn_m) }
                 <td><Dropdown<i32>
                     id = "m-picker"
-                    onchange = dispatch.reduce_callback_with(|s, m| s.qn_mut().set_m(m))
+                    onchange = dispatch.reduce_callback_with(|s, m| s.qn_mut().set_m(m).unwrap())
                     options = m_options
                     custom_display = m_options.iter().map(|&m| format_m(m)).collect_vec()
                     selected = state.qn().m()
