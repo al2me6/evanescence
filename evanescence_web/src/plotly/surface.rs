@@ -49,7 +49,7 @@ def_plotly_ty! {
     #optional c_min as "cmin": f32,
     c_mid as "cmid": f32,
     #optional c_max as "cmax": f32,
-    color_scale as "colorscale": ColorScale<'static> = color_scales::RED_BLUE_REVERSED,
+    color_scale as "colorscale": ColorScale<'static> = color_scales::RD_BU_R,
     color_bar as "colorbar": ColorBar<'a>,
     #optional surface_color as "surfacecolor": Vec<Vec<f32>>,
     show_scale as "showscale": bool = true,

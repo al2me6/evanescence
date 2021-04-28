@@ -24,7 +24,7 @@ def_plotly_ty! {
     c_mid as "cmid": f32,
     #optional c_max as "cmax": f32,
     color_bar as "colorbar": ColorBar<'a>,
-    color_scale as "colorscale": ColorScale<'static> = color_scales::RED_BLUE_REVERSED,
+    color_scale as "colorscale": ColorScale<'static> = color_scales::RD_BU_R,
     line: Line<'a> = Line {
         width: Some(0.0),
         ..Default::default()

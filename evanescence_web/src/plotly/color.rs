@@ -22,7 +22,7 @@ def_plotly_ty! {
 pub(crate) mod color_scales {
     use super::ColorScale;
 
-    pub(crate) const RED_BLUE_REVERSED: ColorScale = &[
+    pub(crate) const RD_BU_R: ColorScale = &[
         ("0.0", "rgb(5,48,97)"),
         ("0.1", "rgb(33,102,172)"),
         ("0.2", "rgb(67,147,195)"),
@@ -36,7 +36,7 @@ pub(crate) mod color_scales {
         ("1.0", "rgb(103,0,31)"),
     ];
 
-    pub(crate) const RED_YELLOW_BLUE_REVERSED: ColorScale = &[
+    pub(crate) const RD_YL_BU_R: ColorScale = &[
         ("0.0", "rgb(49,54,149)"),
         ("0.1", "rgb(69,117,180)"),
         ("0.2", "rgb(116,173,209)"),

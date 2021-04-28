@@ -150,7 +150,7 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
         color_scale: if is_complex {
             color_scales::PHASE
         } else {
-            color_scales::RED_BLUE_REVERSED
+            color_scales::RD_BU_R
         },
         c_min: is_complex.then(|| -PI),
         c_mid: 0.0,
@@ -231,7 +231,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
             iso_min: -cutoff,
             iso_max: cutoff,
             surface: isosurface::Surface { count: 2 },
-            color_scale: color_scales::RED_BLUE_REVERSED,
+            color_scale: color_scales::RD_BU_R,
             opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
             ..default()
         }

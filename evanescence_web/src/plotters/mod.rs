@@ -55,7 +55,7 @@ fn compute_isosurface_hybrid(lc: &LinearCombination, quality: Quality) -> Isosur
         iso_min: -cutoff,
         iso_max: cutoff,
         surface: isosurface::Surface { count: 2 },
-        color_scale: color_scales::RED_BLUE_REVERSED,
+        color_scale: color_scales::RD_BU_R,
         ..Default::default()
     }
 }
