@@ -58,11 +58,12 @@ impl MainImpl {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
         let body = document.body().unwrap();
+        let scroll_y = window.scroll_y().unwrap();
         let sidebar = document.get_element_by_id(Self::SIDEBAR_ID).unwrap();
 
         // If the offset is not zero, then the flexbox must have wrapped. If so, we activate the
         // vertical layout. There does not appear to be a way to detect wrapping in CSS.
-        if sidebar.get_bounding_client_rect().y() > 0.0 {
+        if sidebar.get_bounding_client_rect().y() + scroll_y > 0.0 {
             body.class_list().add_1("vertical-layout").unwrap();
         } else {
             body.class_list().remove_1("vertical-layout").unwrap();
