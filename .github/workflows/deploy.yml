@@ -26,8 +26,10 @@ jobs:
           path: |
             evanescence_web/static
             !evanescence_web/static/.gitignore
-            !evanescence_web/static/package.json
             !evanescence_web/static/*.ts
+            !evanescence_web/static/LICENSE
+            !evanescence_web/static/package.json
+            !evanescence_web/static/README.md
       - name: Switch to gh-pages branch
         uses: actions/checkout@v2
         with:
@@ -46,6 +48,7 @@ jobs:
             git config user.email github-actions@github.com
             git add .
             git status
-            git commit -m "Deploy website at commit $(git rev-parse master)"
+            git fetch origin
+            git commit -m "Deploy website at commit $(git rev-parse origin/master)"
             git push
           fi
