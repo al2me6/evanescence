@@ -1,5 +1,11 @@
 # Version History
 
+## 0.4.10, 2021-05-02
+
+### Features
+
+* Cross-section probability density plots are now available in all modes.
+
 ## 0.4.9, 2021-04-27
 
 ### Features
