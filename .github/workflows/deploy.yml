@@ -46,6 +46,6 @@ jobs:
             git config user.email github-actions@github.com
             git add .
             git status
-            git commit -m "Deploy website at commit $(git rev-parse HEAD)"
+            git commit -m "Deploy website at commit $(git rev-parse master)"
             git push
           fi
