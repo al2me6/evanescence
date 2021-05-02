@@ -508,6 +508,16 @@ impl Plane {
             },
         }
     }
+
+    /// Give an ordered triple describing which coordinate axis takes on the value of zero.
+    /// (Ex. `(x, y, 0)`.)
+    pub fn ordered_triple(self) -> &'static str {
+        match self {
+            Self::XY => "(x, y, 0)",
+            Self::YZ => "(0, y, z)",
+            Self::ZX => "(x, 0, z)",
+        }
+    }
 }
 
 #[cfg(test)]

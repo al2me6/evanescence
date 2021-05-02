@@ -12,6 +12,7 @@ def_plotly_ty! {
     x_anchor as "xanchor": Anchor = Anchor::Left,
     outline_color as "outlinecolor": &'a str = b16_colors::BASE[0x06],
     thickness: u32 = 20,
+    exponent_format as "exponentformat": &'a str = "power",
     #optional tick_vals as "tickvals": &'a [f32],
     #optional tick_text as "ticktext": &'a [&'a str],
     #optional title: Title<'a>,
@@ -97,6 +98,21 @@ pub(crate) mod color_scales {
         ("0.8181818181818182", "rgb(39, 153, 79)"),
         ("0.9090909090909092", "rgb(119, 141, 17)"),
         ("1.0", "rgb(167, 119, 12)"),
+    ];
+
+    pub(crate) const TEMPO: ColorScale = &[
+        ("0.0", "rgb(254, 245, 244)"),
+        ("0.09090909090909091", "rgb(222, 224, 210)"),
+        ("0.18181818181818182", "rgb(189, 206, 181)"),
+        ("0.2727272727272727", "rgb(153, 189, 156)"),
+        ("0.36363636363636365", "rgb(110, 173, 138)"),
+        ("0.4545454545454546", "rgb(65, 157, 129)"),
+        ("0.5454545454545454", "rgb(25, 137, 125)"),
+        ("0.6363636363636364", "rgb(18, 116, 117)"),
+        ("0.7272727272727273", "rgb(25, 94, 106)"),
+        ("0.8181818181818182", "rgb(28, 72, 93)"),
+        ("0.9090909090909092", "rgb(25, 51, 80)"),
+        ("1.0", "rgb(20, 29, 67)"),
     ];
 }
 

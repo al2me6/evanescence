@@ -7,7 +7,7 @@ use std::fmt;
 use evanescence_core::geometry::{ComponentForm, GridValues, Plane};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::EvaluateBounded;
-use evanescence_core::orbital::{self, Qn, RadialPlot};
+use evanescence_core::orbital::{self, ProbabilityDensity, Qn, RadialPlot};
 use getset::CopyGetters;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
@@ -24,12 +24,18 @@ pub(crate) enum Visualization {
     RadialWavefunction,
     #[strum(serialize = "Radial probability distribution")]
     RadialProbabilityDistribution,
-    #[strum(serialize = "XY-plane cross section")]
-    CrossSectionXY,
-    #[strum(serialize = "YZ-plane cross section")]
-    CrossSectionYZ,
-    #[strum(serialize = "ZX-plane cross-section")]
-    CrossSectionZX,
+    #[strum(serialize = "XY-plane wavefunction")]
+    WavefunctionXY,
+    #[strum(serialize = "YZ-plane wavefunction")]
+    WavefunctionYZ,
+    #[strum(serialize = "ZX-plane wavefunction")]
+    WavefunctionZX,
+    #[strum(serialize = "XY-plane probability density")]
+    ProbabilityDensityXY,
+    #[strum(serialize = "YZ-plane probability density")]
+    ProbabilityDensityYZ,
+    #[strum(serialize = "ZX-plane probability density")]
+    ProbabilityDensityZX,
     #[strum(serialize = "3D isosurface")]
     Isosurface3D,
 }
@@ -38,7 +44,12 @@ impl Visualization {
     pub(crate) fn is_cross_section(self) -> bool {
         matches!(
             self,
-            Self::CrossSectionXY | Self::CrossSectionYZ | Self::CrossSectionZX
+            Self::WavefunctionXY
+                | Self::WavefunctionYZ
+                | Self::WavefunctionZX
+                | Self::ProbabilityDensityXY
+                | Self::ProbabilityDensityYZ
+                | Self::ProbabilityDensityZX
         )
     }
 
@@ -58,9 +69,9 @@ impl TryFrom<Visualization> for Plane {
 
     fn try_from(value: Visualization) -> Result<Self, Self::Error> {
         match value {
-            Visualization::CrossSectionXY => Ok(Plane::XY),
-            Visualization::CrossSectionYZ => Ok(Plane::YZ),
-            Visualization::CrossSectionZX => Ok(Plane::ZX),
+            Visualization::WavefunctionXY | Visualization::ProbabilityDensityXY => Ok(Plane::XY),
+            Visualization::WavefunctionYZ | Visualization::ProbabilityDensityYZ => Ok(Plane::YZ),
+            Visualization::WavefunctionZX | Visualization::ProbabilityDensityZX => Ok(Plane::ZX),
             _ => Err(format!("{:?} does not have an associated plane", value)),
         }
     }
@@ -244,15 +255,21 @@ impl State {
                 Visualization::None,
                 Visualization::RadialWavefunction,
                 Visualization::RadialProbabilityDistribution,
-                Visualization::CrossSectionXY,
-                Visualization::CrossSectionYZ,
-                Visualization::CrossSectionZX,
+                Visualization::WavefunctionXY,
+                Visualization::WavefunctionYZ,
+                Visualization::WavefunctionZX,
+                Visualization::ProbabilityDensityXY,
+                Visualization::ProbabilityDensityYZ,
+                Visualization::ProbabilityDensityZX,
             ],
             Mode::Hybrid => vec![
                 Visualization::None,
-                Visualization::CrossSectionXY,
-                Visualization::CrossSectionYZ,
-                Visualization::CrossSectionZX,
+                Visualization::WavefunctionXY,
+                Visualization::WavefunctionYZ,
+                Visualization::WavefunctionZX,
+                Visualization::ProbabilityDensityXY,
+                Visualization::ProbabilityDensityYZ,
+                Visualization::ProbabilityDensityZX,
                 Visualization::Isosurface3D,
             ],
         }
@@ -469,6 +486,26 @@ impl State {
                 self.quality().for_grid(),
             ),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
+        }
+    }
+
+    pub(crate) fn sample_plane_prob_density(&self, plane: Plane) -> GridValues<f32> {
+        match self.mode() {
+            Mode::RealSimple | Mode::Real => ProbabilityDensity::<orbital::Real>::sample_plane(
+                self.qn(),
+                plane,
+                self.quality().for_grid(),
+            ),
+            Mode::Hybrid => ProbabilityDensity::<orbital::Hybrid>::sample_plane(
+                self.hybrid_kind().principal(),
+                plane,
+                self.quality().for_grid(),
+            ),
+            Mode::Complex => ProbabilityDensity::<orbital::Complex>::sample_plane(
+                self.qn(),
+                plane,
+                self.quality.for_grid(),
+            ),
         }
     }
 }

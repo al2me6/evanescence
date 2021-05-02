@@ -26,9 +26,12 @@ impl SupplementalVisualizationImpl {
             Visualization::RadialWavefunction | Visualization::RadialProbabilityDistribution => {
                 plot::radial
             }
-            Visualization::CrossSectionXY
-            | Visualization::CrossSectionYZ
-            | Visualization::CrossSectionZX => plot::cross_section,
+            Visualization::WavefunctionXY
+            | Visualization::WavefunctionYZ
+            | Visualization::WavefunctionZX => plot::cross_section,
+            Visualization::ProbabilityDensityXY
+            | Visualization::ProbabilityDensityYZ
+            | Visualization::ProbabilityDensityZX => plot::cross_section_prob_density,
             Visualization::Isosurface3D => plot::isosurface_3d,
         };
 
@@ -99,9 +102,12 @@ impl Component for SupplementalVisualizationImpl {
                 Visualization::None => "",
                 Visualization::RadialWavefunction => DESC.rad_wavefunction,
                 Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
-                Visualization::CrossSectionXY
-                | Visualization::CrossSectionYZ
-                | Visualization::CrossSectionZX => DESC.cross_section,
+                Visualization::WavefunctionXY
+                | Visualization::WavefunctionYZ
+                | Visualization::WavefunctionZX => DESC.cross_section_wavefunction,
+                Visualization::ProbabilityDensityXY
+                | Visualization::ProbabilityDensityYZ
+                | Visualization::ProbabilityDensityZX => DESC.cross_section_prob_density,
                 Visualization::Isosurface3D => DESC.isosurface_3d,
             };
 

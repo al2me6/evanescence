@@ -27,11 +27,7 @@ use crate::components::raw::RawDiv;
 use crate::components::Window;
 use crate::state::AppDispatch;
 use crate::ui::{
-    Controls,
-    InfoPanel,
-    ModeBar,
-    PointillistVisualization,
-    SupplementalVisualization,
+    Controls, InfoPanel, ModeBar, PointillistVisualization, SupplementalVisualization,
 };
 
 /// Maximum value of the principal quantum number `n` that is exposed.

@@ -15,6 +15,14 @@ use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
 use crate::state::State;
 use crate::utils::{self, b16_colors};
 
+const ZERO_THRESHOLD: f32 = 1E-7;
+
+fn zero_values(grid: &mut Vec<Vec<f32>>) {
+    grid.iter_mut()
+        .flat_map(|row| row.iter_mut())
+        .for_each(|v| *v = 0.0);
+}
+
 pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     const NUM_POINTS: usize = 600;
 
@@ -45,12 +53,12 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
             ),
             ..default()
         },
-        fill: matches!(variant, RadialPlot::ProbabilityDistribution).then(|| "tozeroy"),
+        fill: (variant == RadialPlot::ProbabilityDistribution).then(|| "tozeroy"),
         ..default()
     };
 
     let layout = Layout {
-        ui_revision: Some(&variant_label),
+        ui_revision: Some(variant_label.clone()),
         drag_mode_bool: Some(false),
         x_axis: Some(Axis {
             title: Some(Title {
@@ -77,10 +85,62 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     (trace.into(), layout.into())
 }
 
-#[allow(clippy::too_many_lines)] // Plotly configuration is verbose.
-pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
-    const ZERO_THRESHOLD: f32 = 1E-7;
+fn cross_section_layout(plane: Plane, z_axis_title: &str) -> Layout<'_> {
+    let (x_label, y_label) = plane.axes_names();
+    Layout {
+        ui_revision: Some(plane.to_string()),
+        scene: Some(Scene {
+            x_axis: Axis {
+                title: Some(Title {
+                    text: x_label,
+                    ..default()
+                }),
+                ..default()
+            },
+            y_axis: Axis {
+                title: Some(Title {
+                    text: y_label,
+                    ..default()
+                }),
+                ..default()
+            },
+            z_axis: Axis {
+                title: Some(Title {
+                    text: &z_axis_title,
+                    standoff: Some(15),
+                    font: Some(Font {
+                        size: 14.5,
+                        ..default()
+                    }),
+                }),
+                n_ticks: Some(6),
+                ..default()
+            },
+            ..default()
+        }),
+        ..default()
+    }
+}
 
+fn cross_section_z_contour(max_abs: f32) -> Contour<'static> {
+    let contour_max_abs = max_abs * 1.05;
+    Contour {
+        show: Some(true),
+        start: Some(-contour_max_abs),
+        end: Some(contour_max_abs),
+        // For up to 10 contour lines for each sign, plus one at zero.
+        size: Some(contour_max_abs / 11.0),
+        use_color_map: Some(true),
+        highlight: true,
+        project: Some(Project {
+            z: true,
+            ..default()
+        }),
+        ..Default::default()
+    }
+}
+
+pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     let is_complex = state.mode().is_complex();
     let plane: Plane = state.supplement().try_into().unwrap();
 
@@ -102,32 +162,13 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     };
 
     let max_abs = utils::partial_max(z.iter().flat_map(|row| row.iter()).map(|v| v.abs())).unwrap();
+
     if max_abs < ZERO_THRESHOLD {
-        // Zero all values.
-        z.iter_mut()
-            .flat_map(|row| row.iter_mut())
-            .for_each(|v| *v = 0.0);
+        zero_values(&mut z);
         if let Some(ref mut color) = custom_color {
-            color
-                .iter_mut()
-                .flat_map(|row| row.iter_mut())
-                .for_each(|v| *v = 0.0);
+            zero_values(color);
         }
     }
-
-    let ui_revision = state.supplement().to_string();
-    let (x_label, y_label) = plane.axes_names();
-    let xyz_arguments = match plane {
-        Plane::XY => "(x, y, 0)",
-        Plane::YZ => "(0, y, z)",
-        Plane::ZX => "(x, 0, z)",
-    };
-    let z_axis_title = if is_complex {
-        format!("Wavefunction Modulus [ |ψ{}| ]", xyz_arguments)
-    } else {
-        format!("Wavefunction [ ψ{} ]", xyz_arguments)
-    };
-    let contour_max_abs = max_abs * 1.05;
 
     let trace = Surface {
         x,
@@ -157,58 +198,56 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
         c_max: is_complex.then(|| PI),
         contours: Some(Contours {
             z: Contour {
-                show: Some(true),
-                start: Some(-contour_max_abs),
-                end: Some(contour_max_abs),
-                // For up to 10 contour lines for each sign, plus one at zero.
-                size: Some(contour_max_abs / 11.0),
                 color: is_complex.then(|| b16_colors::BASE[0x03]), // Use default otherwise.
                 use_color_map: Some(!is_complex),
-                highlight: true,
-                project: Some(Project {
-                    z: true,
-                    ..default()
-                }),
-                ..Default::default()
+                ..cross_section_z_contour(max_abs)
             },
             ..default()
         }),
         ..default()
     };
 
-    let layout = Layout {
-        ui_revision: Some(&ui_revision),
-        scene: Some(Scene {
-            x_axis: Axis {
-                title: Some(Title {
-                    text: x_label,
-                    ..default()
-                }),
-                ..default()
-            },
-            y_axis: Axis {
-                title: Some(Title {
-                    text: y_label,
-                    ..default()
-                }),
-                ..default()
-            },
-            z_axis: Axis {
-                title: Some(Title {
-                    text: &z_axis_title,
-                    font: Some(Font {
-                        size: 14.5,
-                        ..default()
-                    }),
-                    ..default()
-                }),
-                n_ticks: Some(6),
-                ..default()
+    let z_axis_title = if is_complex {
+        format!("Wavefunction Modulus [ |ψ{}| ]", plane.ordered_triple())
+    } else {
+        format!("Wavefunction [ ψ{} ]", plane.ordered_triple())
+    };
+    let layout = cross_section_layout(plane, &z_axis_title);
+
+    (trace.into(), layout.into())
+}
+
+pub(crate) fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
+    let plane: Plane = state.supplement().try_into().unwrap();
+    let (x, y, mut z) = state.sample_plane_prob_density(plane).into_components();
+    let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
+    assert!(max >= 0.0, "probability densities must be positive; got {}", max);
+
+    if max < ZERO_THRESHOLD {
+        zero_values(&mut z);
+    }
+
+    let z_contour = cross_section_z_contour(max);
+    let trace = Surface {
+        x,
+        y,
+        z,
+        c_min: Some(0.0),
+        c_max: Some(if max < ZERO_THRESHOLD { 1.0 } else { max }),
+        color_scale: color_scales::TEMPO,
+        contours: Some(Contours {
+            z: Contour {
+                start: Some(max * 0.005),
+                size: z_contour.size.map(|s| s / 2.0),
+                ..z_contour
             },
             ..default()
         }),
         ..default()
     };
+
+    let z_axis_title = format!("Prob. Density [ |ψ{}|² ]", plane.ordered_triple());
+    let layout = cross_section_layout(plane, &z_axis_title);
 
     (trace.into(), layout.into())
 }
@@ -245,7 +284,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
 
     let axis = Axis::with_extent(state.bound());
     let layout = Layout {
-        ui_revision: Some("isosurface"),
+        ui_revision: Some("isosurface".to_owned()),
         drag_mode_str: Some("orbit"),
         scene: Some(Scene {
             x_axis: axis.clone(),

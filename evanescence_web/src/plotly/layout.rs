@@ -107,7 +107,7 @@ def_plotly_ty! {
     paper_bgcolor: &'a str = b16_colors::BASE0102,
     plot_bgcolor: &'a str = b16_colors::BASE0102,
     mode_bar as "modebar": ModeBar<'a>,
-    #optional ui_revision as "uirevision": &'a str,
+    #optional ui_revision as "uirevision": String,
 }
 
 def_plotly_ty! {

@@ -19,7 +19,8 @@ description_items!(
     show_symmetry,
     rad_wavefunction,
     rad_prob_distr,
-    cross_section,
+    cross_section_wavefunction,
+    cross_section_prob_density,
     isosurface_3d,
     nodes_hybrid,
 );
@@ -37,7 +38,8 @@ pub(crate) const DESC: Descriptions = Descriptions {
     show_symmetry: "Draw silhouettes for all orbitals of this type to display symmetry.",
     rad_wavefunction: "This is the radial component of the wavefunction. Radial nodes are found where the curve crosses 0.",
     rad_prob_distr: "The probability of finding the electron within a shell of inner radius <i>a</i> and outer radius <i>b</i> is given by the area under the portion of this curve running from <i>a</i> to <i>b</i>. By definition, the total area under this curve from 0 to infinity, corresponding to the probability of finding the electron anywhere in space, is 1.",
-    cross_section: "This plot displays the behavior of the wavefunction along a given plane (drawn in orange). The wavefunction value is displayed using the third vertical axis, and a contour plot is also projected onto the plane.",
+    cross_section_wavefunction: "This plot displays the behavior of the wavefunction along a given plane (drawn in orange). The wavefunction value is displayed using the third vertical axis and a contour plot is projected onto the plane.",
+    cross_section_prob_density: "This plot displays the orbital's probability density along a given plane (drawn in orange). The value is displayed using the third vertical axis and a contour plot is projected onto the plane.",
     isosurface_3d: "This plot displays all the surfaces where the probability density is equal to a certain value. It provides a general sense of the structure of the orbital, but does not indicate its probabilistic nature.",
     nodes_hybrid: "Draw nodes, or surfaces where there is exactly 0 possibility of finding an electron, in purple.",
 };

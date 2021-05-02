@@ -87,7 +87,7 @@ impl PointillistVisualizationImpl {
             vec![].into_boxed_slice(),
             Layout {
                 drag_mode_str: Some("orbit"),
-                ui_revision: Some("pointillist"),
+                ui_revision: Some("pointillist".to_owned()),
                 scene: Some(Scene::default()),
                 ..Default::default()
             }
