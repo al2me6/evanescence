@@ -8,6 +8,8 @@ pub mod hybrid;
 pub mod quantum_numbers;
 pub mod wavefunctions;
 
+use std::marker::PhantomData;
+
 use num_complex::Complex32;
 
 pub use self::hybrid::{Hybrid, LinearCombination};
@@ -162,4 +164,42 @@ pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f3
     ))
     .into_components();
     (xs, vals)
+}
+
+/// Type that evaluates the probability density of an [`Orbital`].
+///
+/// Example:
+///
+/// ```
+/// use approx::assert_relative_eq;
+/// use evanescence_core::geometry::Point;
+/// use evanescence_core::numerics::Evaluate;
+/// use evanescence_core::orbital::{ProbabilityDensity, Qn, Real};
+///
+/// let qn = Qn::new(3, 2, 1).unwrap();
+///
+/// assert_relative_eq!(
+///     2.446E-4,
+///     ProbabilityDensity::<Real>::evaluate(&qn, &Point::new(6.0, -0.3, 8.5))
+/// );
+/// ```
+pub struct ProbabilityDensity<O> {
+    marker: PhantomData<O>,
+}
+
+impl<O: Orbital> Evaluate for ProbabilityDensity<O> {
+    type Output = f32;
+    type Parameters = O::Parameters;
+
+    #[inline]
+    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output {
+        O::probability_density_of(O::evaluate(params, point))
+    }
+}
+
+impl<O: Orbital> EvaluateBounded for ProbabilityDensity<O> {
+    #[inline]
+    fn bound(params: &Self::Parameters) -> f32 {
+        O::bound(params)
+    }
 }
