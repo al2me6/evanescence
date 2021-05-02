@@ -1,7 +1,10 @@
 [package]
 name = "evanescence_core"
+description = "Library for computing and working with hydrogenic wavefunctions."
 version = "0.4.0"
 authors = ["al2me6 <alvin.q.meng@gmail.com>"]
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/al2me6/evanescence"
 edition = "2018"
 
 [dependencies]

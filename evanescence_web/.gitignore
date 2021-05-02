@@ -2,4 +2,6 @@ static/.gitignore
 static/*.js
 static/*.ts
 static/*.wasm
+static/LICENSE
 static/package.json
+static/README.md

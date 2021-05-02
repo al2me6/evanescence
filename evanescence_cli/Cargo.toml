@@ -1,7 +1,10 @@
 [package]
 name = "evanescence_cli"
+description = "Simple command-line interface for evanescence_core using Plotly.py for plotting."
 version = "0.1.0"
 authors = ["al2me6 <alvin.q.meng@gmail.com>"]
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/al2me6/evanescence"
 edition = "2018"
 
 [dependencies]
