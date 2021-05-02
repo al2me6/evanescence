@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="img/4dz2.png" align="center" height=300px alt="4dz^2 orbital rendering">
-
 # Project Evanescence
 
 *An exploration in the visualization of hydrogenic orbitals.*
