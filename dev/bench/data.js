@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1619541641137,
+  "lastUpdate": 1619995129363,
   "repoUrl": "https://github.com/al2me6/evanescence",
   "entries": {
     "evanescence_core benchmarks": [
@@ -60251,6 +60251,684 @@ window.BENCHMARK_DATA = {
             "name": "monte_carlo/real/5_4_4",
             "value": 453171183,
             "range": "± 620281",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "alvin.q.meng@gmail.com",
+            "name": "al2me6",
+            "username": "al2me6"
+          },
+          "committer": {
+            "email": "alvin.q.meng@gmail.com",
+            "name": "al2me6",
+            "username": "al2me6"
+          },
+          "distinct": true,
+          "id": "61f438b7b72ebeaca1e9f1524c3cf4ea5722730d",
+          "message": "release(web): 0.4.10",
+          "timestamp": "2021-05-02T17:34:12-04:00",
+          "tree_id": "daecc04b8f2bfd154ab9ee57b851cc105dc74969",
+          "url": "https://github.com/al2me6/evanescence/commit/61f438b7b72ebeaca1e9f1524c3cf4ea5722730d"
+        },
+        "date": 1619995128162,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "orthogonal_polynomials/associated_legendre/1_0",
+            "value": 1,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/1_0",
+            "value": 1,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/1_1",
+            "value": 2,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/1_1",
+            "value": 1,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/2_0",
+            "value": 3,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/2_0",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/2_1",
+            "value": 2,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/2_1",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/2_2",
+            "value": 2,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/2_2",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/3_0",
+            "value": 5,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/3_0",
+            "value": 6,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/3_1",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/3_1",
+            "value": 6,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/3_2",
+            "value": 2,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/3_2",
+            "value": 6,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/3_3",
+            "value": 3,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/3_3",
+            "value": 6,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/4_0",
+            "value": 8,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/4_0",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/4_1",
+            "value": 6,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/4_1",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/4_2",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/4_2",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/4_3",
+            "value": 3,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/4_3",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/4_4",
+            "value": 3,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/4_4",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/5_0",
+            "value": 12,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/5_0",
+            "value": 13,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/5_1",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/5_1",
+            "value": 13,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/5_2",
+            "value": 6,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/5_2",
+            "value": 13,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/5_3",
+            "value": 5,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/5_3",
+            "value": 13,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/5_4",
+            "value": 3,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/5_4",
+            "value": 13,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/5_5",
+            "value": 3,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/5_5",
+            "value": 13,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/6_0",
+            "value": 16,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/6_0",
+            "value": 16,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/6_1",
+            "value": 13,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/6_1",
+            "value": 16,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/6_2",
+            "value": 9,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/6_2",
+            "value": 16,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/6_3",
+            "value": 7,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/6_3",
+            "value": 16,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/6_4",
+            "value": 5,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/6_4",
+            "value": 16,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/6_5",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/6_5",
+            "value": 16,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_legendre/6_6",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "orthogonal_polynomials/associated_laguerre/6_6",
+            "value": 16,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/1_0_0",
+            "value": 1226995092,
+            "range": "± 1840230",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/2_0_0",
+            "value": 3640396827,
+            "range": "± 6084958",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/2_1_n1",
+            "value": 537810056,
+            "range": "± 931393",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/2_1_0",
+            "value": 426687121,
+            "range": "± 808354",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/2_1_1",
+            "value": 538004000,
+            "range": "± 732081",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_0_0",
+            "value": 6378312511,
+            "range": "± 14029232",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_1_n1",
+            "value": 1259484569,
+            "range": "± 9045328",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_1_0",
+            "value": 995310490,
+            "range": "± 11721742",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_1_1",
+            "value": 1247242588,
+            "range": "± 10758162",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_2_n2",
+            "value": 415770369,
+            "range": "± 562770",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_2_n1",
+            "value": 406172811,
+            "range": "± 827015",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_2_0",
+            "value": 433867162,
+            "range": "± 373893",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_2_1",
+            "value": 407781193,
+            "range": "± 520705",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/3_2_2",
+            "value": 417837423,
+            "range": "± 731230",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_0_0",
+            "value": 7559203344,
+            "range": "± 15780564",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_1_n1",
+            "value": 1810321746,
+            "range": "± 103648543",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_1_0",
+            "value": 1447623326,
+            "range": "± 62484997",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_1_1",
+            "value": 1852557774,
+            "range": "± 53731054",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_2_n2",
+            "value": 830504013,
+            "range": "± 4971074",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_2_n1",
+            "value": 815550834,
+            "range": "± 2446568",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_2_0",
+            "value": 863638774,
+            "range": "± 6835633",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_2_1",
+            "value": 817994167,
+            "range": "± 4265691",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_2_2",
+            "value": 840825837,
+            "range": "± 7387317",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_3_n3",
+            "value": 380034906,
+            "range": "± 431648",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_3_n2",
+            "value": 336216793,
+            "range": "± 321924",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_3_n1",
+            "value": 427565547,
+            "range": "± 651961",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_3_0",
+            "value": 481689937,
+            "range": "± 825251",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_3_1",
+            "value": 431357464,
+            "range": "± 681816",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_3_2",
+            "value": 338690373,
+            "range": "± 396485",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/4_3_3",
+            "value": 382205312,
+            "range": "± 379236",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_0_0",
+            "value": 7765745050,
+            "range": "± 22019465",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_1_n1",
+            "value": 1762738689,
+            "range": "± 134755089",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_1_0",
+            "value": 1467637923,
+            "range": "± 139447700",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_1_1",
+            "value": 1813800449,
+            "range": "± 240810290",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_2_n2",
+            "value": 1145835301,
+            "range": "± 26735966",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_2_n1",
+            "value": 1116326444,
+            "range": "± 21582571",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_2_0",
+            "value": 1191285460,
+            "range": "± 24470436",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_2_1",
+            "value": 1122268871,
+            "range": "± 18741982",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_2_2",
+            "value": 1164835889,
+            "range": "± 20633647",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_3_n3",
+            "value": 681247171,
+            "range": "± 2596176",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_3_n2",
+            "value": 602553029,
+            "range": "± 2377108",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_3_n1",
+            "value": 767463378,
+            "range": "± 4507836",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_3_0",
+            "value": 861837010,
+            "range": "± 9263906",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_3_1",
+            "value": 770473134,
+            "range": "± 4976297",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_3_2",
+            "value": 606155032,
+            "range": "± 1848964",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_3_3",
+            "value": 688114786,
+            "range": "± 2556304",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_n4",
+            "value": 388176361,
+            "range": "± 607182",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_n3",
+            "value": 326407636,
+            "range": "± 348043",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_n2",
+            "value": 368654010,
+            "range": "± 556974",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_n1",
+            "value": 488283086,
+            "range": "± 1157673",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_0",
+            "value": 566196831,
+            "range": "± 951414",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_1",
+            "value": 487490629,
+            "range": "± 941416",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_2",
+            "value": 368816760,
+            "range": "± 583241",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_3",
+            "value": 325794981,
+            "range": "± 131178",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "monte_carlo/real/5_4_4",
+            "value": 388508458,
+            "range": "± 1030755",
             "unit": "ns/iter"
           }
         ]
