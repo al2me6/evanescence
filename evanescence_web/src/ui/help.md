@@ -62,6 +62,17 @@ This occurs on certain browser-operating system combinations, specifically Firef
 * Ogryzlo and Porter 1963, [Contour Surfaces for Atomic and Molecular Orbitals](https://doi.org/10.1021/ed040p256)
 * Mark Winter, [*The Orbitron*](https://winter.group.shef.ac.uk/orbitron/)
 
+## Acknowledgements
+
+I'd like to extend my gratitude to the following people for helping this project come true:
+
+* Dr. B. Kennedy, for overseeing this project;
+* Mr. H. Kauffman, for inspiring me to take on this project;
+* Dr. J. Osborne, for giving me invaluable advice and pointers;
+* Michelle R., for putting up with my barrage of progress screenshots with great enthusiasm;
+* Liam C., for offering helpful feedback; and
+* Thomas L., for suggesting me to look into a project in computational chemistry.
+
 ## About Evanescence
 
 &copy; Alvin Meng 2020-2021
