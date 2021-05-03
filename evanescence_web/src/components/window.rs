@@ -82,6 +82,7 @@ impl Component for Window {
                             type = "button"
                             class = "window-button window-close-button"
                             onclick = self.link.callback(|_| WindowMsg::Close)
+                            title = "Close"
                         />
                     </div>
                     <div id = self.props.content_id class = "window-content">
