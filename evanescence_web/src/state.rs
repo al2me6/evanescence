@@ -1,4 +1,4 @@
-mod presets;
+
 
 use std::convert::TryFrom;
 use std::default::default;
@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yewdux::prelude::*;
 
-pub(crate) use self::presets::{HybridKind, HybridPreset, QnPreset};
+ use crate::presets::{HybridKind, HybridPreset, QnPreset};
 use crate::plotters;
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.

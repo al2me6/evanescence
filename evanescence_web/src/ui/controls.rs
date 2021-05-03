@@ -10,7 +10,8 @@ use yewtil::NeqAssign;
 
 use super::descriptions::DESC;
 use crate::components::{CheckBox, Dropdown, Tooltip};
-use crate::state::{AppDispatch, HybridPreset, Mode, QnPreset, State, Visualization};
+use crate::presets::{HybridPreset, QnPreset};
+use crate::state::{AppDispatch, Mode, State, Visualization};
 use crate::MAX_N;
 
 fn td_tooltip(text: &str, tooltip: &str) -> Html {

@@ -12,6 +12,7 @@
 pub(crate) mod components;
 pub(crate) mod plotly;
 pub(crate) mod plotters;
+pub(crate) mod presets;
 pub(crate) mod state;
 pub(crate) mod ui;
 pub(crate) mod utils;
