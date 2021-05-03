@@ -2,6 +2,7 @@ use std::fmt::LowerExp;
 
 use instant::Instant;
 use itertools::Itertools;
+use log::{Level, Record};
 
 pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
     let mut prev_is_word_separator = true;
@@ -96,18 +97,21 @@ pub(crate) fn fire_resize_event() {
         .unwrap();
 }
 
-/// Simple RAII timer.
 #[must_use = "timer is useless if dropped immediately"]
 pub(crate) struct ScopeTimer {
     action_description: String,
     begin: Instant,
+    file: &'static str,
+    line: u32,
 }
 
 impl ScopeTimer {
-    pub(crate) fn new(action_description: String) -> Self {
+    pub(crate) fn new(action_description: String, file: &'static str, line: u32) -> Self {
         Self {
             action_description,
             begin: Instant::now(),
+            file,
+            line,
         }
     }
 }
@@ -115,6 +119,19 @@ impl ScopeTimer {
 impl Drop for ScopeTimer {
     fn drop(&mut self) {
         let time = self.begin.elapsed().as_millis();
-        log::info!("{}: {}ms", self.action_description, time);
+        log::logger().log(
+            &Record::builder()
+                .args(format_args!("{}: {}ms", self.action_description, time))
+                .level(Level::Info)
+                .file(Some(self.file))
+                .line(Some(self.line))
+                .build(),
+        );
     }
+}
+
+macro_rules! time_scope {
+    ($($arg:tt)+) => {
+        $crate::utils::ScopeTimer::new(format!($($arg)+), file!(), line!())
+    };
 }

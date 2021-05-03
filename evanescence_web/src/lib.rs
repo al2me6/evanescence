@@ -9,13 +9,15 @@
     clippy::non_ascii_literal, // Unicode support is expected.
 )]
 
+#[macro_use]
+pub(crate) mod utils;
+
 pub(crate) mod components;
 pub(crate) mod plotly;
 pub(crate) mod plotters;
 pub(crate) mod presets;
 pub(crate) mod state;
 pub(crate) mod ui;
-pub(crate) mod utils;
 
 use pkg_version::{pkg_version_major, pkg_version_minor, pkg_version_patch};
 use wasm_bindgen::prelude::*;
