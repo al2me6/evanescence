@@ -19,9 +19,6 @@ use crate::numerics::Evaluate;
 pub struct LinearCombination {
     /// The individual orbitals and weights comprising the linear combination.
     combination: Vec<(Qn, f32)>,
-    #[getset(get = "pub")]
-    /// The kind (ex. "sp³") of mixture that this linear combination is.
-    kind: String,
 }
 
 impl LinearCombination {
@@ -33,9 +30,9 @@ impl LinearCombination {
     /// Construct a new linear combination given a set of orbitals, their weights, and a string
     /// describing the combination's kind. This function returns `None` if the resultant mixture
     /// is not normalized.
-    pub fn new(combination: Vec<(Qn, f32)>, kind: String) -> Option<Self> {
+    pub fn new(combination: Vec<(Qn, f32)>) -> Option<Self> {
         if Self::validate(combination.iter().map(|(_, weight)| *weight)) {
-            Some(Self { combination, kind })
+            Some(Self { combination })
         } else {
             None
         }
@@ -85,7 +82,7 @@ impl LinearCombination {
 
 impl fmt::Display for LinearCombination {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.kind)
+        f.write_str(&self.expression())
     }
 }
 
@@ -94,7 +91,6 @@ impl fmt::Display for LinearCombination {
 /// ```
 /// # use evanescence_core::lc;
 /// let linear_combination = lc! {
-///     kind = "sp",
 ///     overall = std::f32::consts::FRAC_1_SQRT_2, // Overall factor.
 ///     (2, 0, 0) * 1.0, // Quantum numbers and their associated weights.
 ///     (2, 1, 0) * 1.0,
@@ -107,7 +103,6 @@ impl fmt::Display for LinearCombination {
 #[macro_export]
 macro_rules! lc {
     (
-        kind = $kind:literal,
         overall = $overall_factor:expr,
         $(($n:literal, $l:literal, $m:literal) * $weight:expr),+
         $(,)?
@@ -119,7 +114,6 @@ macro_rules! lc {
                     $overall_factor * $weight,
                 )),+
             ],
-            $kind.to_owned(),
         )
         .expect("linear combination is not normalized")
     };

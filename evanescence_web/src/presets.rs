@@ -100,19 +100,18 @@ impl fmt::Display for HybridKind {
     }
 }
 
+#[allow(clippy::too_many_lines)] // Data.
 static HYBRID_PRESETS: Lazy<Vec<HybridKind>> = Lazy::new(|| {
     vec![
         HybridKind {
             kind: "sp".to_owned(),
             symmetry: "linear".to_owned(),
             principal: lc! {
-                kind = "sp",
                 overall = FRAC_1_SQRT_2,
                 (2, 0, 0) * 1.0,
                 (2, 1, 0) * 1.0,
             },
             rotations: vec![lc! {
-                kind = "sp",
                 overall = FRAC_1_SQRT_2,
                 (2, 0, 0) * 1.0,
                 (2, 1, 0) * -1.0,
@@ -122,21 +121,18 @@ static HYBRID_PRESETS: Lazy<Vec<HybridKind>> = Lazy::new(|| {
             kind: "sp²".to_owned(),
             symmetry: "trigonal planar".to_owned(),
             principal: lc! {
-                kind = "sp²",
                 overall = FRAC_1_SQRT_3,
                 (2, 0, 0) * 1.0,
                 (2, 1, 1) * -SQRT_2,
             },
             rotations: vec![
                 lc! {
-                    kind = "sp²",
                     overall = FRAC_1_SQRT_6,
                     (2, 0, 0) * SQRT_2,
                     (2, 1, 1) * 1.0,
                     (2, 1, -1) * SQRT_3,
                 },
                 lc! {
-                    kind = "sp²",
                     overall = FRAC_1_SQRT_6,
                     (2, 0, 0) * SQRT_2,
                     (2, 1, 1) * 1.0,
@@ -148,7 +144,6 @@ static HYBRID_PRESETS: Lazy<Vec<HybridKind>> = Lazy::new(|| {
             kind: "sp³".to_owned(),
             symmetry: "tetrahedral".to_owned(),
             principal: lc! {
-                kind = "sp³",
                 overall = 0.5,
                 (2, 0, 0) * 1.0,
                 (2, 1, 1) * 1.0,
@@ -157,7 +152,6 @@ static HYBRID_PRESETS: Lazy<Vec<HybridKind>> = Lazy::new(|| {
             },
             rotations: vec![
                 lc! {
-                    kind = "sp³",
                     overall = 0.5,
                     (2, 0, 0) * 1.0,
                     (2, 1, 1) * -1.0,
@@ -165,7 +159,6 @@ static HYBRID_PRESETS: Lazy<Vec<HybridKind>> = Lazy::new(|| {
                     (2, 1, 0) * 1.0,
                 },
                 lc! {
-                    kind = "sp³",
                     overall = 0.5,
                     (2, 0, 0) * 1.0,
                     (2, 1, 1) * 1.0,
@@ -173,7 +166,6 @@ static HYBRID_PRESETS: Lazy<Vec<HybridKind>> = Lazy::new(|| {
                     (2, 1, 0) * -1.0,
                 },
                 lc! {
-                    kind = "sp³",
                     overall = 0.5,
                     (2, 0, 0) * 1.0,
                     (2, 1, 1) * -1.0,
