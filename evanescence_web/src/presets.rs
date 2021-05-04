@@ -79,6 +79,7 @@ impl fmt::Display for QnPreset {
     }
 }
 
+#[allow(clippy::too_many_lines)] // Data.
 static HYBRID_PRESETS: Lazy<Vec<Kind>> = Lazy::new(|| {
     vec![
         kind! {
@@ -163,6 +164,135 @@ static HYBRID_PRESETS: Lazy<Vec<Kind>> = Lazy::new(|| {
                     (2, 1, 1) * -1.0,
                     (2, 1, -1) * 1.0,
                     (2, 1, 0) * -1.0,
+                },
+            },
+        },
+        kind! {
+            mixture: {
+                n: 3,
+                0 => 1,
+                1 => 3,
+                2 => 1,
+            },
+            symmetry: "trigonal bipyramidal",
+            description: "axial",
+            combinations: {
+                lc! {
+                    overall: FRAC_1_SQRT_2,
+                    (3, 1, 0) * 1.0,
+                    (3, 2, 0) * 1.0,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_2,
+                    (3, 1, 0) * 1.0,
+                    (3, 2, 0) * -1.0,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_3,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 1) * SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_3,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 1) * -FRAC_1_SQRT_2,
+                    (3, 1, -1) * SQRT_3 * FRAC_1_SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_3,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 1) * -FRAC_1_SQRT_2,
+                    (3, 1, -1) * -SQRT_3 * FRAC_1_SQRT_2,
+                },
+            },
+        },
+        kind! {
+            mixture: {
+                n: 3,
+                0 => 1,
+                1 => 3,
+                2 => 1,
+            },
+            symmetry: "trigonal bipyramidal",
+            description: "equatorial",
+            combinations: {
+                lc! {
+                    overall: FRAC_1_SQRT_3,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 1) * SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_3,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 1) * -FRAC_1_SQRT_2,
+                    (3, 1, -1) * SQRT_3 * FRAC_1_SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_3,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 1) * -FRAC_1_SQRT_2,
+                    (3, 1, -1) * -SQRT_3 * FRAC_1_SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_2,
+                    (3, 1, 0) * 1.0,
+                    (3, 2, 0) * 1.0,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_2,
+                    (3, 1, 0) * 1.0,
+                    (3, 2, 0) * -1.0,
+                },
+            },
+        },
+        kind! {
+            mixture: {
+                n: 3,
+                0 => 1,
+                1 => 3,
+                2 => 2,
+            },
+            symmetry: "octahedral",
+            combinations: {
+                lc! {
+                    overall: FRAC_1_SQRT_6,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 0) * SQRT_3,
+                    (3, 2, 0) * SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_6,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 1) * SQRT_3,
+                    (3, 2, 0) * -FRAC_1_SQRT_2,
+                    (3, 2, 2) * SQRT_3 * FRAC_1_SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_6,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, -1) * SQRT_3,
+                    (3, 2, 0) * -FRAC_1_SQRT_2,
+                    (3, 2, 2) * -SQRT_3 * FRAC_1_SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_6,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 1) * -SQRT_3,
+                    (3, 2, 0) * -FRAC_1_SQRT_2,
+                    (3, 2, 2) * SQRT_3 * FRAC_1_SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_6,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, -1) * -SQRT_3,
+                    (3, 2, 0) * -FRAC_1_SQRT_2,
+                    (3, 2, 2) * -SQRT_3 * FRAC_1_SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_6,
+                    (3, 0, 0) * 1.0,
+                    (3, 1, 0) * -SQRT_3,
+                    (3, 2, 0) * SQRT_2,
                 },
             },
         },
