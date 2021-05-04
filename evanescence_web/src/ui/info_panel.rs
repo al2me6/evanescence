@@ -73,7 +73,7 @@ impl Component for InfoPanelImpl {
             Mode::Hybrid => {
                 let kind = state.hybrid_kind();
                 let kind_name = html! {
-                    <RawSpan inner_html = utils::fmt_orbital_name_html(kind.kind()) />
+                    <RawSpan inner_html = utils::fmt_orbital_name_html(kind.mixture_name()) />
                 };
                 html! {
                     <>
@@ -82,7 +82,7 @@ impl Component for InfoPanelImpl {
                         { kind_name.clone() }
                         { "-hybridized orbital formed by the linear combination " }
                         <RawSpan inner_html = utils::fmt_orbital_name_html(
-                            kind.principal().expression()
+                            kind.archetype().expression()
                         ) />
                         { "." }
                     </p>
@@ -98,10 +98,12 @@ impl Component for InfoPanelImpl {
                         { " orbitals (which can be drawn by enabling \"Show symmetry\") are formed from the following linear combinations:" }
                     </p>
                     <ul>
-                        { for kind.rotations().iter().map(|lc| html! {
-                            <li><RawSpan inner_html = utils::fmt_orbital_name_html(
-                                lc.expression()
-                            ) /></li>
+                        { for kind.iter().skip(1).map(|lc| html! {
+                            <li>
+                                <RawSpan
+                                    inner_html = utils::fmt_orbital_name_html(lc.expression())
+                                />
+                            </li>
                         }) }
                     </ul>
                     </>

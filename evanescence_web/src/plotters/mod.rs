@@ -3,7 +3,8 @@ pub(crate) mod supplemental;
 
 use evanescence_core::monte_carlo::Quality;
 use evanescence_core::numerics::{Evaluate, EvaluateBounded};
-use evanescence_core::orbital::{Hybrid, LinearCombination, Qn, Real};
+use evanescence_core::orbital::hybrid::Kind;
+use evanescence_core::orbital::{Hybrid, Qn, Real};
 
 use crate::plotly::color::color_scales;
 use crate::plotly::isosurface::{self, Isosurface};
@@ -27,25 +28,28 @@ pub(crate) fn isosurface_cutoff_heuristic_real(qn: &Qn) -> f32 {
     0.006 / ((num_lobes as f32 - 1.0).powi(2) * damping_factor + 1.0)
 }
 
-pub(crate) fn isosurface_cutoff_heuristic_hybrid(lc: &LinearCombination) -> f32 {
-    // FIXME: This doesn't work for higher values of n.
-    lc.iter()
-        .map(|(qn, _)| qn)
-        .map(isosurface_cutoff_heuristic_real)
+pub(crate) fn isosurface_cutoff_heuristic_hybrid(kind: &Kind) -> f32 {
+    let mixture = kind.mixture();
+    mixture
+        .iter()
+        .flat_map(|(&l, &count)| itertools::repeat_n(l, count as usize))
+        .map(|l| Qn::new(kind.n(), l, 0).unwrap())
+        .map(|qn| isosurface_cutoff_heuristic_real(&qn))
         .sum::<f32>()
-        / lc.count() as f32
-        * 4.0
+        / mixture.values().sum::<u32>() as f32
+        * 1.8
 }
 
-fn compute_isosurface_hybrid(lc: &LinearCombination, quality: Quality) -> Isosurface {
+fn compute_isosurface_hybrid(kind: &Kind, idx: usize, quality: Quality) -> Isosurface<'static> {
+    let lc = &kind.combinations()[idx];
     let (x, y, z, value) = Hybrid::evaluate_in_region(
         lc,
         // Manually shrink the extent sampled for higher quality.
-        Hybrid::bound(lc) * 0.75,
+        Hybrid::bound(lc) * 0.82,
         quality.for_isosurface(),
     )
     .into_components();
-    let cutoff = isosurface_cutoff_heuristic_hybrid(lc);
+    let cutoff = isosurface_cutoff_heuristic_hybrid(kind);
 
     Isosurface {
         x,

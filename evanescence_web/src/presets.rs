@@ -2,10 +2,10 @@ use std::convert::TryFrom;
 use std::f32::consts::{FRAC_1_SQRT_2, SQRT_2};
 use std::fmt;
 
-use evanescence_core::lc;
+use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::orbital::wavefunctions::RealSphericalHarmonic;
-use evanescence_core::orbital::{self, LinearCombination, Qn};
-use getset::Getters;
+use evanescence_core::orbital::{self, Qn};
+use evanescence_core::{kind, lc};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
@@ -79,100 +79,92 @@ impl fmt::Display for QnPreset {
     }
 }
 
-#[derive(Clone, PartialEq, Getters)]
-#[getset(get = "pub(crate)")]
-pub(crate) struct HybridKind {
-    kind: String,
-    symmetry: String,
-    principal: LinearCombination,
-    rotations: Vec<LinearCombination>,
-}
-
-impl HybridKind {
-    pub(crate) fn count(&self) -> usize {
-        self.rotations.len() + 1
-    }
-}
-
-impl fmt::Display for HybridKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.kind)
-    }
-}
-
-#[allow(clippy::too_many_lines)] // Data.
-static HYBRID_PRESETS: Lazy<Vec<HybridKind>> = Lazy::new(|| {
+static HYBRID_PRESETS: Lazy<Vec<Kind>> = Lazy::new(|| {
     vec![
-        HybridKind {
-            kind: "sp".to_owned(),
-            symmetry: "linear".to_owned(),
-            principal: lc! {
-                overall = FRAC_1_SQRT_2,
-                (2, 0, 0) * 1.0,
-                (2, 1, 0) * 1.0,
+        kind! {
+            mixture: {
+                n: 2,
+                0 => 1,
+                1 => 1,
             },
-            rotations: vec![lc! {
-                overall = FRAC_1_SQRT_2,
-                (2, 0, 0) * 1.0,
-                (2, 1, 0) * -1.0,
-            }],
-        },
-        HybridKind {
-            kind: "sp²".to_owned(),
-            symmetry: "trigonal planar".to_owned(),
-            principal: lc! {
-                overall = FRAC_1_SQRT_3,
-                (2, 0, 0) * 1.0,
-                (2, 1, 1) * -SQRT_2,
-            },
-            rotations: vec![
+            symmetry: "linear",
+            combinations: {
                 lc! {
-                    overall = FRAC_1_SQRT_6,
+                    overall: FRAC_1_SQRT_2,
+                    (2, 0, 0) * 1.0,
+                    (2, 1, 0) * 1.0,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_2,
+                    (2, 0, 0) * 1.0,
+                    (2, 1, 0) * -1.0,
+                },
+            }
+        },
+        kind! {
+            mixture: {
+                n: 2,
+                0 => 1,
+                1 => 2,
+            },
+            symmetry: "trigonal planar",
+            combinations: {
+                lc! {
+                    overall: FRAC_1_SQRT_3,
+                    (2, 0, 0) * 1.0,
+                    (2, 1, 1) * -SQRT_2,
+                },
+                lc! {
+                    overall: FRAC_1_SQRT_6,
                     (2, 0, 0) * SQRT_2,
                     (2, 1, 1) * 1.0,
                     (2, 1, -1) * SQRT_3,
                 },
                 lc! {
-                    overall = FRAC_1_SQRT_6,
+                    overall: FRAC_1_SQRT_6,
                     (2, 0, 0) * SQRT_2,
                     (2, 1, 1) * 1.0,
                     (2, 1, -1) * -SQRT_3,
                 },
-            ],
+            }
         },
-        HybridKind {
-            kind: "sp³".to_owned(),
-            symmetry: "tetrahedral".to_owned(),
-            principal: lc! {
-                overall = 0.5,
-                (2, 0, 0) * 1.0,
-                (2, 1, 1) * 1.0,
-                (2, 1, -1) * 1.0,
-                (2, 1, 0) * 1.0,
+        kind! {
+            mixture: {
+                n: 2,
+                0 => 1,
+                1 => 3,
             },
-            rotations: vec![
+            symmetry: "tetrahedral",
+            combinations: {
                 lc! {
-                    overall = 0.5,
+                    overall: 0.5,
+                    (2, 0, 0) * 1.0,
+                    (2, 1, 1) * 1.0,
+                    (2, 1, -1) * 1.0,
+                    (2, 1, 0) * 1.0,
+                },
+                lc! {
+                    overall: 0.5,
                     (2, 0, 0) * 1.0,
                     (2, 1, 1) * -1.0,
                     (2, 1, -1) * -1.0,
                     (2, 1, 0) * 1.0,
                 },
                 lc! {
-                    overall = 0.5,
+                    overall: 0.5,
                     (2, 0, 0) * 1.0,
                     (2, 1, 1) * 1.0,
                     (2, 1, -1) * -1.0,
                     (2, 1, 0) * -1.0,
                 },
                 lc! {
-                    overall = 0.5,
+                    overall: 0.5,
                     (2, 0, 0) * 1.0,
                     (2, 1, 1) * -1.0,
                     (2, 1, -1) * 1.0,
                     (2, 1, 0) * -1.0,
                 },
-            ],
+            },
         },
     ]
 });
@@ -192,7 +184,7 @@ impl Default for HybridPreset {
     }
 }
 
-impl From<HybridPreset> for &'static HybridKind {
+impl From<HybridPreset> for &'static Kind {
     fn from(preset: HybridPreset) -> Self {
         &HYBRID_PRESETS[preset.0]
     }

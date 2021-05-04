@@ -1,5 +1,3 @@
-
-
 use std::convert::TryFrom;
 use std::default::default;
 use std::fmt;
@@ -7,14 +5,15 @@ use std::fmt;
 use evanescence_core::geometry::{ComponentForm, GridValues, Plane};
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::EvaluateBounded;
+use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::orbital::{self, ProbabilityDensity, Qn, RadialPlot};
 use getset::CopyGetters;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yewdux::prelude::*;
 
- use crate::presets::{HybridKind, HybridPreset, QnPreset};
 use crate::plotters;
+use crate::presets::{HybridPreset, QnPreset};
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display, Serialize, Deserialize)]
@@ -301,7 +300,7 @@ impl State {
             RealSimple(_) | Real(_) | Complex(_) => {
                 format!("ψ{}{}{}", self.qn().n(), self.qn().l(), self.qn().m())
             }
-            Hybrid(_) => self.hybrid_kind().kind().clone(),
+            Hybrid(_) => self.hybrid_kind().to_string(),
         }
     }
 
@@ -346,7 +345,7 @@ impl State {
         }
     }
 
-    pub(crate) fn hybrid_kind(&self) -> &'static HybridKind {
+    pub(crate) fn hybrid_kind(&self) -> &'static Kind {
         match &self.state {
             Hybrid(state) => state.preset.into(),
             _ => panic!("{:?} does not have a `hybrid_kind`", self.mode()),
@@ -377,9 +376,7 @@ impl State {
     pub(crate) fn isosurface_cutoff(&self) -> f32 {
         match self.mode() {
             Mode::Real | Mode::RealSimple => plotters::isosurface_cutoff_heuristic_real(self.qn()),
-            Mode::Hybrid => {
-                plotters::isosurface_cutoff_heuristic_hybrid(self.hybrid_kind().principal())
-            }
+            Mode::Hybrid => plotters::isosurface_cutoff_heuristic_hybrid(self.hybrid_kind()),
             Mode::Complex => panic!("isosurface not available in `Complex` mode"),
         }
     }
@@ -457,7 +454,7 @@ impl State {
     pub(crate) fn bound(&self) -> f32 {
         match self.mode() {
             Mode::RealSimple | Mode::Real | Mode::Complex => orbital::Real::bound(self.qn()),
-            Mode::Hybrid => orbital::hybrid::Hybrid::bound(self.hybrid_kind().principal()),
+            Mode::Hybrid => orbital::hybrid::Hybrid::bound(self.hybrid_kind().archetype()),
         }
     }
 
@@ -467,7 +464,7 @@ impl State {
                 orbital::Real::monte_carlo_simulate(self.qn(), self.quality(), true)
             }
             Mode::Hybrid => orbital::Hybrid::monte_carlo_simulate(
-                self.hybrid_kind().principal(),
+                self.hybrid_kind().archetype(),
                 self.quality(),
                 true,
             ),
@@ -481,7 +478,7 @@ impl State {
                 orbital::Real::sample_plane(self.qn(), plane, self.quality().for_grid())
             }
             Mode::Hybrid => orbital::Hybrid::sample_plane(
-                self.hybrid_kind().principal(),
+                self.hybrid_kind().archetype(),
                 plane,
                 self.quality().for_grid(),
             ),
@@ -497,7 +494,7 @@ impl State {
                 self.quality().for_grid(),
             ),
             Mode::Hybrid => ProbabilityDensity::<orbital::Hybrid>::sample_plane(
-                self.hybrid_kind().principal(),
+                self.hybrid_kind().archetype(),
                 plane,
                 self.quality().for_grid(),
             ),

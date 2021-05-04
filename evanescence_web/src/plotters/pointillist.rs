@@ -1,7 +1,6 @@
 use std::convert::TryInto;
 use std::default::default;
 use std::f32::consts::PI;
-use std::iter;
 
 use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::MonteCarlo;
@@ -181,26 +180,23 @@ pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
 
 pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
     assert!(state.mode().is_hybrid());
+    let kind = state.hybrid_kind();
 
-    state
-        .hybrid_kind()
-        .rotations()
-        .iter()
-        .chain(iter::once(state.hybrid_kind().principal()))
-        .map(|lc| {
-            let surface = super::compute_isosurface_hybrid(lc, state.quality());
+    let rescale_factor = *kind.mixture().keys().max().expect("kind is not empty") as f32;
+    let rescale_factor = 5.0 / (rescale_factor.powi(2) * 0.3 + 1.0);
+
+    kind.iter()
+        .enumerate()
+        .map(|(idx, lc)| {
+            let surface = super::compute_isosurface_hybrid(kind, idx, state.quality());
             // Shrink the surface for silhouettes so they overlap less.
-            let cutoff = surface.iso_max * 1.625;
+            let cutoff = surface.iso_max * rescale_factor;
             Isosurface {
                 iso_min: -cutoff,
                 iso_max: cutoff,
                 c_min: Some(-cutoff * 1.4),
                 c_max: Some(cutoff * 1.4),
-                opacity: if lc == state.hybrid_kind().principal() {
-                    0.35
-                } else {
-                    0.15
-                },
+                opacity: if lc == kind.archetype() { 0.35 } else { 0.15 },
                 ..surface
             }
             .into()
@@ -211,7 +207,7 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
 pub(crate) fn nodes_hybrid(state: &State) -> JsValue {
     assert!(state.mode().is_hybrid());
 
-    let lc = state.hybrid_kind().principal();
+    let lc = state.hybrid_kind().archetype();
     nodal_surface(
         Hybrid::evaluate_in_region(&lc, state.bound(), state.quality().for_isosurface()),
         color_scales::PURP,

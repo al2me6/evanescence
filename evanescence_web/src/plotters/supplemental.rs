@@ -221,7 +221,11 @@ pub(crate) fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x, y, mut z) = state.sample_plane_prob_density(plane).into_components();
     let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
-    assert!(max >= 0.0, "probability densities must be positive; got {}", max);
+    assert!(
+        max >= 0.0,
+        "probability densities must be positive; got {}",
+        max
+    );
 
     if max < ZERO_THRESHOLD {
         zero_values(&mut z);
@@ -256,7 +260,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
 
     let trace = if state.mode().is_hybrid() {
-        super::compute_isosurface_hybrid(state.hybrid_kind().principal(), state.quality())
+        super::compute_isosurface_hybrid(state.hybrid_kind(), 0, state.quality())
     } else {
         let (x, y, z, value) =
             Real::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
