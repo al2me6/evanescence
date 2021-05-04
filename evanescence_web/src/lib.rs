@@ -167,11 +167,19 @@ type Main = WithDispatch<MainImpl>;
 pub fn run() {
     std::panic::set_hook(Box::new(|info| {
         console_error_panic_hook::hook(info);
+        let payload = match info.payload().downcast_ref::<&str>() {
+            Some(s) => *s,
+            None => match info.payload().downcast_ref::<String>() {
+                Some(s) => s.as_ref(),
+                None => "<unknown error>",
+            },
+        };
         web_sys::window()
             .unwrap()
-            .alert_with_message(
-                "Unfortunately, Evanescence encountered a serious error. Please refresh the page.",
-            )
+            .alert_with_message(&format!(
+                "Evanescence encountered a serious error: {}.\nPlease refresh the page.",
+                payload,
+            ))
             .unwrap();
     }));
 
