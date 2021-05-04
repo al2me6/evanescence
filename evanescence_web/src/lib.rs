@@ -106,8 +106,8 @@ impl Component for MainImpl {
             <footer>
                 <p>{ format!("Evanescence v{}.{}.{}", VER_MAJOR, VER_MINOR, VER_PATCH) }</p>
                 <span>
-                    <a href = format!("{}/blob/master/changelog.md", REPO) target = "_blank">
-                        { "Changelog" }
+                    <a href = format!("{}/blob/master/CHANGELOG.md", REPO) target = "_blank">
+                        { "Change Log" }
                     </a>
                 </span>
                 <span><a href = REPO target = "_blank">{ "Source" }</a></span>

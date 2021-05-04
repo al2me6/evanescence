@@ -1,5 +1,12 @@
 # Version History
 
+## 0.4.11, 2021-05-04
+
+### Features
+
+* Internal improvements to the handling of hybrid orbitals.
+* sp<sup>3</sup>d and sp<sup>3</sup>d<sup>2</sup> orbitals are now available.
+
 ## 0.4.10, 2021-05-02
 
 ### Features
