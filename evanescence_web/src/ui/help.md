@@ -61,6 +61,7 @@ This occurs on certain browser-operating system combinations, specifically Firef
 * Douglas 1990, [Visualization of Electron Clouds in Atoms and Molecules](https://doi.org/10.1021/ed067p42)
 * Ogryzlo and Porter 1963, [Contour Surfaces for Atomic and Molecular Orbitals](https://doi.org/10.1021/ed040p256)
 * Mark Winter, [*The Orbitron*](https://winter.group.shef.ac.uk/orbitron/)
+* Paul Falstad, [Hydrogen Atom Orbital Viewer](https://www.falstad.com/qmatom/)
 
 ## Acknowledgements
 
