@@ -255,25 +255,19 @@ pub trait EvaluateBounded: Evaluate {
 /// Verify that two iterables containing float values are approximately equal.
 #[cfg(test)]
 macro_rules! assert_iterable_relative_eq {
-    ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)*) => {{
+    ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)* $(,)?) => {{
         assert_eq!($lhs.len(), $rhs.len());
         assert!(
             $lhs.iter()
                 .zip($rhs.iter())
-                .all(|(l, r)| approx::relative_eq!(l, r $(, $opt = $val)*)
-        ),
-        indoc::indoc! {"
-            assertion failed: `(left ≈ right)`
-            left: `{:?}`
-            right: `{:?}`
-        "},
-        $lhs,
-        $rhs
-    );
+                .all(|(l, r)| approx::relative_eq!(l, r $(, $opt = $val)*)),
+            "assertion failed: `(left ≈ right)`\n\
+                left: `{:?}`\n\
+                right: `{:?}`",
+            $lhs,
+            $rhs
+        );
     }};
-    ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)*,) => {
-        assert_iterable_relative_eq!($lhs, $rhs, $(, $opt = $val)*)
-    }
 }
 
 /// See attached Mathematica notebooks for the computation of test values.
