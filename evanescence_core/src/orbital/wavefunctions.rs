@@ -173,15 +173,15 @@ impl RealSphericalHarmonic {
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
-    use lazy_static::lazy_static;
+    use once_cell::sync::Lazy;
 
     use super::{Radial, RealSphericalHarmonic};
     use crate::geometry::Point;
     use crate::numerics::Evaluate;
     use crate::orbital::quantum_numbers::{Lm, Nl};
 
-    lazy_static! {
-        static ref TEST_POINTS: Vec<Point> = vec![
+    static TEST_POINTS: Lazy<Vec<Point>> = Lazy::new(|| {
+        vec![
             Point::new(0.4817551668747674, -0.0804650251296536, -5.6874218288168015),
             Point::new(2.0333187824258494, -5.438747021019332, -0.6049420414492214),
             Point::new(-5.536298275253506, 4.6076805316895, -1.2262339330118561),
@@ -192,8 +192,8 @@ mod tests {
             Point::new(-4.867929449744333, 0.5252811429346673, -8.256693767935815),
             Point::new(-0.15569673568314418, -7.415856784977347, 5.713181575221412),
             Point::new(4.391483176478295, -6.632126843233279, 2.103909081619213),
-        ];
-    }
+        ]
+    });
 
     // #[test]
     // fn print_radii() {
