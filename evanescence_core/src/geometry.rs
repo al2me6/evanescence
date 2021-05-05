@@ -420,10 +420,13 @@ pub struct GridValues<T> {
     vals: Vec<Vec<T>>,
 }
 
+/// Error type describing invalid [`GridValues`] geometries.
 #[derive(PartialEq, Eq, Debug, Error)]
 pub enum InvalidGridValuesError {
+    /// Incorrect number of row coordinates.
     #[error("number of row coordinates does not match number of value rows")]
     Row,
+    /// Incorrect number of column coordinates.
     #[error("number of column coordinates does not match length of value row")]
     Column,
 }

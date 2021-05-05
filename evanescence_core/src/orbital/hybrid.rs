@@ -20,19 +20,10 @@ pub struct QnWeight {
     pub weight: f32,
 }
 
-impl QnWeight {
-    /// Construct a new `QnWeight`.
-    pub fn new(qn: Qn, weight: f32) -> Self {
-        Self { qn, weight }
-    }
-}
-
-/// Structure representing a linear combination of multiple orbitals of the same atom, where
-/// each component is stored in a `Vec` as a 2-tuple of the component's quantum numbers and its
-/// weight.
+/// Structure representing a linear combination of multiple orbitals of the same atom.
 ///
 /// # Invariants
-/// The orbital represented by a `LinearCombination` must be normalized.
+/// The orbital forming a `LinearCombination` must be normalized.
 #[derive(Clone, PartialEq, Debug)]
 pub struct LinearCombination {
     /// The individual orbitals and weights comprising the linear combination.
@@ -220,14 +211,19 @@ pub struct Kind {
     combinations: Vec<LinearCombination>,
 }
 
+/// Error type describing invalid values passed to [`Kind`]'s constructor.
 #[derive(PartialEq, Debug, Error)]
 pub enum InvalidKindError {
+    /// Kind is empty.
     #[error("kind cannot be empty")]
     Empty,
+    /// Kind has the incorrect number of linear combinations.
     #[error("expected {expected} linear combinations from mixture type, got {actual}")]
-    IncorrectSize { expected: usize, actual: usize },
+    IncorrectLength { expected: usize, actual: usize },
+    /// Kind has an invalid value of `n` (zero or too small for the `l` values declared).
     #[error("got invalid value of n: {0}")]
     InvalidN(u32),
+    /// Kind contained an orbital with a value of `n` different than declared.
     #[error("got value of n that differs from the specified value: {0}")]
     UnexpectedN(u32),
 }
@@ -250,7 +246,7 @@ impl Kind {
         }
         let expected_lc_count = mixture.values().sum::<u32>() as usize;
         if expected_lc_count != combinations.len() {
-            return Err(InvalidKindError::IncorrectSize {
+            return Err(InvalidKindError::IncorrectLength {
                 expected: expected_lc_count,
                 actual: combinations.len(),
             });
@@ -309,7 +305,7 @@ impl Kind {
                         '7' => '⁷',
                         '8' => '⁸',
                         '9' => '⁹',
-                        _ => unreachable!(),
+                        _ => unreachable!("representation of a `u32` can only contain `[0-9]`"),
                     })
                     .for_each(|c| kind.push(c));
             }

@@ -97,7 +97,7 @@ impl Real {
         qn.n() - qn.l() - 1
     }
 
-    // Give the number of angular nodes in an orbital.
+    /// Give the number of angular nodes in an orbital.
     pub fn num_angular_nodes(qn: &Qn) -> u32 {
         qn.l()
     }

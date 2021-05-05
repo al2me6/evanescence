@@ -4,8 +4,9 @@ use std::ops::RangeInclusive;
 
 use crate::geometry::{ComponentForm, GridValues, Plane, Point, PointValue, Vec3};
 
-/// Compute the `N`-th [multifactorial](https://en.wikipedia.org/wiki/Factorial#Multifactorials).
+/// Compute the [double factorial](https://en.wikipedia.org/wiki/Double_factorial).
 pub trait DoubleFactorial {
+    /// `x!!`
     fn double_factorial(self) -> Self;
 }
 
@@ -31,6 +32,7 @@ macro_rules! impl_double_factorial {
 }
 impl_double_factorial!(u8, u16, u32, u64, usize);
 
+/// Map `val`, which has a value within `source_range`, to `target_range`.
 pub fn normalize(
     source_range: RangeInclusive<f32>,
     target_range: RangeInclusive<f32>,
@@ -41,9 +43,9 @@ pub fn normalize(
         + target_range.start()
 }
 
+/// Implementations of the the associated Legendre functions and the associated Laguerre
+/// polynomials.
 pub mod orthogonal_polynomials {
-    //! Implementations of the the associated Legendre functions and the associated Laguerre
-    //! polynomials.
     use super::DoubleFactorial;
 
     /// The associated Laguerre polynomials, `L_{q}^{p}(x)`.
@@ -194,7 +196,7 @@ pub trait Evaluate {
             points_in_col.iter().map(extract_component.1).collect(),
             vals,
         )
-        .expect("rows and columns should be equal in length by construction")
+        .expect("rows and columns are equal in length by construction")
     }
 
     /// Evaluate `Self` on a cube of side length 2 × `extent`, centered at the origin, producing

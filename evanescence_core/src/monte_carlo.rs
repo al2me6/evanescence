@@ -129,7 +129,7 @@ pub trait MonteCarlo: Orbital {
     /// excessively difficult to sample. For example, if the optimization is disabled, it takes
     /// approximately 200 000 000 samples to produce 50 000 points for the 5s orbital.
     ///
-    /// Note that while slower, higher qualities may be required to ortain sufficiently detailed
+    /// Note that while slower, higher qualities may be required to obtain sufficiently detailed
     /// results for larger, more intricate orbitals. However, excessive quality for small orbitals
     /// may obstruct details while significantly degrading user experience.
     fn monte_carlo_simulate(

@@ -4,12 +4,16 @@ use std::ops::{Range, RangeInclusive};
 use getset::CopyGetters;
 use thiserror::Error;
 
+/// Error type describing an invalid [`Qn`].
 #[derive(PartialEq, Eq, Debug, Error)]
 pub enum InvalidQnError {
+    /// `n` is zero.
     #[error("must satisfy n > 0")]
     N,
+    /// `l` is too large.
     #[error("must satisfy n > l; got n={n}, l={l}")]
     L { n: u32, l: u32 },
+    /// `|m|` is too large.
     #[error("must satisfy l >= |m|; got l={l}, m={m}")]
     M { l: u32, m: i32 },
 }
