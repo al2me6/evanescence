@@ -119,7 +119,7 @@ impl ops::Index<usize> for LinearCombination {
 /// ```
 /// # use evanescence_core::lc;
 /// let linear_combination = lc! {
-///     overall = std::f32::consts::FRAC_1_SQRT_2, // Overall factor.
+///     overall: std::f32::consts::FRAC_1_SQRT_2, // Overall factor.
 ///     (2, 0, 0) * 1.0, // Quantum numbers and their associated weights.
 ///     (2, 1, 0) * 1.0,
 /// };
