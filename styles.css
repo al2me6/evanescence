@@ -64,12 +64,12 @@ body.vertical-layout {
 }
 
 body > * {
-  padding: 20px;
+  padding: 25px;
 }
 
 @media (max-width: 1400px) {
   body > * {
-    padding: 15px;
+    padding: 20px;
   }
 }
 
@@ -425,6 +425,7 @@ main {
   box-sizing: border-box;
   height: 100%;
   flex: 2 1 50vh;
+  background-color: var(--base-01);
 }
 
 .vertical-layout main {
