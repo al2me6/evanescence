@@ -84,7 +84,11 @@ impl Quality {
 pub trait MonteCarlo: Orbital {
     /// The minimum number of points required to get a reasonable estimate of the maximum value
     /// attained by an orbital.
-    const MINIMUM_ESTIMATION_SAMPLES: usize = 50_000;
+    const MINIMUM_ESTIMATION_SAMPLES: usize = 100_000;
+
+    // TODO: Change based on `params`?
+    /// For a given [`Quality`], sample this many times more points for max value estimation.
+    const ESTIMATION_SAMPLE_FACTOR: usize = 4;
 
     /// An optional factor that can be used to scale the computed max value as an approximation
     /// for the Monte Carlo simulation. This can significantly improve speed depending on the
@@ -137,7 +141,8 @@ pub trait MonteCarlo: Orbital {
         quality: Quality,
         use_fast_approximation: bool,
     ) -> ComponentForm<Self::Output> {
-        let num_estimation_samples = (quality as usize * 2).max(Self::MINIMUM_ESTIMATION_SAMPLES);
+        let num_estimation_samples = (quality as usize * Self::ESTIMATION_SAMPLE_FACTOR)
+            .max(Self::MINIMUM_ESTIMATION_SAMPLES);
 
         let mut point_rng = WyRand::new();
         let mut value_rng = WyRand::new();
