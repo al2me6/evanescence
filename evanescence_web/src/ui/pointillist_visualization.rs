@@ -10,6 +10,7 @@ use crate::plotly::layout::{LayoutRangeUpdate, Scene};
 use crate::plotly::{Config, Layout, Plotly};
 use crate::plotters::pointillist as plot;
 use crate::state::{AppDispatch, Mode, State};
+use crate::utils::b16_colors;
 
 enum TraceRenderer {
     Single(fn(&State) -> JsValue),
@@ -88,6 +89,8 @@ impl PointillistVisualizationImpl {
                 drag_mode_str: Some("orbit"),
                 ui_revision: Some("pointillist".to_owned()),
                 scene: Some(Scene::default()),
+                paper_bgcolor: b16_colors::BASE[0x01],
+                plot_bgcolor: b16_colors::BASE[0x01],
                 ..Default::default()
             }
             .into(),
