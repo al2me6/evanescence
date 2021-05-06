@@ -52,6 +52,13 @@ impl Visualization {
         )
     }
 
+    pub(crate) fn is_radial(self) -> bool {
+        matches!(
+            self,
+            Self::RadialWavefunction | Self::RadialProbabilityDistribution
+        )
+    }
+
     pub(crate) fn is_enabled(self) -> bool {
         !matches!(self, Self::None)
     }

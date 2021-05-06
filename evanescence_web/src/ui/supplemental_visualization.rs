@@ -85,8 +85,8 @@ impl Component for SupplementalVisualizationImpl {
         let new_state = dispatch.state();
 
         let should_render = new_state.is_new_orbital(old_state)
-            || new_state.quality() != old_state.quality()
-            || new_state.supplement() != old_state.supplement();
+            || new_state.supplement() != old_state.supplement()
+            || (new_state.quality() != old_state.quality()) && !old_state.supplement().is_radial();
 
         self.dispatch.neq_assign(dispatch);
 
