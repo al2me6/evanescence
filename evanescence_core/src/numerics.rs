@@ -276,6 +276,7 @@ macro_rules! assert_iterable_relative_eq {
 #[cfg(test)]
 mod tests {
     use super::orthogonal_polynomials::{associated_laguerre, associated_legendre};
+    use super::DoubleFactorial;
 
     macro_rules! test {
         ($fn_name:ident, $target_fn:ident, $target_params:expr, $expected:expr) => {
@@ -397,4 +398,14 @@ mod tests {
             1.00000000000000
         ]
     );
+
+    #[test]
+    fn test_double_factorial() {
+        assert_eq!(
+            vec![1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840],
+            (0_u32..=10)
+                .map(DoubleFactorial::double_factorial)
+                .collect::<Vec<_>>()
+        );
+    }
 }
