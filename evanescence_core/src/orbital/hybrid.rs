@@ -5,7 +5,6 @@ use std::{fmt, iter, ops};
 use approx::relative_eq;
 use getset::{CopyGetters, Getters};
 use itertools::Itertools;
-pub use maplit::hashmap;
 use thiserror::Error;
 
 use super::quantum_numbers::Qn;
@@ -324,6 +323,11 @@ impl fmt::Display for Kind {
     }
 }
 
+#[doc(hidden)]
+pub mod __private {
+    pub use maplit::hashmap;
+}
+
 /// Construct a new [`Kind`].
 ///
 /// # Panics
@@ -341,7 +345,7 @@ macro_rules! kind {
     ) => {
         $crate::orbital::hybrid::Kind::new(
             $n,
-            $crate::orbital::hybrid::hashmap! {
+            $crate::orbital::hybrid::__private::hashmap! {
                 $($l => $count),+
             },
             $symmetry.to_owned(),
@@ -352,6 +356,6 @@ macro_rules! kind {
         )
         .unwrap_or_else(|err| panic!("attempted to create invalid `Kind`: {}", err))
     };
-    (@desc $some:literal) => { Some($some.to_owned()) };
-    (@desc) => { None };
+    (@desc $some:literal) => { std::option::Option::Some($some.to_owned()) };
+    (@desc) => { std::option::Option::None };
 }
