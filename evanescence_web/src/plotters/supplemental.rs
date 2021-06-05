@@ -107,7 +107,7 @@ fn cross_section_layout(plane: Plane, z_axis_title: &str) -> Layout<'_> {
             z_axis: Axis {
                 title: Some(Title {
                     text: &z_axis_title,
-                    standoff: Some(15),
+                    standoff: Some(20),
                     font: Some(Font {
                         size: 14.5,
                         ..default()
