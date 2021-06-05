@@ -69,7 +69,7 @@ impl Component for Window {
             <button
                 type = "button"
                 class = "window-button"
-                title = self.props.open_button_hover,
+                title = self.props.open_button_hover
                 onclick = self.link.callback(|_| WindowMsg::Open)
             >
                 { &self.props.open_button_text }

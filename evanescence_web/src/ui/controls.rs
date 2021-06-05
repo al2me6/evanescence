@@ -14,7 +14,7 @@ use crate::presets::{HybridPreset, QnPreset};
 use crate::state::{AppDispatch, Mode, State, Visualization};
 use crate::MAX_N;
 
-fn td_tooltip(text: &str, tooltip: &str) -> Html {
+fn td_tooltip(text: &'static str, tooltip: &'static str) -> Html {
     html! {
         <td><Tooltip text = text tooltip = tooltip /></td>
     }
@@ -101,7 +101,7 @@ impl ControlsImpl {
             <tr>
                 <td/>
                 <td><CheckBox
-                    id = "radial-nodes-toggle",
+                    id = "radial-nodes-toggle"
                     onchange = dispatch.reduce_callback_with(State::set_nodes_rad)
                     initial_state = state.nodes_rad()
                     label = "Show radial nodes"
@@ -111,7 +111,7 @@ impl ControlsImpl {
             <tr>
                 <td/>
                 <td><CheckBox
-                    id = "angular-nodes-toggle",
+                    id = "angular-nodes-toggle"
                     onchange = dispatch.reduce_callback_with(State::set_nodes_ang)
                     initial_state = state.nodes_ang()
                     label = "Show angular nodes"
@@ -212,7 +212,7 @@ impl ControlsImpl {
             <tr>
                 <td/>
                 <td><CheckBox
-                    id = "hybrid-nodes-toggle",
+                    id = "hybrid-nodes-toggle"
                     onchange = dispatch.reduce_callback_with(State::set_nodes_hybrid)
                     initial_state = state.nodes_hybrid()
                     label = "Show nodes"

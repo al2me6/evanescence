@@ -58,11 +58,11 @@ impl<T: TabBarItem> Component for TabBar<T> {
                 <input
                     type = "radio"
                     name = self.props.id
-                    checked = (mode == selected_mode)
-                    value = idx
-                    label_text_ = mode
+                    checked = mode == selected_mode
+                    value = idx.to_string()
+                    label_text_ = mode.to_string()
                     onchange = self.link.callback(into_value)
-                    aria-label = mode
+                    aria-label = mode.to_string()
                 />
             }
         };

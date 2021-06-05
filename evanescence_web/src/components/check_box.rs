@@ -56,12 +56,12 @@ impl Component for CheckBox {
         html! {
             <label class = "checkbox">
                 <input
-                    ref = self.node_ref.clone(),
-                    type = "checkbox",
-                    id = self.props.id,
-                    onchange = self.link.callback(|_| ()),  // All hail the toilet closure.
+                    ref = self.node_ref.clone()
+                    type = "checkbox"
+                    id = self.props.id
+                    onchange = self.link.callback(|_| ())  // All hail the toilet closure.
                     checked = self.state
-                    aria-label = &self.props.label
+                    aria-label = self.props.label
                 />
                 { label_text }
             </label>

@@ -59,7 +59,7 @@ impl<T: DropdownItem> Component for Dropdown<T> {
                 None => Cow::from(item.to_string()),
             };
             html! {
-                <option selected = (item == selected_item) value = idx>{ display }</option>
+                <option selected = item == selected_item value = idx.to_string()>{ display }</option>
             }
         };
 

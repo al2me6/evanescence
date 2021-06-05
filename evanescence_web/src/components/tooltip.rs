@@ -33,7 +33,7 @@ impl Component for Tooltip {
         html! {
             <span class = "tooltip">
                 <RawSpan inner_html = &self.props.text />
-                <RawSpan class = "description", inner_html = &self.props.tooltip />
+                <RawSpan class = "description" inner_html = &self.props.tooltip />
             </span>
         }
     }
