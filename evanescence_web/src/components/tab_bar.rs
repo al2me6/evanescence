@@ -4,6 +4,8 @@ use std::str::FromStr;
 use yew::prelude::*;
 use yewtil::NeqAssign;
 
+use crate::utils::CowStr;
+
 pub(crate) trait TabBarItem: Copy + PartialEq + Display + 'static {}
 impl<T> TabBarItem for T where T: Copy + PartialEq + Display + 'static {}
 
@@ -14,7 +16,7 @@ pub(crate) struct TabBar<T: TabBarItem> {
 
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct TabBarProps<T: TabBarItem> {
-    pub(crate) id: String,
+    pub(crate) id: CowStr,
     pub(crate) onchange: Callback<T>,
     pub(crate) modes: Vec<T>,
     pub(crate) selected: T,
@@ -57,7 +59,7 @@ impl<T: TabBarItem> Component for TabBar<T> {
             html! {
                 <input
                     type = "radio"
-                    name = self.props.id
+                    name = &self.props.id
                     checked = mode == selected_mode
                     value = idx.to_string()
                     label_text_ = mode.to_string()

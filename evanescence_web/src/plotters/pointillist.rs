@@ -209,7 +209,7 @@ pub(crate) fn nodes_hybrid(state: &State) -> JsValue {
 
     let lc = state.hybrid_kind().archetype();
     nodal_surface(
-        Hybrid::evaluate_in_region(&lc, state.bound(), state.quality().for_isosurface()),
+        Hybrid::evaluate_in_region(lc, state.bound(), state.quality().for_isosurface()),
         color_scales::PURP,
         false,
     )

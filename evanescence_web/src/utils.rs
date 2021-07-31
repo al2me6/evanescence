@@ -1,8 +1,11 @@
+use std::borrow::Cow;
 use std::fmt::LowerExp;
 
 use instant::Instant;
 use itertools::Itertools;
 use log::{Level, Record};
+
+pub(crate) type CowStr = Cow<'static, str>;
 
 pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
     let mut prev_is_word_separator = true;

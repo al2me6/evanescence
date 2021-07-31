@@ -2,6 +2,7 @@ use yew::prelude::*;
 use yewtil::NeqAssign;
 
 use super::raw::RawSpan;
+use crate::utils::CowStr;
 
 pub(crate) struct Tooltip {
     props: TooltipProps,
@@ -9,8 +10,8 @@ pub(crate) struct Tooltip {
 
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct TooltipProps {
-    pub(crate) text: String,
-    pub(crate) tooltip: String,
+    pub(crate) text: CowStr,
+    pub(crate) tooltip: CowStr,
 }
 
 impl Component for Tooltip {

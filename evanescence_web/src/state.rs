@@ -187,7 +187,7 @@ impl StateInner {
                 *self = Hybrid(HybridState {
                     nodes: state.nodes_rad || state.nodes_ang,
                     ..default()
-                })
+                });
             }
             (Real(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
@@ -203,7 +203,7 @@ impl StateInner {
                 *self = Hybrid(HybridState {
                     nodes: state.nodes_rad || state.nodes_ang,
                     ..default()
-                })
+                });
             }
             (Complex(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
@@ -223,14 +223,14 @@ impl StateInner {
                     nodes_rad: state.nodes,
                     nodes_ang: state.nodes,
                     ..default()
-                })
+                });
             }
             (Hybrid(state), Mode::Real) => {
                 *self = Real(RealState {
                     nodes_rad: state.nodes,
                     nodes_ang: state.nodes,
                     ..default()
-                })
+                });
             }
             (Hybrid(_), Mode::Complex) => *self = Complex(ComplexState::default()),
             // Same state, do nothing.

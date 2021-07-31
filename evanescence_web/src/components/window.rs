@@ -2,6 +2,8 @@ use web_sys::HtmlElement;
 use yew::prelude::*;
 use yewtil::NeqAssign;
 
+use crate::utils::CowStr;
+
 pub(crate) struct Window {
     link: ComponentLink<Self>,
     props: WindowProps,
@@ -15,12 +17,12 @@ pub(crate) enum WindowMsg {
 
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct WindowProps {
-    pub(crate) title: String,
+    pub(crate) title: CowStr,
     #[prop_or_default]
-    pub(crate) content_id: String,
+    pub(crate) content_id: CowStr,
     #[prop_or_default]
-    pub(crate) open_button_hover: String,
-    pub(crate) open_button_text: String,
+    pub(crate) open_button_hover: CowStr,
+    pub(crate) open_button_text: CowStr,
     #[prop_or_default]
     pub(crate) children: Children,
 }
@@ -69,7 +71,7 @@ impl Component for Window {
             <button
                 type = "button"
                 class = "window-button"
-                title = self.props.open_button_hover
+                title = &self.props.open_button_hover
                 onclick = self.link.callback(|_| WindowMsg::Open)
             >
                 { &self.props.open_button_text }
@@ -85,7 +87,7 @@ impl Component for Window {
                             title = "Close"
                         />
                     </div>
-                    <div id = self.props.content_id class = "window-content">
+                    <div id = &self.props.content_id class = "window-content">
                         { self.props.children.clone() }
                     </div>
                 </div>

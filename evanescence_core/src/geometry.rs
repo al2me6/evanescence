@@ -6,7 +6,7 @@ use std::iter;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, RangeInclusive, Sub};
 
 use getset::{CopyGetters, Getters};
-use nanorand::WyRand;
+use nanorand::{Rng, WyRand};
 use strum::Display;
 use thiserror::Error;
 
@@ -238,11 +238,11 @@ impl Point {
         iter::repeat_with(move || {
             // For an explanation of taking the cube root of the random value, see
             // https://stackoverflow.com/a/50746409.
-            let r /* [0, radius] */ = rand_f32!(rng).cbrt() * radius;
-            let cos_theta /* [-1, 1] */ = rand_f32!(rng) * 2.0 - 1.0;
+            let r /* [0, radius] */ = rng.generate::<f32>().cbrt() * radius;
+            let cos_theta /* [-1, 1] */ = rng.generate::<f32>() * 2.0 - 1.0;
             // Pythagorean identity: sin^2(x) + cos^2(x) = 1.
             let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
-            let phi /* [0, 2pi) */ = rand_f32!(rng) * 2.0 * PI;
+            let phi /* [0, 2pi) */ = rng.generate::<f32>() * 2.0 * PI;
             Self {
                 x: r * sin_theta * phi.cos(),
                 y: r * sin_theta * phi.sin(),

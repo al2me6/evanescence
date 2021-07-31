@@ -1,6 +1,6 @@
 //! An implementation of a Monte Carlo simulation to produce point cloud visualizations of orbitals.
 
-use nanorand::WyRand;
+use nanorand::{Rng, WyRand};
 use strum::{Display, EnumIter, EnumString};
 
 use crate::geometry::{ComponentForm, Point, PointValue};
@@ -164,7 +164,7 @@ pub trait MonteCarlo: Orbital {
                     .map(|pt| Self::evaluate_at(params, &pt)),
             )
             .filter(|PointValue(_, val)| {
-                Self::probability_density_of(*val) / max_value > rand_f32!(value_rng)
+                Self::probability_density_of(*val) / max_value > value_rng.generate()
             })
             .take(quality as usize)
             .collect::<Vec<_>>() // Faster than coverting to ComponentForm directly.

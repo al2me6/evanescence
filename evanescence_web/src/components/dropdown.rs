@@ -6,6 +6,8 @@ use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 use yewtil::NeqAssign;
 
+use crate::utils::CowStr;
+
 pub(crate) trait DropdownItem: Copy + PartialEq + Display + 'static {}
 impl<T> DropdownItem for T where T: Copy + PartialEq + Display + 'static {}
 
@@ -16,7 +18,7 @@ pub(crate) struct Dropdown<T: DropdownItem> {
 
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct DropdownProps<T: DropdownItem> {
-    pub(crate) id: String,
+    pub(crate) id: CowStr,
     pub(crate) onchange: Callback<T>,
     pub(crate) options: Vec<T>,
     pub(crate) selected: T,
@@ -65,9 +67,9 @@ impl<T: DropdownItem> Component for Dropdown<T> {
 
         html! {
             <select
-                id = self.props.id
+                id = &self.props.id
                 onchange = self.link.callback(|data: ChangeData| into_select_element(data).value())
-                aria-label = self.props.id
+                aria-label = &self.props.id
             >
                 { for (0..self.props.options.len()).map(|idx| option(idx, &self.props.selected)) }
             </select>

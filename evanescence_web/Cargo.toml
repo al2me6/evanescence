@@ -37,7 +37,7 @@ web-sys = { version = "0.3", features = [
     "Node",
     "Window",
 ] }
-yew = "0.17"
+yew = "0.18"
 yewdux = "0.6"
 yewtil = "0.4"
 

@@ -2,11 +2,13 @@ use web_sys::HtmlElement;
 use yew::prelude::*;
 use yewtil::NeqAssign;
 
+use crate::utils::CowStr;
+
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub(crate) struct RawProps {
-    pub(crate) inner_html: String,
+    pub(crate) inner_html: CowStr,
     #[prop_or_default]
-    pub(crate) class: String,
+    pub(crate) class: CowStr,
 }
 
 macro_rules! raw_element_type {

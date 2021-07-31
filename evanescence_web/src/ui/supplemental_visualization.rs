@@ -64,7 +64,7 @@ impl SupplementalVisualizationImpl {
                 ..Default::default()
             }
             .into(),
-        )
+        );
     }
 }
 
