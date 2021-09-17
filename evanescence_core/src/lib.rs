@@ -24,7 +24,7 @@
 //! let results = Real::monte_carlo_simulate(&qn, quality, false);
 //! ```
 
-#![feature(destructuring_assignment)]
+#![feature(array_windows, destructuring_assignment)]
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
     clippy::must_use_candidate, // Annoying.

@@ -17,7 +17,7 @@ use self::wavefunctions::{
     Radial, RadialProbabilityDistribution, RealSphericalHarmonic, SphericalHarmonic,
 };
 use crate::geometry::{ComponentForm, Point, Vec3};
-use crate::numerics::{Evaluate, EvaluateBounded};
+use crate::numerics::{self, Evaluate, EvaluateBounded};
 
 /// Get the conventional subshell name (s, p, d, f, etc.) for common (i.e., small) values of `l`;
 /// will otherwise return `None`.
@@ -162,6 +162,16 @@ pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f3
         num_points,
     ))
     .into_components();
+
+    if variant == RadialPlot::ProbabilityDistribution {
+        log::info!(
+            "[{}][{} pts] Integrated total probability density: {}",
+            qn,
+            num_points,
+            numerics::trapezoidal_integrate(&xs, &vals)
+        );
+    }
+
     (xs, vals)
 }
 
@@ -200,5 +210,25 @@ impl<O: Orbital> EvaluateBounded for ProbabilityDensity<O> {
     #[inline]
     fn bound(params: &Self::Parameters) -> f32 {
         O::bound(params)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Qn, RadialPlot};
+    use crate::numerics;
+
+    #[test]
+    fn test_radial_probability_density_unity() {
+        Qn::enumerate_up_to_n(8)
+            .unwrap()
+            .map(|qn| super::sample_radial(&qn, RadialPlot::ProbabilityDistribution, 1_000))
+            .for_each(|(xs, ys)| {
+                approx::assert_abs_diff_eq!(
+                    1.0,
+                    numerics::trapezoidal_integrate(&xs, &ys),
+                    epsilon = 0.005
+                );
+            });
     }
 }

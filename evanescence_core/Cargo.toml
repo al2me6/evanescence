@@ -11,6 +11,7 @@ edition = "2018"
 approx = "0.5"
 getset = "0.1"
 itertools = "0.10"
+log = "0.4"
 maplit = "1"
 nanorand = { version = "0.6", default-features = false, features = ["wyrand", "std", "getrandom"] }
 num-complex = "0.4"

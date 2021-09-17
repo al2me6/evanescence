@@ -122,6 +122,15 @@ pub mod orthogonal_polynomials {
     }
 }
 
+/// A potato trapezoidal integrator.
+///
+/// `xs` and `ys` must have the same length, and `xs` should be monotonically increasing.
+pub fn trapezoidal_integrate(xs: &[f32], ys: &[f32]) -> f32 {
+    itertools::zip_eq(xs.array_windows::<2>(), ys.array_windows::<2>())
+        .map(|([x1, x2], [y1, y2])| (y1 + y2) * 0.5 * (x2 - x1))
+        .sum()
+}
+
 /// Trait for mathematical functions that can be evaluated at a point in `R^3`.
 ///
 /// Utilities are provided for sampling the function on a line or plane.
