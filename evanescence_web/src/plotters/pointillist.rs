@@ -5,7 +5,8 @@ use std::f32::consts::PI;
 use evanescence_core::geometry::{ComponentForm, Plane};
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate};
-use evanescence_core::orbital::{wavefunctions, Complex, Hybrid};
+use evanescence_core::orbital::hybrid::Hybrid;
+use evanescence_core::orbital::{wavefunctions, Complex};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar, ColorScale};

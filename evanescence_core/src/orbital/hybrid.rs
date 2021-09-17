@@ -7,8 +7,7 @@ use getset::{CopyGetters, Getters};
 use itertools::Itertools;
 use thiserror::Error;
 
-use super::quantum_numbers::Qn;
-use super::{EvaluateBounded, Orbital, Real};
+use super::{EvaluateBounded, Orbital, Qn, Real};
 use crate::geometry::Point;
 use crate::numerics::Evaluate;
 

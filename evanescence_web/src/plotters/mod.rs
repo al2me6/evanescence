@@ -3,8 +3,8 @@ pub(crate) mod supplemental;
 
 use evanescence_core::monte_carlo::Quality;
 use evanescence_core::numerics::{Evaluate, EvaluateBounded};
-use evanescence_core::orbital::hybrid::Kind;
-use evanescence_core::orbital::{Hybrid, Qn, Real};
+use evanescence_core::orbital::hybrid::{Hybrid, Kind};
+use evanescence_core::orbital::{Qn, Real};
 
 use crate::plotly::color::color_scales;
 use crate::plotly::isosurface::{self, Isosurface};

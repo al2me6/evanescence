@@ -470,7 +470,7 @@ impl State {
             Mode::RealSimple | Mode::Real => {
                 orbital::Real::monte_carlo_simulate(self.qn(), self.quality(), true)
             }
-            Mode::Hybrid => orbital::Hybrid::monte_carlo_simulate(
+            Mode::Hybrid => orbital::hybrid::Hybrid::monte_carlo_simulate(
                 self.hybrid_kind().archetype(),
                 self.quality(),
                 true,
@@ -484,7 +484,7 @@ impl State {
             Mode::RealSimple | Mode::Real => {
                 orbital::Real::sample_plane(self.qn(), plane, self.quality().for_grid())
             }
-            Mode::Hybrid => orbital::Hybrid::sample_plane(
+            Mode::Hybrid => orbital::hybrid::Hybrid::sample_plane(
                 self.hybrid_kind().archetype(),
                 plane,
                 self.quality().for_grid(),
@@ -500,15 +500,15 @@ impl State {
                 plane,
                 self.quality().for_grid(),
             ),
-            Mode::Hybrid => ProbabilityDensity::<orbital::Hybrid>::sample_plane(
-                self.hybrid_kind().archetype(),
-                plane,
-                self.quality().for_grid(),
-            ),
             Mode::Complex => ProbabilityDensity::<orbital::Complex>::sample_plane(
                 self.qn(),
                 plane,
-                self.quality.for_grid(),
+                self.quality().for_grid(),
+            ),
+            Mode::Hybrid => ProbabilityDensity::<orbital::hybrid::Hybrid>::sample_plane(
+                self.hybrid_kind().archetype(),
+                plane,
+                self.quality().for_grid(),
             ),
         }
     }

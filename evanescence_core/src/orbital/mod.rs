@@ -12,7 +12,6 @@ use std::marker::PhantomData;
 
 use num_complex::Complex32;
 
-pub use self::hybrid::{Hybrid, LinearCombination};
 pub use self::quantum_numbers::Qn;
 use self::wavefunctions::{
     Radial, RadialProbabilityDistribution, RealSphericalHarmonic, SphericalHarmonic,

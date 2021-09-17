@@ -4,7 +4,8 @@ use nanorand::{Rng, WyRand};
 use strum::{Display, EnumIter, EnumString};
 
 use crate::geometry::{ComponentForm, Point, PointValue};
-use crate::orbital::{Complex, Hybrid, Orbital, Real};
+use crate::orbital::hybrid::Hybrid;
+use crate::orbital::{Complex, Orbital, Real};
 
 /// A set of predefined qualities (i.e., number of points computed) for sampling orbitals, either
 /// for Monte Carlo simulations or plotting.
