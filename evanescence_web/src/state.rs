@@ -304,9 +304,7 @@ impl State {
 
     pub(crate) fn debug_description(&self) -> String {
         match &self.state {
-            RealSimple(_) | Real(_) | Complex(_) => {
-                format!("ψ{}{}{}", self.qn().n(), self.qn().l(), self.qn().m())
-            }
+            RealSimple(_) | Real(_) | Complex(_) => self.qn().to_string(),
             Hybrid(_) => self.hybrid_kind().to_string(),
         }
     }
