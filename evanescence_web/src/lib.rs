@@ -1,5 +1,5 @@
 #![recursion_limit = "1024"]
-#![feature(default_free_fn, drain_filter, iter_intersperse)]
+#![feature(default_free_fn, drain_filter)]
 #![warn(clippy::pedantic)]
 #![allow(
     clippy::cast_precision_loss, // We work with smaller values, so this should not be a concern.
