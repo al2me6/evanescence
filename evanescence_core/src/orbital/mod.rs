@@ -17,7 +17,7 @@ use self::wavefunctions::{
     Radial, RadialProbabilityDistribution, RealSphericalHarmonic, SphericalHarmonic,
 };
 use crate::geometry::{ComponentForm, Point, Vec3};
-use crate::numerics::{self, Evaluate, EvaluateBounded};
+use crate::numerics::{Evaluate, EvaluateBounded};
 
 /// Get the conventional subshell name (s, p, d, f, etc.) for common (i.e., small) values of `l`;
 /// will otherwise return `None`.
@@ -162,15 +162,6 @@ pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f3
         num_points,
     ))
     .into_components();
-
-    if variant == RadialPlot::ProbabilityDistribution {
-        log::info!(
-            "[{}][{} pts] Integrated total probability density: {}",
-            qn,
-            num_points,
-            numerics::trapezoidal_integrate(&xs, &vals)
-        );
-    }
 
     (xs, vals)
 }

@@ -3,7 +3,7 @@ use std::default::default;
 use std::f32::consts::PI;
 
 use evanescence_core::geometry::Plane;
-use evanescence_core::numerics::EvaluateBounded;
+use evanescence_core::numerics::{self, EvaluateBounded};
 use evanescence_core::orbital::{self, Complex, RadialPlot, Real};
 use wasm_bindgen::JsValue;
 
@@ -40,6 +40,15 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     );
 
     let (x, y) = orbital::sample_radial(state.qn(), variant, NUM_POINTS);
+
+    if variant == RadialPlot::ProbabilityDistribution {
+        log::info!(
+            "[{}][{} pts] Integrated total probability density: {}",
+            state.qn(),
+            NUM_POINTS,
+            numerics::trapezoidal_integrate(&x, &y),
+        );
+    }
 
     let trace = Scatter {
         x,
