@@ -1,11 +1,26 @@
 # Version History
 
+## 0.4.12, 2021-09-20
+
+### Features
+
+* The quantum numbers of the orbital are now displayed in Real (Simple) mode.
+
+### Changes
+
+* Radial probability distribution curves are now validated by checking that they sum to unity. This is tested for all orbitals with n <= 8 to be true to within 0.005 and is also displayed in the console. Note that the values come out slightly less than one, since we only sample a finite (albeit the most important) portion of the curve.
+
 ## 0.4.11, 2021-05-04
 
 ### Features
 
 * Internal improvements to the handling of hybrid orbitals.
 * sp<sup>3</sup>d and sp<sup>3</sup>d<sup>2</sup> orbitals are now available.
+
+### Changes
+
+* The number of estimation samples used for determining the maximum probability density attained by an orbital has been increased, improving sample accuracy in certain situations.
+* The border around the main plot has been removed for a more immersive experience.
 
 ## 0.4.10, 2021-05-02
 
