@@ -12,6 +12,7 @@ use super::descriptions::DESC;
 use crate::components::{CheckBox, Dropdown, Tooltip};
 use crate::presets::{HybridPreset, QnPreset};
 use crate::state::{AppDispatch, Mode, State, Visualization};
+use crate::utils;
 use crate::MAX_N;
 
 fn td_tooltip(text: &'static str, tooltip: &'static str) -> Html {
@@ -139,12 +140,12 @@ impl ControlsImpl {
             Mode::RealSimple | Mode::Real => {
                 match RealSphericalHarmonic::expression(&Lm::new(state.qn().l(), m).unwrap()) {
                     Some(expression) if !expression.is_empty() => {
-                        format!("{} [ {} ]", m, expression)
+                        format!("{} [ {} ]", utils::fmt_replace_minus(m), expression)
                     }
-                    _ => m.to_string(),
+                    _ => utils::fmt_replace_minus(m),
                 }
             }
-            Mode::Complex => m.to_string(),
+            Mode::Complex => utils::fmt_replace_minus(m),
             Mode::Hybrid => unreachable!(),
         };
 

@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::fmt::LowerExp;
+use std::fmt;
 
 use instant::Instant;
 use itertools::Itertools;
@@ -22,7 +22,7 @@ pub(crate) fn capitalize_words<T: AsRef<str>>(source: T) -> String {
         .collect()
 }
 
-pub(crate) fn fmt_scientific_notation<T: LowerExp>(source: T, precision: usize) -> String {
+pub(crate) fn fmt_scientific_notation<T: fmt::LowerExp>(source: T, precision: usize) -> String {
     format!("{:.*e}</sup>", precision, source)
         .replace("-", "−") // "hyphen" -> "minus".
         .replace("e", " × 10<sup>")
@@ -57,6 +57,11 @@ pub(crate) fn fmt_thousands_separated(n: usize) -> String {
     Iterator::intersperse(string.chars().collect_vec().rchunks(3).rev(), &[' '])
         .flatten()
         .collect()
+}
+
+/// Replace any ASCII hyphen-minuses with U+2212 MINUS SIGNs.
+pub(crate) fn fmt_replace_minus<T: fmt::Display>(source: T) -> String {
+    source.to_string().replace('-', "−")
 }
 
 pub(crate) fn partial_max<I>(values: I) -> Option<<I as IntoIterator>::Item>

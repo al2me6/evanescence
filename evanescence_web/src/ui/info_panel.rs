@@ -27,6 +27,7 @@ impl Component for InfoPanelImpl {
         self.dispatch.neq_assign(dispatch)
     }
 
+    #[allow(clippy::too_many_lines)] // UIs are lengthy.
     fn view(&self) -> Html {
         fn node_pluralize(n: u32) -> &'static str {
             if n == 1 {
@@ -50,6 +51,18 @@ impl Component for InfoPanelImpl {
                         <RawSpan
                             inner_html = utils::fmt_orbital_name_html(Real::name(state.qn()))
                         />
+                        // Show quantum numbers here in Real (Simple) mode, since it's not shown
+                        // in the picker.
+                        { if state.mode() == Mode::RealSimple { html! {
+                            <RawSpan
+                                inner_html = format!(
+                                    " (<i>n</i> = {}, <i>ℓ</i> = {}, <i>m</i> = {})",
+                                    state.qn().n(),
+                                    state.qn().l(),
+                                    utils::fmt_replace_minus(state.qn().m()),
+                                )
+                            />
+                        }} else { html! {} }}
                         { ", which is " }
                         { if "sfhi".contains(subshell_name) { "an " } else { "a " } } // English is hard.
                         <i>{ subshell_name }</i>

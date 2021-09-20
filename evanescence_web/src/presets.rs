@@ -74,7 +74,7 @@ impl fmt::Display for QnPreset {
             "{principal}{shell} {subscript}",
             principal = qn.n(),
             shell = orbital::subshell_name(qn.l()).expect("failed to get subshell name"),
-            subscript = subscript
+            subscript = subscript,
         )
     }
 }
