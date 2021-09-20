@@ -41,15 +41,16 @@ impl Component for InfoPanelImpl {
 
         let description = match state.mode() {
             Mode::RealSimple | Mode::Real => {
-                let num_radial_nodes = Real::num_radial_nodes(state.qn());
-                let num_angular_nodes = Real::num_angular_nodes(state.qn());
+                let qn = state.qn();
+                let num_radial_nodes = Real::num_radial_nodes(qn);
+                let num_angular_nodes = Real::num_angular_nodes(qn);
                 let subshell_name =
-                    orbital::subshell_name(state.qn().l()).expect("failed to get subshell name");
+                    orbital::subshell_name(qn.l()).expect("failed to get subshell name");
                 html! {
                     <p>
                         { "Viewing orbital " }
                         <RawSpan
-                            inner_html = utils::fmt_orbital_name_html(Real::name(state.qn()))
+                            inner_html = utils::fmt_orbital_name_html(Real::name(qn))
                         />
                         // Show quantum numbers here in Real (Simple) mode, since it's not shown
                         // in the picker.
@@ -57,9 +58,9 @@ impl Component for InfoPanelImpl {
                             <RawSpan
                                 inner_html = format!(
                                     " (<i>n</i> = {}, <i>ℓ</i> = {}, <i>m</i> = {})",
-                                    state.qn().n(),
-                                    state.qn().l(),
-                                    utils::fmt_replace_minus(state.qn().m()),
+                                    qn.n(),
+                                    qn.l(),
+                                    utils::fmt_replace_minus(qn.m()),
                                 )
                             />
                         }} else { html! {} }}
