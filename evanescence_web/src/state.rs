@@ -304,7 +304,7 @@ impl State {
 
     pub(crate) fn debug_description(&self) -> String {
         match &self.state {
-            RealSimple(_) | Real(_) | Complex(_) => self.qn().to_string(),
+            RealSimple(_) | Real(_) | Complex(_) => self.qn().to_string_as_wavefunction(),
             Hybrid(_) => self.hybrid_kind().to_string(),
         }
     }

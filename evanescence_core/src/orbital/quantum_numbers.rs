@@ -151,6 +151,12 @@ impl Qn {
         self.m = m;
         Ok(())
     }
+
+    /// Alternative display method that treats `self` as a wavefuntion, in the format `ψnlm`.
+    pub fn to_string_as_wavefunction(&self) -> String
+    {
+        format!("ψ{}{}{}", self.n, self.l, self.m)
+    }
 }
 
 impl Default for Qn {
@@ -162,7 +168,7 @@ impl Default for Qn {
 
 impl std::fmt::Display for Qn {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ψ{}{}{}", self.n, self.l, self.m)
+        write!(f, "{}, {}, {}", self.n, self.l, self.m)
     }
 }
 

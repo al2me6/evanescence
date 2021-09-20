@@ -60,7 +60,7 @@ impl TryFrom<Qn> for QnPreset {
                 return Ok(Self(idx));
             }
         }
-        Err(format!("{} is not a valid preset", qn))
+        Err(format!("({}) is not a valid preset", qn))
     }
 }
 
