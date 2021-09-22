@@ -44,7 +44,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
     if variant == RadialPlot::ProbabilityDistribution {
         log::info!(
             "[{}][{} pts] Integrated total probability density: {}",
-            state.qn(),
+            state.qn().to_string_as_wavefunction(),
             NUM_POINTS,
             numerics::trapezoidal_integrate(&x, &y),
         );
