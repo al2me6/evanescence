@@ -62,12 +62,26 @@ impl Evaluate for Real {
 }
 
 impl EvaluateBounded for Real {
-    /// This is an empirically derived heuristic. See the attached Mathematica notebook
-    /// `radial_wavefunction.nb` for plots.
+    /// Return the radius of the sphere that contains 99.8% of all probability density.
     #[inline]
     fn bound(qn: &Qn) -> f32 {
-        let n = qn.n() as f32;
-        0.9 * n * (2.5 * n - 0.625 * qn.l() as f32 + 3.0)
+        const INCREMENT: f32 = 0.005;
+        const THRESHOLD: f32 = 0.998;
+        const EVALUATOR: fn(&Nl, f32) -> f32 = RadialProbabilityDistribution::evaluate_r;
+
+        let nl = Nl::from(qn);
+        let mut r = INCREMENT;
+        let (mut prev_val, mut val) = (EVALUATOR(&nl, 0_f32), EVALUATOR(&nl, r));
+        let mut sum = 0_f32;
+
+        while sum < THRESHOLD {
+            // Trapezoidal integrator.
+            sum += (prev_val + val) * INCREMENT * 0.5;
+            prev_val = val;
+            r += INCREMENT;
+            val = EVALUATOR(&nl, r);
+        }
+        r
     }
 }
 
