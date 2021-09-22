@@ -172,12 +172,6 @@ impl std::fmt::Display for Qn {
     }
 }
 
-impl From<&Qn> for Qn {
-    fn from(qn: &Qn) -> Self {
-        *qn
-    }
-}
-
 /// Type representing the quantum numbers `n` and `l`.
 ///
 /// # Invariants
