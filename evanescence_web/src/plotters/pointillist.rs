@@ -2,14 +2,14 @@ use std::convert::TryInto;
 use std::default::default;
 use std::f32::consts::PI;
 
-use evanescence_core::geometry::{ComponentForm, Plane};
+use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::{wavefunctions, Complex};
 use wasm_bindgen::JsValue;
 
-use crate::plotly::color::{self, color_scales, ColorBar, ColorScale};
+use crate::plotly::color::{self, color_scales, ColorBar};
 use crate::plotly::layout::{Anchor, Title};
 use crate::plotly::scatter_3d::Marker;
 use crate::plotly::surface::Contours;
@@ -17,38 +17,10 @@ use crate::plotly::{Isosurface, Scatter3D, Surface};
 use crate::state::State;
 use crate::utils;
 
-fn nodal_surface(
-    simulation: ComponentForm<f32>,
-    color_scale: ColorScale,
-    correct_instability: bool,
-) -> JsValue {
-    let (x, y, z, mut value) = simulation.into_components();
-    if correct_instability {
-        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
-        // numerical instability/artifacting by amplifying any deviations from zero. However,
-        // this also results in crinkly-looking surfaces.
-        value
-            .iter_mut()
-            .for_each(|v| *v = v.signum() * v.abs().sqrt());
-    }
-    Isosurface {
-        x,
-        y,
-        z,
-        value,
-        color_scale,
-        opacity: 0.125,
-        ..default()
-    }
-    .into()
-}
-
 pub(crate) fn real(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
 
-    let simulation = state.monte_carlo_simulate_real();
-    let (x, y, z, values) = simulation.into_components();
-
+    let (x, y, z, values) = state.monte_carlo_simulate_real().into_components();
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
     let max_abs = *utils::partial_max(&values_abs).unwrap();
 
@@ -131,33 +103,57 @@ pub(crate) fn complex(state: &State) -> JsValue {
 pub(crate) fn nodes_radial(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple());
 
-    nodal_surface(
-        wavefunctions::Radial::evaluate_in_region(
-            &state.qn().into(),
-            // Shrink the extent plotted since radial nodes are found in the central part of the
-            // full extent only. This is a heuristic that has been verified to cover all radial
-            // nodes from `n` = 2 through 8.
-            state.bound() as f32 * (state.qn().n() as f32 * 0.06 + 0.125),
-            state.quality().for_isosurface(),
-        ),
-        color_scales::GREENS,
-        false,
+    let (x, y, z, value) = wavefunctions::Radial::evaluate_in_region(
+        &state.qn().into(),
+        // Shrink the extent plotted since radial nodes are found in the central part of the
+        // full extent only. This is a heuristic that has been verified to cover all radial
+        // nodes from `n` = 2 through 8.
+        state.bound() * (state.qn().n() as f32 * 0.06 + 0.125),
+        state.quality().for_isosurface(),
     )
+    .into_components();
+
+    Isosurface {
+        x,
+        y,
+        z,
+        value,
+        color_scale: color_scales::GREENS,
+        opacity: 0.125,
+        ..default()
+    }
+    .into()
 }
 
 pub(crate) fn nodes_angular(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple());
 
     let qn = state.qn();
-    nodal_surface(
-        wavefunctions::RealSphericalHarmonic::evaluate_in_region(
-            &qn.into(),
-            state.bound(),
-            state.quality().for_isosurface(),
-        ),
-        color_scales::PURP,
-        qn.l() >= 4 && qn.m().abs() >= 4,
+    let (x, y, z, mut value) = wavefunctions::RealSphericalHarmonic::evaluate_in_region(
+        &qn.into(),
+        state.bound(),
+        state.quality().for_isosurface(),
     )
+    .into_components();
+    if qn.l() >= 4 && qn.m().abs() >= 4 {
+        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
+        // numerical instability/artifacting by amplifying any deviations from zero. However,
+        // this also results in crinkly-looking surfaces.
+        value
+            .iter_mut()
+            .for_each(|v| *v = v.signum() * v.abs().sqrt());
+    }
+
+    Isosurface {
+        x,
+        y,
+        z,
+        value,
+        color_scale: color_scales::PURP,
+        opacity: 0.15,
+        ..default()
+    }
+    .into()
 }
 
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
@@ -208,10 +204,21 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
 pub(crate) fn nodes_hybrid(state: &State) -> JsValue {
     assert!(state.mode().is_hybrid());
 
-    let lc = state.hybrid_kind().archetype();
-    nodal_surface(
-        Hybrid::evaluate_in_region(lc, state.bound(), state.quality().for_isosurface()),
-        color_scales::PURP,
-        false,
+    let (x, y, z, value) = Hybrid::evaluate_in_region(
+        state.hybrid_kind().archetype(),
+        state.bound(),
+        state.quality().for_isosurface(),
     )
+    .into_components();
+
+    Isosurface {
+        x,
+        y,
+        z,
+        value,
+        color_scale: color_scales::PURP,
+        opacity: 0.125,
+        ..default()
+    }
+    .into()
 }
