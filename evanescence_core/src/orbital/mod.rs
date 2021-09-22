@@ -12,11 +12,12 @@ use std::marker::PhantomData;
 
 use num_complex::Complex32;
 
+use self::quantum_numbers::Nl;
 pub use self::quantum_numbers::Qn;
 use self::wavefunctions::{
     Radial, RadialProbabilityDistribution, RealSphericalHarmonic, SphericalHarmonic,
 };
-use crate::geometry::{ComponentForm, Point, Vec3};
+use crate::geometry::{self, Point};
 use crate::numerics::{Evaluate, EvaluateBounded};
 
 /// Get the conventional subshell name (s, p, d, f, etc.) for common (i.e., small) values of `l`;
@@ -150,20 +151,14 @@ pub enum RadialPlot {
 /// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
 /// and the second containing the values associated with the radial points.
 pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
+    let nl = Nl::from(qn);
     let evaluator = match variant {
-        RadialPlot::Wavefunction => Radial::evaluate_on_line_segment,
-        RadialPlot::ProbabilityDistribution => {
-            RadialProbabilityDistribution::evaluate_on_line_segment
-        }
+        RadialPlot::Wavefunction => Radial::evaluate_r,
+        RadialPlot::ProbabilityDistribution => RadialProbabilityDistribution::evaluate_r,
     };
-    let (xs, _, _, vals) = ComponentForm::from(evaluator(
-        &qn.into(),
-        Vec3::ZERO..=(Vec3::I * Real::bound(qn)), // We use the x-axis for simplicity; this function is radially symmetric.
-        num_points,
-    ))
-    .into_components();
-
-    (xs, vals)
+    let rs = geometry::linspace(0_f32..=Real::bound(qn), num_points).collect::<Vec<_>>();
+    let vals = rs.iter().map(|&r| evaluator(&nl, r)).collect();
+    (rs, vals)
 }
 
 /// Type that evaluates the probability density of an [`Orbital`].

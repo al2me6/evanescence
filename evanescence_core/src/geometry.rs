@@ -10,6 +10,20 @@ use nanorand::{Rng, WyRand};
 use strum::Display;
 use thiserror::Error;
 
+/// Produce `num_points` points evenly spaced across `range`.
+pub fn linspace(
+    range: RangeInclusive<f32>,
+    num_points: usize,
+) -> impl ExactSizeIterator<Item = f32> {
+    let step = (*range.end() - *range.start()) / (num_points as f32 - 1.0);
+    let mut acc = *range.start();
+    (0..num_points).map(move |_| {
+        let next = acc;
+        acc += step;
+        next
+    })
+}
+
 /// A vector (the mathematical kind) in `R^3`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq, CopyGetters)]

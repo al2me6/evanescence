@@ -25,16 +25,11 @@ impl Radial {
         // Where we've taken `(2/n)^3 / 2n` out ouf the square root.
         2.0 / ((n * n) as f32 * factorial_factor.sqrt())
     }
-}
 
-impl Evaluate for Radial {
-    type Output = f32;
-    type Parameters = Nl;
-
-    #[inline]
-    fn evaluate(nl: &Nl, point: &Point) -> Self::Output {
+    /// Give the value of the radial wavefunction at `r` for a given `Nl`.
+    pub fn evaluate_r(nl: &Nl, r: f32) -> f32 {
         let (n, l) = (nl.n(), nl.l());
-        let rho = 2.0 * point.r() / (n as f32);
+        let rho = 2.0 * r / (n as f32);
         Self::normalization_factor(n, l)
             * (-rho / 2.0).exp()
             * rho.powi(l as i32)
@@ -42,19 +37,35 @@ impl Evaluate for Radial {
     }
 }
 
+impl Evaluate for Radial {
+    type Output = f32;
+    type Parameters = Nl;
+
+    #[inline]
+    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output {
+        Self::evaluate_r(params, point.r())
+    }
+}
+
 /// The radial probability distribution, `r^2R^2`.
 pub struct RadialProbabilityDistribution;
+
+impl RadialProbabilityDistribution {
+    /// Give the value of the radial probability distribution at `r` for a given `Nl`.
+    pub fn evaluate_r(nl: &Nl, r: f32) -> f32 {
+        #[allow(non_snake_case)] // Mathematical convention.
+        let R = Radial::evaluate_r(nl, r);
+        r * r * R * R
+    }
+}
 
 impl Evaluate for RadialProbabilityDistribution {
     type Output = f32;
     type Parameters = Nl;
 
     #[inline]
-    fn evaluate(params: &Self::Parameters, pt: &Point) -> Self::Output {
-        let r = pt.r();
-        #[allow(non_snake_case)] // Mathematical convention.
-        let R = Radial::evaluate(params, pt);
-        r * r * R * R
+    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output {
+        Self::evaluate_r(params, point.r())
     }
 }
 
