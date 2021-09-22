@@ -2,8 +2,8 @@ use std::convert::TryFrom;
 use std::f32::consts::{FRAC_1_SQRT_2, SQRT_2};
 use std::fmt;
 
+use evanescence_core::orbital::atomic::RealSphericalHarmonic;
 use evanescence_core::orbital::hybrid::Kind;
-use evanescence_core::orbital::wavefunctions::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
 use evanescence_core::{kind, lc};
 use once_cell::sync::Lazy;
@@ -73,7 +73,7 @@ impl fmt::Display for QnPreset {
             f,
             "{principal}{shell} {subscript}",
             principal = qn.n(),
-            shell = orbital::subshell_name(qn.l()).expect("failed to get subshell name"),
+            shell = orbital::atomic::subshell_name(qn.l()).expect("failed to get subshell name"),
             subscript = subscript,
         )
     }

@@ -153,8 +153,7 @@ impl Qn {
     }
 
     /// Alternative display method that treats `self` as a wavefuntion, in the format `ψnlm`.
-    pub fn to_string_as_wavefunction(&self) -> String
-    {
+    pub fn to_string_as_wavefunction(&self) -> String {
         format!("ψ{}{}{}", self.n, self.l, self.m)
     }
 }

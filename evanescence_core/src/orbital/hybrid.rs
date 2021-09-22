@@ -287,7 +287,7 @@ impl Kind {
     pub fn mixture_name(&self) -> String {
         let mut kind = String::with_capacity(10);
         for (&l, &count) in self.mixture.iter().sorted_by_key(|(&l, _)| l) {
-            kind.push_str(super::subshell_name(l).unwrap_or("<?>"));
+            kind.push_str(super::atomic::subshell_name(l).unwrap_or("<?>"));
             if count != 1 {
                 count
                     .to_string()

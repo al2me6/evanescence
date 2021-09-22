@@ -1,6 +1,6 @@
 use evanescence_core::monte_carlo::Quality;
+use evanescence_core::orbital::atomic::RealSphericalHarmonic;
 use evanescence_core::orbital::quantum_numbers::Lm;
-use evanescence_core::orbital::wavefunctions::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
 use itertools::Itertools;
 use strum::IntoEnumIterator;
@@ -12,8 +12,7 @@ use super::descriptions::DESC;
 use crate::components::{CheckBox, Dropdown, Tooltip};
 use crate::presets::{HybridPreset, QnPreset};
 use crate::state::{AppDispatch, Mode, State, Visualization};
-use crate::utils;
-use crate::MAX_N;
+use crate::{utils, MAX_N};
 
 fn td_tooltip(text: &'static str, tooltip: &'static str) -> Html {
     html! {
@@ -131,7 +130,7 @@ impl ControlsImpl {
         let l_options = Qn::enumerate_l_for_n(state.qn().n()).unwrap().collect_vec();
         let m_options = Qn::enumerate_m_for_l(state.qn().l()).collect_vec();
 
-        let format_l = |l: u32| match orbital::subshell_name(l) {
+        let format_l = |l: u32| match orbital::atomic::subshell_name(l) {
             Some(subshell) => format!("{} [{}]", l, subshell),
             None => l.to_string(),
         };

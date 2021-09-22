@@ -1,16 +1,17 @@
-//! This module contains implementations of the radial and angular components of the hydrogenic
-//! wavefunction. Also included are probability and probability distribution functions for the
-//! radial wavefunction.
+//! This module implements real and complex atomic orbitals, including their radial and
+//! angular components. Also included are probability and probability distribution functions
+//! for the radial wavefunction.
 
 use std::cmp::Ordering;
 use std::f32::consts::{PI, SQRT_2};
 
 use num_complex::Complex32;
 
-use crate::geometry::Point;
+use crate::geometry::{self, Point};
 use crate::numerics::orthogonal_polynomials::{associated_laguerre, associated_legendre};
-use crate::numerics::Evaluate;
-use crate::orbital::quantum_numbers::{Lm, Nl};
+use crate::numerics::{Evaluate, EvaluateBounded};
+use crate::orbital::quantum_numbers::{Lm, Nl, Qn};
+use crate::orbital::Orbital;
 
 /// Implementation of the radial component of the hydrogenic wavefunction.
 pub struct Radial;
@@ -27,6 +28,7 @@ impl Radial {
     }
 
     /// Give the value of the radial wavefunction at `r` for a given `Nl`.
+    #[inline]
     pub fn evaluate_r(nl: &Nl, r: f32) -> f32 {
         let (n, l) = (nl.n(), nl.l());
         let rho = 2.0 * r / (n as f32);
@@ -52,6 +54,7 @@ pub struct RadialProbabilityDistribution;
 
 impl RadialProbabilityDistribution {
     /// Give the value of the radial probability distribution at `r` for a given `Nl`.
+    #[inline]
     pub fn evaluate_r(nl: &Nl, r: f32) -> f32 {
         #[allow(non_snake_case)] // Mathematical convention.
         let R = Radial::evaluate_r(nl, r);
@@ -67,6 +70,31 @@ impl Evaluate for RadialProbabilityDistribution {
     fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output {
         Self::evaluate_r(params, point.r())
     }
+}
+
+/// A radially symmetrical property associated with an orbital.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum RadialPlot {
+    Wavefunction,
+    ProbabilityDistribution,
+}
+
+/// Compute a plot of a property of an orbital's radial wavefunction (see [`RadialPlot`]).
+///
+/// The property will be evaluated at `num_points` points evenly spaced between the origin
+/// and the maximum extent of the orbital, which is automatically estimated.
+///
+/// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
+/// and the second containing the values associated with the radial points.
+pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
+    let nl = Nl::from(qn);
+    let evaluator = match variant {
+        RadialPlot::Wavefunction => Radial::evaluate_r,
+        RadialPlot::ProbabilityDistribution => RadialProbabilityDistribution::evaluate_r,
+    };
+    let rs = geometry::linspace(0_f32..=Real::bound(qn), num_points).collect::<Vec<_>>();
+    let vals = rs.iter().map(|&r| evaluator(&nl, r)).collect();
+    (rs, vals)
 }
 
 /// Implementation of the spherical harmonics, `Y_l^m(θ,φ)`, including the Condon-Shortley phase.
@@ -181,15 +209,133 @@ impl RealSphericalHarmonic {
     }
 }
 
+/// Get the conventional subshell name (s, p, d, f, etc.) for common (i.e., small) values of `l`;
+/// will otherwise return `None`.
+pub fn subshell_name(l: u32) -> Option<&'static str> {
+    match l {
+        0 => Some("s"),
+        1 => Some("p"),
+        2 => Some("d"),
+        3 => Some("f"),
+        4 => Some("g"),
+        5 => Some("h"),
+        6 => Some("i"),
+        7 => Some("k"), // Note that "j" is skipped!
+        _ => None,
+    }
+}
+
+/// Implementation of the real hydrogenic orbitals.
+pub struct Real;
+
+impl Evaluate for Real {
+    type Output = f32;
+    type Parameters = Qn;
+
+    #[inline]
+    fn evaluate(qn: &Qn, point: &Point) -> f32 {
+        Radial::evaluate(&qn.into(), point) * RealSphericalHarmonic::evaluate(&qn.into(), point)
+    }
+}
+
+impl EvaluateBounded for Real {
+    /// Return the radius of the sphere that contains 99.8% of all probability density.
+    #[inline]
+    fn bound(qn: &Qn) -> f32 {
+        const INCREMENT: f32 = 0.005;
+        const THRESHOLD: f32 = 0.998;
+        const EVALUATOR: fn(&Nl, f32) -> f32 = RadialProbabilityDistribution::evaluate_r;
+
+        let nl = Nl::from(qn);
+        let mut r = INCREMENT;
+        let (mut prev_val, mut val) = (EVALUATOR(&nl, 0_f32), EVALUATOR(&nl, r));
+        let mut sum = 0_f32;
+
+        while sum < THRESHOLD {
+            // Trapezoidal integrator.
+            sum += (prev_val + val) * INCREMENT * 0.5;
+            prev_val = val;
+            r += INCREMENT;
+            val = EVALUATOR(&nl, r);
+        }
+        r
+    }
+}
+
+impl Orbital for Real {
+    #[inline]
+    fn probability_density_of(value: f32) -> f32 {
+        value * value
+    }
+
+    /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
+    /// the quantum numbers only (ex. `ψ_{420}`).
+    fn name(qn: &Qn) -> String {
+        if let (Some(subshell), Some(linear_combination)) = (
+            subshell_name(qn.l()),
+            RealSphericalHarmonic::expression(&qn.into()),
+        ) {
+            format!("{}{}<sub>{}</sub>", qn.n(), subshell, linear_combination)
+        } else {
+            Complex::name(qn)
+        }
+    }
+}
+
+impl Real {
+    /// Give the number of radial nodes in an orbital.
+    pub fn num_radial_nodes(qn: &Qn) -> u32 {
+        qn.n() - qn.l() - 1
+    }
+
+    /// Give the number of angular nodes in an orbital.
+    pub fn num_angular_nodes(qn: &Qn) -> u32 {
+        qn.l()
+    }
+}
+
+/// Implementation of the complex hydrogenic orbitals.
+pub struct Complex;
+
+impl Evaluate for Complex {
+    type Output = Complex32;
+    type Parameters = Qn;
+
+    #[inline]
+    fn evaluate(qn: &Qn, point: &Point) -> Complex32 {
+        Radial::evaluate(&qn.into(), point) * SphericalHarmonic::evaluate(&qn.into(), point)
+    }
+}
+
+impl EvaluateBounded for Complex {
+    #[inline]
+    fn bound(params: &Self::Parameters) -> f32 {
+        Real::bound(params)
+    }
+}
+
+impl Orbital for Complex {
+    #[inline]
+    fn probability_density_of(value: Self::Output) -> f32 {
+        let norm = value.norm();
+        norm * norm
+    }
+
+    /// Give the name of the wavefunction (ex. `ψ_{420}`).
+    fn name(qn: &Qn) -> String {
+        format!("ψ<sub>{}{}{}</sub>", qn.n(), qn.l(), qn.m())
+    }
+}
+
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
     use once_cell::sync::Lazy;
 
-    use super::{Radial, RealSphericalHarmonic};
+    use super::{Radial, RadialPlot, RealSphericalHarmonic};
     use crate::geometry::Point;
-    use crate::numerics::Evaluate;
-    use crate::orbital::quantum_numbers::{Lm, Nl};
+    use crate::numerics::{self, Evaluate};
+    use crate::orbital::quantum_numbers::{Lm, Nl, Qn};
 
     static TEST_POINTS: Lazy<Vec<Point>> = Lazy::new(|| {
         vec![
@@ -324,4 +470,18 @@ mod tests {
             0.570845, 0.0332508
         ]
     );
+
+    #[test]
+    fn test_radial_probability_density_unity() {
+        Qn::enumerate_up_to_n(8)
+            .unwrap()
+            .map(|qn| super::sample_radial(&qn, RadialPlot::ProbabilityDistribution, 1_000))
+            .for_each(|(xs, ys)| {
+                approx::assert_abs_diff_eq!(
+                    1.0,
+                    numerics::trapezoidal_integrate(&xs, &ys),
+                    epsilon = 0.005
+                );
+            });
+    }
 }

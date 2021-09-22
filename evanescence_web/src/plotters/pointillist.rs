@@ -6,7 +6,7 @@ use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::Hybrid;
-use evanescence_core::orbital::{wavefunctions, Complex};
+use evanescence_core::orbital::{atomic, Complex};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -103,7 +103,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
 pub(crate) fn nodes_radial(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple());
 
-    let (x, y, z, value) = wavefunctions::Radial::evaluate_in_region(
+    let (x, y, z, value) = atomic::Radial::evaluate_in_region(
         &state.qn().into(),
         // Shrink the extent plotted since radial nodes are found in the central part of the
         // full extent only. This is a heuristic that has been verified to cover all radial
@@ -129,7 +129,7 @@ pub(crate) fn nodes_angular(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple());
 
     let qn = state.qn();
-    let (x, y, z, mut value) = wavefunctions::RealSphericalHarmonic::evaluate_in_region(
+    let (x, y, z, mut value) = atomic::RealSphericalHarmonic::evaluate_in_region(
         &qn.into(),
         state.bound(),
         state.quality().for_isosurface(),

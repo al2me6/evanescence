@@ -45,7 +45,7 @@ impl Component for InfoPanelImpl {
                 let num_radial_nodes = Real::num_radial_nodes(qn);
                 let num_angular_nodes = Real::num_angular_nodes(qn);
                 let subshell_name =
-                    orbital::subshell_name(qn.l()).expect("failed to get subshell name");
+                    orbital::atomic::subshell_name(qn.l()).expect("failed to get subshell name");
                 html! {
                     <p>
                         { "Viewing orbital " }

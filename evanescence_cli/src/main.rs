@@ -7,7 +7,8 @@ use argh::FromArgs;
 use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::EvaluateBounded;
-use evanescence_core::orbital::{self, Complex, Qn, RadialPlot, Real};
+use evanescence_core::orbital::atomic::RadialPlot;
+use evanescence_core::orbital::{self, Complex, Qn, Real};
 use once_cell::sync::OnceCell;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
@@ -229,7 +230,7 @@ fn main() -> Result<()> {
                     const NUM_POINTS: usize = 1_000;
                     (
                         NUM_POINTS,
-                        orbital::sample_radial(&qn, mode.try_into().unwrap(), NUM_POINTS),
+                        orbital::atomic::sample_radial(&qn, mode.try_into().unwrap(), NUM_POINTS),
                     )
                 },
                 |(xs, ys)| {

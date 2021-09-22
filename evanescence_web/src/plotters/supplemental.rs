@@ -4,7 +4,8 @@ use std::f32::consts::PI;
 
 use evanescence_core::geometry::Plane;
 use evanescence_core::numerics::{self, EvaluateBounded};
-use evanescence_core::orbital::{self, Complex, RadialPlot, Real};
+use evanescence_core::orbital::atomic::RadialPlot;
+use evanescence_core::orbital::{self, Complex, Real};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -39,7 +40,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
         function_expr
     );
 
-    let (x, y) = orbital::sample_radial(state.qn(), variant, NUM_POINTS);
+    let (x, y) = orbital::atomic::sample_radial(state.qn(), variant, NUM_POINTS);
 
     if variant == RadialPlot::ProbabilityDistribution {
         log::info!(
