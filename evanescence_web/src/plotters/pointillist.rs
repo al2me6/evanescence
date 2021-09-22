@@ -4,7 +4,7 @@ use std::f32::consts::PI;
 
 use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::MonteCarlo;
-use evanescence_core::numerics::{self, Evaluate};
+use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::{wavefunctions, Complex};
 use wasm_bindgen::JsValue;
@@ -204,9 +204,8 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
 pub(crate) fn nodes_hybrid(state: &State) -> JsValue {
     assert!(state.mode().is_hybrid());
 
-    let (x, y, z, value) = Hybrid::evaluate_in_region(
+    let (x, y, z, value) = Hybrid::sample_region(
         state.hybrid_kind().archetype(),
-        state.bound(),
         state.quality().for_isosurface(),
     )
     .into_components();
