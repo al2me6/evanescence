@@ -7,7 +7,7 @@ use std::f32::consts::{PI, SQRT_2};
 
 use num_complex::Complex32;
 
-use crate::geometry::{self, Point};
+use crate::geometry::{Linspace, Point};
 use crate::numerics::orthogonal_polynomials::{associated_laguerre, associated_legendre};
 use crate::numerics::{Evaluate, EvaluateBounded};
 use crate::orbital::quantum_numbers::{Lm, Nl, Qn};
@@ -92,7 +92,9 @@ pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f3
         RadialPlot::Wavefunction => Radial::evaluate_r,
         RadialPlot::ProbabilityDistribution => RadialProbabilityDistribution::evaluate_r,
     };
-    let rs = geometry::linspace(0_f32..=Real::bound(qn), num_points).collect::<Vec<_>>();
+    let rs = (0_f32..=Real::bound(qn))
+        .linspace(num_points)
+        .collect::<Vec<_>>();
     let vals = rs.iter().map(|&r| evaluator(&nl, r)).collect();
     (rs, vals)
 }

@@ -10,18 +10,28 @@ use nanorand::{Rng, WyRand};
 use strum::Display;
 use thiserror::Error;
 
-/// Produce `num_points` points evenly spaced across `range`.
-pub fn linspace(
-    range: RangeInclusive<f32>,
-    num_points: usize,
-) -> impl ExactSizeIterator<Item = f32> {
-    let step = (*range.end() - *range.start()) / (num_points as f32 - 1.0);
-    let mut acc = *range.start();
-    (0..num_points).map(move |_| {
-        let next = acc;
-        acc += step;
-        next
-    })
+pub trait Linspace<T> {
+    type Output: ExactSizeIterator<Item = T>;
+
+    /// Produce `num_points` values evenly spaced across `self`.
+    fn linspace(&self, num_points: usize) -> Self::Output;
+}
+
+impl<T> Linspace<T> for RangeInclusive<T>
+where
+    T: AddAssign<T> + Sub<T, Output = T> + Div<f32, Output = T> + Copy,
+{
+    type Output = impl ExactSizeIterator<Item = T>;
+
+    fn linspace(&self, num_points: usize) -> Self::Output {
+        let step = (*self.end() - *self.start()) / (num_points as f32 - 1.0);
+        let mut acc = *self.start();
+        (0..num_points).map(move |_| {
+            let next = acc;
+            acc += step;
+            next
+        })
+    }
 }
 
 /// A vector (the mathematical kind) in `R^3`.
@@ -55,26 +65,12 @@ impl Vec3 {
         Self { x, y, z }
     }
 
-    /// Produce `num_points` vectors evenly spaced across `range`.
-    pub fn linspace(
-        range: RangeInclusive<Self>,
-        num_points: usize,
-    ) -> impl ExactSizeIterator<Item = Self> {
-        let step = (*range.end() - *range.start()) / (num_points as f32 - 1.0);
-        let mut acc = *range.start();
-        (0..num_points).map(move |_| {
-            let next = acc;
-            acc += step;
-            next
-        })
-    }
-
     /// Produce `num_points` vectors evenly spaced across the interval `-extent` to `extent`.
     pub fn symmetric_linspace(
         extent: Self,
         num_points: usize,
     ) -> impl ExactSizeIterator<Item = Self> {
-        Self::linspace(-extent..=extent, num_points)
+        (-extent..=extent).linspace(num_points)
     }
 }
 

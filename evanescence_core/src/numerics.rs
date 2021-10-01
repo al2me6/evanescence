@@ -2,7 +2,7 @@
 
 use std::ops::RangeInclusive;
 
-use crate::geometry::{ComponentForm, GridValues, Plane, Point, PointValue, Vec3};
+use crate::geometry::{ComponentForm, GridValues, Linspace, Plane, Point, PointValue, Vec3};
 
 /// Compute the [double factorial](https://en.wikipedia.org/wiki/Double_factorial).
 pub trait DoubleFactorial {
@@ -156,7 +156,8 @@ pub trait Evaluate {
         range: RangeInclusive<Vec3>,
         num_points: usize,
     ) -> Vec<PointValue<Self::Output>> {
-        Vec3::linspace(range, num_points)
+        range
+            .linspace(num_points)
             .map(|pt| Self::evaluate_at(params, &pt.into()))
             .collect()
     }
