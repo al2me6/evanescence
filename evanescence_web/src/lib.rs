@@ -148,7 +148,7 @@ impl Component for MainImpl {
     fn rendered(&mut self, first_render: bool) {
         if first_render {
             let window = web_sys::window().unwrap();
-            for event in &["resize", "orientationchange"] {
+            for event in ["resize", "orientationchange"] {
                 window
                     .add_event_listener_with_callback(
                         event,
@@ -167,6 +167,12 @@ type Main = WithDispatch<MainImpl>;
 #[allow(clippy::missing_panics_doc)]
 pub fn run() {
     std::panic::set_hook(Box::new(|info| {
+        let window = web_sys::window().unwrap();
+
+        // Clear state to prevent the page from crashing again upon reload.
+        #[cfg(feature = "persistent")]
+        window.session_storage().unwrap().unwrap().clear().unwrap();
+
         console_error_panic_hook::hook(info);
         let payload = match info.payload().downcast_ref::<&str>() {
             Some(s) => *s,
@@ -175,8 +181,7 @@ pub fn run() {
                 None => "<unknown error>",
             },
         };
-        web_sys::window()
-            .unwrap()
+        window
             .alert_with_message(&format!(
                 "Evanescence encountered a serious error: {}.\nPlease refresh the page.",
                 payload,
