@@ -5,7 +5,7 @@ version = "0.4.13"
 authors = ["al2me6 <alvin.q.meng@gmail.com>"]
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/al2me6/evanescence"
-edition = "2018"
+edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

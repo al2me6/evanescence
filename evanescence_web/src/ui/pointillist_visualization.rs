@@ -226,7 +226,7 @@ impl Component for PointillistVisualizationImpl {
         let directive = if new.is_new_orbital(old) || new.quality() != old.quality() {
             RenderDirective::All
         } else {
-            let mut possible_changes = std::array::IntoIter::new([
+            let mut possible_changes = [
                 (new.nodes_rad() != old.nodes_rad(), Trace::NodesRadial),
                 (new.nodes_ang() != old.nodes_ang(), Trace::NodesAngular),
                 (
@@ -236,7 +236,8 @@ impl Component for PointillistVisualizationImpl {
                 ),
                 (new.silhouettes() != old.silhouettes(), Trace::Silhouettes),
                 (new.nodes() != old.nodes(), Trace::Nodes),
-            ])
+            ]
+            .into_iter()
             .filter_map(|(changed, kind)| changed.then(|| kind));
 
             let directive = possible_changes

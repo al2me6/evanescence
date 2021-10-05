@@ -5,16 +5,22 @@ version = "0.6.0"
 authors = ["al2me6 <alvin.q.meng@gmail.com>"]
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/al2me6/evanescence"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 approx = "0.5"
 getset = "0.1"
 itertools = "0.10"
 maplit = "1"
-nanorand = { version = "0.6", default-features = false, features = ["wyrand", "std", "getrandom"] }
+nanorand = { version = "0.6", default-features = false, features = [
+    "wyrand",
+    "std",
+    "getrandom",
+] }
 num-complex = "0.4"
-serde = { version = "1", features = ["derive"], optional = true, default-features = false }
+serde = { version = "1", features = [
+    "derive",
+], optional = true, default-features = false }
 strum = { version = "0.21", features = ["derive"] }
 thiserror = "1"
 

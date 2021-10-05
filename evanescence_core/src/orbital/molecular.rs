@@ -46,7 +46,8 @@ impl EvaluateBounded for Molecular {
         let mut max = 0_f32;
         for OffsetQnWeight { qn, offset, .. } in &params.weights {
             let bound = Real::bound(qn);
-            let max_offset = std::array::IntoIter::new([offset.x, offset.y, offset.z])
+            let max_offset = [offset.x, offset.y, offset.z]
+                .into_iter()
                 .map(f32::abs)
                 .reduce(f32::max)
                 .expect("bound is well defined");
