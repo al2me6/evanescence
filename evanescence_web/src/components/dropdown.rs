@@ -14,6 +14,7 @@ impl<T> DropdownItem for T where T: Copy + PartialEq + Display + 'static {}
 pub(crate) struct Dropdown<T: DropdownItem> {
     link: ComponentLink<Self>,
     props: DropdownProps<T>,
+    node_ref: NodeRef,
 }
 
 #[derive(Clone, PartialEq, Properties)]
@@ -31,7 +32,11 @@ impl<T: DropdownItem> Component for Dropdown<T> {
     type Properties = DropdownProps<T>;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self { link, props }
+        Self {
+            link,
+            props,
+            node_ref: NodeRef::default(),
+        }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -42,7 +47,22 @@ impl<T: DropdownItem> Component for Dropdown<T> {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props.neq_assign(props)
+        let should_render = self.props.neq_assign(props);
+        if should_render {
+            self.node_ref
+                .cast::<HtmlSelectElement>()
+                .unwrap()
+                .set_value(
+                    &self
+                        .props
+                        .options
+                        .iter()
+                        .position(|opt| opt == &self.props.selected)
+                        .unwrap()
+                        .to_string(),
+                );
+        }
+        should_render
     }
 
     fn view(&self) -> Html {
@@ -67,6 +87,7 @@ impl<T: DropdownItem> Component for Dropdown<T> {
 
         html! {
             <select
+                ref = self.node_ref.clone()
                 id = &self.props.id
                 onchange = self.link.callback(|data: ChangeData| into_select_element(data).value())
                 aria-label = &self.props.id
