@@ -1,5 +1,15 @@
 # Version History
 
+## 0.4.13, 2021-10-04
+
+### Features
+
+* Basic plotting of the molecular orbitals of the hydrogen molecule-ion is now implemented.
+
+### Fixes
+
+* State is now cleared on crash, so in the (rare) scenario of a crash reloading will not result in an immediate crash with the same error.
+
 ## 0.4.12, 2021-09-20
 
 ### Features
@@ -8,7 +18,9 @@
 
 ### Changes
 
+* The sampling range for real and complex orbitals is now determined using numerical integration instead of a 'heuristic' function. More specifically, it is the dimension of the sphere that encompasses ~99.8% of all probability density.
 * Radial probability distribution curves are now validated by checking that they sum to unity. This is tested for all orbitals with n <= 8 to be true to within 0.005 and is also displayed in the console. Note that the values come out slightly less than one, since we only sample a finite (albeit the most important) portion of the curve.
+* The opacity of angular nodes has been increased slightly to aid visibility.
 
 ## 0.4.11, 2021-05-04
 
