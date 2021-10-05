@@ -312,10 +312,74 @@ select:focus {
 
 .slider-label {
   margin: 0 0 0 0.75rem;
+  flex-shrink: 0;
 }
 
-.slider input {
+.slider input[type="range"] {
+  -webkit-appearance: none;
+  margin: 0;
   flex-grow: 1;
+  flex-shrink: 1;
+  min-width: 50px;
+  background: transparent;
+}
+
+.slider input[type="range"]:focus {
+  outline: none;
+}
+
+.slider input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 0.5em;
+  border-radius: 0.25em;
+  cursor: pointer;
+  background: var(--base-00);
+  cursor: default;
+}
+
+.slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 1.8em;
+  width: 0.8em;
+  margin-top: -0.65em; /* (thumb height - slider height) / 2 WHAT */
+  border-radius: 0.4em;
+  border: none;
+  background: var(--base-03);
+  transition: all var(--transition-time);
+}
+
+.slider input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: var(--shadow);
+  background: var(--base-0203);
+}
+
+.slider input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 0.5em;
+  border-radius: 0.25em;
+  cursor: pointer;
+  background: var(--base-00);
+  cursor: default;
+}
+
+.slider input[type="range"]::-moz-range-thumb {
+  -webkit-appearance: none;
+  height: 1.8em;
+  width: 0.8em;
+  margin-top: -0.65em; /* (thumb height - slider height) / 2 WHAT */
+  border-radius: 0.4em;
+  border: none;
+  background: var(--base-03);
+  transition: all var(--transition-time);
+}
+
+.slider input[type="range"]::-moz-range-thumb:hover {
+  box-shadow: var(--shadow);
+  background: var(--base-0203);
+}
+
+.slider input[type="range"]::-moz-range-thumb:focus {
+  outline: none;
 }
 
 /* Popup windows. */
