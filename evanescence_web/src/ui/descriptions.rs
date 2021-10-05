@@ -23,6 +23,7 @@ description_items!(
     cross_section_prob_density,
     isosurface_3d,
     nodes_hybrid,
+    interatomic_separation,
 );
 
 pub(crate) const DESC: Descriptions = Descriptions {
@@ -42,4 +43,5 @@ pub(crate) const DESC: Descriptions = Descriptions {
     cross_section_prob_density: "This plot displays the orbital's probability density along a given plane (drawn in orange). The value is displayed using the third vertical axis and a contour plot is projected onto the plane.",
     isosurface_3d: "This plot displays all the surfaces where the probability density is equal to a certain value. It provides a general sense of the structure of the orbital, but does not indicate its probabilistic nature.",
     nodes_hybrid: "Draw nodes, or surfaces where there is exactly 0 possibility of finding an electron, in purple.",
+    interatomic_separation: "The distance between the two protons, in Bohr radii.",
 };

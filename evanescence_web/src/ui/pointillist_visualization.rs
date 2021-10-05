@@ -24,7 +24,8 @@ enum Trace {
     NodesAngular,
     CrossSectionIndicator,
     Silhouettes,
-    NodesHybrid,
+    Nodes,
+    NucleusMarkers,
 }
 
 impl Trace {
@@ -43,7 +44,8 @@ impl Trace {
             }
             Self::CrossSectionIndicator => state.supplement().is_cross_section(),
             Self::Silhouettes => state.mode().is_hybrid() && state.silhouettes(),
-            Self::NodesHybrid => state.mode().is_hybrid() && state.nodes_hybrid(),
+            Self::Nodes => (state.mode().is_hybrid() || state.mode().is_mo()) && state.nodes(),
+            Self::NucleusMarkers => state.mode().is_mo(),
         }
     }
 
@@ -51,14 +53,15 @@ impl Trace {
         use TraceRenderer::{Multiple, Single};
         match self {
             Self::Pointillist => match state.mode() {
-                Mode::RealSimple | Mode::Real | Mode::Hybrid => Single(plot::real),
+                Mode::RealSimple | Mode::Real | Mode::Hybrid | Mode::Mo => Single(plot::real),
                 Mode::Complex => Single(plot::complex),
             },
             Self::NodesRadial => Single(plot::nodes_radial),
             Self::NodesAngular => Single(plot::nodes_angular),
             Self::CrossSectionIndicator => Single(plot::cross_section_indicator),
             Self::Silhouettes => Multiple(plot::silhouettes),
-            Self::NodesHybrid => Single(plot::nodes_hybrid),
+            Self::Nodes => Single(plot::nodes_combined),
+            Self::NucleusMarkers => Single(plot::nucleus_markers),
         }
     }
 
@@ -117,6 +120,10 @@ impl PointillistVisualizationImpl {
         );
 
         // Clear all old traces.
+        self.rendered_kinds
+            .iter()
+            .filter(|&&kind| kind != Trace::Pointillist)
+            .for_each(|kind| log::debug!("Removing {:?}.", kind));
         Plotly::delete_traces(
             Self::ID,
             (0..self.rendered_kinds.len())
@@ -228,7 +235,7 @@ impl Component for PointillistVisualizationImpl {
                     Trace::CrossSectionIndicator,
                 ),
                 (new.silhouettes() != old.silhouettes(), Trace::Silhouettes),
-                (new.nodes_hybrid() != old.nodes_hybrid(), Trace::NodesHybrid),
+                (new.nodes() != old.nodes(), Trace::Nodes),
             ])
             .filter_map(|(changed, kind)| changed.then(|| kind));
 

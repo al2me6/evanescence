@@ -123,6 +123,19 @@ impl Component for InfoPanelImpl {
                     </>
                 }
             }
+            Mode::Mo => {
+                html! {
+                    <p>
+                        { "Viewing the " }
+                        { &state.lcao().name }
+                        { " molecular orbital of the "}
+                        <RawSpan inner_html = "H<sub>2</sub><sup>+</sup>" />
+                        { " molecule-ion with an interatomic separation of " }
+                        { format!("{:.1}", state.separation()) }
+                        { " Bohr radii." }
+                    </p>
+                }
+            }
         };
 
         html! {

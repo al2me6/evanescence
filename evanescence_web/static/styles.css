@@ -304,6 +304,20 @@ select:focus {
   opacity: 1;
 }
 
+/* Slider component. */
+
+.slider {
+  display: flex;
+}
+
+.slider-label {
+  margin: 0 0 0 0.75rem;
+}
+
+.slider input {
+  flex-grow: 1;
+}
+
 /* Popup windows. */
 
 .window-button {

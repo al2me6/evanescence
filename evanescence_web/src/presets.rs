@@ -2,8 +2,10 @@ use std::convert::TryFrom;
 use std::f32::consts::{FRAC_1_SQRT_2, SQRT_2};
 use std::fmt;
 
+use evanescence_core::geometry::Vec3;
 use evanescence_core::orbital::atomic::RealSphericalHarmonic;
-use evanescence_core::orbital::hybrid::Kind;
+use evanescence_core::orbital::hybrid::{Kind, QnWeight};
+use evanescence_core::orbital::molecular::{Lcao, OffsetQnWeight};
 use evanescence_core::orbital::{self, Qn};
 use evanescence_core::{kind, lc};
 use once_cell::sync::Lazy;
@@ -323,5 +325,128 @@ impl From<HybridPreset> for &'static Kind {
 impl fmt::Display for HybridPreset {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", HYBRID_PRESETS[self.0])
+    }
+}
+
+pub(crate) struct DiatomicLcao {
+    name: String,
+    weights: (QnWeight, QnWeight),
+}
+
+impl DiatomicLcao {
+    pub(crate) fn with_separation(&self, sep: f32) -> Lcao {
+        let (first, second) = &self.weights;
+        Lcao {
+            name: self.name.clone(),
+            weights: vec![
+                OffsetQnWeight {
+                    qn: first.qn,
+                    weight: first.weight,
+                    offset: Vec3::new(0.0, 0.0, -sep / 2.0),
+                },
+                OffsetQnWeight {
+                    qn: second.qn,
+                    weight: second.weight,
+                    offset: Vec3::new(0.0, 0.0, sep / 2.0),
+                },
+            ],
+        }
+    }
+}
+
+macro_rules! lcao_diatomic {
+    (
+        separation: $separation:literal,
+        $(
+            $name:literal {
+                qn: ($n:literal, $l:literal, $m:literal),
+                weights: ($w1:expr, $w2:expr)
+                $(,)?
+            }
+        ),+
+        $(,)?
+    ) => {
+        vec![
+            $(
+                DiatomicLcao {
+                    name: $name.to_owned(),
+                    weights: (
+                        QnWeight {
+                            qn: Qn::new($n, $l, $m).unwrap(),
+                            weight: $w1,
+                        },
+                        QnWeight {
+                            qn: Qn::new($n, $l, $m).unwrap(),
+                            weight: $w2,
+                        }
+                    )
+                }
+            ),+
+        ]
+    }
+}
+
+static MO_PRESETS: Lazy<Vec<DiatomicLcao>> = Lazy::new(|| {
+    lcao_diatomic! {
+        separation: 1.398,
+        "σ (1s)" {
+            qn: (1, 0, 0),
+            weights: (FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+        },
+        "σ* (1s)" {
+            qn: (1, 0, 0),
+            weights: (FRAC_1_SQRT_2, -FRAC_1_SQRT_2)
+        },
+        "σ (2s)" {
+            qn: (2, 0, 0),
+            weights: (FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+        },
+        "σ* (2s)" {
+            qn: (2, 0, 0),
+            weights: (FRAC_1_SQRT_2, -FRAC_1_SQRT_2)
+        },
+        "σ (2p)" {
+            qn: (2, 1, 0),
+            weights: (FRAC_1_SQRT_2, -FRAC_1_SQRT_2)
+        },
+        "π (2p)" {
+            qn: (2, 1, 1),
+            weights: (FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+        },
+        "π* (2p)" {
+            qn: (2, 1, 1),
+            weights: (FRAC_1_SQRT_2, -FRAC_1_SQRT_2)
+        },
+        "σ* (2p)" {
+            qn: (2, 1, 0),
+            weights: (FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+        },
+    }
+});
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
+pub(crate) struct MoPreset(usize);
+
+impl MoPreset {
+    pub(crate) fn iter() -> impl Iterator<Item = Self> {
+        (0..MO_PRESETS.len()).map(Self)
+    }
+}
+
+impl Default for MoPreset {
+    fn default() -> Self {
+        Self(0)
+    }
+}
+
+impl From<MoPreset> for &'static DiatomicLcao {
+    fn from(preset: MoPreset) -> Self {
+        &MO_PRESETS[preset.0]
+    }
+}
+
+impl fmt::Display for MoPreset {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", MO_PRESETS[self.0].name)
     }
 }

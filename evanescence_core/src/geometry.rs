@@ -106,6 +106,18 @@ impl Sub for Vec3 {
     }
 }
 
+impl Sub<&Self> for Vec3 {
+    type Output = Self;
+
+    fn sub(self, rhs: &Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
 impl Neg for Vec3 {
     type Output = Self;
 
@@ -148,9 +160,21 @@ impl Display for Vec3 {
     }
 }
 
-impl From<Vec3> for Point {
-    fn from(point: Vec3) -> Self {
+impl From<&Point> for Vec3 {
+    fn from(point: &Point) -> Self {
         Self::new(point.x, point.y, point.z)
+    }
+}
+
+impl From<Vec3> for Point {
+    fn from(vec: Vec3) -> Self {
+        Self::new(vec.x, vec.y, vec.z)
+    }
+}
+
+impl From<&Vec3> for Point {
+    fn from(vec: &Vec3) -> Self {
+        Self::new(vec.x, vec.y, vec.z)
     }
 }
 

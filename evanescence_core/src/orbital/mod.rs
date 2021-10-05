@@ -3,6 +3,7 @@
 //! Types for quantum numbers are available through the [`quantum_numbers`] module.
 pub mod atomic;
 pub mod hybrid;
+pub mod molecular;
 pub mod quantum_numbers;
 
 use std::marker::PhantomData;

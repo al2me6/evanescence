@@ -2,10 +2,11 @@ use std::convert::TryInto;
 use std::default::default;
 use std::f32::consts::PI;
 
-use evanescence_core::geometry::Plane;
+use evanescence_core::geometry::{ComponentForm, Plane, Point, PointValue};
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::Hybrid;
+use evanescence_core::orbital::molecular::{Molecular, OffsetQnWeight};
 use evanescence_core::orbital::{atomic, Complex};
 use wasm_bindgen::JsValue;
 
@@ -14,11 +15,11 @@ use crate::plotly::layout::{Anchor, Title};
 use crate::plotly::scatter_3d::Marker;
 use crate::plotly::surface::Contours;
 use crate::plotly::{Isosurface, Scatter3D, Surface};
-use crate::state::State;
+use crate::state::{Mode, State};
 use crate::utils;
 
 pub(crate) fn real(state: &State) -> JsValue {
-    assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
+    assert!([Mode::RealSimple, Mode::Real, Mode::Hybrid, Mode::Mo].contains(&state.mode()));
 
     let (x, y, z, values) = state.monte_carlo_simulate_real().into_components();
     let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
@@ -49,6 +50,7 @@ pub(crate) fn real(state: &State) -> JsValue {
             },
             ..default()
         },
+        show_legend: false,
         ..default()
     }
     .into()
@@ -95,6 +97,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
             },
             ..default()
         },
+        show_legend: false,
         ..default()
     }
     .into()
@@ -201,14 +204,18 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
         .collect()
 }
 
-pub(crate) fn nodes_hybrid(state: &State) -> JsValue {
-    assert!(state.mode().is_hybrid());
+pub(crate) fn nodes_combined(state: &State) -> JsValue {
+    assert!(state.mode().is_hybrid() || state.mode().is_mo());
 
-    let (x, y, z, value) = Hybrid::sample_region(
-        state.hybrid_kind().archetype(),
-        state.quality().for_isosurface(),
-    )
-    .into_components();
+    let (x, y, z, value) = if state.mode().is_hybrid() {
+        Hybrid::sample_region(
+            state.hybrid_kind().archetype(),
+            state.quality().for_isosurface(),
+        )
+        .into_components()
+    } else {
+        Molecular::sample_region(&state.lcao(), state.quality().for_isosurface()).into_components()
+    };
 
     Isosurface {
         x,
@@ -217,6 +224,39 @@ pub(crate) fn nodes_hybrid(state: &State) -> JsValue {
         value,
         color_scale: color_scales::PURP,
         opacity: 0.125,
+        ..default()
+    }
+    .into()
+}
+
+pub(crate) fn nucleus_markers(state: &State) -> JsValue {
+    const MARKER_SIZE: f32 = 15.0;
+
+    assert!(state.mode().is_mo());
+
+    let offsets = state
+        .lcao()
+        .weights
+        .iter()
+        .map(|OffsetQnWeight { offset, .. }| offset)
+        .map(Point::from)
+        .map(|pt| PointValue(pt, MARKER_SIZE))
+        .collect::<Vec<_>>();
+    let (x, y, z, v) = ComponentForm::from(offsets).into_components();
+
+    Scatter3D {
+        x,
+        y,
+        z,
+        marker: Marker {
+            size: v.clone(),
+            color: v,
+            color_scale: color_scales::GREENS,
+            c_min: Some(0.0),
+            c_max: Some(MARKER_SIZE * 1.25),
+            ..default()
+        },
+        show_legend: false,
         ..default()
     }
     .into()

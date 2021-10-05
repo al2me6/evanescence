@@ -9,8 +9,8 @@ use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use super::descriptions::DESC;
-use crate::components::{CheckBox, Dropdown, Tooltip};
-use crate::presets::{HybridPreset, QnPreset};
+use crate::components::{CheckBox, Dropdown, Slider, Tooltip};
+use crate::presets::{HybridPreset, MoPreset, QnPreset};
 use crate::state::{AppDispatch, Mode, State, Visualization};
 use crate::{utils, MAX_N};
 
@@ -48,6 +48,7 @@ impl Component for ControlsImpl {
             Mode::RealSimple | Mode::Real => self.real_modes_controls(),
             Mode::Complex => self.qn_pickers(),
             Mode::Hybrid => self.hybrid_picker(),
+            Mode::Mo => self.mo_picker(),
         };
 
         html! {
@@ -145,7 +146,7 @@ impl ControlsImpl {
                 }
             }
             Mode::Complex => utils::fmt_replace_minus(m),
-            Mode::Hybrid => unreachable!(),
+            Mode::Hybrid | Mode::Mo => unreachable!(),
         };
 
         html! {
@@ -213,8 +214,49 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "hybrid-nodes-toggle"
-                    onchange = dispatch.reduce_callback_with(State::set_nodes_hybrid)
-                    initial_state = state.nodes_hybrid()
+                    onchange = dispatch.reduce_callback_with(State::set_nodes)
+                    initial_state = state.nodes()
+                    label = "Show nodes"
+                    tooltip = DESC.nodes_hybrid
+                /></td>
+            </tr>
+            </>
+        }
+    }
+
+    fn mo_picker(&self) -> Html {
+        let dispatch = &self.dispatch;
+        let state = dispatch.state();
+        assert!(state.mode().is_mo());
+        html! {
+            <>
+            <tr>
+                { td_tooltip("Select molecular orbital:", DESC.hybrid_dropdown) }
+                <td><Dropdown<MoPreset>
+                    id = "preset_picker"
+                    onchange = dispatch.reduce_callback_with(State::set_mo_preset)
+                    options = MoPreset::iter().collect_vec()
+                    selected = state.mo_preset()
+                /></td>
+            </tr>
+            <tr>
+                { td_tooltip("Interatomic separation:", DESC.interatomic_separation) }
+                <td><Slider
+                    id = "sep-slider"
+                    onchange = dispatch.reduce_callback_with(State::set_separation)
+                    min = 0.0
+                    value = state.separation()
+                    max = 10.0
+                    step = 0.1
+                    value_postfix = " A₀"
+                /></td>
+            </tr>
+            <tr>
+                <td/>
+                <td><CheckBox
+                    id = "mo-nodes-toggle"
+                    onchange = dispatch.reduce_callback_with(State::set_nodes)
+                    initial_state = state.nodes()
                     label = "Show nodes"
                     tooltip = DESC.nodes_hybrid
                 /></td>

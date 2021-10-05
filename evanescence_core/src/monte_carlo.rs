@@ -5,6 +5,7 @@ use strum::{Display, EnumIter, EnumString};
 
 use crate::geometry::{ComponentForm, Point, PointValue};
 use crate::orbital::hybrid::Hybrid;
+use crate::orbital::molecular::Molecular;
 use crate::orbital::{Complex, Orbital, Real};
 
 /// A set of predefined qualities (i.e., number of points computed) for sampling orbitals, either
@@ -186,3 +187,5 @@ impl MonteCarlo for Complex {
 }
 
 impl MonteCarlo for Hybrid {}
+
+impl MonteCarlo for Molecular {}

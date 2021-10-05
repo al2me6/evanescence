@@ -9,5 +9,6 @@ def_plotly_ty! {
     z: Vec<f32>,
     mode: Mode = Mode::Markers,
     marker: Marker<'a>,
+    show_legend as "showlegend": bool = true,
     plot_type as "type": PlotType = PlotType::Scatter3D,
 }

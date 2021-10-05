@@ -16,6 +16,7 @@ Each mode offers a different type of orbital to visualize.
 * "Real (Full)" allows arbitrary quantum numbers (up to *n* = 8) to be specified.
 * "Complex" displays the complex orbitals, which are useful in certain contexts.
 * "Hybrid" provides visualizations for hybridized orbitals and their symmetry.
+* "MO" displays orbitals of the H<sub>2</sub><sup>+</sup> molecule-ion.
 
 ### Help for specific features
 
