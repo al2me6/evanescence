@@ -1,33 +1,16 @@
-macro_rules! description_items {
-    ($($name:ident),+ $(,)?) => {
-        #[allow(dead_code)]
+macro_rules! descriptions {
+    ($($name:ident : $value:literal),+ $(,)?) => {
         pub(crate) struct Descriptions {
             $(pub(crate) $name: &'static str),+
         }
+
+        pub(crate) const DESC: Descriptions = Descriptions {
+            $($name: $value),+
+        };
     }
 }
-description_items!(
-    qn_dropdown,
-    supplement,
-    nodes_rad,
-    nodes_ang,
-    render_qual,
-    qn_n,
-    qn_l,
-    qn_m,
-    instant_apply,
-    hybrid_dropdown,
-    show_symmetry,
-    rad_wavefunction,
-    rad_prob_distr,
-    cross_section_wavefunction,
-    cross_section_prob_density,
-    isosurface_3d,
-    nodes_hybrid,
-    interatomic_separation,
-);
 
-pub(crate) const DESC: Descriptions = Descriptions {
+descriptions! {
     qn_dropdown: "Select the orbital to display. Use the \"Real (Full)\" orbital type to select arbitrary quantum numbers.",
     supplement: "Select additional visualizations to highlight specific features of orbitals.",
     nodes_rad: "Draw radial nodes in green, if they exist. These are concentric, spherical surfaces where there is exactly 0 possibility of finding an electron. There are <i>n</i>−<i>ℓ</i>−1 radial nodes.",
@@ -46,4 +29,4 @@ pub(crate) const DESC: Descriptions = Descriptions {
     isosurface_3d: "This plot displays all the surfaces where the probability density is equal to a certain value. It provides a general sense of the structure of the orbital, but does not indicate its probabilistic nature.",
     nodes_hybrid: "Draw nodes, or surfaces where there is exactly 0 possibility of finding an electron, in purple.",
     interatomic_separation: "The distance between the two protons, in Bohr radii.",
-};
+}
