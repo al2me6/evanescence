@@ -40,7 +40,7 @@ All plots are in terms of [Bohr radii](https://en.wikipedia.org/wiki/Bohr_radius
 
 The main visualization on the left side (or top) of your screen is a point cloud that simulates what you might find if you tried to determine the location of an electron in that orbital a large number of times. The denser and larger the points are, the more likely it is that the electron will be found at that location.
 
-The size of the point corresponds to the magnitude of the wavefunction at that point. In the Real and Hybrid modes, the color of the point corresponds to the value of the wavefunction – red is large (relatively speaking) and positive, blue is large and negative, white is near zero. In Complex mode, color corresponds to [complex phase](https://en.wikipedia.org/wiki/Argument_(complex_analysis)).
+The size of the point corresponds to the magnitude of the wavefunction at that point. In the Real, Hybrid, and MO modes, the color of the point corresponds to the value of the wavefunction – red is large (relatively speaking) and positive, blue is large and negative, white is near zero. In Complex mode, color corresponds to [complex phase](https://en.wikipedia.org/wiki/Argument_(complex_analysis)).
 
 ### Common problems
 
@@ -68,16 +68,16 @@ This occurs on certain browser-operating system combinations, specifically Firef
 
 I'd like to extend my gratitude to the following people for helping this project come true:
 
-* Dr. B. Kennedy, for overseeing this project;
+* Dr. B. Kennedy, for overseeing the initial phases of this project;
 * Mr. H. Kauffman, for inspiring me to take on this project;
 * Dr. J. Osborne, for giving me invaluable advice and pointers;
 * Michelle R., for putting up with my barrage of progress screenshots with great enthusiasm;
-* Liam C., for offering helpful feedback; and
-* Thomas L., for suggesting me to look into a project in computational chemistry.
+* Ms. A. Holman, Liam C., and Tyler A., for offering helpful feedback; and
+* Thomas L., for suggesting that I look into a project in computational chemistry.
 
 ## About Evanescence
 
-&copy; Alvin Meng 2020-2021
+&copy; Alvin Q. Meng 2020-2021
 
 Built in [Rust](https://rust-lang.org) and WebAssembly using the [Yew](https://yew.rs) framework and the [Plotly.js](https://plotly.com/javascript) graphing library.
 
