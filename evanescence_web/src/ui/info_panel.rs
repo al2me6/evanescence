@@ -64,11 +64,19 @@ impl Component for InfoPanelImpl {
                                 )
                             />
                         }} else { html!() }}
-                        { ", which is " }
-                        { if "sfhi".contains(subshell_name) { "an " } else { "a " } } // English is hard.
-                        <i>{ subshell_name }</i>
+                        { ", which " }
+                        { if let Some(subshell) = subshell_name { html!{
+                            <>
+                            { "is "}
+                            { if "sfhi".contains(subshell) { "an " } else { "a " } } // English is hard.
+                            <i>{ subshell }</i>
+                            { " orbital with" }
+                            </>
+                        }} else { html! {
+                            { " has" }
+                        } }}
                         { format!(
-                            " orbital with {} radial {} and {} angular {}.",
+                            " {} radial {} and {} angular {}.",
                             num_radial_nodes,
                             node_pluralize(num_radial_nodes),
                             num_angular_nodes,

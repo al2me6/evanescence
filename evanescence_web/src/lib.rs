@@ -35,7 +35,7 @@ use crate::ui::{
 };
 
 /// Maximum value of the principal quantum number `n` that is exposed.
-pub(crate) const MAX_N: u32 = 8;
+pub(crate) const MAX_N: u32 = 12;
 
 pub(crate) const VER_MAJOR: u32 = pkg_version_major!();
 pub(crate) const VER_MINOR: u32 = pkg_version_minor!();
