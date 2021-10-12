@@ -1,3 +1,4 @@
+pub(crate) mod button;
 pub(crate) mod check_box;
 pub(crate) mod dropdown;
 pub(crate) mod raw;
@@ -6,6 +7,7 @@ pub(crate) mod tab_bar;
 pub(crate) mod tooltip;
 pub(crate) mod window;
 
+pub(crate) use button::Button;
 pub(crate) use check_box::CheckBox;
 pub(crate) use dropdown::Dropdown;
 pub(crate) use slider::Slider;

@@ -104,16 +104,38 @@ struct RealSimpleState {
     nodes_ang: bool,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 struct RealState {
     qn: Qn,
     nodes_rad: bool,
     nodes_ang: bool,
+    instant_apply: bool,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
+impl Default for RealState {
+    fn default() -> Self {
+        Self {
+            qn: default(),
+            nodes_rad: default(),
+            nodes_ang: default(),
+            instant_apply: true,
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 struct ComplexState {
     qn: Qn,
+    instant_apply: bool,
+}
+
+impl Default for ComplexState {
+    fn default() -> Self {
+        Self {
+            qn: default(),
+            instant_apply: true,
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Serialize, Deserialize)]
@@ -198,38 +220,12 @@ impl Default for StateInner {
 impl StateInner {
     fn transition(&mut self, mode: Mode) {
         match (&self, mode) {
-            (RealSimple(state), Mode::Real) => {
-                *self = Real(RealState {
-                    qn: state.preset.into(),
-                    nodes_rad: state.nodes_rad,
-                    nodes_ang: state.nodes_ang,
-                });
-            }
-            (RealSimple(state), Mode::Complex) => {
-                *self = Complex(ComplexState {
-                    qn: state.preset.into(),
-                });
-            }
-            (RealSimple(state), Mode::Hybrid) => {
-                *self = Hybrid(HybridState {
-                    nodes: state.nodes_rad || state.nodes_ang,
-                    ..default()
-                });
-            }
+            // To `RealSimple`:
             (Real(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
                     preset: QnPreset::from_qn_lossy(state.qn),
                     nodes_rad: state.nodes_rad,
                     nodes_ang: state.nodes_ang,
-                });
-            }
-            (Real(state), Mode::Complex) => {
-                *self = Complex(ComplexState { qn: state.qn });
-            }
-            (Real(state), Mode::Hybrid) => {
-                *self = Hybrid(HybridState {
-                    nodes: state.nodes_rad || state.nodes_ang,
-                    ..default()
                 });
             }
             (Complex(state), Mode::RealSimple) => {
@@ -238,17 +234,28 @@ impl StateInner {
                     ..default()
                 });
             }
-            (Complex(state), Mode::Real) => {
-                *self = Real(RealState {
-                    qn: state.qn,
-                    ..default()
-                });
-            }
-            (Complex(_), Mode::Hybrid) => *self = Hybrid(HybridState::default()),
             (Hybrid(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
                     nodes_rad: state.nodes,
                     nodes_ang: state.nodes,
+                    ..default()
+                });
+            }
+            (Mo(_), Mode::RealSimple) => *self = RealSimple(default()),
+
+            // To `Real`:
+            (RealSimple(state), Mode::Real) => {
+                *self = Real(RealState {
+                    qn: state.preset.into(),
+                    nodes_rad: state.nodes_rad,
+                    nodes_ang: state.nodes_ang,
+                    ..default()
+                });
+            }
+            (Complex(state), Mode::Real) => {
+                *self = Real(RealState {
+                    qn: state.qn,
+                    instant_apply: state.instant_apply,
                     ..default()
                 });
             }
@@ -259,15 +266,44 @@ impl StateInner {
                     ..default()
                 });
             }
-            (Hybrid(_), Mode::Complex) => *self = Complex(ComplexState::default()),
-            (RealSimple(_) | Real(_) | Complex(_) | Hybrid(_), Mode::Mo) => {
-                *self = Mo(MoState::default());
+            (Mo(_), Mode::Real) => *self = Real(default()),
+
+            // To `Complex`:
+            (RealSimple(state), Mode::Complex) => {
+                *self = Complex(ComplexState {
+                    qn: state.preset.into(),
+                    ..default()
+                });
             }
-            (Mo(_), Mode::RealSimple) => *self = RealSimple(RealSimpleState::default()),
-            (Mo(_), Mode::Real) => *self = Real(RealState::default()),
-            (Mo(_), Mode::Complex) => *self = Complex(ComplexState::default()),
-            (Mo(_), Mode::Hybrid) => *self = Hybrid(HybridState::default()),
-            // Same state, do nothing.
+            (Real(state), Mode::Complex) => {
+                *self = Complex(ComplexState {
+                    qn: state.qn,
+                    instant_apply: state.instant_apply,
+                });
+            }
+            (Hybrid(_) | Mo(_), Mode::Complex) => *self = Complex(default()),
+
+            // To `Hybrid`:
+            (RealSimple(state), Mode::Hybrid) => {
+                *self = Hybrid(HybridState {
+                    nodes: state.nodes_rad || state.nodes_ang,
+                    ..default()
+                });
+            }
+            (Real(state), Mode::Hybrid) => {
+                *self = Hybrid(HybridState {
+                    nodes: state.nodes_rad || state.nodes_ang,
+                    ..default()
+                });
+            }
+            (Complex(_) | Mo(_), Mode::Hybrid) => *self = Hybrid(default()),
+
+            // To `Mo`:
+            (RealSimple(_) | Real(_) | Complex(_) | Hybrid(_), Mode::Mo) => {
+                *self = Mo(default());
+            }
+
+            // Same state, do nothing:
             (state, mode) if Mode::from(state as &_) == mode => {}
             _ => unreachable!("all cases should have been covered"),
         }
@@ -328,9 +364,8 @@ impl State {
         match (self.mode(), other.mode()) {
             (Mode::Hybrid, Mode::Hybrid) => self.hybrid_preset() != other.hybrid_preset(),
             (Mode::Mo, Mode::Mo) => self.lcao() != other.lcao(),
-            (Mode::RealSimple | Mode::Real, Mode::RealSimple | Mode::Real) => {
-                self.qn() != other.qn()
-            }
+            (Mode::RealSimple | Mode::Real, Mode::RealSimple | Mode::Real)
+            | (Mode::Complex, Mode::Complex) => self.qn() != other.qn(),
             // Different modes:
             _ => true,
         }
@@ -361,15 +396,6 @@ impl State {
         }
     }
 
-    pub(crate) fn qn_mut(&mut self) -> &mut Qn {
-        match &mut self.state {
-            RealSimple(_) => panic!("simple mode does not allow setting of arbitrary `qn`s"),
-            Real(state) => &mut state.qn,
-            Complex(state) => &mut state.qn,
-            Hybrid(_) | Mo(_) => panic!("hybrid or molecular orbital does not have a `qn`"),
-        }
-    }
-
     pub(crate) fn qn_preset(&self) -> QnPreset {
         match &self.state {
             RealSimple(state) => state.preset,
@@ -390,6 +416,16 @@ impl State {
             RealSimple(state) => state.nodes_ang,
             Real(state) => state.nodes_ang,
             Complex(_) | Hybrid(_) | Mo(_) => false,
+        }
+    }
+
+    pub(crate) fn instant_apply(&self) -> bool {
+        match &self.state {
+            Real(state) => state.instant_apply,
+            Complex(state) => state.instant_apply,
+            RealSimple(_) | Hybrid(_) | Mo(_) => {
+                panic!("instant-apply does not exist in {:?}", self.mode());
+            }
         }
     }
 
@@ -499,6 +535,26 @@ impl State {
             Real(state) => state.nodes_ang = visibility,
             Complex(_) | Hybrid(_) | Mo(_) => {
                 panic!("angular nodes cannot be viewed in {:?}", self.mode());
+            }
+        }
+    }
+
+    pub(crate) fn set_qn(&mut self, qn: Qn) {
+        match &mut self.state {
+            Real(state) => state.qn = qn,
+            Complex(state) => state.qn = qn,
+            RealSimple(_) | Hybrid(_) | Mo(_) => {
+                panic!("`qn` cannot be set for {:?}", self.mode());
+            }
+        }
+    }
+
+    pub(crate) fn set_instant_apply(&mut self, instant: bool) {
+        match &mut self.state {
+            Real(state) => state.instant_apply = instant,
+            Complex(state) => state.instant_apply = instant,
+            RealSimple(_) | Hybrid(_) | Mo(_) => {
+                panic!("instant-apply cannot be set for {:?}", self.mode());
             }
         }
     }
