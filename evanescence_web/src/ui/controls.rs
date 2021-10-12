@@ -262,7 +262,8 @@ impl Component for QnPickers {
             Msg::SetInstant(instant) => self.props.on_toggle_instant.emit(instant),
             Msg::Apply => self.props.on_apply.emit(self.qn),
         }
-        if self.props.instant && !matches!(msg, Msg::Apply) {
+        if self.props.instant && !matches!(msg, Msg::Apply) || matches!(msg, Msg::SetInstant(true))
+        {
             self.link.send_message(Msg::Apply);
         }
         true
