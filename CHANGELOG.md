@@ -1,5 +1,11 @@
 # Version History
 
+## 0.4.14, 2021-10-12
+
+### Features
+
+* Added an optional 'apply' button to the quantum number selectors in Real and Complex modes. This is to help reduce the number of pauses experienced while changing multiple quantum number dropdowns, whose options are interlinked. Thanks to Tyler A. for the suggestion!
+
 ## 0.4.13, 2021-10-04
 
 ### Features
