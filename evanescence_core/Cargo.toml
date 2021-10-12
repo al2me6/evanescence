@@ -21,7 +21,7 @@ num-complex = "0.4"
 serde = { version = "1", features = [
     "derive",
 ], optional = true, default-features = false }
-strum = { version = "0.21", features = ["derive"] }
+strum = { version = "0.22", features = ["derive"] }
 thiserror = "1"
 
 [dev-dependencies]
