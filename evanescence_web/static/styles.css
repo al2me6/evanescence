@@ -28,6 +28,7 @@ html {
   --base-0102: #303338;
   --base-02020203: #4f5256;
   --base-0203: #676a6c;
+  --base-0304: #a5a8a5;
   --base-00-semitransparent: #1d1f2199;
 
   --transition-time: 0.15s;
@@ -265,7 +266,7 @@ select:focus {
 }
 
 .tab-bar input:active::after {
-  color: var(--base-04);
+  color: var(--base-05);
 }
 
 /* Tooltips. */
@@ -382,6 +383,44 @@ select:focus {
   outline: none;
 }
 
+/* Button component. */
+
+.button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  padding: 0.15em 0.6em 0.3em 0.6em;
+  background-color: var(--base-00);
+  border: 0;
+  border-radius: var(--radius);
+  color: var(--base-06);
+  font: inherit;
+  transition: var(--transition-time);
+}
+
+.button:hover:enabled {
+  background-color: var(--base-0203);
+  box-shadow: var(--shadow);
+}
+
+.button:active:enabled {
+  background-color: var(--base-02020203);
+  color: var(--base-05);
+}
+
+.button:disabled {
+  background-color: var(--base-01);
+  color: var(--base-04);
+}
+
+.button:hover:disabled {
+  background-color: var(--base-02);
+}
+
+.button:active:disabled {
+  color: var(--base-0304);
+}
+
 /* Popup windows. */
 
 .window-button {
@@ -432,7 +471,7 @@ select:focus {
   opacity: 0;
 }
 
-.window-bg[window_vis="visible"] {
+.window-bg[window_vis_="visible"] {
   visibility: visible;
   opacity: 1;
 }
