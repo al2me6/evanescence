@@ -63,7 +63,7 @@ impl Component for InfoPanelImpl {
                                     utils::fmt_replace_minus(qn.m()),
                                 )
                             />
-                        }} else { html! {} }}
+                        }} else { html!() }}
                         { ", which is " }
                         { if "sfhi".contains(subshell_name) { "an " } else { "a " } } // English is hard.
                         <i>{ subshell_name }</i>

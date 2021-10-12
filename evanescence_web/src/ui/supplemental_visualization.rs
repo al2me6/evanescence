@@ -123,7 +123,7 @@ impl Component for SupplementalVisualizationImpl {
                     </p>
                 }
             } else {
-                html! {}
+                html!()
             };
 
             html! {
@@ -135,7 +135,7 @@ impl Component for SupplementalVisualizationImpl {
                 </>
             }
         } else {
-            html! {}
+            html!()
         }
     }
 

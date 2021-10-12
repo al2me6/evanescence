@@ -20,7 +20,7 @@ pub(crate) struct Dropdown<T: DropdownItem> {
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct DropdownProps<T: DropdownItem> {
     pub(crate) id: CowStr,
-    pub(crate) onchange: Callback<T>,
+    pub(crate) on_change: Callback<T>,
     pub(crate) options: Vec<T>,
     pub(crate) selected: T,
     #[prop_or_default]
@@ -41,7 +41,7 @@ impl<T: DropdownItem> Component for Dropdown<T> {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         self.props
-            .onchange
+            .on_change
             .emit(self.props.options[usize::from_str(&msg).unwrap()]);
         false
     }

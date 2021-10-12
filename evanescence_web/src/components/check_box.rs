@@ -15,7 +15,7 @@ pub(crate) struct CheckBox {
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct CheckBoxProps {
     pub(crate) id: CowStr,
-    pub(crate) onchange: Callback<bool>,
+    pub(crate) on_change: Callback<bool>,
     pub(crate) initial_state: bool,
     pub(crate) label: CowStr,
     #[prop_or_default]
@@ -38,7 +38,7 @@ impl Component for CheckBox {
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
         self.state = self.node_ref.cast::<HtmlInputElement>().unwrap().checked();
-        self.props.onchange.emit(self.state);
+        self.props.on_change.emit(self.state);
         false
     }
 

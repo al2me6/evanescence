@@ -12,7 +12,7 @@ use super::descriptions::DESC;
 use crate::components::{Button, CheckBox, Dropdown, Slider, Tooltip};
 use crate::presets::{HybridPreset, MoPreset, QnPreset};
 use crate::state::{AppDispatch, Mode, State, Visualization};
-use crate::{utils, MAX_N};
+use crate::utils;
 
 fn td_tooltip(text: &'static str, tooltip: &'static str) -> Html {
     html! {
@@ -59,7 +59,7 @@ impl Component for ControlsImpl {
                         { td_tooltip("Show supplemental visualization:", DESC.supplement) }
                         <td><Dropdown<Visualization>
                             id = "supplement-picker"
-                            onchange = dispatch.reduce_callback_with(State::set_supplement)
+                            on_change = dispatch.reduce_callback_with(State::set_supplement)
                             options = state.available_supplements()
                             selected = state.supplement()
                         /></td>
@@ -68,7 +68,7 @@ impl Component for ControlsImpl {
                         { td_tooltip("Render quality:", DESC.render_qual) }
                         <td><Dropdown<Quality>
                             id = "quality-picker"
-                            onchange = dispatch.reduce_callback_with(State::set_quality)
+                            on_change = dispatch.reduce_callback_with(State::set_quality)
                             options = Quality::iter().collect_vec()
                             custom_display = Quality::iter().map(Quality::to_text).collect_vec()
                             selected = state.quality()
@@ -93,7 +93,7 @@ impl ControlsImpl {
                     { td_tooltip("Select orbital:", DESC.qn_dropdown) }
                     <td><Dropdown<QnPreset>
                         id = "preset_picker"
-                        onchange = dispatch.reduce_callback_with(State::set_qn_preset)
+                        on_change = dispatch.reduce_callback_with(State::set_qn_preset)
                         options = QnPreset::iter().collect_vec()
                         selected = state.qn_preset()
                     /></td>
@@ -103,7 +103,7 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "radial-nodes-toggle"
-                    onchange = dispatch.reduce_callback_with(State::set_nodes_rad)
+                    on_change = dispatch.reduce_callback_with(State::set_nodes_rad)
                     initial_state = state.nodes_rad()
                     label = "Show radial nodes"
                     tooltip = DESC.nodes_rad
@@ -113,7 +113,7 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "angular-nodes-toggle"
-                    onchange = dispatch.reduce_callback_with(State::set_nodes_ang)
+                    on_change = dispatch.reduce_callback_with(State::set_nodes_ang)
                     initial_state = state.nodes_ang()
                     label = "Show angular nodes"
                     tooltip = DESC.nodes_ang
@@ -148,7 +148,7 @@ impl ControlsImpl {
                 { td_tooltip("Select hybridization:", DESC.hybrid_dropdown) }
                 <td><Dropdown<HybridPreset>
                     id = "preset_picker"
-                    onchange = dispatch.reduce_callback_with(State::set_hybrid_preset)
+                    on_change = dispatch.reduce_callback_with(State::set_hybrid_preset)
                     options = HybridPreset::iter().collect_vec()
                     selected = state.hybrid_preset()
                 /></td>
@@ -157,7 +157,7 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "show-symmetry-toggle"
-                    onchange = dispatch.reduce_callback_with(State::set_silhouettes)
+                    on_change = dispatch.reduce_callback_with(State::set_silhouettes)
                     initial_state = state.silhouettes()
                     label = "Show symmetry"
                     tooltip = DESC.show_symmetry
@@ -167,7 +167,7 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "hybrid-nodes-toggle"
-                    onchange = dispatch.reduce_callback_with(State::set_nodes)
+                    on_change = dispatch.reduce_callback_with(State::set_nodes)
                     initial_state = state.nodes()
                     label = "Show nodes"
                     tooltip = DESC.nodes_hybrid
@@ -187,7 +187,7 @@ impl ControlsImpl {
                 { td_tooltip("Select molecular orbital:", DESC.hybrid_dropdown) }
                 <td><Dropdown<MoPreset>
                     id = "preset_picker"
-                    onchange = dispatch.reduce_callback_with(State::set_mo_preset)
+                    on_change = dispatch.reduce_callback_with(State::set_mo_preset)
                     options = MoPreset::iter().collect_vec()
                     selected = state.mo_preset()
                 /></td>
@@ -196,7 +196,7 @@ impl ControlsImpl {
                 { td_tooltip("Interatomic separation:", DESC.interatomic_separation) }
                 <td><Slider
                     id = "sep-slider"
-                    onchange = dispatch.reduce_callback_with(State::set_separation)
+                    on_change = dispatch.reduce_callback_with(State::set_separation)
                     min = 0.0
                     value = state.separation()
                     max = 10.0
@@ -208,7 +208,7 @@ impl ControlsImpl {
                 <td/>
                 <td><CheckBox
                     id = "mo-nodes-toggle"
-                    onchange = dispatch.reduce_callback_with(State::set_nodes)
+                    on_change = dispatch.reduce_callback_with(State::set_nodes)
                     initial_state = state.nodes()
                     label = "Show nodes"
                     tooltip = DESC.nodes_hybrid
@@ -301,7 +301,7 @@ impl Component for QnPickers {
                 <td><Dropdown<u32>
                     id = "n-picker"
                     on_change = self.link.callback(QnPickersMsg::N)
-                    options = (1..=MAX_N).collect_vec()
+                    options = (1..=crate::MAX_N).collect_vec()
                     selected = qn.n()
                 /></td>
             </tr>

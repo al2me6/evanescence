@@ -41,7 +41,7 @@ impl Component for ModeBarImpl {
         html! {
             <TabBar<Mode>
                 id = "mode"
-                onchange = dispatch.reduce_callback_with(set_mode)
+                on_change = dispatch.reduce_callback_with(set_mode)
                 modes = Mode::iter().collect::<Vec<_>>()
                 selected = state.mode()
             />

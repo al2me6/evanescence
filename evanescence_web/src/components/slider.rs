@@ -7,14 +7,13 @@ use crate::utils::CowStr;
 pub(crate) struct Slider {
     link: ComponentLink<Self>,
     props: SliderProps,
-    state: f32,
     node_ref: NodeRef,
 }
 
 #[derive(Clone, PartialEq, Properties)]
 pub(crate) struct SliderProps {
     pub(crate) id: CowStr,
-    pub(crate) onchange: Callback<f32>,
+    pub(crate) on_change: Callback<f32>,
     pub(crate) min: f32,
     pub(crate) value: f32,
     pub(crate) max: f32,
@@ -27,17 +26,15 @@ impl Component for Slider {
     type Properties = SliderProps;
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let state = props.value;
         Self {
             link,
             props,
-            state,
             node_ref: NodeRef::default(),
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        self.state = self
+        self.props.value = self
             .node_ref
             .cast::<HtmlInputElement>()
             .unwrap()
@@ -45,7 +42,7 @@ impl Component for Slider {
             .parse()
             .unwrap();
         if msg {
-            self.props.onchange.emit(self.state);
+            self.props.on_change.emit(self.props.value);
         }
         true
     }
@@ -64,13 +61,13 @@ impl Component for Slider {
                     oninput = self.link.callback(|_| false)
                     onchange = self.link.callback(|_| true)
                     min = self.props.min.to_string()
-                    value = self.state.to_string()
+                    value = self.props.value.to_string()
                     max = self.props.max.to_string()
                     step = self.props.step.to_string()
                     aria-label = &self.props.id
                 />
                 <p class = "slider-label">
-                    { format!("{:.1}{}", self.state, self.props.value_postfix) }
+                    { format!("{:.1}{}", self.props.value, self.props.value_postfix) }
                 </p>
             </div>
         }
