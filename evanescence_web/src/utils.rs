@@ -54,7 +54,13 @@ pub(crate) fn fmt_thousands_separated(n: usize) -> String {
     if string.len() <= 4 {
         return string;
     }
-    Iterator::intersperse(string.chars().collect_vec().rchunks(3).rev(), &[' '])
+    #[allow(unstable_name_collisions)] // Apparently this won't be stabilized for a while.
+    string
+        .chars()
+        .collect_vec()
+        .rchunks(3)
+        .rev()
+        .intersperse(&[' '])
         .flatten()
         .collect()
 }
