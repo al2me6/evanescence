@@ -61,8 +61,9 @@ This occurs on certain browser-operating system combinations, specifically Firef
 * Tully *et al.* 2013, [Interactive Web-Based Pointillist Visualization of Hydrogenic Orbitals Using Jmol](https://doi.org/10.1021/ed300393s)
 * Douglas 1990, [Visualization of Electron Clouds in Atoms and Molecules](https://doi.org/10.1021/ed067p42)
 * Ogryzlo and Porter 1963, [Contour Surfaces for Atomic and Molecular Orbitals](https://doi.org/10.1021/ed040p256)
-* Mark Winter, [*The Orbitron*](https://winter.group.shef.ac.uk/orbitron/)
+* Mark Winter, [The Orbitron](https://winter.group.shef.ac.uk/orbitron/)
 * Paul Falstad, [Hydrogen Atom Orbital Viewer](https://www.falstad.com/qmatom/)
+* Paul Falstad, [Molecular Orbital Viewer](https://www.falstad.com/qmmo/)
 
 ## Acknowledgements
 
