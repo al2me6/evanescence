@@ -1,4 +1,4 @@
-use evanescence_core::orbital::{self, Complex, Orbital, Real};
+use evanescence_core::orbital::{self, Complex, Orbital, Real1};
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
@@ -42,15 +42,14 @@ impl Component for InfoPanelImpl {
         let description = match state.mode() {
             Mode::RealSimple | Mode::Real => {
                 let qn = state.qn();
-                let num_radial_nodes = Real::num_radial_nodes(qn);
-                let num_angular_nodes = Real::num_angular_nodes(qn);
-                let subshell_name =
-                    orbital::atomic::subshell_name(qn.l()).expect("failed to get subshell name");
+                let num_radial_nodes = Real1::num_radial_nodes(qn);
+                let num_angular_nodes = Real1::num_angular_nodes(qn);
+                let subshell_name = orbital::atomic::subshell_name(qn.l());
                 html! {
                     <p>
                         { "Viewing orbital " }
                         <RawSpan
-                            inner_html = utils::fmt_orbital_name_html(Real::name(qn))
+                            inner_html = utils::fmt_orbital_name_html(Real1::name(qn))
                         />
                         // Show quantum numbers here in Real (Simple) mode, since it's not shown
                         // in the picker.

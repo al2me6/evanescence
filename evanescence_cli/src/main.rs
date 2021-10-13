@@ -7,7 +7,7 @@ use evanescence_core::geometry::Plane;
 use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::EvaluateBounded;
 use evanescence_core::orbital::atomic::RadialPlot;
-use evanescence_core::orbital::{self, Complex, Qn, Real};
+use evanescence_core::orbital::{self, Complex, Qn, Real1};
 use once_cell::sync::OnceCell;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
@@ -162,7 +162,7 @@ fn main() -> Result<()> {
                 || {
                     (
                         quality as usize,
-                        Real::monte_carlo_simulate(&qn, quality, false),
+                        Real1::monte_carlo_simulate(&qn, quality, false),
                     )
                 },
                 |sim_result| {
@@ -179,8 +179,8 @@ fn main() -> Result<()> {
                         // We render the Monte Carlo points and a cube of side length num_points_iso.
                         quality as usize + num_points_iso.pow(3),
                         (
-                            Real::monte_carlo_simulate(&qn, quality, false),
-                            Real::sample_region(&qn, num_points_iso),
+                            Real1::monte_carlo_simulate(&qn, quality, false),
+                            Real1::sample_region(&qn, num_points_iso),
                         ),
                     )
                 },
@@ -229,7 +229,11 @@ fn main() -> Result<()> {
                     const NUM_POINTS: usize = 1_000;
                     (
                         NUM_POINTS,
-                        orbital::atomic::sample_radial(&qn, mode.try_into().unwrap(), NUM_POINTS),
+                        orbital::atomic::sample_radial::<1>(
+                            &qn,
+                            mode.try_into().unwrap(),
+                            NUM_POINTS,
+                        ),
                     )
                 },
                 |(xs, ys)| {
@@ -244,7 +248,7 @@ fn main() -> Result<()> {
                     let num_points = quality.for_grid();
                     (
                         num_points * num_points, // We calculate an entire grid.
-                        Real::sample_plane(&qn, mode.try_into().unwrap(), num_points),
+                        Real1::sample_plane(&qn, mode.try_into().unwrap(), num_points),
                     )
                 },
                 |sim_result| {

@@ -8,7 +8,7 @@ pub mod quantum_numbers;
 
 use std::marker::PhantomData;
 
-pub use self::atomic::{Complex, Real};
+pub use self::atomic::{Complex, Real, Real1};
 pub use self::quantum_numbers::Qn;
 use crate::geometry::Point;
 use crate::numerics::{Evaluate, EvaluateBounded};
@@ -33,13 +33,13 @@ pub trait Orbital: EvaluateBounded {
 /// use approx::assert_relative_eq;
 /// use evanescence_core::geometry::Point;
 /// use evanescence_core::numerics::Evaluate;
-/// use evanescence_core::orbital::{ProbabilityDensity, Qn, Real};
+/// use evanescence_core::orbital::{ProbabilityDensity, Qn, Real1};
 ///
 /// let qn = Qn::new(3, 2, 1).unwrap();
 ///
 /// assert_relative_eq!(
 ///     2.446E-4,
-///     ProbabilityDensity::<Real>::evaluate(&qn, &Point::new(6.0, -0.3, 8.5))
+///     ProbabilityDensity::<Real1>::evaluate(&qn, &Point::new(6.0, -0.3, 8.5))
 /// );
 /// ```
 pub struct ProbabilityDensity<O> {

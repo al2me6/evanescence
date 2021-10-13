@@ -6,22 +6,22 @@
 //! ```
 //! use evanescence_core::geometry::Point;
 //! use evanescence_core::numerics::Evaluate;
-//! use evanescence_core::orbital::{Qn, Real};
+//! use evanescence_core::orbital::{Qn, Real1};
 //!
 //! // The 4d_{z^2} orbital.
 //! let qn = Qn::new(4, 2, 0).unwrap(); // The constructor validates the parameters.
-//! let value = Real::evaluate(&qn, &Point::new(1.0, 3.2, 4.7));
+//! let value = Real1::evaluate(&qn, &Point::new(1.0, 3.2, 4.7));
 //! approx::assert_relative_eq!(value, 0.008895547);
 //! ```
 //!
 //! To run a [Monte Carlo simulation](monte_carlo) on an orbital:
 //! ```
 //! use evanescence_core::monte_carlo::{MonteCarlo, Quality};
-//! use evanescence_core::orbital::{Qn, Real};
+//! use evanescence_core::orbital::{Qn, Real1};
 //!
 //! let qn = Qn::new(4, 2, 0).unwrap();
 //! let quality = Quality::Low; // Quality controls the number of points sampled.
-//! let results = Real::monte_carlo_simulate(&qn, quality, false);
+//! let results = Real1::monte_carlo_simulate(&qn, quality, false);
 //! ```
 
 #![feature(array_windows, destructuring_assignment, type_alias_impl_trait)]

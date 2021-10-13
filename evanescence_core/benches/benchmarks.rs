@@ -6,7 +6,7 @@ use evanescence_core::numerics::orthogonal_polynomials::{
     associated_laguerre, associated_legendre,
 };
 use evanescence_core::numerics::DoubleFactorial;
-use evanescence_core::orbital::{Qn, Real};
+use evanescence_core::orbital::{Qn, Real1};
 
 pub fn bench_numerics(c: &mut Criterion) {
     let mut fact_group = c.benchmark_group("factorials");
@@ -53,7 +53,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
                 ),
             ),
             &qn,
-            |b, qn| b.iter(|| Real::monte_carlo_simulate(qn, Quality::Extreme, true)),
+            |b, qn| b.iter(|| Real1::monte_carlo_simulate(qn, Quality::Extreme, true)),
         );
     }
 }

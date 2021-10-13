@@ -4,7 +4,7 @@ use std::f32::consts::PI;
 use evanescence_core::geometry::Plane;
 use evanescence_core::numerics::{self, EvaluateBounded};
 use evanescence_core::orbital::atomic::RadialPlot;
-use evanescence_core::orbital::{self, Complex, Real};
+use evanescence_core::orbital::{self, Complex, Real1};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -39,7 +39,7 @@ pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
         function_expr
     );
 
-    let (x, y) = orbital::atomic::sample_radial(state.qn(), variant, NUM_POINTS);
+    let (x, y) = orbital::atomic::sample_radial::<1>(state.qn(), variant, NUM_POINTS);
 
     if variant == RadialPlot::ProbabilityDistribution {
         log::info!(
@@ -272,7 +272,7 @@ pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         super::compute_isosurface_hybrid(state.hybrid_kind(), 0, state.quality())
     } else {
         let (x, y, z, value) =
-            Real::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
+            Real1::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
                 .into_components();
         let cutoff = super::isosurface_cutoff_heuristic_real(state.qn());
         Isosurface {

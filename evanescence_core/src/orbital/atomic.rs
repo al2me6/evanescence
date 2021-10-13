@@ -14,24 +14,24 @@ use crate::orbital::quantum_numbers::{Lm, Nl, Qn};
 use crate::orbital::Orbital;
 
 /// Implementation of the radial component of the hydrogenic wavefunction.
-pub struct Radial;
+pub struct Radial<const Z: u32>;
 
-impl Radial {
+impl<const Z: u32> Radial<Z> {
     /// Calculate the radial wavefunction normalization factor,
-    /// `√( (2/n)^3 * (n-l-1)! / (2n * (n+l)!) )`.
+    /// `√( (2Z/n)^3 * (n-l-1)! / (2n * (n+l)!) )`.
     #[inline]
     fn normalization_factor(n: u32, l: u32) -> f32 {
         // (n-l-1)! / (n+l)! = 1 / [(n-l) * (n-l+1) * ... * (n+l-1) * (n+l)].
         let factorial_factor = ((n - l)..=(n + l)).map(|k| k as f32).product::<f32>();
-        // Where we've taken `(2/n)^3 / 2n` out ouf the square root.
-        2.0 / ((n * n) as f32 * factorial_factor.sqrt())
+        // Where we've taken `(2Z/n)^3 / 2n` out ouf the square root.
+        2.0 * ((Z * Z * Z) as f32 / factorial_factor).sqrt() / ((n * n) as f32)
     }
 
     /// Give the value of the radial wavefunction at `r` for a given `Nl`.
     #[inline]
     pub fn evaluate_r(nl: &Nl, r: f32) -> f32 {
         let (n, l) = (nl.n(), nl.l());
-        let rho = 2.0 * r / (n as f32);
+        let rho = 2.0 * Z as f32 * r / (n as f32);
         Self::normalization_factor(n, l)
             * (-rho / 2.0).exp()
             * rho.powi(l as i32)
@@ -39,7 +39,7 @@ impl Radial {
     }
 }
 
-impl Evaluate for Radial {
+impl<const Z: u32> Evaluate for Radial<Z> {
     type Output = f32;
     type Parameters = Nl;
 
@@ -50,19 +50,19 @@ impl Evaluate for Radial {
 }
 
 /// The radial probability distribution, `r^2R^2`.
-pub struct RadialProbabilityDistribution;
+pub struct RadialProbabilityDistribution<const Z: u32>;
 
-impl RadialProbabilityDistribution {
+impl<const Z: u32> RadialProbabilityDistribution<Z> {
     /// Give the value of the radial probability distribution at `r` for a given `Nl`.
     #[inline]
     pub fn evaluate_r(nl: &Nl, r: f32) -> f32 {
         #[allow(non_snake_case)] // Mathematical convention.
-        let R = Radial::evaluate_r(nl, r);
+        let R = Radial::<Z>::evaluate_r(nl, r);
         r * r * R * R
     }
 }
 
-impl Evaluate for RadialProbabilityDistribution {
+impl<const Z: u32> Evaluate for RadialProbabilityDistribution<Z> {
     type Output = f32;
     type Parameters = Nl;
 
@@ -86,13 +86,17 @@ pub enum RadialPlot {
 ///
 /// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
 /// and the second containing the values associated with the radial points.
-pub fn sample_radial(qn: &Qn, variant: RadialPlot, num_points: usize) -> (Vec<f32>, Vec<f32>) {
+pub fn sample_radial<const Z: u32>(
+    qn: &Qn,
+    variant: RadialPlot,
+    num_points: usize,
+) -> (Vec<f32>, Vec<f32>) {
     let nl = Nl::from(qn);
     let evaluator = match variant {
-        RadialPlot::Wavefunction => Radial::evaluate_r,
-        RadialPlot::ProbabilityDistribution => RadialProbabilityDistribution::evaluate_r,
+        RadialPlot::Wavefunction => Radial::<Z>::evaluate_r,
+        RadialPlot::ProbabilityDistribution => RadialProbabilityDistribution::<Z>::evaluate_r,
     };
-    let rs = (0_f32..=Real::bound(qn))
+    let rs = (0_f32..=Real::<Z>::bound(qn))
         .linspace(num_points)
         .collect::<Vec<_>>();
     let vals = rs.iter().map(|&r| evaluator(&nl, r)).collect();
@@ -229,29 +233,33 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
 }
 
 /// Implementation of the real hydrogenic orbitals.
-pub struct Real;
+pub struct Real<const Z: u32>;
 
-impl Evaluate for Real {
+/// [`Real`] orbital with nuclear charge 1.
+pub type Real1 = Real<1>;
+
+impl<const Z: u32> Evaluate for Real<Z> {
     type Output = f32;
     type Parameters = Qn;
 
     #[inline]
     fn evaluate(qn: &Qn, point: &Point) -> f32 {
-        Radial::evaluate(&qn.into(), point) * RealSphericalHarmonic::evaluate(&qn.into(), point)
+        Radial::<Z>::evaluate(&qn.into(), point)
+            * RealSphericalHarmonic::evaluate(&qn.into(), point)
     }
 }
 
-impl EvaluateBounded for Real {
+impl<const Z: u32> EvaluateBounded for Real<Z> {
     /// Return the radius of the sphere that contains 99.8% of all probability density.
     #[inline]
     fn bound(qn: &Qn) -> f32 {
         const INCREMENT: f32 = 0.005;
         const THRESHOLD: f32 = 0.998;
-        const EVALUATOR: fn(&Nl, f32) -> f32 = RadialProbabilityDistribution::evaluate_r;
 
+        let evaluator = RadialProbabilityDistribution::<Z>::evaluate_r;
         let nl = Nl::from(qn);
         let mut r = INCREMENT;
-        let (mut prev_val, mut val) = (EVALUATOR(&nl, 0_f32), EVALUATOR(&nl, r));
+        let (mut prev_val, mut val) = (evaluator(&nl, 0_f32), evaluator(&nl, r));
         let mut sum = 0_f32;
 
         while sum < THRESHOLD {
@@ -259,13 +267,13 @@ impl EvaluateBounded for Real {
             sum += (prev_val + val) * INCREMENT * 0.5;
             prev_val = val;
             r += INCREMENT;
-            val = EVALUATOR(&nl, r);
+            val = evaluator(&nl, r);
         }
         r
     }
 }
 
-impl Orbital for Real {
+impl<const Z: u32> Orbital for Real<Z> {
     #[inline]
     fn probability_density_of(value: f32) -> f32 {
         value * value
@@ -285,7 +293,7 @@ impl Orbital for Real {
     }
 }
 
-impl Real {
+impl<const Z: u32> Real<Z> {
     /// Give the number of radial nodes in an orbital.
     pub fn num_radial_nodes(qn: &Qn) -> u32 {
         qn.n() - qn.l() - 1
@@ -306,14 +314,14 @@ impl Evaluate for Complex {
 
     #[inline]
     fn evaluate(qn: &Qn, point: &Point) -> Complex32 {
-        Radial::evaluate(&qn.into(), point) * SphericalHarmonic::evaluate(&qn.into(), point)
+        Radial::<1>::evaluate(&qn.into(), point) * SphericalHarmonic::evaluate(&qn.into(), point)
     }
 }
 
 impl EvaluateBounded for Complex {
     #[inline]
     fn bound(params: &Self::Parameters) -> f32 {
-        Real::bound(params)
+        Real1::bound(params)
     }
 }
 
@@ -384,7 +392,7 @@ mod tests {
 
     test!(
         test_radial_1_0,
-        Radial::evaluate,
+        Radial::<1>::evaluate,
         Nl::new(1, 0).unwrap(),
         &[
             0.00663625, 0.0058303, 0.00134232, 0.00109754, 0.0856609, 0.00137691, 0.00097705,
@@ -393,7 +401,7 @@ mod tests {
     );
     test!(
         test_radial_2_1,
-        Radial::evaluate,
+        Radial::<1>::evaluate,
         Nl::new(2, 1).unwrap(),
         &[
             0.06712, 0.0643393, 0.0386382, 0.0359008, 0.133092, 0.0389966, 0.0343976, 0.0161317,
@@ -402,7 +410,7 @@ mod tests {
     );
     test!(
         test_radial_3_0,
-        Radial::evaluate,
+        Radial::<1>::evaluate,
         Nl::new(3, 0).unwrap(),
         &[
             -0.0224952, -0.0202023, 0.00281192, 0.00536186, -0.0491676, 0.00247796, 0.00675915,
@@ -411,7 +419,7 @@ mod tests {
     );
     test!(
         test_radial_5_3,
-        Radial::evaluate,
+        Radial::<1>::evaluate,
         Nl::new(5, 3).unwrap(),
         &[
             0.00865692, 0.00894101, 0.0117124, 0.0120124, 0.00286186, 0.0116729, 0.0121757,
@@ -476,9 +484,10 @@ mod tests {
 
     #[test]
     fn test_radial_probability_density_unity() {
-        Qn::enumerate_up_to_n(8)
+        Qn::enumerate_up_to_n(17)
             .unwrap()
-            .map(|qn| super::sample_radial(&qn, RadialPlot::ProbabilityDistribution, 1_000))
+            .filter(|qn| qn.m() == 0) // The radial component depends only on n and l.
+            .map(|qn| super::sample_radial::<1>(&qn, RadialPlot::ProbabilityDistribution, 1_000))
             .for_each(|(xs, ys)| {
                 approx::assert_abs_diff_eq!(
                     1.0,

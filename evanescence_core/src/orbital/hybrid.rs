@@ -7,7 +7,7 @@ use getset::{CopyGetters, Getters};
 use itertools::Itertools;
 use thiserror::Error;
 
-use super::{EvaluateBounded, Orbital, Qn, Real};
+use super::{EvaluateBounded, Orbital, Qn, Real1};
 use crate::geometry::Point;
 use crate::numerics::Evaluate;
 
@@ -60,7 +60,7 @@ impl LinearCombination {
         format!(
             "{} {}",
             format!("{:.3}", weight).trim_end_matches('0'),
-            Real::name(qn)
+            Real1::name(qn)
         )
     }
 
@@ -146,7 +146,7 @@ impl Evaluate for Hybrid {
     fn evaluate(combination: &LinearCombination, point: &Point) -> Self::Output {
         combination
             .iter()
-            .map(|QnWeight { qn, weight }| weight * Real::evaluate(qn, point))
+            .map(|QnWeight { qn, weight }| weight * Real1::evaluate(qn, point))
             .sum()
     }
 }
@@ -156,7 +156,7 @@ impl EvaluateBounded for Hybrid {
         params
             .iter()
             .map(|QnWeight { qn, .. }| qn)
-            .map(Real::bound)
+            .map(Real1::bound)
             .reduce(f32::max)
             .expect("linear combination must contain at least one orbital")
             * 0.9

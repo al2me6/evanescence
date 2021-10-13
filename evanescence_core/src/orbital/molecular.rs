@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::{Orbital, Qn, Real};
+use super::{Orbital, Qn, Real1};
 use crate::geometry::{Point, Vec3};
 use crate::numerics::{Evaluate, EvaluateBounded};
 
@@ -35,7 +35,7 @@ impl Evaluate for Molecular {
             .weights
             .iter()
             .map(|OffsetQnWeight { qn, weight, offset }| {
-                weight * Real::evaluate(qn, &Point::from(pt_vec - offset))
+                weight * Real1::evaluate(qn, &Point::from(pt_vec - offset))
             })
             .sum()
     }
@@ -45,7 +45,7 @@ impl EvaluateBounded for Molecular {
     fn bound(params: &Self::Parameters) -> f32 {
         let mut max = 0_f32;
         for OffsetQnWeight { qn, offset, .. } in &params.weights {
-            let bound = Real::bound(qn);
+            let bound = Real1::bound(qn);
             let max_offset = [offset.x, offset.y, offset.z]
                 .into_iter()
                 .map(f32::abs)

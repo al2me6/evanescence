@@ -105,7 +105,7 @@ pub(crate) fn complex(state: &State) -> JsValue {
 pub(crate) fn nodes_radial(state: &State) -> JsValue {
     assert!(state.mode().is_real_or_simple());
 
-    let (x, y, z, value) = atomic::Radial::evaluate_in_region(
+    let (x, y, z, value) = atomic::Radial::<1>::evaluate_in_region(
         &state.qn().into(),
         // Shrink the extent plotted since radial nodes are found in the central part of the
         // full extent only. This is a heuristic that has been verified to cover all radial

@@ -6,7 +6,7 @@ use strum::{Display, EnumIter, EnumString};
 use crate::geometry::{ComponentForm, Point, PointValue};
 use crate::orbital::hybrid::Hybrid;
 use crate::orbital::molecular::Molecular;
-use crate::orbital::{Complex, Orbital, Real};
+use crate::orbital::{Complex, Orbital, Real, Real1};
 
 /// A set of predefined qualities (i.e., number of points computed) for sampling orbitals, either
 /// for Monte Carlo simulations or plotting.
@@ -174,7 +174,7 @@ pub trait MonteCarlo: Orbital {
     }
 }
 
-impl MonteCarlo for Real {
+impl<const Z: u32> MonteCarlo for Real<Z> {
     fn max_value_multiplier(params: &Self::Parameters) -> Option<f32> {
         Some(1.0 / (0.05 * (Self::num_radial_nodes(params) as f32).powi(3) + 1.0))
     }
@@ -182,7 +182,7 @@ impl MonteCarlo for Real {
 
 impl MonteCarlo for Complex {
     fn max_value_multiplier(params: &Self::Parameters) -> Option<f32> {
-        Real::max_value_multiplier(params)
+        Real1::max_value_multiplier(params)
     }
 }
 

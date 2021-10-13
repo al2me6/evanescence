@@ -606,7 +606,7 @@ impl State {
 impl State {
     pub(crate) fn bound(&self) -> f32 {
         match self.mode() {
-            Mode::RealSimple | Mode::Real | Mode::Complex => orbital::Real::bound(self.qn()),
+            Mode::RealSimple | Mode::Real | Mode::Complex => orbital::Real1::bound(self.qn()),
             Mode::Hybrid => orbital::hybrid::Hybrid::bound(self.hybrid_kind().archetype()),
             Mode::Mo => orbital::molecular::Molecular::bound(&self.lcao()),
         }
@@ -615,7 +615,7 @@ impl State {
     pub(crate) fn monte_carlo_simulate_real(&self) -> ComponentForm<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::Real => {
-                orbital::Real::monte_carlo_simulate(self.qn(), self.quality(), true)
+                orbital::Real1::monte_carlo_simulate(self.qn(), self.quality(), true)
             }
             Mode::Hybrid => orbital::hybrid::Hybrid::monte_carlo_simulate(
                 self.hybrid_kind().archetype(),
@@ -634,7 +634,7 @@ impl State {
     pub(crate) fn sample_plane_real(&self, plane: Plane) -> GridValues<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::Real => {
-                orbital::Real::sample_plane(self.qn(), plane, self.quality().for_grid())
+                orbital::Real1::sample_plane(self.qn(), plane, self.quality().for_grid())
             }
             Mode::Hybrid => orbital::hybrid::Hybrid::sample_plane(
                 self.hybrid_kind().archetype(),
@@ -652,7 +652,7 @@ impl State {
 
     pub(crate) fn sample_plane_prob_density(&self, plane: Plane) -> GridValues<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::Real => ProbabilityDensity::<orbital::Real>::sample_plane(
+            Mode::RealSimple | Mode::Real => ProbabilityDensity::<orbital::Real1>::sample_plane(
                 self.qn(),
                 plane,
                 self.quality().for_grid(),
