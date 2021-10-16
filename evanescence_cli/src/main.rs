@@ -166,7 +166,9 @@ fn main() -> Result<()> {
                     )
                 },
                 |sim_result| {
-                    renderer.call1("render_pointillist", sim_result.into_components())?;
+                    renderer
+                        .getattr("render_pointillist")?
+                        .call1(sim_result.into_components())?;
                     Ok(())
                 },
             )?;
@@ -193,12 +195,9 @@ fn main() -> Result<()> {
                         min = min.min(val);
                         max = max.max(val);
                     });
-                    renderer.call1(
-                        "render_pointillist_with_nodes",
-                        (
-                            xs_pt, ys_pt, zs_pt, vals_pt, xs_iso, ys_iso, zs_iso, vals_iso,
-                        ),
-                    )?;
+                    renderer.getattr("render_pointillist_with_nodes")?.call1((
+                        xs_pt, ys_pt, zs_pt, vals_pt, xs_iso, ys_iso, zs_iso, vals_iso,
+                    ))?;
                     Ok(())
                 },
             )?;
@@ -215,10 +214,13 @@ fn main() -> Result<()> {
                     let (xs, ys, zs, vals) = sim_result.into_components();
                     let vals_moduli: Vec<_> = vals.iter().map(|val| val.norm()).collect();
                     let vals_arguments: Vec<_> = vals.iter().map(|val| val.arg()).collect();
-                    renderer.call1(
-                        "render_pointillist_complex",
-                        (xs, ys, zs, vals_moduli, vals_arguments),
-                    )?;
+                    renderer.getattr("render_pointillist_complex")?.call1((
+                        xs,
+                        ys,
+                        zs,
+                        vals_moduli,
+                        vals_arguments,
+                    ))?;
                     Ok(())
                 },
             )?;
@@ -237,7 +239,9 @@ fn main() -> Result<()> {
                     )
                 },
                 |(xs, ys)| {
-                    renderer.call1("render_1d", (xs, "r", ys, mode.to_string()))?;
+                    renderer
+                        .getattr("render_1d")?
+                        .call1((xs, "r", ys, mode.to_string()))?;
                     Ok(())
                 },
             )?;
@@ -262,10 +266,16 @@ fn main() -> Result<()> {
                             max = max.max(val);
                         })
                     });
-                    renderer.call1(
-                        "render_2d",
-                        (xs, x_name, ys, y_name, vals, "Wavefunction Value", min, max),
-                    )?;
+                    renderer.getattr("render_2d")?.call1((
+                        xs,
+                        x_name,
+                        ys,
+                        y_name,
+                        vals,
+                        "Wavefunction Value",
+                        min,
+                        max,
+                    ))?;
                     Ok(())
                 },
             )?;
