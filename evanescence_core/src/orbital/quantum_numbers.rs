@@ -25,7 +25,7 @@ type Result<T, E = InvalidQnError> = std::result::Result<T, E>;
 /// # Invariants
 /// `Qn` must satisfy that `n > 0`, `n > l` and `l >= |m|`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, CopyGetters)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct Qn {
     /// The principal quantum number.
@@ -176,7 +176,7 @@ impl std::fmt::Display for Qn {
 /// # Invariants
 /// `Nl` must satisfy that `n > 0` and `n > l`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Copy, Debug, CopyGetters)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct Nl {
     /// The principal quantum number.
@@ -220,7 +220,7 @@ impl From<&Qn> for Nl {
 /// # Invariants
 /// `Lm` must satisfy that `l >= |m|`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Copy, Debug, CopyGetters)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
 pub struct Lm {
     /// The azimuthal quantum number.
