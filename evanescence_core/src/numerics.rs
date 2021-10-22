@@ -2,6 +2,8 @@
 
 use std::ops::RangeInclusive;
 
+use itertools::Itertools;
+
 use crate::geometry::{ComponentForm, GridValues, Linspace, Plane, Point, PointValue, Vec3};
 
 /// Compute the [double factorial](https://en.wikipedia.org/wiki/Double_factorial).
@@ -262,6 +264,28 @@ pub trait EvaluateBounded: Evaluate {
     fn sample_region(params: &Self::Parameters, num_points: usize) -> ComponentForm<Self::Output> {
         Self::evaluate_in_region(params, Self::bound(params), num_points)
     }
+}
+
+/// Try to find roots of a continuous function in a given `interval`. `num_initial_test` evenly
+/// spaced points are used to test for sign changes (thus, zeros, by the intermediate value
+/// theorem), which are then refined using Brent's method.
+///
+/// # Panics
+/// This function will panic if the root finder does not converge.
+pub fn find_roots_in_interval<'a>(
+    interval: RangeInclusive<f32>,
+    num_initial_tests: usize,
+    f: impl Fn(f32) -> f32 + Copy + 'a,
+) -> impl Iterator<Item = f32> + 'a {
+    interval
+        .linspace(num_initial_tests)
+        .map(move |a| (a, f(a)))
+        .tuple_windows()
+        .filter(|((_, f_a), (_, f_b))| f_a * f_b < 0.0) // ab < 0 iff a < 0 xor b < 0.
+        .map(move |((a, _), (b, _))| {
+            roots::find_root_brent(a, b, f, &mut 1E-4_f32)
+                .unwrap_or_else(|err| panic!("root finder encountered an error: {}", err))
+        })
 }
 
 /// Verify that two iterables containing float values are approximately equal.
