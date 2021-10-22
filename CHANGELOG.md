@@ -1,5 +1,16 @@
 # Version History
 
+## 0.4.15, 2021-10-22
+
+### Features
+
+* Nodal surfaces are now plotted exactly in Real mode by numerically solving for their positions and drawing spheres, cones, and planes. This *significantly* improves their appearance and accuracy, compared to the previous approach of drawing them as isosurfaces of the radial and angular wavefunctions.
+
+### Changes
+
+* Expressions are now given for *h* orbitals.
+* The maximum `n` value has been increased from 8 to 12 in Real and Complex modes.
+
 ## 0.4.14, 2021-10-12
 
 ### Features
