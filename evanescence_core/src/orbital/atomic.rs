@@ -9,7 +9,7 @@ use num_complex::Complex32;
 
 use crate::geometry::{Linspace, Point};
 use crate::numerics::orthogonal_polynomials::{associated_laguerre, associated_legendre};
-use crate::numerics::{Evaluate, EvaluateBounded};
+use crate::numerics::{self, Evaluate, EvaluateBounded};
 use crate::orbital::quantum_numbers::{Lm, Nl, Qn};
 use crate::orbital::Orbital;
 
@@ -318,6 +318,54 @@ impl<const Z: u32> Real<Z> {
     pub fn num_angular_nodes(qn: &Qn) -> u32 {
         qn.l()
     }
+
+    /// Give the number of conical angular nodes in an orbital.
+    pub fn num_conical_nodes(lm: &Lm) -> u32 {
+        lm.l() - lm.m().unsigned_abs()
+    }
+
+    /// Give the number of planar angular nodes in an orbital.
+    pub fn num_planar_nodes(lm: &Lm) -> u32 {
+        lm.m().unsigned_abs()
+    }
+
+    /// Give the theta angles of all conical nodes of a given `l` and `m` pair.
+    #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
+    pub fn conical_node_angles(lm: Lm) -> Vec<f32> {
+        let points = numerics::find_roots_in_interval(0.0..=PI, 90, |theta| {
+            associated_legendre((lm.l(), lm.m().unsigned_abs()), theta.cos())
+        })
+        .collect::<Vec<_>>();
+        assert_eq!(
+            points.len(),
+            Self::num_conical_nodes(&lm) as usize,
+            "not all conical node angles were found"
+        );
+        points
+    }
+
+    /// Give the phi angles of all planar nodes of a given `l` and `m` pair.
+    #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
+    pub fn planar_node_angles(lm: Lm) -> Vec<f32> {
+        let m = lm.m();
+        let m_abs = m.unsigned_abs();
+        // Offset the search interval clockwise by ~0.9 degrees to ensure that planes at 0 degs are
+        // correctly sampled, and that they aren't double-counted at 180 degs.
+        let points = numerics::find_roots_in_interval((0.0 - 0.015)..=(PI - 0.015), 90, |phi| {
+            match m.cmp(&0) {
+                Ordering::Greater => SQRT_2 * (m as f32 * phi).cos(),
+                Ordering::Equal => 1.0,
+                Ordering::Less => SQRT_2 * (m_abs as f32 * phi).sin(),
+            }
+        })
+        .collect::<Vec<_>>();
+        assert_eq!(
+            points.len(),
+            Self::num_planar_nodes(&lm) as usize,
+            "not all planar node angles were found"
+        );
+        points
+    }
 }
 
 /// Implementation of the complex hydrogenic orbitals.
@@ -356,9 +404,10 @@ impl Orbital for Complex {
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
+    use itertools::Itertools;
     use once_cell::sync::Lazy;
 
-    use super::{Radial, RadialPlot, RealSphericalHarmonic};
+    use super::{Radial, RadialPlot, Real1, RealSphericalHarmonic};
     use crate::geometry::Point;
     use crate::numerics::{self, Evaluate};
     use crate::orbital::quantum_numbers::{Lm, Nl, Qn};
@@ -496,6 +545,38 @@ mod tests {
             0.570845, 0.0332508
         ]
     );
+
+    #[test]
+    fn test_real_conical_node_angles() {
+        Qn::enumerate_up_to_n(10)
+            .unwrap()
+            .map(Lm::from)
+            .unique()
+            .map(|lm| (lm, Real1::conical_node_angles(lm)))
+            .for_each(|(lm, pts)| {
+                println!(
+                    "[{:?}]: {}",
+                    lm,
+                    pts.iter().map(|theta| theta.to_degrees()).join(", ")
+                );
+            });
+    }
+
+    #[test]
+    fn test_real_planar_node_angles() {
+        Qn::enumerate_up_to_n(10)
+            .unwrap()
+            .map(Lm::from)
+            .unique()
+            .map(|lm| (lm, Real1::planar_node_angles(lm)))
+            .for_each(|(lm, pts)| {
+                println!(
+                    "[{:?}]: {}",
+                    lm,
+                    pts.iter().map(|phi| phi.to_degrees()).join(", ")
+                );
+            });
+    }
 
     #[test]
     fn test_radial_probability_density_unity() {
