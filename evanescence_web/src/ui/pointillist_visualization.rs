@@ -56,7 +56,7 @@ impl Trace {
                 Mode::RealSimple | Mode::Real | Mode::Hybrid | Mode::Mo => plot::real,
                 Mode::Complex => plot::complex,
             }),
-            Self::NodesRadial => Single(plot::nodes_radial),
+            Self::NodesRadial => Multiple(plot::nodes_radial),
             Self::NodesAngular => Multiple(plot::nodes_angular),
             Self::CrossSectionIndicator => Single(plot::cross_section_indicator),
             Self::Silhouettes => Multiple(plot::silhouettes),

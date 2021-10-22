@@ -329,6 +329,21 @@ impl<const Z: u32> Real<Z> {
         lm.m().unsigned_abs()
     }
 
+    /// Give the `r` values of all radial nodes of a given `n` and `l` pair.
+    #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
+    pub fn radial_node_positions(qn: &Qn) -> Vec<f32> {
+        let points = numerics::find_roots_in_interval(0.05..=Self::bound(qn), 100, |r| {
+            Radial::<Z>::evaluate_r(&qn.into(), r)
+        })
+        .collect::<Vec<_>>();
+        assert_eq!(
+            points.len(),
+            Self::num_radial_nodes(qn) as usize,
+            "not all radial nodes were found"
+        );
+        points
+    }
+
     /// Give the theta angles of all conical nodes of a given `l` and `m` pair.
     #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
     pub fn conical_node_angles(lm: Lm) -> Vec<f32> {
@@ -545,6 +560,17 @@ mod tests {
             0.570845, 0.0332508
         ]
     );
+
+    #[test]
+    fn test_real_radial_nodes() {
+        Qn::enumerate_up_to_n(10)
+            .unwrap()
+            .filter(|qn| qn.m() == 0)
+            .map(|qn| (qn, Real1::radial_node_positions(&qn)))
+            .for_each(|(qn, pts)| {
+                println!("[{}]: {}", qn, pts.iter().join(", "));
+            });
+    }
 
     #[test]
     fn test_real_conical_node_angles() {

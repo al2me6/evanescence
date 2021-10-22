@@ -1,12 +1,12 @@
 use std::default::default;
-use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
+use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI, TAU};
 
-use evanescence_core::geometry::{ComponentForm, Plane, Point, PointValue};
+use evanescence_core::geometry::{ComponentForm, Linspace, Plane, Point, PointValue};
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::molecular::{Molecular, OffsetQnWeight};
-use evanescence_core::orbital::{atomic, Complex, Real1};
+use evanescence_core::orbital::{Complex, Real1};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -102,29 +102,63 @@ pub(crate) fn complex(state: &State) -> JsValue {
     .into()
 }
 
-pub(crate) fn nodes_radial(state: &State) -> JsValue {
+fn parametric_sphere(r: f32, samples: usize) -> [Vec<Vec<f32>>; 3] {
+    let (mut x, mut y, mut z) = (
+        Vec::with_capacity(samples),
+        Vec::with_capacity(samples),
+        Vec::with_capacity(samples),
+    );
+    let theta_samples = (0.0..=PI).linspace(samples);
+    let phi_samples = (0.0..=TAU).linspace(samples);
+    for theta in theta_samples {
+        let (mut x_row, mut y_row, mut z_row) = (
+            Vec::with_capacity(samples),
+            Vec::with_capacity(samples),
+            Vec::with_capacity(samples),
+        );
+        for phi in phi_samples.clone() {
+            x_row.push(r * theta.sin() * phi.cos());
+            y_row.push(r * theta.sin() * phi.sin());
+            z_row.push(r * theta.cos());
+        }
+        x.push(x_row);
+        y.push(y_row);
+        z.push(z_row);
+    }
+    [x, y, z]
+}
+
+pub(crate) fn nodes_radial(state: &State) -> Vec<JsValue> {
+    const NUM_POINTS: usize = 40;
+
     assert!(state.mode().is_real_or_simple());
 
-    let (x, y, z, value) = atomic::Radial::<1>::evaluate_in_region(
-        &state.qn().into(),
-        // Shrink the extent plotted since radial nodes are found in the central part of the
-        // full extent only. This is a heuristic that has been verified to cover all radial
-        // nodes from `n` = 2 through 8.
-        state.bound() * (state.qn().n() as f32 * 0.06 + 0.125),
-        state.quality().for_isosurface(),
-    )
-    .into_components();
-
-    Isosurface {
-        x,
-        y,
-        z,
-        value,
-        color_scale: color_scales::GREENS,
-        opacity: 0.125,
+    let no_contour = Contour {
+        show: Some(false),
         ..default()
-    }
-    .into()
+    };
+    Real1::radial_node_positions(state.qn())
+        .into_iter()
+        .map(|r| parametric_sphere(r, NUM_POINTS))
+        .map(|[x, y, z]| {
+            Surface {
+                x_parametric: Some(x),
+                y_parametric: Some(y),
+                z,
+                surface_color: Some(vec![vec![0.0_f32; NUM_POINTS]; NUM_POINTS]),
+                color_scale: color_scales::GREENS,
+                show_scale: false,
+                opacity: 0.125,
+                contours: Some(Contours {
+                    x: no_contour.clone(),
+                    y: no_contour.clone(),
+                    z: no_contour.clone(),
+                }),
+                ..default()
+            }
+            .into()
+        })
+        .collect()
 }
 
 fn radius_to_square_multiplier(mut theta: f32) -> f32 {

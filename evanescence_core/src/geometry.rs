@@ -11,7 +11,7 @@ use strum::Display;
 use thiserror::Error;
 
 pub trait Linspace<T> {
-    type Output: ExactSizeIterator<Item = T>;
+    type Output: ExactSizeIterator<Item = T> + Clone;
 
     /// Produce `num_points` values evenly spaced across `self`.
     fn linspace(&self, num_points: usize) -> Self::Output;
@@ -21,7 +21,7 @@ impl<T> Linspace<T> for RangeInclusive<T>
 where
     T: AddAssign<T> + Sub<T, Output = T> + Div<f32, Output = T> + Copy,
 {
-    type Output = impl ExactSizeIterator<Item = T>;
+    type Output = impl ExactSizeIterator<Item = T> + Clone;
 
     fn linspace(&self, num_points: usize) -> Self::Output {
         let step = (*self.end() - *self.start()) / (num_points as f32 - 1.0);
