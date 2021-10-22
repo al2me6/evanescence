@@ -3,6 +3,7 @@ use super::PlotType;
 use crate::utils::b16_colors;
 
 def_plotly_ty! {
+    #[derive(Clone)]
     Project
 
     x: bool,
@@ -11,6 +12,7 @@ def_plotly_ty! {
 }
 
 def_plotly_ty! {
+    #[derive(Clone)]
     Contour<'a>
 
     #optional color: &'a str,
@@ -43,8 +45,10 @@ def_plotly_ty! {
 def_plotly_ty! {
     Surface<'a>
 
-    x: Vec<f32>,
-    y: Vec<f32>,
+    #optional x: Vec<f32>,
+    #optional x_parametric as "x": Vec<Vec<f32>>,
+    #optional y: Vec<f32>,
+    #optional y_parametric as "y": Vec<Vec<f32>>,
     z: Vec<Vec<f32>>,
     #optional c_min as "cmin": f32,
     c_mid as "cmid": f32,

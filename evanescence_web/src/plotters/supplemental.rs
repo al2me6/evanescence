@@ -180,8 +180,8 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     }
 
     let trace = Surface {
-        x,
-        y,
+        x: Some(x),
+        y: Some(y),
         z,
         surface_color: custom_color,
         color_bar: if is_complex {
@@ -242,8 +242,8 @@ pub(crate) fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
 
     let z_contour = cross_section_z_contour(max);
     let trace = Surface {
-        x,
-        y,
+        x: Some(x),
+        y: Some(y),
         z,
         c_min: Some(0.0),
         c_max: Some(if max < ZERO_THRESHOLD { 1.0 } else { max }),

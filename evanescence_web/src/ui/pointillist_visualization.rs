@@ -52,12 +52,12 @@ impl Trace {
     fn renderer(self, state: &State) -> TraceRenderer {
         use TraceRenderer::{Multiple, Single};
         match self {
-            Self::Pointillist => match state.mode() {
-                Mode::RealSimple | Mode::Real | Mode::Hybrid | Mode::Mo => Single(plot::real),
-                Mode::Complex => Single(plot::complex),
-            },
+            Self::Pointillist => Single(match state.mode() {
+                Mode::RealSimple | Mode::Real | Mode::Hybrid | Mode::Mo => plot::real,
+                Mode::Complex => plot::complex,
+            }),
             Self::NodesRadial => Single(plot::nodes_radial),
-            Self::NodesAngular => Single(plot::nodes_angular),
+            Self::NodesAngular => Multiple(plot::nodes_angular),
             Self::CrossSectionIndicator => Single(plot::cross_section_indicator),
             Self::Silhouettes => Multiple(plot::silhouettes),
             Self::Nodes => Single(plot::nodes_combined),

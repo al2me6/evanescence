@@ -42,9 +42,32 @@ impl Component for InfoPanelImpl {
         let description = match state.mode() {
             Mode::RealSimple | Mode::Real => {
                 let qn = state.qn();
+                let subshell_name = orbital::atomic::subshell_name(qn.l());
+
                 let num_radial_nodes = Real1::num_radial_nodes(qn);
                 let num_angular_nodes = Real1::num_angular_nodes(qn);
-                let subshell_name = orbital::atomic::subshell_name(qn.l());
+                let nodes_description = format!(
+                    " {} radial {} and {} angular{} {}.",
+                    num_radial_nodes,
+                    node_pluralize(num_radial_nodes),
+                    num_angular_nodes,
+                    match (
+                        Real1::num_conical_nodes(&qn.into()),
+                        Real1::num_planar_nodes(&qn.into()),
+                    ) {
+                        // English is hard.
+                        (0, 0) => "".to_owned(),
+                        (1, 0) => " (conical)".to_owned(),
+                        (0, 1) => " (planar)".to_owned(),
+                        (2, 0) => " (both conical)".to_owned(),
+                        (0, 2) => " (both planar)".to_owned(),
+                        (c, 0) if c > 0 => " (all conical)".to_owned(),
+                        (0, p) if p > 0 => " (all planar)".to_owned(),
+                        (c, p) => format!(" ({} conical, {} planar)", c, p),
+                    },
+                    node_pluralize(num_angular_nodes),
+                );
+
                 html! {
                     <p>
                         { "Viewing orbital " }
@@ -64,7 +87,7 @@ impl Component for InfoPanelImpl {
                             />
                         }} else { html!() }}
                         { ", which " }
-                        { if let Some(subshell) = subshell_name { html!{
+                        { if let Some(subshell) = subshell_name { html! {
                             <>
                             { "is "}
                             { if "sfhi".contains(subshell) { "an " } else { "a " } } // English is hard.
@@ -74,13 +97,7 @@ impl Component for InfoPanelImpl {
                         }} else { html! {
                             { " has" }
                         } }}
-                        { format!(
-                            " {} radial {} and {} angular {}.",
-                            num_radial_nodes,
-                            node_pluralize(num_radial_nodes),
-                            num_angular_nodes,
-                            node_pluralize(num_angular_nodes),
-                        ) }
+                        { nodes_description }
                     </p>
                 }
             }

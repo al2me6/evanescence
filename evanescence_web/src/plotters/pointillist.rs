@@ -1,18 +1,18 @@
 use std::default::default;
-use std::f32::consts::PI;
+use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 
 use evanescence_core::geometry::{ComponentForm, Plane, Point, PointValue};
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::molecular::{Molecular, OffsetQnWeight};
-use evanescence_core::orbital::{atomic, Complex};
+use evanescence_core::orbital::{atomic, Complex, Real1};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
 use crate::plotly::layout::{Anchor, Title};
 use crate::plotly::scatter_3d::Marker;
-use crate::plotly::surface::Contours;
+use crate::plotly::surface::{Contour, Contours};
 use crate::plotly::{Isosurface, Scatter3D, Surface};
 use crate::state::{Mode, State};
 use crate::utils;
@@ -127,35 +127,77 @@ pub(crate) fn nodes_radial(state: &State) -> JsValue {
     .into()
 }
 
-pub(crate) fn nodes_angular(state: &State) -> JsValue {
+fn radius_to_square_multiplier(mut theta: f32) -> f32 {
+    theta = theta.abs() % FRAC_PI_2;
+    if theta > FRAC_PI_4 {
+        theta = FRAC_PI_2 - theta;
+    }
+    1.0 / theta.cos()
+}
+
+struct VerticalCone;
+
+impl Evaluate for VerticalCone {
+    type Output = f32;
+    type Parameters = f32;
+
+    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output {
+        // Note that the z values of passed points are ignored!
+        (point.x() * point.x() + point.y() * point.y()).sqrt() / params.tan()
+    }
+}
+
+pub(crate) fn nodes_angular(state: &State) -> Vec<JsValue> {
+    const NUM_POINTS_CONE: usize = 75;
+
     assert!(state.mode().is_real_or_simple());
 
     let qn = state.qn();
-    let (x, y, z, mut value) = atomic::RealSphericalHarmonic::evaluate_in_region(
-        &qn.into(),
-        state.bound(),
-        state.quality().for_isosurface(),
-    )
-    .into_components();
-    if qn.l() >= 4 && qn.m().abs() >= 4 {
-        // HACK: We take the "signed square root", i.e. `sgn(x) * sqrt(|x|)` here to alleviate
-        // numerical instability/artifacting by amplifying any deviations from zero. However,
-        // this also results in crinkly-looking surfaces.
-        value
-            .iter_mut()
-            .for_each(|v| *v = v.signum() * v.abs().sqrt());
-    }
-
-    Isosurface {
-        x,
-        y,
-        z,
-        value,
-        color_scale: color_scales::PURP,
-        opacity: 0.15,
+    let no_contour = Contour {
+        show: Some(false),
         ..default()
-    }
-    .into()
+    };
+    Real1::conical_node_angles(qn.into())
+        .into_iter()
+        .map(|theta| {
+            VerticalCone::evaluate_on_plane(&theta, Plane::XY, state.bound(), NUM_POINTS_CONE)
+                .into_components()
+        })
+        .map(|(x, y, z)| Surface {
+            x: Some(x),
+            y: Some(y),
+            z,
+            surface_color: Some(vec![vec![0.0_f32; NUM_POINTS_CONE]; NUM_POINTS_CONE]),
+            ..default()
+        })
+        .chain(Real1::planar_node_angles(qn.into()).into_iter().map(|phi| {
+            let r = state.bound();
+            let mult = radius_to_square_multiplier(phi);
+            let (x1, y1) = (r * mult * phi.cos(), r * mult * phi.sin());
+            let (x2, y2) = (-x1, -y1);
+            Surface {
+                x_parametric: Some(vec![vec![x1, x2]; 2]),
+                y_parametric: Some(vec![vec![y1, y2]; 2]),
+                z: vec![vec![-r, -r], vec![r, r]],
+                surface_color: Some(vec![vec![0.0, 0.0]; 2]),
+                ..default()
+            }
+        }))
+        .map(|srf| {
+            Surface {
+                color_scale: color_scales::PURP,
+                show_scale: false,
+                opacity: 0.15,
+                contours: Some(Contours {
+                    x: no_contour.clone(),
+                    y: no_contour.clone(),
+                    z: no_contour.clone(),
+                }),
+                ..srf
+            }
+            .into()
+        })
+        .collect()
 }
 
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
@@ -164,8 +206,8 @@ pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
         .four_points_as_xy_value(state.bound())
         .into_components();
     Surface {
-        x,
-        y,
+        x: Some(x),
+        y: Some(y),
         z,
         opacity: 0.2,
         show_scale: false,
