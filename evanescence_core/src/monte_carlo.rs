@@ -169,8 +169,7 @@ pub trait MonteCarlo: Orbital {
                 Self::probability_density_of(*val) / max_value > value_rng.generate()
             })
             .take(quality as usize)
-            .collect::<Vec<_>>() // Faster than coverting to ComponentForm directly.
-            .into()
+            .collect()
     }
 }
 

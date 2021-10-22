@@ -376,16 +376,18 @@ impl<T> ComponentForm<T> {
     }
 }
 
-impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
-    fn from(v: Vec<PointValue<T>>) -> Self {
-        let len = v.len();
+impl<T> FromIterator<PointValue<T>> for ComponentForm<T> {
+    fn from_iter<I: IntoIterator<Item = PointValue<T>>>(iter: I) -> Self {
+        let iter = iter.into_iter();
+        let (lower, upper) = iter.size_hint();
+        let len = upper.unwrap_or(lower);
         let (mut xs, mut ys, mut zs, mut vals) = (
             Vec::with_capacity(len),
             Vec::with_capacity(len),
             Vec::with_capacity(len),
             Vec::with_capacity(len),
         );
-        for PointValue(pt, val) in v {
+        for PointValue(pt, val) in iter {
             xs.push(pt.x());
             ys.push(pt.y());
             zs.push(pt.z());
@@ -393,6 +395,12 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
         }
         // INVARIANT: The four vectors, by nature, have the same length.
         ComponentForm { xs, ys, zs, vals }
+    }
+}
+
+impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
+    fn from(v: Vec<PointValue<T>>) -> Self {
+        v.into_iter().collect()
     }
 }
 
