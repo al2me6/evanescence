@@ -12,7 +12,6 @@ use wasm_bindgen::JsValue;
 use crate::plotly::color::{self, color_scales, ColorBar};
 use crate::plotly::layout::{Anchor, Title};
 use crate::plotly::scatter_3d::Marker;
-use crate::plotly::surface::{Contour, Contours};
 use crate::plotly::{Isosurface, Scatter3D, Surface};
 use crate::state::{Mode, State};
 use crate::utils;
@@ -133,10 +132,6 @@ pub(crate) fn nodes_radial(state: &State) -> Vec<JsValue> {
 
     assert!(state.mode().is_real_or_simple());
 
-    let no_contour = Contour {
-        show: Some(false),
-        ..default()
-    };
     Real1::radial_node_positions(state.qn())
         .into_iter()
         .map(|r| parametric_sphere(r, NUM_POINTS))
@@ -149,11 +144,7 @@ pub(crate) fn nodes_radial(state: &State) -> Vec<JsValue> {
                 color_scale: color_scales::GREENS,
                 show_scale: false,
                 opacity: 0.125,
-                contours: Some(Contours {
-                    x: no_contour.clone(),
-                    y: no_contour.clone(),
-                    z: no_contour.clone(),
-                }),
+                contours: Some(default()),
                 ..default()
             }
             .into()
@@ -187,10 +178,6 @@ pub(crate) fn nodes_angular(state: &State) -> Vec<JsValue> {
     assert!(state.mode().is_real_or_simple());
 
     let qn = state.qn();
-    let no_contour = Contour {
-        show: Some(false),
-        ..default()
-    };
     Real1::conical_node_angles(qn.into())
         .into_iter()
         .map(|theta| {
@@ -222,11 +209,7 @@ pub(crate) fn nodes_angular(state: &State) -> Vec<JsValue> {
                 color_scale: color_scales::PURP,
                 show_scale: false,
                 opacity: 0.15,
-                contours: Some(Contours {
-                    x: no_contour.clone(),
-                    y: no_contour.clone(),
-                    z: no_contour.clone(),
-                }),
+                contours: Some(default()),
                 ..srf
             }
             .into()
@@ -246,8 +229,8 @@ pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
         opacity: 0.2,
         show_scale: false,
         color_scale: color_scales::ORANGES,
-        surface_color: Some(vec![vec![0.0; 2]; 2]),
-        contours: Some(Contours::default()),
+        surface_color: Some(vec![vec![0.0, 0.0]; 2]),
+        contours: Some(default()),
         ..default()
     }
     .into()
