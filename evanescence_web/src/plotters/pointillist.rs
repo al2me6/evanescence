@@ -178,21 +178,23 @@ pub(crate) fn nodes_angular(state: &State) -> Vec<JsValue> {
     assert!(state.mode().is_real_or_simple());
 
     let qn = state.qn();
-    Real1::conical_node_angles(qn.into())
-        .into_iter()
-        .map(|theta| {
-            VerticalCone::evaluate_on_plane(&theta, Plane::XY, state.bound(), NUM_POINTS_CONE)
-                .into_components()
-        })
-        .map(|(x, y, z)| Surface {
-            x: Some(x),
-            y: Some(y),
-            z,
-            surface_color: Some(vec![vec![0.0_f32; NUM_POINTS_CONE]; NUM_POINTS_CONE]),
-            ..default()
-        })
-        .chain(Real1::planar_node_angles(qn.into()).into_iter().map(|phi| {
-            let r = state.bound();
+    let bound = state.bound();
+    Iterator::chain(
+        Real1::conical_node_angles(qn.into())
+            .into_iter()
+            .map(|theta| {
+                VerticalCone::evaluate_on_plane(&theta, Plane::XY, bound, NUM_POINTS_CONE)
+                    .into_components()
+            })
+            .map(|(x, y, z)| Surface {
+                x: Some(x),
+                y: Some(y),
+                z,
+                surface_color: Some(vec![vec![0.0_f32; NUM_POINTS_CONE]; NUM_POINTS_CONE]),
+                ..default()
+            }),
+        Real1::planar_node_angles(qn.into()).into_iter().map(|phi| {
+            let r = bound;
             let mult = radius_to_square_multiplier(phi);
             let (x1, y1) = (r * mult * phi.cos(), r * mult * phi.sin());
             let (x2, y2) = (-x1, -y1);
@@ -203,18 +205,19 @@ pub(crate) fn nodes_angular(state: &State) -> Vec<JsValue> {
                 surface_color: Some(vec![vec![0.0, 0.0]; 2]),
                 ..default()
             }
-        }))
-        .map(|srf| {
-            Surface {
-                color_scale: color_scales::PURP,
-                show_scale: false,
-                opacity: 0.15,
-                contours: Some(default()),
-                ..srf
-            }
-            .into()
-        })
-        .collect()
+        }),
+    )
+    .map(|srf| {
+        Surface {
+            color_scale: color_scales::PURP,
+            show_scale: false,
+            opacity: 0.15,
+            contours: Some(default()),
+            ..srf
+        }
+        .into()
+    })
+    .collect()
 }
 
 pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
