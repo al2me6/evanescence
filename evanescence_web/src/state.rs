@@ -8,14 +8,14 @@ use evanescence_core::numerics::EvaluateBounded;
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::orbital::molecular::Lcao;
-use evanescence_core::orbital::{self, ProbabilityDensity, Qn};
+use evanescence_core::orbital::{self, Orbital, ProbabilityDensity, Qn};
 use getset::CopyGetters;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yewdux::prelude::*;
 
 use crate::plotters;
-use crate::presets::{DiatomicLcao, HybridPreset, MoPreset, QnPreset};
+use crate::presets::{HybridPreset, MoPreset, ProtoDiatomicLcao, QnPreset};
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display, Serialize, Deserialize)]
@@ -383,7 +383,7 @@ impl State {
         match &self.state {
             RealSimple(_) | Real(_) | Complex(_) => self.qn().to_string_as_wavefunction(),
             Hybrid(_) => self.hybrid_kind().to_string(),
-            Mo(_) => self.lcao().to_string(),
+            Mo(_) => orbital::molecular::Molecular::name(&self.lcao()),
         }
     }
 
@@ -460,7 +460,9 @@ impl State {
 
     pub(crate) fn lcao(&self) -> Lcao {
         match &self.state {
-            Mo(state) => <&'_ DiatomicLcao>::from(state.preset).with_separation(self.separation()),
+            Mo(state) => {
+                <&'_ ProtoDiatomicLcao>::from(state.preset).with_separation(self.separation())
+            }
             _ => panic!("{:?} does not have an `lcao`", self.mode()),
         }
     }

@@ -13,7 +13,7 @@ use crate::numerics::Evaluate;
 
 /// Structure representing a [`Qn`] and an associated weight.
 #[derive(Clone, PartialEq, Debug)]
-pub struct QnWeight {
+pub struct Component {
     pub qn: Qn,
     pub weight: f32,
 }
@@ -25,7 +25,7 @@ pub struct QnWeight {
 #[derive(Clone, PartialEq, Debug)]
 pub struct LinearCombination {
     /// The individual orbitals and weights comprising the linear combination.
-    combination: Vec<QnWeight>,
+    combination: Vec<Component>,
 }
 
 impl LinearCombination {
@@ -37,8 +37,8 @@ impl LinearCombination {
     /// Construct a new linear combination given a set of orbitals, their weights, and a string
     /// describing the combination's kind. This function returns `None` if the resultant mixture
     /// is not normalized.
-    pub fn new(combination: Vec<QnWeight>) -> Option<Self> {
-        if Self::validate(combination.iter().map(|&QnWeight { weight, .. }| weight)) {
+    pub fn new(combination: Vec<Component>) -> Option<Self> {
+        if Self::validate(combination.iter().map(|&Component { weight, .. }| weight)) {
             Some(Self { combination })
         } else {
             None
@@ -46,7 +46,7 @@ impl LinearCombination {
     }
 
     /// Iterate over the individual orbitals and weights.
-    pub fn iter(&self) -> impl Iterator<Item = &QnWeight> {
+    pub fn iter(&self) -> impl Iterator<Item = &Component> {
         self.combination.iter()
     }
 
@@ -69,12 +69,12 @@ impl LinearCombination {
     pub fn expression(&self) -> String {
         let mut combination = self.iter();
         iter::once({
-            let QnWeight { qn, weight } = combination
+            let Component { qn, weight } = combination
                 .next()
                 .expect("linear combination cannot ever be empty");
             Self::format_orbital_weight(*weight, qn)
         })
-        .chain(combination.map(|QnWeight { qn, weight }| {
+        .chain(combination.map(|Component { qn, weight }| {
             format!(
                 "{sign}{weighted_orbital}",
                 // Manually add signs to add padding.
@@ -94,7 +94,7 @@ impl fmt::Display for LinearCombination {
 }
 
 impl ops::Index<usize> for LinearCombination {
-    type Output = QnWeight;
+    type Output = Component;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.combination[index]
@@ -126,7 +126,7 @@ macro_rules! lc {
     ) => {
         $crate::orbital::hybrid::LinearCombination::new(
             vec![
-                $($crate::orbital::hybrid::QnWeight {
+                $($crate::orbital::hybrid::Component {
                     qn: $crate::orbital::Qn::new($n, $l, $m).expect("invalid quantum numbers"),
                     weight: $overall_factor * $weight,
                 }),+
@@ -146,7 +146,7 @@ impl Evaluate for Hybrid {
     fn evaluate(combination: &LinearCombination, point: &Point) -> Self::Output {
         combination
             .iter()
-            .map(|QnWeight { qn, weight }| weight * Real1::evaluate(qn, point))
+            .map(|Component { qn, weight }| weight * Real1::evaluate(qn, point))
             .sum()
     }
 }
@@ -155,7 +155,7 @@ impl EvaluateBounded for Hybrid {
     fn bound(params: &Self::Parameters) -> f32 {
         params
             .iter()
-            .map(|QnWeight { qn, .. }| qn)
+            .map(|Component { qn, .. }| qn)
             .map(Real1::bound)
             .reduce(f32::max)
             .expect("linear combination must contain at least one orbital")
@@ -253,7 +253,7 @@ impl Kind {
             return Err(InvalidKindError::InvalidN(n));
         }
         for combination in &combinations {
-            for QnWeight { qn, .. } in combination.iter() {
+            for Component { qn, .. } in combination.iter() {
                 if qn.n() != n {
                     return Err(InvalidKindError::UnexpectedN(qn.n()));
                 }

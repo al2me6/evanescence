@@ -5,7 +5,7 @@ use evanescence_core::geometry::{ComponentForm, Linspace, Plane, Point, PointVal
 use evanescence_core::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::Hybrid;
-use evanescence_core::orbital::molecular::{Molecular, OffsetQnWeight};
+use evanescence_core::orbital::molecular::{LcaoAtom, Molecular};
 use evanescence_core::orbital::{Complex, Real1};
 use wasm_bindgen::JsValue;
 
@@ -294,9 +294,9 @@ pub(crate) fn nucleus_markers(state: &State) -> JsValue {
 
     let offsets = state
         .lcao()
-        .weights
+        .combination
         .iter()
-        .map(|OffsetQnWeight { offset, .. }| offset)
+        .map(|LcaoAtom { offset, .. }| offset)
         .map(Point::from)
         .map(|pt| PointValue(pt, MARKER_SIZE))
         .collect::<Vec<_>>();

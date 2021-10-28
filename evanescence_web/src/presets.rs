@@ -4,8 +4,8 @@ use std::fmt;
 
 use evanescence_core::geometry::Vec3;
 use evanescence_core::orbital::atomic::RealSphericalHarmonic;
-use evanescence_core::orbital::hybrid::{Kind, QnWeight};
-use evanescence_core::orbital::molecular::{Lcao, OffsetQnWeight};
+use evanescence_core::orbital::hybrid::{Component, Kind};
+use evanescence_core::orbital::molecular::{Element, Geometry, Lcao, LcaoAtom};
 use evanescence_core::orbital::{self, Qn};
 use evanescence_core::{kind, lc};
 use once_cell::sync::Lazy;
@@ -328,39 +328,23 @@ impl fmt::Display for HybridPreset {
     }
 }
 
-pub(crate) struct DiatomicLcao {
-    name: String,
-    weights: (QnWeight, QnWeight),
-}
+pub(crate) struct ProtoDiatomicLcao(Lcao);
 
-impl DiatomicLcao {
+impl ProtoDiatomicLcao {
     pub(crate) fn with_separation(&self, sep: f32) -> Lcao {
-        let (first, second) = &self.weights;
-        Lcao {
-            name: self.name.clone(),
-            weights: vec![
-                OffsetQnWeight {
-                    qn: first.qn,
-                    weight: first.weight,
-                    offset: Vec3::new(0.0, 0.0, -sep / 2.0),
-                },
-                OffsetQnWeight {
-                    qn: second.qn,
-                    weight: second.weight,
-                    offset: Vec3::new(0.0, 0.0, sep / 2.0),
-                },
-            ],
-        }
+        let mut lcao = self.0.clone();
+        lcao.combination[0].offset = Vec3::new(0.0, 0.0, -sep / 2.0);
+        lcao.combination[1].offset = Vec3::new(0.0, 0.0, sep / 2.0);
+        lcao
     }
 }
 
 macro_rules! lcao_diatomic {
     (
-        separation: $separation:literal,
         $(
-            $name:literal {
-                qn: ($n:literal, $l:literal, $m:literal),
-                weights: ($w1:expr, $w2:expr)
+            $(* $geometry_star:ident)? $($geometry:ident)? {
+                $elem1:ident @ ($(($n1:literal $l1:literal $m1:literal) * $w1: expr);+),
+                $elem2:ident @ ($(($n2:literal $l2:literal $m2:literal) * $w2: expr);+)
                 $(,)?
             }
         ),+
@@ -368,59 +352,81 @@ macro_rules! lcao_diatomic {
     ) => {
         vec![
             $(
-                DiatomicLcao {
-                    name: $name.to_owned(),
-                    weights: (
-                        QnWeight {
-                            qn: Qn::new($n, $l, $m).unwrap(),
-                            weight: $w1,
-                        },
-                        QnWeight {
-                            qn: Qn::new($n, $l, $m).unwrap(),
-                            weight: $w2,
-                        }
-                    )
-                }
+                ProtoDiatomicLcao(
+                    Lcao {
+                        bonding: lcao_diatomic!(@bonding $($geometry_star)?),
+                        geometry: Geometry:: $($geometry_star)? $($geometry)?,
+                        combination: vec![
+                            lcao_diatomic!(@atom $elem1 $($n1 $l1 $m1 $w1);+),
+                            lcao_diatomic!(@atom $elem2 $($n2 $l2 $m2 $w2);+),
+                        ]
+                    }
+                )
             ),+
         ]
-    }
+    };
+    (@atom $elem:ident $($n:literal $l:literal $m:literal $w:expr);+) => {
+        LcaoAtom {
+            elem: Element::$elem,
+            offset: Vec3::ZERO,
+            orbitals: vec![
+                $(Component {
+                    qn: Qn::new($n, $l, $m).unwrap(),
+                    weight: $w,
+                }),+
+            ],
+        }
+    };
+    (@bonding) => { true };
+    (@bonding $geom:ident) => { false };
 }
 
-static MO_PRESETS: Lazy<Vec<DiatomicLcao>> = Lazy::new(|| {
+static MO_PRESETS: Lazy<Vec<ProtoDiatomicLcao>> = Lazy::new(|| {
     lcao_diatomic! {
-        separation: 1.398,
-        "σ (1s)" {
-            qn: (1, 0, 0),
-            weights: (FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+        Sigma {
+            H @ ((1 0 0) * FRAC_1_SQRT_2),
+            H @ ((1 0 0) * FRAC_1_SQRT_2),
         },
-        "σ* (1s)" {
-            qn: (1, 0, 0),
-            weights: (FRAC_1_SQRT_2, -FRAC_1_SQRT_2)
+        * Sigma {
+            H @ ((1 0 0) * FRAC_1_SQRT_2),
+            H @ ((1 0 0) * -FRAC_1_SQRT_2),
         },
-        "σ (2s)" {
-            qn: (2, 0, 0),
-            weights: (FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+        Sigma {
+            H @ ((2 0 0) * FRAC_1_SQRT_2),
+            H @ ((2 0 0) * FRAC_1_SQRT_2),
         },
-        "σ* (2s)" {
-            qn: (2, 0, 0),
-            weights: (FRAC_1_SQRT_2, -FRAC_1_SQRT_2)
+        * Sigma {
+            H @ ((2 0 0) * FRAC_1_SQRT_2),
+            H @ ((2 0 0) * -FRAC_1_SQRT_2),
         },
-        "σ (2p)" {
-            qn: (2, 1, 0),
-            weights: (FRAC_1_SQRT_2, -FRAC_1_SQRT_2)
+        Sigma {
+            H @ ((2 1 0) * FRAC_1_SQRT_2),
+            H @ ((2 1 0) * -FRAC_1_SQRT_2),
         },
-        "π (2p)" {
-            qn: (2, 1, 1),
-            weights: (FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+        Pi {
+            H @ ((2 1 1) * FRAC_1_SQRT_2),
+            H @ ((2 1 1) * FRAC_1_SQRT_2),
         },
-        "π* (2p)" {
-            qn: (2, 1, 1),
-            weights: (FRAC_1_SQRT_2, -FRAC_1_SQRT_2)
+        Pi {
+            H @ ((2 1 -1) * FRAC_1_SQRT_2),
+            H @ ((2 1 -1) * FRAC_1_SQRT_2),
         },
-        "σ* (2p)" {
-            qn: (2, 1, 0),
-            weights: (FRAC_1_SQRT_2, FRAC_1_SQRT_2)
+        * Pi {
+            H @ ((2 1 1) * FRAC_1_SQRT_2),
+            H @ ((2 1 1) * -FRAC_1_SQRT_2),
         },
+        * Pi {
+            H @ ((2 1 -1) * FRAC_1_SQRT_2),
+            H @ ((2 1 -1) * -FRAC_1_SQRT_2),
+        },
+        * Sigma {
+            H @ ((2 1 0) * FRAC_1_SQRT_2),
+            H @ ((2 1 0) * FRAC_1_SQRT_2),
+        },
+        // Sigma {
+        //     C @ ((2 0 0) * -0.1389 ; (2 1 0) * 0.0080),
+        //     O @ ((2 0 0) *  0.6492 ; (2 1 0) * 0.7478),
+        // },
     }
 });
 
@@ -439,7 +445,7 @@ impl Default for MoPreset {
     }
 }
 
-impl From<MoPreset> for &'static DiatomicLcao {
+impl From<MoPreset> for &'static ProtoDiatomicLcao {
     fn from(preset: MoPreset) -> Self {
         &MO_PRESETS[preset.0]
     }
@@ -447,6 +453,6 @@ impl From<MoPreset> for &'static DiatomicLcao {
 
 impl fmt::Display for MoPreset {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", MO_PRESETS[self.0].name)
+        write!(f, "{}", &MO_PRESETS[self.0].0)
     }
 }
