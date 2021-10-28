@@ -20,7 +20,6 @@ pub(crate) mod presets;
 pub(crate) mod state;
 pub(crate) mod ui;
 
-use pkg_version::{pkg_version_major, pkg_version_minor, pkg_version_patch};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
@@ -37,12 +36,8 @@ use crate::ui::{
 /// Maximum value of the principal quantum number `n` that is exposed.
 pub(crate) const MAX_N: u32 = 12;
 
-pub(crate) const VER_MAJOR: u32 = pkg_version_major!();
-pub(crate) const VER_MINOR: u32 = pkg_version_minor!();
-pub(crate) const VER_PATCH: u32 = pkg_version_patch!();
-
-pub(crate) const REPO: &str = "https://github.com/al2me6/evanescence";
-pub(crate) const BENCHMARKS_URL: &str = "https://al2me6.github.io/evanescence/dev/bench";
+pub(crate) const VERSION: &str = env!("CARGO_PKG_VERSION");
+pub(crate) const REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
 pub(crate) const HELP_HTML: &str = include_str!(concat!(env!("OUT_DIR"), "/help.html"));
 
@@ -105,14 +100,13 @@ impl Component for MainImpl {
     fn view(&self) -> Html {
         let footer = html! {
             <footer>
-                <p>{ format!("Evanescence v{}.{}.{}", VER_MAJOR, VER_MINOR, VER_PATCH) }</p>
+                <p>{ format!("Evanescence {}", VERSION) }</p>
                 <span>
                     <a href = format!("{}/blob/master/CHANGELOG.md", REPO) target = "_blank">
                         { "Change Log" }
                     </a>
                 </span>
                 <span><a href = REPO target = "_blank">{ "Source" }</a></span>
-                <span><a href = BENCHMARKS_URL target = "_blank">{ "Benchmarks" }</a></span>
             </footer>
         };
 

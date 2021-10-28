@@ -6,7 +6,7 @@ use std::path::Path;
 
 use pulldown_cmark::{html as html_renderer, CowStr, Event, LinkType, Options, Parser, Tag};
 
-const INPUT: &str = "src/ui/help.md";
+const INPUT: &str = "help_window.md";
 const OUTPUT: &str = "help.html"; // In the `OUT_DIR` folder.
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -41,9 +41,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Open all inline links in a new tab.
     let parser = parser.map(|event| match event {
-        Event::Start(Tag::Link(LinkType::Autolink | LinkType::Inline, dest, title)) => Event::Html(
-            CowStr::from(format!(r#"<a href="{}" target="_blank">{}"#, dest, title)),
-        ),
+        Event::Start(Tag::Link(LinkType::Autolink | LinkType::Inline, dest, title))
+            if dest.starts_with("http") =>
+        {
+            Event::Html(CowStr::from(format!(
+                r#"<a href="{}" target="_blank">{}"#,
+                dest, title
+            )))
+        }
         rest => rest,
     });
 

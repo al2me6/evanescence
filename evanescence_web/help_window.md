@@ -78,7 +78,7 @@ I'd like to extend my gratitude to the following people for helping this project
 
 ## About Evanescence
 
-&copy; Alvin Q. Meng 2020-2021
+&copy; [Alvin Q. Meng](mailto:alvin.q.meng@gmail.com) 2020-2021
 
 Built in [Rust](https://rust-lang.org) and WebAssembly using the [Yew](https://yew.rs) framework and the [Plotly.js](https://plotly.com/javascript) graphing library.
 
