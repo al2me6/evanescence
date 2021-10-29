@@ -4,7 +4,7 @@ use crate::utils::b16_colors;
 
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
-pub(crate) enum Anchor {
+pub enum Anchor {
     Left,
     Right,
 }
@@ -56,7 +56,7 @@ def_plotly_ty! {
 }
 
 impl<'a> Axis<'a> {
-    pub(crate) fn with_extent(extent: f32) -> Self {
+    pub fn with_extent(extent: f32) -> Self {
         Self {
             range: Some((-extent, extent)),
             ..Default::default()
@@ -119,7 +119,7 @@ def_plotly_ty! {
 }
 
 impl LayoutRangeUpdate {
-    pub(crate) fn new(extent: f32) -> Self {
+    pub fn new(extent: f32) -> Self {
         let range = (-extent, extent);
         Self {
             x_axis_range: range,

@@ -1,5 +1,5 @@
-pub(crate) mod pointillist;
-pub(crate) mod supplemental;
+pub mod pointillist;
+pub mod supplemental;
 
 use evanescence_core::monte_carlo::Quality;
 use evanescence_core::numerics::{Evaluate, EvaluateBounded};
@@ -14,7 +14,7 @@ use crate::plotly::isosurface::{self, Isosurface};
 /// an adequate appearance (i.e., not showing too small of a portion).
 ///
 /// Note that this cutoff value is for the wavefunction, not the probability density.
-pub(crate) fn isosurface_cutoff_heuristic_real(qn: &Qn) -> f32 {
+pub fn isosurface_cutoff_heuristic_real(qn: &Qn) -> f32 {
     let num_radial_nodes = Real1::num_radial_nodes(qn);
     let num_angular_nodes = Real1::num_angular_nodes(qn);
     let num_lobes = (num_radial_nodes + 1) * (num_angular_nodes + 1);
@@ -28,7 +28,7 @@ pub(crate) fn isosurface_cutoff_heuristic_real(qn: &Qn) -> f32 {
     0.006 / ((num_lobes as f32 - 1.0).powi(2) * damping_factor + 1.0)
 }
 
-pub(crate) fn isosurface_cutoff_heuristic_hybrid(kind: &Kind) -> f32 {
+pub fn isosurface_cutoff_heuristic_hybrid(kind: &Kind) -> f32 {
     let mixture = kind.mixture();
     mixture
         .iter()

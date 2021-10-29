@@ -4,7 +4,7 @@ use super::color::{color_scales, ColorBar, ColorScale};
 use super::PlotType;
 
 #[derive(Serialize)]
-pub(crate) enum Mode {
+pub enum Mode {
     #[serde(rename = "markers")]
     Markers,
 }

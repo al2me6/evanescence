@@ -18,7 +18,7 @@ const SQRT_3: f32 = 1.732_050_8;
 static QN_PRESETS: Lazy<Vec<Qn>> = Lazy::new(|| Qn::enumerate_up_to_n(3).unwrap().collect());
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
-pub(crate) struct QnPreset(usize);
+pub struct QnPreset(usize);
 
 impl Default for QnPreset {
     fn default() -> Self {
@@ -27,13 +27,13 @@ impl Default for QnPreset {
 }
 
 impl QnPreset {
-    pub(crate) fn iter() -> impl Iterator<Item = Self> {
+    pub fn iter() -> impl Iterator<Item = Self> {
         (0..QN_PRESETS.len()).map(Self)
     }
 
     /// Try to convert an arbitrary [`Qn`] to a preset that has similar characteristics, falling
     /// back to 1s if that fails.
-    pub(crate) fn from_qn_lossy(mut qn: Qn) -> Self {
+    pub fn from_qn_lossy(mut qn: Qn) -> Self {
         Self::try_from(qn).unwrap_or_else(|_| {
             qn.set_n_clamping(QN_PRESETS.last().unwrap().n()).unwrap();
             Self::try_from(qn).unwrap_or_default()
@@ -302,10 +302,10 @@ static HYBRID_PRESETS: Lazy<Vec<Kind>> = Lazy::new(|| {
 });
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
-pub(crate) struct HybridPreset(usize);
+pub struct HybridPreset(usize);
 
 impl HybridPreset {
-    pub(crate) fn iter() -> impl Iterator<Item = Self> {
+    pub fn iter() -> impl Iterator<Item = Self> {
         (0..HYBRID_PRESETS.len()).map(Self)
     }
 }
@@ -328,10 +328,10 @@ impl fmt::Display for HybridPreset {
     }
 }
 
-pub(crate) struct ProtoDiatomicLcao(Lcao);
+pub struct ProtoDiatomicLcao(Lcao);
 
 impl ProtoDiatomicLcao {
-    pub(crate) fn with_separation(&self, sep: f32) -> Lcao {
+    pub fn with_separation(&self, sep: f32) -> Lcao {
         let mut lcao = self.0.clone();
         lcao.combination[0].offset = Vec3::new(0.0, 0.0, -sep / 2.0);
         lcao.combination[1].offset = Vec3::new(0.0, 0.0, sep / 2.0);
@@ -431,10 +431,10 @@ static MO_PRESETS: Lazy<Vec<ProtoDiatomicLcao>> = Lazy::new(|| {
 });
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
-pub(crate) struct MoPreset(usize);
+pub struct MoPreset(usize);
 
 impl MoPreset {
-    pub(crate) fn iter() -> impl Iterator<Item = Self> {
+    pub fn iter() -> impl Iterator<Item = Self> {
         (0..MO_PRESETS.len()).map(Self)
     }
 }

@@ -6,20 +6,20 @@ use yewtil::NeqAssign;
 
 use crate::utils::CowStr;
 
-pub(crate) trait TabBarItem: Copy + PartialEq + Display + 'static {}
+pub trait TabBarItem: Copy + PartialEq + Display + 'static {}
 impl<T> TabBarItem for T where T: Copy + PartialEq + Display + 'static {}
 
-pub(crate) struct TabBar<T: TabBarItem> {
+pub struct TabBar<T: TabBarItem> {
     link: ComponentLink<Self>,
     props: TabBarProps<T>,
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct TabBarProps<T: TabBarItem> {
-    pub(crate) id: CowStr,
-    pub(crate) on_change: Callback<T>,
-    pub(crate) modes: Vec<T>,
-    pub(crate) selected: T,
+pub struct TabBarProps<T: TabBarItem> {
+    pub id: CowStr,
+    pub on_change: Callback<T>,
+    pub modes: Vec<T>,
+    pub selected: T,
 }
 
 impl<T: TabBarItem> Component for TabBar<T> {

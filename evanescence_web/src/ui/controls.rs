@@ -2,6 +2,10 @@ use evanescence_core::monte_carlo::Quality;
 use evanescence_core::orbital::atomic::RealSphericalHarmonic;
 use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::{self, Qn};
+use evanescence_web::components::{Button, CheckBox, Dropdown, Slider, Tooltip};
+use evanescence_web::presets::{HybridPreset, MoPreset, QnPreset};
+use evanescence_web::state::{AppDispatch, Mode, State, Visualization};
+use evanescence_web::utils;
 use itertools::Itertools;
 use strum::IntoEnumIterator;
 use yew::prelude::*;
@@ -9,10 +13,6 @@ use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use super::descriptions::DESC;
-use crate::components::{Button, CheckBox, Dropdown, Slider, Tooltip};
-use crate::presets::{HybridPreset, MoPreset, QnPreset};
-use crate::state::{AppDispatch, Mode, State, Visualization};
-use crate::utils;
 
 fn td_tooltip(text: &'static str, tooltip: &'static str) -> Html {
     html! {
@@ -20,7 +20,7 @@ fn td_tooltip(text: &'static str, tooltip: &'static str) -> Html {
     }
 }
 
-pub(crate) struct ControlsImpl {
+pub struct ControlsImpl {
     dispatch: AppDispatch,
 }
 
@@ -219,16 +219,16 @@ impl ControlsImpl {
     }
 }
 
-pub(crate) type Controls = WithDispatch<ControlsImpl>;
+pub type Controls = WithDispatch<ControlsImpl>;
 
-pub(crate) struct QnPickers {
+pub struct QnPickers {
     link: ComponentLink<Self>,
     props: QnPickersProps,
     qn: Qn,
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct QnPickersProps {
+pub struct QnPickersProps {
     qn: Qn,
     mode: Mode,
     instant: bool,
@@ -236,7 +236,7 @@ pub(crate) struct QnPickersProps {
     on_toggle_instant: Callback<bool>,
 }
 
-pub(crate) enum QnPickersMsg {
+pub enum QnPickersMsg {
     N(u32),
     L(u32),
     M(i32),
@@ -302,7 +302,7 @@ impl Component for QnPickers {
                 <td><Dropdown<u32>
                     id = "n-picker"
                     on_change = self.link.callback(QnPickersMsg::N)
-                    options = (1..=crate::MAX_N).collect_vec()
+                    options = (1..=evanescence_web::MAX_N).collect_vec()
                     selected = qn.n()
                 /></td>
             </tr>

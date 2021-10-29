@@ -1,12 +1,12 @@
-pub(crate) mod controls;
-pub(crate) mod descriptions;
-pub(crate) mod info_panel;
-pub(crate) mod mode_bar;
-pub(crate) mod pointillist_visualization;
-pub(crate) mod supplemental_visualization;
+pub mod controls;
+pub mod descriptions;
+pub mod info_panel;
+pub mod mode_bar;
+pub mod pointillist_visualization;
+pub mod supplemental_visualization;
 
-pub(crate) use controls::Controls;
-pub(crate) use info_panel::InfoPanel;
-pub(crate) use mode_bar::ModeBar;
-pub(crate) use pointillist_visualization::PointillistVisualization;
-pub(crate) use supplemental_visualization::SupplementalVisualization;
+pub use controls::Controls;
+pub use info_panel::InfoPanel;
+pub use mode_bar::ModeBar;
+pub use pointillist_visualization::PointillistVisualization;
+pub use supplemental_visualization::SupplementalVisualization;

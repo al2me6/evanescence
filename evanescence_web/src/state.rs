@@ -19,7 +19,7 @@ use crate::presets::{HybridPreset, MoPreset, ProtoDiatomicLcao, QnPreset};
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display, Serialize, Deserialize)]
-pub(crate) enum Visualization {
+pub enum Visualization {
     None,
     #[strum(serialize = "Radial wavefunction")]
     RadialWavefunction,
@@ -42,7 +42,7 @@ pub(crate) enum Visualization {
 }
 
 impl Visualization {
-    pub(crate) fn is_cross_section(self) -> bool {
+    pub fn is_cross_section(self) -> bool {
         matches!(
             self,
             Self::WavefunctionXY
@@ -54,14 +54,14 @@ impl Visualization {
         )
     }
 
-    pub(crate) fn is_radial(self) -> bool {
+    pub fn is_radial(self) -> bool {
         matches!(
             self,
             Self::RadialWavefunction | Self::RadialProbabilityDistribution
         )
     }
 
-    pub(crate) fn is_enabled(self) -> bool {
+    pub fn is_enabled(self) -> bool {
         !matches!(self, Self::None)
     }
 }
@@ -165,7 +165,7 @@ impl Default for MoState {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, EnumDiscriminants, Serialize, Deserialize)]
-#[strum_discriminants(vis(pub(crate)), name(Mode), derive(EnumIter))]
+#[strum_discriminants(vis(pub), name(Mode), derive(EnumIter))]
 enum StateInner {
     RealSimple(RealSimpleState),
     Real(RealState),
@@ -175,23 +175,23 @@ enum StateInner {
 }
 
 impl Mode {
-    pub(crate) fn is_real_or_simple(self) -> bool {
+    pub fn is_real_or_simple(self) -> bool {
         matches!(self, Self::RealSimple | Self::Real)
     }
 
-    pub(crate) fn is_real(self) -> bool {
+    pub fn is_real(self) -> bool {
         matches!(self, Self::Real)
     }
 
-    pub(crate) fn is_complex(self) -> bool {
+    pub fn is_complex(self) -> bool {
         matches!(self, Self::Complex)
     }
 
-    pub(crate) fn is_hybrid(self) -> bool {
+    pub fn is_hybrid(self) -> bool {
         matches!(self, Self::Hybrid)
     }
 
-    pub(crate) fn is_mo(self) -> bool {
+    pub fn is_mo(self) -> bool {
         matches!(self, Self::Mo)
     }
 }
@@ -311,20 +311,20 @@ impl StateInner {
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, CopyGetters, Default, Serialize, Deserialize)]
-pub(crate) struct State {
+pub struct State {
     state: StateInner,
-    #[getset(get_copy = "pub(crate)")]
+    #[getset(get_copy = "pub")]
     quality: Quality,
     supplement: Visualization,
 }
 
 /// Queries.
 impl State {
-    pub(crate) fn mode(&self) -> Mode {
+    pub fn mode(&self) -> Mode {
         (&self.state).into()
     }
 
-    pub(crate) fn available_supplements(&self) -> Vec<Visualization> {
+    pub fn available_supplements(&self) -> Vec<Visualization> {
         match &self.mode() {
             Mode::RealSimple | Mode::Real => Visualization::iter().collect(),
             Mode::Complex => vec![
@@ -360,7 +360,7 @@ impl State {
         }
     }
 
-    pub(crate) fn is_new_orbital(&self, other: &Self) -> bool {
+    pub fn is_new_orbital(&self, other: &Self) -> bool {
         match (self.mode(), other.mode()) {
             (Mode::Hybrid, Mode::Hybrid) => self.hybrid_preset() != other.hybrid_preset(),
             (Mode::Mo, Mode::Mo) => self.lcao() != other.lcao(),
@@ -374,12 +374,12 @@ impl State {
 
 /// Getters for specific states.
 impl State {
-    pub(crate) fn supplement(&self) -> Visualization {
+    pub fn supplement(&self) -> Visualization {
         assert!(self.available_supplements().contains(&self.supplement));
         self.supplement
     }
 
-    pub(crate) fn debug_description(&self) -> String {
+    pub fn debug_description(&self) -> String {
         match &self.state {
             RealSimple(_) | Real(_) | Complex(_) => self.qn().to_string_as_wavefunction(),
             Hybrid(_) => self.hybrid_kind().to_string(),
@@ -387,7 +387,7 @@ impl State {
         }
     }
 
-    pub(crate) fn qn(&self) -> &Qn {
+    pub fn qn(&self) -> &Qn {
         match &self.state {
             RealSimple(state) => state.preset.into(),
             Real(state) => &state.qn,
@@ -396,14 +396,14 @@ impl State {
         }
     }
 
-    pub(crate) fn qn_preset(&self) -> QnPreset {
+    pub fn qn_preset(&self) -> QnPreset {
         match &self.state {
             RealSimple(state) => state.preset,
             _ => panic!("{:?} does not have a `qn` preset", self.mode()),
         }
     }
 
-    pub(crate) fn nodes_rad(&self) -> bool {
+    pub fn nodes_rad(&self) -> bool {
         match &self.state {
             RealSimple(state) => state.nodes_rad,
             Real(state) => state.nodes_rad,
@@ -411,7 +411,7 @@ impl State {
         }
     }
 
-    pub(crate) fn nodes_ang(&self) -> bool {
+    pub fn nodes_ang(&self) -> bool {
         match &self.state {
             RealSimple(state) => state.nodes_ang,
             Real(state) => state.nodes_ang,
@@ -419,7 +419,7 @@ impl State {
         }
     }
 
-    pub(crate) fn instant_apply(&self) -> bool {
+    pub fn instant_apply(&self) -> bool {
         match &self.state {
             Real(state) => state.instant_apply,
             Complex(state) => state.instant_apply,
@@ -429,28 +429,28 @@ impl State {
         }
     }
 
-    pub(crate) fn hybrid_kind(&self) -> &'static Kind {
+    pub fn hybrid_kind(&self) -> &'static Kind {
         match &self.state {
             Hybrid(state) => state.preset.into(),
             _ => panic!("{:?} does not have a `hybrid_kind`", self.mode()),
         }
     }
 
-    pub(crate) fn hybrid_preset(&self) -> HybridPreset {
+    pub fn hybrid_preset(&self) -> HybridPreset {
         match &self.state {
             Hybrid(state) => state.preset,
             _ => panic!("{:?} does not have a `hybrid` preset", self.mode()),
         }
     }
 
-    pub(crate) fn silhouettes(&self) -> bool {
+    pub fn silhouettes(&self) -> bool {
         match &self.state {
             Hybrid(state) => state.silhouettes,
             _ => false,
         }
     }
 
-    pub(crate) fn nodes(&self) -> bool {
+    pub fn nodes(&self) -> bool {
         match &self.state {
             Hybrid(state) => state.nodes,
             Mo(state) => state.nodes,
@@ -458,7 +458,7 @@ impl State {
         }
     }
 
-    pub(crate) fn lcao(&self) -> Lcao {
+    pub fn lcao(&self) -> Lcao {
         match &self.state {
             Mo(state) => {
                 <&'_ ProtoDiatomicLcao>::from(state.preset).with_separation(self.separation())
@@ -467,14 +467,14 @@ impl State {
         }
     }
 
-    pub(crate) fn mo_preset(&self) -> MoPreset {
+    pub fn mo_preset(&self) -> MoPreset {
         match &self.state {
             Mo(state) => state.preset,
             _ => panic!("{:?} does not have a `mo` preset", self.mode()),
         }
     }
 
-    pub(crate) fn separation(&self) -> f32 {
+    pub fn separation(&self) -> f32 {
         match &self.state {
             Mo(state) => state.separation,
             _ => panic!(
@@ -484,7 +484,7 @@ impl State {
         }
     }
 
-    pub(crate) fn isosurface_cutoff(&self) -> f32 {
+    pub fn isosurface_cutoff(&self) -> f32 {
         match self.mode() {
             Mode::Real | Mode::RealSimple => plotters::isosurface_cutoff_heuristic_real(self.qn()),
             Mode::Hybrid => plotters::isosurface_cutoff_heuristic_hybrid(self.hybrid_kind()),
@@ -496,23 +496,23 @@ impl State {
 
 /// Setters for specific states.
 impl State {
-    pub(crate) fn set_mode(&mut self, mode: Mode) {
+    pub fn set_mode(&mut self, mode: Mode) {
         self.state.transition(mode);
         if !self.available_supplements().contains(&self.supplement) {
             self.supplement = Visualization::None;
         }
     }
 
-    pub(crate) fn set_quality(&mut self, quality: Quality) {
+    pub fn set_quality(&mut self, quality: Quality) {
         self.quality = quality;
     }
 
-    pub(crate) fn set_supplement(&mut self, supplement: Visualization) {
+    pub fn set_supplement(&mut self, supplement: Visualization) {
         assert!(self.available_supplements().contains(&supplement));
         self.supplement = supplement;
     }
 
-    pub(crate) fn set_qn_preset(&mut self, preset: QnPreset) {
+    pub fn set_qn_preset(&mut self, preset: QnPreset) {
         match &mut self.state {
             RealSimple(state) => {
                 state.preset = preset;
@@ -521,7 +521,7 @@ impl State {
         }
     }
 
-    pub(crate) fn set_nodes_rad(&mut self, visibility: bool) {
+    pub fn set_nodes_rad(&mut self, visibility: bool) {
         match &mut self.state {
             RealSimple(state) => state.nodes_rad = visibility,
             Real(state) => state.nodes_rad = visibility,
@@ -531,7 +531,7 @@ impl State {
         }
     }
 
-    pub(crate) fn set_nodes_ang(&mut self, visibility: bool) {
+    pub fn set_nodes_ang(&mut self, visibility: bool) {
         match &mut self.state {
             RealSimple(state) => state.nodes_ang = visibility,
             Real(state) => state.nodes_ang = visibility,
@@ -541,7 +541,7 @@ impl State {
         }
     }
 
-    pub(crate) fn set_qn(&mut self, qn: Qn) {
+    pub fn set_qn(&mut self, qn: Qn) {
         match &mut self.state {
             Real(state) => state.qn = qn,
             Complex(state) => state.qn = qn,
@@ -551,7 +551,7 @@ impl State {
         }
     }
 
-    pub(crate) fn set_instant_apply(&mut self, instant: bool) {
+    pub fn set_instant_apply(&mut self, instant: bool) {
         match &mut self.state {
             Real(state) => state.instant_apply = instant,
             Complex(state) => state.instant_apply = instant,
@@ -561,7 +561,7 @@ impl State {
         }
     }
 
-    pub(crate) fn set_hybrid_preset(&mut self, preset: HybridPreset) {
+    pub fn set_hybrid_preset(&mut self, preset: HybridPreset) {
         match &mut self.state {
             Hybrid(state) => {
                 state.preset = preset;
@@ -570,14 +570,14 @@ impl State {
         }
     }
 
-    pub(crate) fn set_silhouettes(&mut self, silhouettes: bool) {
+    pub fn set_silhouettes(&mut self, silhouettes: bool) {
         match &mut self.state {
             Hybrid(state) => state.silhouettes = silhouettes,
             _ => panic!("symmetry silhouettes do not exist for {:?}", self.mode()),
         }
     }
 
-    pub(crate) fn set_nodes(&mut self, nodes: bool) {
+    pub fn set_nodes(&mut self, nodes: bool) {
         match &mut self.state {
             Hybrid(state) => state.nodes = nodes,
             Mo(state) => state.nodes = nodes,
@@ -585,7 +585,7 @@ impl State {
         }
     }
 
-    pub(crate) fn set_mo_preset(&mut self, preset: MoPreset) {
+    pub fn set_mo_preset(&mut self, preset: MoPreset) {
         match &mut self.state {
             Mo(state) => {
                 state.preset = preset;
@@ -594,7 +594,7 @@ impl State {
         }
     }
 
-    pub(crate) fn set_separation(&mut self, separation: f32) {
+    pub fn set_separation(&mut self, separation: f32) {
         match &mut self.state {
             Mo(state) => {
                 state.separation = separation;
@@ -606,7 +606,7 @@ impl State {
 
 /// Plotting function wrappers.
 impl State {
-    pub(crate) fn bound(&self) -> f32 {
+    pub fn bound(&self) -> f32 {
         match self.mode() {
             Mode::RealSimple | Mode::Real | Mode::Complex => orbital::Real1::bound(self.qn()),
             Mode::Hybrid => orbital::hybrid::Hybrid::bound(self.hybrid_kind().archetype()),
@@ -614,7 +614,7 @@ impl State {
         }
     }
 
-    pub(crate) fn monte_carlo_simulate_real(&self) -> ComponentForm<f32> {
+    pub fn monte_carlo_simulate_real(&self) -> ComponentForm<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::Real => {
                 orbital::Real1::monte_carlo_simulate(self.qn(), self.quality(), true)
@@ -633,7 +633,7 @@ impl State {
         }
     }
 
-    pub(crate) fn sample_plane_real(&self, plane: Plane) -> GridValues<f32> {
+    pub fn sample_plane_real(&self, plane: Plane) -> GridValues<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::Real => {
                 orbital::Real1::sample_plane(self.qn(), plane, self.quality().for_grid())
@@ -652,7 +652,7 @@ impl State {
         }
     }
 
-    pub(crate) fn sample_plane_prob_density(&self, plane: Plane) -> GridValues<f32> {
+    pub fn sample_plane_prob_density(&self, plane: Plane) -> GridValues<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::Real => ProbabilityDensity::<orbital::Real1>::sample_plane(
                 self.qn(),
@@ -685,6 +685,6 @@ impl Persistent for State {
 }
 
 #[cfg(feature = "persistent")]
-pub(crate) type AppDispatch = DispatchProps<PersistentStore<State>>;
+pub type AppDispatch = DispatchProps<PersistentStore<State>>;
 #[cfg(not(feature = "persistent"))]
-pub(crate) type AppDispatch = DispatchProps<BasicStore<State>>;
+pub type AppDispatch = DispatchProps<BasicStore<State>>;

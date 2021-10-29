@@ -1,13 +1,12 @@
+use evanescence_web::components::TabBar;
+use evanescence_web::state::{AppDispatch, Mode, State};
+use evanescence_web::utils;
 use strum::IntoEnumIterator;
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
-use crate::components::TabBar;
-use crate::state::{AppDispatch, Mode, State};
-use crate::utils;
-
-pub(crate) struct ModeBarImpl {
+pub struct ModeBarImpl {
     dispatch: AppDispatch,
 }
 
@@ -49,4 +48,4 @@ impl Component for ModeBarImpl {
     }
 }
 
-pub(crate) type ModeBar = WithDispatch<ModeBarImpl>;
+pub type ModeBar = WithDispatch<ModeBarImpl>;

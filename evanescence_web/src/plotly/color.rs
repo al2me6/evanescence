@@ -3,7 +3,7 @@ use std::f32::consts::{FRAC_PI_2, PI};
 use super::layout::{Anchor, Title};
 use crate::utils::b16_colors;
 
-pub(crate) type ColorScale<'a> = &'a [(&'a str, &'a str)];
+pub type ColorScale<'a> = &'a [(&'a str, &'a str)];
 
 def_plotly_ty! {
     ColorBar<'a>
@@ -20,10 +20,10 @@ def_plotly_ty! {
 
 #[allow(dead_code)]
 /// Color scales extracted from Plotly.py.
-pub(crate) mod color_scales {
+pub mod color_scales {
     use super::ColorScale;
 
-    pub(crate) const RD_BU_R: ColorScale = &[
+    pub const RD_BU_R: ColorScale = &[
         ("0.0", "rgb(5,48,97)"),
         ("0.1", "rgb(33,102,172)"),
         ("0.2", "rgb(67,147,195)"),
@@ -37,7 +37,7 @@ pub(crate) mod color_scales {
         ("1.0", "rgb(103,0,31)"),
     ];
 
-    pub(crate) const RD_YL_BU_R: ColorScale = &[
+    pub const RD_YL_BU_R: ColorScale = &[
         ("0.0", "rgb(49,54,149)"),
         ("0.1", "rgb(69,117,180)"),
         ("0.2", "rgb(116,173,209)"),
@@ -51,7 +51,7 @@ pub(crate) mod color_scales {
         ("1.0", "rgb(165,0,38)"),
     ];
 
-    pub(crate) const GREENS: ColorScale = &[
+    pub const GREENS: ColorScale = &[
         ("0.0", "rgb(247,252,245)"),
         ("0.125", "rgb(229,245,224)"),
         ("0.25", "rgb(199,233,192)"),
@@ -63,7 +63,7 @@ pub(crate) mod color_scales {
         ("1.0", "rgb(0,68,27)"),
     ];
 
-    pub(crate) const PURP: ColorScale = &[
+    pub const PURP: ColorScale = &[
         ("0.0", "rgb(243, 224, 247)"),
         ("0.16666666666666666", "rgb(228, 199, 241)"),
         ("0.3333333333333333", "rgb(209, 175, 232)"),
@@ -73,7 +73,7 @@ pub(crate) mod color_scales {
         ("1.0", "rgb(99, 88, 159)"),
     ];
 
-    pub(crate) const ORANGES: ColorScale = &[
+    pub const ORANGES: ColorScale = &[
         ("0.0", "rgb(255,245,235)"),
         ("0.125", "rgb(254,230,206)"),
         ("0.25", "rgb(253,208,162)"),
@@ -85,7 +85,7 @@ pub(crate) mod color_scales {
         ("1.0", "rgb(127,39,4)"),
     ];
 
-    pub(crate) const PHASE: ColorScale = &[
+    pub const PHASE: ColorScale = &[
         ("0.0", "rgb(167, 119, 12)"),
         ("0.09090909090909091", "rgb(197, 96, 51)"),
         ("0.18181818181818182", "rgb(217, 67, 96)"),
@@ -100,7 +100,7 @@ pub(crate) mod color_scales {
         ("1.0", "rgb(167, 119, 12)"),
     ];
 
-    pub(crate) const TEMPO: ColorScale = &[
+    pub const TEMPO: ColorScale = &[
         ("0.0", "rgb(254, 245, 244)"),
         ("0.09090909090909091", "rgb(222, 224, 210)"),
         ("0.18181818181818182", "rgb(189, 206, 181)"),
@@ -116,5 +116,5 @@ pub(crate) mod color_scales {
     ];
 }
 
-pub(crate) const PHASE_BAR_LABELS: &[&str] = &["−π", "−π/2", "0", "π/2", "π"];
-pub(crate) const PHASE_BAR_TICKS: &[f32] = &[-PI, -FRAC_PI_2, 0.0, FRAC_PI_2, PI];
+pub const PHASE_BAR_LABELS: &[&str] = &["−π", "−π/2", "0", "π/2", "π"];
+pub const PHASE_BAR_TICKS: &[f32] = &[-PI, -FRAC_PI_2, 0.0, FRAC_PI_2, PI];

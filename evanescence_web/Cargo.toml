@@ -1,14 +1,11 @@
 [package]
 name = "evanescence_web"
 description = "A web application for visualizing hydrogenic orbitals."
-version = "0.4.15"
+version = "0.4.15-2"
 authors = ["al2me6 <alvin.q.meng@gmail.com>"]
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/al2me6/evanescence"
 edition = "2021"
-
-[lib]
-crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 console_error_panic_hook = "0.1"
@@ -47,9 +44,3 @@ persistent = []
 
 [build-dependencies]
 pulldown-cmark = "0.8"
-
-[package.metadata.wasm-pack.profile.profiling]
-wasm-opt = ["-g", "-O3"]
-
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = ["-O4"]

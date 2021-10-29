@@ -1,4 +1,4 @@
-pub(crate) use super::scatter::{Marker, Mode};
+pub use super::scatter::{Marker, Mode};
 use super::PlotType;
 
 def_plotly_ty! {

@@ -1,17 +1,17 @@
+use evanescence_web::components::raw::RawSpan;
+use evanescence_web::plotly::config::ModeBarButtons;
+use evanescence_web::plotly::{Config, Plotly};
+use evanescence_web::plotters::supplemental as plot;
+use evanescence_web::state::{AppDispatch, State, Visualization};
+use evanescence_web::{time_scope, utils};
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 use super::descriptions::DESC;
-use crate::components::raw::RawSpan;
-use crate::plotly::config::ModeBarButtons;
-use crate::plotly::{Config, Plotly};
-use crate::plotters::supplemental as plot;
-use crate::state::{AppDispatch, State, Visualization};
-use crate::utils;
 
-pub(crate) struct SupplementalVisualizationImpl {
+pub struct SupplementalVisualizationImpl {
     dispatch: AppDispatch,
 }
 
@@ -148,4 +148,4 @@ impl Component for SupplementalVisualizationImpl {
     }
 }
 
-pub(crate) type SupplementalVisualization = WithDispatch<SupplementalVisualizationImpl>;
+pub type SupplementalVisualization = WithDispatch<SupplementalVisualizationImpl>;

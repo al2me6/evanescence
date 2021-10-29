@@ -16,7 +16,7 @@ use crate::plotly::{Isosurface, Scatter3D, Surface};
 use crate::state::{Mode, State};
 use crate::utils;
 
-pub(crate) fn real(state: &State) -> JsValue {
+pub fn real(state: &State) -> JsValue {
     assert!([Mode::RealSimple, Mode::Real, Mode::Hybrid, Mode::Mo].contains(&state.mode()));
 
     let (x, y, z, values) = state.monte_carlo_simulate_real().into_components();
@@ -54,7 +54,7 @@ pub(crate) fn real(state: &State) -> JsValue {
     .into()
 }
 
-pub(crate) fn complex(state: &State) -> JsValue {
+pub fn complex(state: &State) -> JsValue {
     assert!(state.mode().is_complex());
 
     let simulation = Complex::monte_carlo_simulate(state.qn(), state.quality(), true);
@@ -127,7 +127,7 @@ fn parametric_sphere(r: f32, samples: usize) -> [Vec<Vec<f32>>; 3] {
     [x, y, z]
 }
 
-pub(crate) fn nodes_radial(state: &State) -> Vec<JsValue> {
+pub fn nodes_radial(state: &State) -> Vec<JsValue> {
     const NUM_POINTS: usize = 40;
 
     assert!(state.mode().is_real_or_simple());
@@ -172,7 +172,7 @@ impl Evaluate for VerticalCone {
     }
 }
 
-pub(crate) fn nodes_angular(state: &State) -> Vec<JsValue> {
+pub fn nodes_angular(state: &State) -> Vec<JsValue> {
     const NUM_POINTS_CONE: usize = 75;
 
     assert!(state.mode().is_real_or_simple());
@@ -220,7 +220,7 @@ pub(crate) fn nodes_angular(state: &State) -> Vec<JsValue> {
     .collect()
 }
 
-pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
+pub fn cross_section_indicator(state: &State) -> JsValue {
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x, y, z) = plane
         .four_points_as_xy_value(state.bound())
@@ -239,7 +239,7 @@ pub(crate) fn cross_section_indicator(state: &State) -> JsValue {
     .into()
 }
 
-pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
+pub fn silhouettes(state: &State) -> Vec<JsValue> {
     assert!(state.mode().is_hybrid());
     let kind = state.hybrid_kind();
 
@@ -265,7 +265,7 @@ pub(crate) fn silhouettes(state: &State) -> Vec<JsValue> {
         .collect()
 }
 
-pub(crate) fn nodes_combined(state: &State) -> JsValue {
+pub fn nodes_combined(state: &State) -> JsValue {
     assert!(state.mode().is_hybrid() || state.mode().is_mo());
 
     let (x, y, z, value) = if state.mode().is_hybrid() {
@@ -290,7 +290,7 @@ pub(crate) fn nodes_combined(state: &State) -> JsValue {
     .into()
 }
 
-pub(crate) fn nucleus_markers(state: &State) -> JsValue {
+pub fn nucleus_markers(state: &State) -> JsValue {
     const MARKER_SIZE: f32 = 15.0;
 
     assert!(state.mode().is_mo());

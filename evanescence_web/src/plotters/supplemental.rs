@@ -23,7 +23,7 @@ fn zero_values(grid: &mut Vec<Vec<f32>>) {
         .for_each(|v| *v = 0.0);
 }
 
-pub(crate) fn radial(state: &State) -> (JsValue, JsValue) {
+pub fn radial(state: &State) -> (JsValue, JsValue) {
     const NUM_POINTS: usize = 600;
 
     assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
@@ -149,7 +149,7 @@ fn cross_section_z_contour(max_abs: f32) -> Contour<'static> {
     }
 }
 
-pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
+pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     let is_complex = state.mode().is_complex();
     let plane: Plane = state.supplement().try_into().unwrap();
 
@@ -226,7 +226,7 @@ pub(crate) fn cross_section(state: &State) -> (JsValue, JsValue) {
     (trace.into(), layout.into())
 }
 
-pub(crate) fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
+pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
     let plane: Plane = state.supplement().try_into().unwrap();
     let (x, y, mut z) = state.sample_plane_prob_density(plane).into_components();
     let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
@@ -265,7 +265,7 @@ pub(crate) fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
     (trace.into(), layout.into())
 }
 
-pub(crate) fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
+pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
 
     let trace = if state.mode().is_hybrid() {

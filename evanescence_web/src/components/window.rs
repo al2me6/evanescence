@@ -4,27 +4,27 @@ use yewtil::NeqAssign;
 
 use crate::utils::CowStr;
 
-pub(crate) struct Window {
+pub struct Window {
     link: ComponentLink<Self>,
     props: WindowProps,
     node_ref: NodeRef,
 }
 
-pub(crate) enum WindowMsg {
+pub enum WindowMsg {
     Open,
     Close,
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct WindowProps {
-    pub(crate) title: CowStr,
+pub struct WindowProps {
+    pub title: CowStr,
     #[prop_or_default]
-    pub(crate) content_id: CowStr,
+    pub content_id: CowStr,
     #[prop_or_default]
-    pub(crate) open_button_hover: CowStr,
-    pub(crate) open_button_text: CowStr,
+    pub open_button_hover: CowStr,
+    pub open_button_text: CowStr,
     #[prop_or_default]
-    pub(crate) children: Children,
+    pub children: Children,
 }
 
 impl Component for Window {

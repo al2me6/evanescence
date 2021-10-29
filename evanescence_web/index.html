@@ -3,22 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css" />
+
     <link rel="stylesheet" href="https://use.typekit.net/jsz5trk.css" />
+    <link data-trunk rel="css" href="assets/styles.css" />
+    <link data-trunk rel="icon" href="assets/favicon.ico" />
+    <link data-trunk rel="copy-dir" href="assets/img" />
+
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link data-trunk rel="rust" data-bin="evanescence_web" data-wasm-opt="4" />
+
     <meta
       name="google-site-verification"
       content="HxwFMkIKO68mmNMQDWNS2fWVaJdgTuXIpAtDG0qtwHo"
     />
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WTRKDLV0NJ"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-WTRKDLV0NJ"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-WTRKDLV0NJ');
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-WTRKDLV0NJ");
     </script>
 
     <title>Evanescence | Hydrogenic Orbitals Visualized</title>
@@ -30,11 +38,6 @@
       name="keywords"
       content="chemistry, orbital, atom, quantum mechanics, hydrogen, hydrogenic, hydrogen-like, visualization, pointillist"
     />
-
-    <script type="module">
-      import init from "./wasm.js";
-      init();
-    </script>
   </head>
   <body></body>
 </html>

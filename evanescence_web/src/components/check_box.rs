@@ -5,7 +5,7 @@ use yewtil::NeqAssign;
 use super::Tooltip;
 use crate::utils::CowStr;
 
-pub(crate) struct CheckBox {
+pub struct CheckBox {
     link: ComponentLink<Self>,
     props: CheckBoxProps,
     state: bool,
@@ -13,13 +13,13 @@ pub(crate) struct CheckBox {
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct CheckBoxProps {
-    pub(crate) id: CowStr,
-    pub(crate) on_change: Callback<bool>,
-    pub(crate) initial_state: bool,
-    pub(crate) label: CowStr,
+pub struct CheckBoxProps {
+    pub id: CowStr,
+    pub on_change: Callback<bool>,
+    pub initial_state: bool,
+    pub label: CowStr,
     #[prop_or_default]
-    pub(crate) tooltip: Option<&'static str>,
+    pub tooltip: Option<&'static str>,
 }
 
 impl Component for CheckBox {

@@ -3,18 +3,18 @@ use yewtil::NeqAssign;
 
 use crate::utils::CowStr;
 
-pub(crate) struct Button {
+pub struct Button {
     link: ComponentLink<Self>,
     props: ButtonProps,
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct ButtonProps {
-    pub(crate) id: CowStr,
-    pub(crate) enabled: bool,
-    pub(crate) on_click: Callback<()>,
-    pub(crate) text: CowStr,
-    pub(crate) hover: CowStr,
+pub struct ButtonProps {
+    pub id: CowStr,
+    pub enabled: bool,
+    pub on_click: Callback<()>,
+    pub text: CowStr,
+    pub hover: CowStr,
 }
 
 impl Component for Button {

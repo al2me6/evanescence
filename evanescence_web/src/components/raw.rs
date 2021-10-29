@@ -5,15 +5,15 @@ use yewtil::NeqAssign;
 use crate::utils::CowStr;
 
 #[derive(Clone, Debug, PartialEq, Properties)]
-pub(crate) struct RawProps {
-    pub(crate) inner_html: CowStr,
+pub struct RawProps {
+    pub inner_html: CowStr,
     #[prop_or_default]
-    pub(crate) class: CowStr,
+    pub class: CowStr,
 }
 
 macro_rules! raw_element_type {
     ($name:ident, $element:ident) => {
-        pub(crate) struct $name {
+        pub struct $name {
             props: RawProps,
             node_ref: NodeRef,
         }

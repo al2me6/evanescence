@@ -3,16 +3,16 @@
 use serde::Serialize;
 use wasm_bindgen::JsValue;
 
-pub(crate) use self::config::Config;
-pub(crate) use self::isosurface::Isosurface;
-pub(crate) use self::layout::{Layout, LayoutRangeUpdate};
-pub(crate) use self::scatter::Scatter;
-pub(crate) use self::scatter_3d::Scatter3D;
-pub(crate) use self::surface::Surface;
+pub use self::config::Config;
+pub use self::isosurface::Isosurface;
+pub use self::layout::{Layout, LayoutRangeUpdate};
+pub use self::scatter::Scatter;
+pub use self::scatter_3d::Scatter3D;
+pub use self::surface::Surface;
 
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
-pub(crate) enum PlotType {
+pub enum PlotType {
     Isosurface,
     #[serde(rename = "scattergl")]
     Scatter,
@@ -21,43 +21,33 @@ pub(crate) enum PlotType {
 }
 
 #[allow(non_snake_case)] // This is semantically a class.
-pub(crate) mod Plotly {
+pub mod Plotly {
     use wasm_bindgen::prelude::*;
 
     #[wasm_bindgen]
     extern "C" {
         #[wasm_bindgen(js_namespace = Plotly, js_name = newPlot)]
-        pub(crate) fn new_plot(
-            graph_div: &str,
-            data: Box<[JsValue]>,
-            layout: JsValue,
-            config: JsValue,
-        );
+        pub fn new_plot(graph_div: &str, data: Box<[JsValue]>, layout: JsValue, config: JsValue);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = react)]
-        pub(crate) fn react(
-            graph_div: &str,
-            data: Box<[JsValue]>,
-            layout: JsValue,
-            config: JsValue,
-        );
+        pub fn react(graph_div: &str, data: Box<[JsValue]>, layout: JsValue, config: JsValue);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
-        pub(crate) fn add_trace(graph_div: &str, trace: JsValue);
+        pub fn add_trace(graph_div: &str, trace: JsValue);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = addTraces)]
-        pub(crate) fn add_traces(graph_div: &str, traces: Box<[JsValue]>);
+        pub fn add_traces(graph_div: &str, traces: Box<[JsValue]>);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
-        pub(crate) fn delete_trace(graph_div: &str, index: isize);
+        pub fn delete_trace(graph_div: &str, index: isize);
 
         /// Note that we have a `Box<[JsValue]>` and not a `Box<[isize]>`! The latter produces a
         /// `TypedArray` instead of a plain `Array` and causes problems.
         #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
-        pub(crate) fn delete_traces(graph_div: &str, indices: Box<[JsValue]>);
+        pub fn delete_traces(graph_div: &str, indices: Box<[JsValue]>);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = relayout)]
-        pub(crate) fn relayout(graph_div: &str, update: JsValue);
+        pub fn relayout(graph_div: &str, update: JsValue);
     }
 }
 
@@ -114,13 +104,13 @@ impl_into_js_value!(LayoutRangeUpdate);
 ///
 /// ```
 /// #[derive(serde::Serialize, Clone)]
-/// pub(crate) struct Config<'a> {
-///     pub(crate) required_config: f32,
+/// pub struct Config<'a> {
+///     pub required_config: f32,
 ///     #[doc = " Doc comments are allowed. This config is optional!"]
 ///     #[serde(skip_serializing_if = "Option::is_none")]
-///     pub(crate) optional_config: Option<bool>,
+///     pub optional_config: Option<bool>,
 ///     #[serde(rename = "actual_name")]
-///     pub(crate) config_with_lifetime: &'a str,
+///     pub config_with_lifetime: &'a str,
 /// }
 ///
 /// impl<'a> std::default::Default for Config<'a> {
@@ -149,16 +139,16 @@ macro_rules! def_plotly_ty {
     ) => {
         #[derive(serde::Serialize)]
         $(#[$item_meta])*
-        pub(crate) struct $name $(<$($a),+>)? {
+        pub struct $name $(<$($a),+>)? {
             $(
                 $(#[$field_meta])*
                 $(#[serde(rename = $rename)])?
                 $(
                     #[serde(skip_serializing_if = "Option::is_none")]
-                    pub(crate) $optional_field: Option<$T>
+                    pub $optional_field: Option<$T>
                 )?
                 $(
-                    pub(crate) $field: $T
+                    pub $field: $T
                 )?
             ),+
         }
@@ -183,10 +173,10 @@ macro_rules! def_plotly_ty {
     };
 }
 
-pub(crate) mod color;
-pub(crate) mod config;
-pub(crate) mod isosurface;
-pub(crate) mod layout;
-pub(crate) mod scatter;
-pub(crate) mod scatter_3d;
-pub(crate) mod surface;
+pub mod color;
+pub mod config;
+pub mod isosurface;
+pub mod layout;
+pub mod scatter;
+pub mod scatter_3d;
+pub mod surface;

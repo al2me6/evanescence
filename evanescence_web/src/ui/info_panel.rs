@@ -1,14 +1,13 @@
 use evanescence_core::orbital::molecular::Molecular;
 use evanescence_core::orbital::{self, Complex, Orbital, Real1};
+use evanescence_web::components::raw::RawSpan;
+use evanescence_web::state::{AppDispatch, Mode};
+use evanescence_web::utils;
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
-use crate::components::raw::RawSpan;
-use crate::state::{AppDispatch, Mode};
-use crate::utils;
-
-pub(crate) struct InfoPanelImpl {
+pub struct InfoPanelImpl {
     dispatch: AppDispatch,
 }
 
@@ -178,4 +177,4 @@ impl Component for InfoPanelImpl {
     }
 }
 
-pub(crate) type InfoPanel = WithDispatch<InfoPanelImpl>;
+pub type InfoPanel = WithDispatch<InfoPanelImpl>;

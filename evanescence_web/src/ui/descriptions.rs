@@ -1,10 +1,10 @@
 macro_rules! descriptions {
     ($($name:ident : $value:literal),+ $(,)?) => {
-        pub(crate) struct Descriptions {
-            $(pub(crate) $name: &'static str),+
+        pub struct Descriptions {
+            $(pub $name: &'static str),+
         }
 
-        pub(crate) const DESC: Descriptions = Descriptions {
+        pub const DESC: Descriptions = Descriptions {
             $($name: $value),+
         };
     }

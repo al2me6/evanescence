@@ -4,14 +4,14 @@ use yewtil::NeqAssign;
 use super::raw::RawSpan;
 use crate::utils::CowStr;
 
-pub(crate) struct Tooltip {
+pub struct Tooltip {
     props: TooltipProps,
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct TooltipProps {
-    pub(crate) text: CowStr,
-    pub(crate) tooltip: CowStr,
+pub struct TooltipProps {
+    pub text: CowStr,
+    pub tooltip: CowStr,
 }
 
 impl Component for Tooltip {

@@ -4,21 +4,21 @@ use yewtil::NeqAssign;
 
 use crate::utils::CowStr;
 
-pub(crate) struct Slider {
+pub struct Slider {
     link: ComponentLink<Self>,
     props: SliderProps,
     node_ref: NodeRef,
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct SliderProps {
-    pub(crate) id: CowStr,
-    pub(crate) on_change: Callback<f32>,
-    pub(crate) min: f32,
-    pub(crate) value: f32,
-    pub(crate) max: f32,
-    pub(crate) step: f32,
-    pub(crate) value_postfix: CowStr,
+pub struct SliderProps {
+    pub id: CowStr,
+    pub on_change: Callback<f32>,
+    pub min: f32,
+    pub value: f32,
+    pub max: f32,
+    pub step: f32,
+    pub value_postfix: CowStr,
 }
 
 impl Component for Slider {

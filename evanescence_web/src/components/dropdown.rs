@@ -8,23 +8,23 @@ use yewtil::NeqAssign;
 
 use crate::utils::CowStr;
 
-pub(crate) trait DropdownItem: Copy + PartialEq + Display + 'static {}
+pub trait DropdownItem: Copy + PartialEq + Display + 'static {}
 impl<T> DropdownItem for T where T: Copy + PartialEq + Display + 'static {}
 
-pub(crate) struct Dropdown<T: DropdownItem> {
+pub struct Dropdown<T: DropdownItem> {
     link: ComponentLink<Self>,
     props: DropdownProps<T>,
     node_ref: NodeRef,
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub(crate) struct DropdownProps<T: DropdownItem> {
-    pub(crate) id: CowStr,
-    pub(crate) on_change: Callback<T>,
-    pub(crate) options: Vec<T>,
-    pub(crate) selected: T,
+pub struct DropdownProps<T: DropdownItem> {
+    pub id: CowStr,
+    pub on_change: Callback<T>,
+    pub options: Vec<T>,
+    pub selected: T,
     #[prop_or_default]
-    pub(crate) custom_display: Option<Vec<String>>,
+    pub custom_display: Option<Vec<String>>,
 }
 
 impl<T: DropdownItem> Component for Dropdown<T> {
