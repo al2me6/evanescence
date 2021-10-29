@@ -2,6 +2,7 @@
 members = ["evanescence_core", "evanescence_cli", "evanescence_web"]
 
 [profile.dev.package]
+evanescence_core.opt-level = 3
 evanescence_web.opt-level = 3
 
 [profile.release]
