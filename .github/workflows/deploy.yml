@@ -11,33 +11,41 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set up environment
-        run: |
-          rustup toolchain update nightly
-          rustup default nightly
-          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            target: wasm32-unknown-unknown
+            profile: minimal
+            override: true
+
+      - name: Install Trunk
+        uses: jetli/trunk-action@v0.1.0
+        with:
+          version: 'latest'
+
       - name: Compile
         run: |
           cd evanescence_web
-          wasm-pack build --target web --out-name wasm --out-dir ./static
+          trunk build --release
+
       - name: Store artifact
         uses: actions/upload-artifact@v2
         with:
           path: |
-            evanescence_web/static
-            !evanescence_web/static/.gitignore
-            !evanescence_web/static/*.ts
-            !evanescence_web/static/LICENSE
-            !evanescence_web/static/package.json
-            !evanescence_web/static/README.md
+            evanescence_web/dist
+
       - name: Switch to gh-pages branch
         uses: actions/checkout@v2
         with:
           ref: gh-pages
+
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
           name: artifact
+
       - name: Push to gh-pages
         run: |
           ls -la
