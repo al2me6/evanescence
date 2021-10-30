@@ -41,6 +41,10 @@ jobs:
         with:
           ref: gh-pages
 
+      - name: Remove old files
+        run: |
+          find . ! -name 'dev' -type d -exec rm -rf {} +
+
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
