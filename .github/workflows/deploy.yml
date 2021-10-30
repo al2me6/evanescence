@@ -43,7 +43,7 @@ jobs:
 
       - name: Remove old files
         run: |
-          find . ! -name 'dev' -type d -exec rm -rf {} +
+          bash -O extglob -c 'rm -rf !("dev")'
 
       - name: Download artifact
         uses: actions/download-artifact@v2
