@@ -6,7 +6,7 @@ use std::path::Path;
 
 use pulldown_cmark::{html as html_renderer, CowStr, Event, LinkType, Options, Parser, Tag};
 
-const INPUT: &str = "help_window.md";
+const INPUT: &str = "res/help_window.md";
 const OUTPUT: &str = "help.html"; // In the `OUT_DIR` folder.
 
 fn main() -> Result<(), Box<dyn Error>> {
