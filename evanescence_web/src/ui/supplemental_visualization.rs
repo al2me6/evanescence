@@ -1,4 +1,5 @@
 use evanescence_web::components::raw::RawSpan;
+use evanescence_web::components::Window;
 use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::{Config, Plotly};
 use evanescence_web::plotters::supplemental as plot;
@@ -12,11 +13,15 @@ use yewtil::NeqAssign;
 use super::descriptions::DESC;
 
 pub struct SupplementalVisualizationImpl {
+    link: ComponentLink<Self>,
     dispatch: AppDispatch,
 }
 
 impl SupplementalVisualizationImpl {
-    const ID: &'static str = "supplemental";
+    const ID_CONTENT: &'static str = "supplemental-content";
+    const ID_FULLSCREEN_CONTAINER: &'static str = "supplemental-fullscreen";
+    const ID_PLOT: &'static str = "supplemental";
+    const ID_WRAPPER: &'static str = "supplemental-panel";
 
     fn rerender(&mut self) {
         let state = self.dispatch.state();
@@ -46,7 +51,7 @@ impl SupplementalVisualizationImpl {
 
         let (trace, layout) = renderer(state);
         Plotly::react(
-            Self::ID,
+            Self::ID_PLOT,
             vec![trace].into_boxed_slice(),
             layout,
             Config {
@@ -69,14 +74,25 @@ impl SupplementalVisualizationImpl {
 }
 
 impl Component for SupplementalVisualizationImpl {
-    type Message = ();
+    type Message = bool;
     type Properties = AppDispatch;
 
-    fn create(dispatch: Self::Properties, _link: ComponentLink<Self>) -> Self {
-        Self { dispatch }
+    fn create(dispatch: Self::Properties, link: ComponentLink<Self>) -> Self {
+        Self { link, dispatch }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, is_open: Self::Message) -> ShouldRender {
+        let document = web_sys::window().unwrap().document().unwrap();
+        let content = document.get_element_by_id(Self::ID_CONTENT).unwrap();
+        let target_container = document
+            .get_element_by_id(if is_open {
+                Self::ID_FULLSCREEN_CONTAINER
+            } else {
+                Self::ID_WRAPPER
+            })
+            .unwrap();
+        target_container.append_child(&content).unwrap();
+        utils::fire_resize_event();
         false
     }
 
@@ -127,12 +143,23 @@ impl Component for SupplementalVisualizationImpl {
             };
 
             html! {
-                <>
-                    <h3>{ utils::capitalize_words(&title) }</h3>
-                    <p><RawSpan inner_html = desc /></p>
-                    { isosurface_cutoff_text }
-                    <div class = "visualization" id = Self::ID />
-                </>
+                <div id = Self::ID_WRAPPER>
+                    <div id = "supplemental-title">
+                        <h3>{ utils::capitalize_words(&title) }</h3>
+                        <Window
+                            title = utils::capitalize_words(&title)
+                            content_id = Self::ID_FULLSCREEN_CONTAINER
+                            open_button_text = "+"
+                            open_button_hover = "Enlarge"
+                            on_toggle = self.link.callback(|is_open| is_open)
+                        />
+                    </div>
+                    <div id = Self::ID_CONTENT>
+                        <p><RawSpan inner_html = desc /></p>
+                        { isosurface_cutoff_text }
+                        <div class = "visualization" id = Self::ID_PLOT />
+                    </div>
+                </div>
             }
         } else {
             html!()

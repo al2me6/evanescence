@@ -479,9 +479,8 @@ select:focus {
 .window-container {
   box-sizing: border-box;
   position: relative;
-  --width: min(90%, 55em);
   --height: 85%;
-  width: var(--width);
+  width: min(90%, 55em);
   min-height: min(var(--height), 350px);
   max-height: var(--height);
   display: flex;
@@ -628,9 +627,34 @@ main {
   margin-bottom: 0;
 }
 
-.visualization#supplemental {
+#supplemental-panel {
+  display: contents;
+}
+
+#supplemental-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8em;
+}
+
+#supplemental-content {
+  display: contents;
+}
+
+#supplemental {
   padding: 10px;
   flex: 1 0 350px;
+}
+
+#supplemental-panel .window-container {
+  height: var(--height);
+  width: min(90%, 1200px);
+}
+
+#supplemental-fullscreen {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 footer {

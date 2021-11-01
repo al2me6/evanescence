@@ -25,6 +25,8 @@ pub struct WindowProps {
     pub open_button_text: CowStr,
     #[prop_or_default]
     pub children: Children,
+    #[prop_or_default]
+    pub on_toggle: Option<Callback<bool>>,
 }
 
 impl Component for Window {
@@ -57,6 +59,9 @@ impl Component for Window {
         match msg {
             WindowMsg::Open => body.class_list().add_1("window-open").unwrap(),
             WindowMsg::Close => body.class_list().remove_1("window-open").unwrap(),
+        }
+        if let Some(cb) = self.props.on_toggle.as_ref() {
+            cb.emit(matches!(msg, WindowMsg::Open));
         }
         false
     }
