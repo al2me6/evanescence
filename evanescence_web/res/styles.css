@@ -644,6 +644,7 @@ main {
 #supplemental {
   padding: 10px;
   flex: 1 0 350px;
+  overflow: hidden;
 }
 
 #supplemental-panel .window-container {
