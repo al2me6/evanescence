@@ -641,6 +641,21 @@ main {
   display: contents;
 }
 
+#supplemental-placeholder {
+  flex-shrink: 0;
+  background-color: var(--base-01);
+  outline: 1px solid var(--base-0203);
+  outline-offset: -1px;
+  background-size: 10px 10px;
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--base-0203) 0,
+    var(--base-0203) 1px,
+    var(--base-01) 0,
+    var(--base-01) 50%
+  );
+}
+
 #supplemental {
   padding: 10px;
   flex: 1 0 350px;

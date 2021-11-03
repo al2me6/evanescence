@@ -28,6 +28,7 @@ web-sys = { version = "0.3", features = [
     "DomTokenList",
     "Element",
     "EventTarget",
+    "HtmlCollection",
     "HtmlElement",
     "HtmlInputElement",
     "Node",

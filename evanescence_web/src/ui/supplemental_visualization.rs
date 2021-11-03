@@ -5,7 +5,8 @@ use evanescence_web::plotly::{Config, Plotly};
 use evanescence_web::plotters::supplemental as plot;
 use evanescence_web::state::{AppDispatch, State, Visualization};
 use evanescence_web::{time_scope, utils};
-use wasm_bindgen::JsValue;
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::HtmlElement;
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
@@ -20,6 +21,7 @@ pub struct SupplementalVisualizationImpl {
 impl SupplementalVisualizationImpl {
     const ID_CONTENT: &'static str = "supplemental-content";
     const ID_FULLSCREEN_CONTAINER: &'static str = "supplemental-fullscreen";
+    const ID_PLACEHOLDER: &'static str = "supplemental-placeholder";
     const ID_PLOT: &'static str = "supplemental";
     const ID_WRAPPER: &'static str = "supplemental-panel";
 
@@ -84,6 +86,29 @@ impl Component for SupplementalVisualizationImpl {
     fn update(&mut self, is_open: Self::Message) -> ShouldRender {
         let document = web_sys::window().unwrap().document().unwrap();
         let content = document.get_element_by_id(Self::ID_CONTENT).unwrap();
+
+        // Prevent the background from resizing itself by creating a placeholder element that is
+        // the same height as the content while maximizing.
+        let placeholder = document
+            .get_element_by_id(Self::ID_PLACEHOLDER)
+            .unwrap()
+            .dyn_into::<HtmlElement>()
+            .unwrap();
+        if is_open {
+            // Sum the full heights (including padding, but NOT margins!) of all child elements.
+            let children = content.children();
+            let content_height = (0..children.length())
+                .map(|idx| children.item(idx).unwrap())
+                .map(|elem| elem.scroll_height())
+                .sum::<i32>();
+            placeholder
+                .style()
+                .set_property("height", &format!("{}px", content_height))
+                .unwrap();
+        } else {
+            placeholder.style().set_property("height", "0px").unwrap();
+        }
+
         let target_container = document
             .get_element_by_id(if is_open {
                 Self::ID_FULLSCREEN_CONTAINER
@@ -92,7 +117,8 @@ impl Component for SupplementalVisualizationImpl {
             })
             .unwrap();
         target_container.append_child(&content).unwrap();
-        utils::fire_resize_event();
+
+        Plotly::resize(Self::ID_PLOT);
         false
     }
 
@@ -113,9 +139,9 @@ impl Component for SupplementalVisualizationImpl {
         let state = self.dispatch.state();
         let supplement = state.supplement();
         if supplement.is_enabled() {
-            let title = supplement.to_string();
+            let title = utils::capitalize_words(supplement.to_string());
             let desc = match supplement {
-                Visualization::None => "",
+                Visualization::None => unreachable!(),
                 Visualization::RadialWavefunction => DESC.rad_wavefunction,
                 Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
                 Visualization::WavefunctionXY
@@ -145,18 +171,23 @@ impl Component for SupplementalVisualizationImpl {
             html! {
                 <div id = Self::ID_WRAPPER>
                     <div id = "supplemental-title">
-                        <h3>{ utils::capitalize_words(&title) }</h3>
+                        <h3>{ &title }</h3>
                         <Window
-                            title = utils::capitalize_words(&title)
+                            title = title
                             content_id = Self::ID_FULLSCREEN_CONTAINER
                             open_button_text = "+"
                             open_button_hover = "Enlarge"
                             on_toggle = self.link.callback(|is_open| is_open)
                         />
                     </div>
+                    <div id = Self::ID_PLACEHOLDER />
                     <div id = Self::ID_CONTENT>
-                        <p><RawSpan inner_html = desc /></p>
-                        { isosurface_cutoff_text }
+                        // HACK: Wrap the text elements in another div so that the height of their
+                        // margins is included when summing the `scrollHeight`s of the parent div.
+                        <div>
+                            <p><RawSpan inner_html = desc /></p>
+                            { isosurface_cutoff_text }
+                        </div>
                         <div class = "visualization" id = Self::ID_PLOT />
                     </div>
                 </div>
@@ -169,8 +200,8 @@ impl Component for SupplementalVisualizationImpl {
     fn rendered(&mut self, _first_render: bool) {
         if self.dispatch.state().supplement().is_enabled() {
             self.rerender();
-            // Fire resize event since the size of the description may change.
-            utils::fire_resize_event();
+            // Resize since the size of the description may change.
+            Plotly::resize(Self::ID_PLOT);
         }
     }
 }

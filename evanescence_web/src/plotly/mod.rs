@@ -48,6 +48,9 @@ pub mod Plotly {
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = relayout)]
         pub fn relayout(graph_div: &str, update: JsValue);
+
+        #[wasm_bindgen(js_namespace = ["Plotly", "Plots"])]
+        pub fn resize(graph_div: &str);
     }
 }
 
