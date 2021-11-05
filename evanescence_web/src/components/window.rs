@@ -1,6 +1,7 @@
 use gloo::utils::body;
 use web_sys::HtmlElement;
 use yew::prelude::*;
+use yew::virtual_dom::VNode;
 use yewtil::NeqAssign;
 
 use crate::utils::CowStr;
@@ -11,6 +12,14 @@ pub struct Window {
     node_ref: NodeRef,
 }
 
+#[derive(Clone, PartialEq)]
+pub enum OpenButton {
+    /// (character on button, optional hover info).
+    Text(char, Option<&'static str>),
+    /// Function returning a `button` element whose `onclick` is set to the callback passed in.
+    Custom(fn(Callback<MouseEvent>) -> VNode),
+}
+
 pub enum WindowMsg {
     Open,
     Close,
@@ -19,15 +28,14 @@ pub enum WindowMsg {
 #[derive(Clone, PartialEq, Properties)]
 pub struct WindowProps {
     pub title: CowStr,
+    pub id: CowStr,
     #[prop_or_default]
     pub content_id: CowStr,
-    #[prop_or_default]
-    pub open_button_hover: CowStr,
-    pub open_button_text: CowStr,
-    #[prop_or_default]
-    pub children: Children,
+    pub open_button: OpenButton,
     #[prop_or_default]
     pub on_toggle: Option<Callback<bool>>,
+    #[prop_or_default]
+    pub children: Children,
 }
 
 impl Component for Window {
@@ -70,17 +78,23 @@ impl Component for Window {
     }
 
     fn view(&self) -> Html {
+        let open_button = match &self.props.open_button {
+            OpenButton::Text(ch, hover) => html! {
+                <button
+                    type = "button"
+                    class = "window-button"
+                    title = hover.unwrap_or("")
+                    onclick = self.link.callback(|_| WindowMsg::Open)
+                >
+                    { ch }
+                </button>
+            },
+            OpenButton::Custom(gen) => gen(self.link.callback(|_| WindowMsg::Open)),
+        };
         html! {
             <>
-            <button
-                type = "button"
-                class = "window-button"
-                title = &self.props.open_button_hover
-                onclick = self.link.callback(|_| WindowMsg::Open)
-            >
-                { &self.props.open_button_text }
-            </button>
-            <div class = "window-bg" ref = self.node_ref.clone()>
+            { open_button }
+            <div id = &self.props.id class = "window-bg" ref = self.node_ref.clone()>
                 <div class = "window-container">
                     <div class = "window-header">
                         <h1>{ &self.props.title }</h1>

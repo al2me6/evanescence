@@ -548,7 +548,7 @@ main {
   height: min(120vw, 60vh);
 }
 
-.visualization#pointillist {
+#pointillist {
   width: 100%;
   height: 100%;
 }
@@ -662,12 +662,12 @@ main {
   overflow: hidden;
 }
 
-#supplemental-panel .window-container {
+#supplemental-fullscreen-window > .window-container {
   height: var(--height);
   width: min(90%, 1200px);
 }
 
-#supplemental-fullscreen {
+#supplemental-fullscreen-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;

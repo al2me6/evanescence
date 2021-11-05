@@ -1,5 +1,9 @@
 #![feature(drain_filter)]
 
+use evanescence_web::components::raw::RawDiv;
+use evanescence_web::components::window::OpenButton;
+use evanescence_web::components::Window;
+use evanescence_web::state::AppDispatch;
 use gloo::events::EventListener;
 use gloo::storage::{SessionStorage, Storage};
 use gloo::utils::{body, document, window};
@@ -8,10 +12,6 @@ use yewdux::prelude::*;
 use yewtil::NeqAssign;
 
 pub mod ui;
-
-use evanescence_web::components::raw::RawDiv;
-use evanescence_web::components::Window;
-use evanescence_web::state::AppDispatch;
 
 use crate::ui::{
     Controls, InfoPanel, ModeBar, PointillistVisualization, SupplementalVisualization,
@@ -108,9 +108,9 @@ impl Component for MainImpl {
                         <h1>{ "Hydrogenic Orbitals" }</h1>
                         <Window
                             title = "Help"
-                            content_id = "help-window"
-                            open_button_text = "?"
-                            open_button_hover = "Help"
+                            id = "help-window"
+                            content_id = "help-content"
+                            open_button = OpenButton::Text('?', Some("Help"))
                         >
                             <RawDiv inner_html = HELP_HTML />
                         </Window>

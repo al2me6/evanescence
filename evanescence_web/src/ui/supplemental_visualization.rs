@@ -1,4 +1,5 @@
 use evanescence_web::components::raw::RawSpan;
+use evanescence_web::components::window::OpenButton;
 use evanescence_web::components::Window;
 use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::{Config, Plotly};
@@ -20,8 +21,8 @@ pub struct SupplementalVisualizationImpl {
 }
 
 impl SupplementalVisualizationImpl {
-    const ID_CONTENT: &'static str = "supplemental-content";
-    const ID_FULLSCREEN_CONTAINER: &'static str = "supplemental-fullscreen";
+    const ID_FULLSCREEN_CONTAINER: &'static str = "supplemental-fullscreen-content";
+    const ID_INFO_PLOT: &'static str = "supplemental-content";
     const ID_PLACEHOLDER: &'static str = "supplemental-placeholder";
     const ID_PLOT: &'static str = "supplemental";
     const ID_WRAPPER: &'static str = "supplemental-panel";
@@ -85,7 +86,7 @@ impl Component for SupplementalVisualizationImpl {
     }
 
     fn update(&mut self, is_open: Self::Message) -> ShouldRender {
-        let content = document().get_element_by_id(Self::ID_CONTENT).unwrap();
+        let content = document().get_element_by_id(Self::ID_INFO_PLOT).unwrap();
 
         // Prevent the background from resizing itself by creating a placeholder element that is
         // the same height as the content while maximizing.
@@ -174,14 +175,14 @@ impl Component for SupplementalVisualizationImpl {
                         <h3>{ &title }</h3>
                         <Window
                             title = title
+                            id = "supplemental-fullscreen-window"
                             content_id = Self::ID_FULLSCREEN_CONTAINER
-                            open_button_text = "+"
-                            open_button_hover = "Enlarge"
+                            open_button = OpenButton::Text('+', Some("Enlarge"))
                             on_toggle = self.link.callback(|is_open| is_open)
                         />
                     </div>
                     <div id = Self::ID_PLACEHOLDER />
-                    <div id = Self::ID_CONTENT>
+                    <div id = Self::ID_INFO_PLOT>
                         // HACK: Wrap the text elements in another div so that the height of their
                         // margins is included when summing the `scrollHeight`s of the parent div.
                         <div>
