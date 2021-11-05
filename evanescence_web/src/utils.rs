@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::fmt;
 
+use gloo::utils::window;
 use instant::Instant;
 use itertools::Itertools;
 use log::{Level, Record};
@@ -105,8 +106,7 @@ pub mod b16_colors {
 }
 
 pub fn fire_resize_event() {
-    web_sys::window()
-        .unwrap()
+    window()
         .dispatch_event(&web_sys::Event::new("resize").unwrap())
         .unwrap();
 }

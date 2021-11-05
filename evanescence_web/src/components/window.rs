@@ -1,3 +1,4 @@
+use gloo::utils::body;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yewtil::NeqAssign;
@@ -54,11 +55,9 @@ impl Component for Window {
             )
             .unwrap();
         // Disable scrolling for the body in CSS.
-        let document = web_sys::window().unwrap().document().unwrap();
-        let body = document.body().unwrap();
         match msg {
-            WindowMsg::Open => body.class_list().add_1("window-open").unwrap(),
-            WindowMsg::Close => body.class_list().remove_1("window-open").unwrap(),
+            WindowMsg::Open => body().class_list().add_1("window-open").unwrap(),
+            WindowMsg::Close => body().class_list().remove_1("window-open").unwrap(),
         }
         if let Some(cb) = self.props.on_toggle.as_ref() {
             cb.emit(matches!(msg, WindowMsg::Open));

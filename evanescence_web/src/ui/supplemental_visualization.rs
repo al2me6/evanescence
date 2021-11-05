@@ -5,6 +5,7 @@ use evanescence_web::plotly::{Config, Plotly};
 use evanescence_web::plotters::supplemental as plot;
 use evanescence_web::state::{AppDispatch, State, Visualization};
 use evanescence_web::{time_scope, utils};
+use gloo::utils::document;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlElement;
 use yew::prelude::*;
@@ -84,12 +85,11 @@ impl Component for SupplementalVisualizationImpl {
     }
 
     fn update(&mut self, is_open: Self::Message) -> ShouldRender {
-        let document = web_sys::window().unwrap().document().unwrap();
-        let content = document.get_element_by_id(Self::ID_CONTENT).unwrap();
+        let content = document().get_element_by_id(Self::ID_CONTENT).unwrap();
 
         // Prevent the background from resizing itself by creating a placeholder element that is
         // the same height as the content while maximizing.
-        let placeholder = document
+        let placeholder = document()
             .get_element_by_id(Self::ID_PLACEHOLDER)
             .unwrap()
             .dyn_into::<HtmlElement>()
@@ -109,7 +109,7 @@ impl Component for SupplementalVisualizationImpl {
             placeholder.style().set_property("height", "0px").unwrap();
         }
 
-        let target_container = document
+        let target_container = document()
             .get_element_by_id(if is_open {
                 Self::ID_FULLSCREEN_CONTAINER
             } else {

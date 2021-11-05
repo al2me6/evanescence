@@ -1,7 +1,8 @@
 #![feature(drain_filter)]
 
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
+use gloo::events::EventListener;
+use gloo::storage::{SessionStorage, Storage};
+use gloo::utils::{body, document, window};
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;
@@ -21,37 +22,37 @@ pub const REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
 pub const HELP_HTML: &str = include_str!(concat!(env!("OUT_DIR"), "/help.html"));
 
+#[allow(dead_code)] // The listeners are RAII.
 struct MainImpl {
     dispatch: AppDispatch,
-    resize_handler: Closure<dyn Fn()>,
+    resize_listener: EventListener,
+    orientation_listener: EventListener,
 }
 
 impl MainImpl {
     const SIDEBAR_ID: &'static str = "sidebar";
 
     fn viewport_change_handler() {
-        let window = web_sys::window().unwrap();
-        let document = window.document().unwrap();
-        let body = document.body().unwrap();
-        let scroll_y = window.scroll_y().unwrap();
-        let sidebar = document.get_element_by_id(Self::SIDEBAR_ID).unwrap();
+        let scroll_y = window().scroll_y().unwrap();
+        let sidebar = document().get_element_by_id(Self::SIDEBAR_ID).unwrap();
 
         // If the offset is not zero, then the flexbox must have wrapped. If so, we activate the
         // vertical layout. There does not appear to be a way to detect wrapping in CSS.
         if sidebar.get_bounding_client_rect().y() + scroll_y > 0.0 {
-            body.class_list().add_1("vertical-layout").unwrap();
+            body().class_list().add_1("vertical-layout").unwrap();
         } else {
-            body.class_list().remove_1("vertical-layout").unwrap();
+            body().class_list().remove_1("vertical-layout").unwrap();
         }
 
         // HACK: Force the page height to be the same as `innerHeight`. This prevents browsers'
         // navigation bars from overlapping with content. Ideally this would be done in CSS, but
         // there doesn't appear to be a great way. `height: -webkit-fill-available;` appears to
         // behave erratically as of March 2021.
-        body.style()
+        body()
+            .style()
             .set_property(
                 "height",
-                &format!("{}px", window.inner_height().unwrap().as_f64().unwrap()),
+                &format!("{}px", window().inner_height().unwrap().as_f64().unwrap()),
             )
             .unwrap();
     }
@@ -62,9 +63,15 @@ impl Component for MainImpl {
     type Properties = AppDispatch;
 
     fn create(dispatch: AppDispatch, _link: ComponentLink<Self>) -> Self {
+        let resize_listener =
+            EventListener::new(&window(), "resize", |_| Self::viewport_change_handler());
+        let orientation_listener = EventListener::new(&window(), "orientationchange", |_| {
+            Self::viewport_change_handler()
+        });
         Self {
             dispatch,
-            resize_handler: Closure::wrap(Box::new(Self::viewport_change_handler)),
+            resize_listener,
+            orientation_listener,
         }
     }
 
@@ -121,15 +128,6 @@ impl Component for MainImpl {
 
     fn rendered(&mut self, first_render: bool) {
         if first_render {
-            let window = web_sys::window().unwrap();
-            for event in ["resize", "orientationchange"] {
-                window
-                    .add_event_listener_with_callback(
-                        event,
-                        self.resize_handler.as_ref().unchecked_ref(),
-                    )
-                    .unwrap();
-            }
             Self::viewport_change_handler();
         }
     }
@@ -140,11 +138,9 @@ type Main = WithDispatch<MainImpl>;
 #[allow(clippy::missing_panics_doc)]
 fn main() {
     std::panic::set_hook(Box::new(|info| {
-        let window = web_sys::window().unwrap();
-
         // Clear state to prevent the page from crashing again upon reload.
         #[cfg(feature = "persistent")]
-        window.session_storage().unwrap().unwrap().clear().unwrap();
+        SessionStorage::clear();
 
         console_error_panic_hook::hook(info);
         let payload = match info.payload().downcast_ref::<&str>() {
@@ -154,12 +150,10 @@ fn main() {
                 None => "<unknown error>",
             },
         };
-        window
-            .alert_with_message(&format!(
-                "Evanescence encountered a serious error: {}.\nPlease refresh the page.",
-                payload,
-            ))
-            .unwrap();
+        gloo::dialogs::alert(&format!(
+            "Evanescence encountered a serious error: {}.\nPlease refresh the page.",
+            payload,
+        ));
     }));
 
     #[cfg(debug_assertions)]
