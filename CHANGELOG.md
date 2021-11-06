@@ -1,5 +1,11 @@
 # Version History
 
+## 0.4.16, 2021-11-05
+
+### Features
+
+* Supplemental plots can now be maximized for easier viewing.
+
 ## 0.4.15, 2021-10-22
 
 ### Features
