@@ -169,6 +169,18 @@ impl Component for SupplementalVisualizationImpl {
                 html!()
             };
 
+            let open_button_gen = |cb| html! {
+                <button
+                    type = "button"
+                    id = "supplemental-maximize-btn"
+                    class = "window-button"
+                    title = "Enlarge"
+                    onclick = cb
+                >
+                    { "\u{200B}" } // U+200B ZERO WIDTH SPACE for alignment purposes.
+                </button>
+            };
+
             html! {
                 <div id = Self::ID_WRAPPER>
                     <div id = "supplemental-title">
@@ -177,7 +189,7 @@ impl Component for SupplementalVisualizationImpl {
                             title = title
                             id = "supplemental-fullscreen-window"
                             content_id = Self::ID_FULLSCREEN_CONTAINER
-                            open_button = OpenButton::Text('+', Some("Enlarge"))
+                            open_button = OpenButton::Custom(open_button_gen)
                             on_toggle = self.link.callback(|is_open| is_open)
                         />
                     </div>

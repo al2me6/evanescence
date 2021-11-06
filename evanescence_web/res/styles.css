@@ -426,17 +426,16 @@ select:focus {
 .window-button {
   -webkit-appearance: none;
   appearance: none;
-  --size: 1.8rem;
-  width: var(--size);
-  height: var(--size);
-  border-radius: calc(var(--size) / 2);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   border: none;
   background-color: var(--base-00);
   margin: 0;
   padding: 0;
   font: inherit;
   color: inherit;
-  font-size: calc(var(--size) * 0.7);
+  font-size: 20px;
   transition: var(--transition-time);
   display: flex;
   align-items: center;
@@ -510,11 +509,10 @@ select:focus {
 }
 
 .window-close-button {
-  /* Icon source: https://thenounproject.com/term/close/1609004/. */
   /* base06 */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23e0e0e0" d="M61.2,50.5l32.1,32.1c3,3,3,7.7,0,10.7c-3,3-7.7,3-10.7,0L50.5,61.2L18.4,93.3c-3,3-7.7,3-10.7,0c-3-3-3-7.7,0-10.7l32.1-32.1L7.7,18.4c-3-3-3-7.7,0-10.7s7.7-3,10.7,0l32.1,32.1L82.6,7.7c3-3,7.7-3,10.7,0c3,3,3,7.7,0,10.7L61.2,50.5z"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path fill="%23e0e0e0" d="M 0.99609375 0 A 1.0000001 1.0000001 0 0 0 0.29492188 0.29492188 A 1.0000001 1.0000001 0 0 0 0.29492188 1.7050781 L 4.5859375 6 L 0.29492188 10.291016 A 1.0000001 1.0000001 0 0 0 0.29492188 11.707031 A 1.0000001 1.0000001 0 0 0 1.7050781 11.707031 L 6 7.4121094 L 10.291016 11.707031 A 1.0000001 1.0000001 0 0 0 11.707031 11.707031 A 1.0000001 1.0000001 0 0 0 11.707031 10.291016 L 7.4121094 6 L 11.707031 1.7050781 A 1.0000001 1.0000001 0 0 0 11.707031 0.29492188 A 1.0000001 1.0000001 0 0 0 10.291016 0.29492188 L 6 4.5859375 L 1.7050781 0.29492188 A 1.0000001 1.0000001 0 0 0 0.99609375 0 z "/></svg>');
   background-repeat: no-repeat;
-  background-size: 43.5% auto;
+  background-size: 12px auto;
   background-position: center;
 }
 
@@ -635,6 +633,14 @@ main {
   display: flex;
   align-items: baseline;
   gap: 0.8em;
+}
+
+#supplemental-maximize-btn {
+  /* base06 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path fill="%23e0e0e0" d="M 6.9980469 0 A 1.0000006 1.0000006 0 0 0 6.0019531 0.99609375 A 1.0000006 1.0000006 0 0 0 6.9980469 2 L 8.5859375 2 L 6.2890625 4.296875 A 1.0000006 1.0000006 0 0 0 6.2890625 5.7070312 A 1.0000006 1.0000006 0 0 0 7.7070312 5.7070312 L 10.001953 3.4101562 L 10.001953 4.9980469 A 1.0000006 1.0000006 0 0 0 10.998047 6.0019531 A 1.0000006 1.0000006 0 0 0 12.003906 4.9980469 L 12.003906 0.99609375 A 1.0001006 1.0001006 0 0 0 11.738281 0.32617188 A 1.0001006 1.0001006 0 0 0 11.152344 0.01171875 A 1.0001006 1.0001006 0 0 0 11.130859 0.0078125 A 1.0000006 1.0000006 0 0 0 11.128906 0.0078125 A 1.0001006 1.0001006 0 0 0 10.998047 0 L 6.9980469 0 z M 0.99609375 6.0019531 A 1.0000006 1.0000006 0 0 0 0 6.9980469 L 0 10.998047 A 1.0001006 1.0001006 0 0 0 0.99609375 12.003906 L 4.9980469 12.003906 A 1.0000006 1.0000006 0 0 0 6.0019531 10.998047 A 1.0000006 1.0000006 0 0 0 4.9980469 10.001953 L 3.4101562 10.001953 L 5.7070312 7.7070312 A 1.0000006 1.0000006 0 0 0 5.7070312 6.2890625 A 1.0000006 1.0000006 0 0 0 4.9980469 6.0019531 A 1.0000006 1.0000006 0 0 0 4.296875 6.2890625 L 2 8.5859375 L 2 6.9980469 A 1.0000006 1.0000006 0 0 0 0.99609375 6.0019531 z"/></svg>');
+  background-repeat: no-repeat;
+  background-size: 12px auto;
+  background-position: center;
 }
 
 #supplemental-content {
