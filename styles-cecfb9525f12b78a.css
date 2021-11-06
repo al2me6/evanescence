@@ -136,11 +136,11 @@ select {
   /* base06 */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="%23e0e0e0" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>');
   background-repeat: no-repeat;
-  background-position: right 0.4em top 50%;
+  background-position: right 0.5em top 50%;
   background-size: auto 50%;
   border: 0;
   border-radius: var(--radius);
-  padding: 0.15em 1.5em 0.3em 0.4em;
+  padding: 0.15em 1.8em 0.3em 0.5em;
   text-overflow: ellipsis;
   transition: all var(--transition-time);
 }
@@ -426,17 +426,16 @@ select:focus {
 .window-button {
   -webkit-appearance: none;
   appearance: none;
-  --size: 1.8rem;
-  width: var(--size);
-  height: var(--size);
-  border-radius: calc(var(--size) / 2);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   border: none;
   background-color: var(--base-00);
   margin: 0;
   padding: 0;
   font: inherit;
   color: inherit;
-  font-size: calc(var(--size) * 0.7);
+  font-size: 20px;
   transition: var(--transition-time);
   display: flex;
   align-items: center;
@@ -479,9 +478,8 @@ select:focus {
 .window-container {
   box-sizing: border-box;
   position: relative;
-  --width: min(90%, 55em);
   --height: 85%;
-  width: var(--width);
+  width: min(90%, 55em);
   min-height: min(var(--height), 350px);
   max-height: var(--height);
   display: flex;
@@ -511,11 +509,10 @@ select:focus {
 }
 
 .window-close-button {
-  /* Icon source: https://thenounproject.com/term/close/1609004/. */
   /* base06 */
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23e0e0e0" d="M61.2,50.5l32.1,32.1c3,3,3,7.7,0,10.7c-3,3-7.7,3-10.7,0L50.5,61.2L18.4,93.3c-3,3-7.7,3-10.7,0c-3-3-3-7.7,0-10.7l32.1-32.1L7.7,18.4c-3-3-3-7.7,0-10.7s7.7-3,10.7,0l32.1,32.1L82.6,7.7c3-3,7.7-3,10.7,0c3,3,3,7.7,0,10.7L61.2,50.5z"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path fill="%23e0e0e0" d="M 0.99609375 0 A 1.0000001 1.0000001 0 0 0 0.29492188 0.29492188 A 1.0000001 1.0000001 0 0 0 0.29492188 1.7050781 L 4.5859375 6 L 0.29492188 10.291016 A 1.0000001 1.0000001 0 0 0 0.29492188 11.707031 A 1.0000001 1.0000001 0 0 0 1.7050781 11.707031 L 6 7.4121094 L 10.291016 11.707031 A 1.0000001 1.0000001 0 0 0 11.707031 11.707031 A 1.0000001 1.0000001 0 0 0 11.707031 10.291016 L 7.4121094 6 L 11.707031 1.7050781 A 1.0000001 1.0000001 0 0 0 11.707031 0.29492188 A 1.0000001 1.0000001 0 0 0 10.291016 0.29492188 L 6 4.5859375 L 1.7050781 0.29492188 A 1.0000001 1.0000001 0 0 0 0.99609375 0 z "/></svg>');
   background-repeat: no-repeat;
-  background-size: 43.5% auto;
+  background-size: 12px auto;
   background-position: center;
 }
 
@@ -549,7 +546,7 @@ main {
   height: min(120vw, 60vh);
 }
 
-.visualization#pointillist {
+#pointillist {
   width: 100%;
   height: 100%;
 }
@@ -628,9 +625,58 @@ main {
   margin-bottom: 0;
 }
 
-.visualization#supplemental {
+#supplemental-panel {
+  display: contents;
+}
+
+#supplemental-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8em;
+}
+
+#supplemental-maximize-btn {
+  /* base06 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path fill="%23e0e0e0" d="M 6.9980469 0 A 1.0000006 1.0000006 0 0 0 6.0019531 0.99609375 A 1.0000006 1.0000006 0 0 0 6.9980469 2 L 8.5859375 2 L 6.2890625 4.296875 A 1.0000006 1.0000006 0 0 0 6.2890625 5.7070312 A 1.0000006 1.0000006 0 0 0 7.7070312 5.7070312 L 10.001953 3.4101562 L 10.001953 4.9980469 A 1.0000006 1.0000006 0 0 0 10.998047 6.0019531 A 1.0000006 1.0000006 0 0 0 12.003906 4.9980469 L 12.003906 0.99609375 A 1.0001006 1.0001006 0 0 0 11.738281 0.32617188 A 1.0001006 1.0001006 0 0 0 11.152344 0.01171875 A 1.0001006 1.0001006 0 0 0 11.130859 0.0078125 A 1.0000006 1.0000006 0 0 0 11.128906 0.0078125 A 1.0001006 1.0001006 0 0 0 10.998047 0 L 6.9980469 0 z M 0.99609375 6.0019531 A 1.0000006 1.0000006 0 0 0 0 6.9980469 L 0 10.998047 A 1.0001006 1.0001006 0 0 0 0.99609375 12.003906 L 4.9980469 12.003906 A 1.0000006 1.0000006 0 0 0 6.0019531 10.998047 A 1.0000006 1.0000006 0 0 0 4.9980469 10.001953 L 3.4101562 10.001953 L 5.7070312 7.7070312 A 1.0000006 1.0000006 0 0 0 5.7070312 6.2890625 A 1.0000006 1.0000006 0 0 0 4.9980469 6.0019531 A 1.0000006 1.0000006 0 0 0 4.296875 6.2890625 L 2 8.5859375 L 2 6.9980469 A 1.0000006 1.0000006 0 0 0 0.99609375 6.0019531 z"/></svg>');
+  background-repeat: no-repeat;
+  background-size: 12px auto;
+  background-position: center;
+}
+
+#supplemental-content {
+  display: contents;
+}
+
+#supplemental-placeholder {
+  flex-shrink: 0;
+  background-color: var(--base-01);
+  outline: 1px solid var(--base-0203);
+  outline-offset: -1px;
+  background-size: 10px 10px;
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--base-0203) 0,
+    var(--base-0203) 1px,
+    var(--base-01) 0,
+    var(--base-01) 50%
+  );
+}
+
+#supplemental {
   padding: 10px;
   flex: 1 0 350px;
+  overflow: hidden;
+}
+
+#supplemental-fullscreen-window > .window-container {
+  height: var(--height);
+  width: min(90%, 1200px);
+}
+
+#supplemental-fullscreen-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 footer {
