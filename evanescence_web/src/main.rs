@@ -6,7 +6,7 @@ use evanescence_web::components::Window;
 use evanescence_web::state::AppDispatch;
 use gloo::events::EventListener;
 use gloo::storage::{SessionStorage, Storage};
-use gloo::utils::{body, document, window};
+use gloo_utils::{body, document, window};
 use yew::prelude::*;
 use yewdux::prelude::*;
 use yewtil::NeqAssign;

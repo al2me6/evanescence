@@ -6,7 +6,7 @@ use evanescence_web::plotly::{Config, Plotly};
 use evanescence_web::plotters::supplemental as plot;
 use evanescence_web::state::{AppDispatch, State, Visualization};
 use evanescence_web::{time_scope, utils};
-use gloo::utils::document;
+use gloo_utils::document;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlElement;
 use yew::prelude::*;
@@ -169,16 +169,18 @@ impl Component for SupplementalVisualizationImpl {
                 html!()
             };
 
-            let open_button_gen = |cb| html! {
-                <button
-                    type = "button"
-                    id = "supplemental-maximize-btn"
-                    class = "window-button"
-                    title = "Enlarge"
-                    onclick = cb
-                >
-                    { "\u{200B}" } // U+200B ZERO WIDTH SPACE for alignment purposes.
-                </button>
+            let open_button_gen = |cb| {
+                html! {
+                    <button
+                        type = "button"
+                        id = "supplemental-maximize-btn"
+                        class = "window-button"
+                        title = "Enlarge"
+                        onclick = cb
+                    >
+                        { "\u{200B}" } // U+200B ZERO WIDTH SPACE for alignment purposes.
+                    </button>
+                }
             };
 
             html! {
