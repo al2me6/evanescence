@@ -192,7 +192,7 @@ impl Component for SupplementalVisualizationImpl {
                             id = "supplemental-fullscreen-window"
                             content_id = Self::ID_FULLSCREEN_CONTAINER
                             open_button = OpenButton::Custom(open_button_gen)
-                            on_toggle = self.link.callback(|is_open| is_open)
+                            on_toggle = self.link.callback(std::convert::identity)
                         />
                     </div>
                     <div id = Self::ID_PLACEHOLDER />

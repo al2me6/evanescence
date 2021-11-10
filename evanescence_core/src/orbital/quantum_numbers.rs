@@ -1,3 +1,5 @@
+#![allow(clippy::nonminimal_bool)] // They are intentionally nonminimal for clarity.
+
 //! Types for working with and validating quantum numbers.
 use std::ops::{Range, RangeInclusive};
 
@@ -8,13 +10,13 @@ use thiserror::Error;
 #[derive(PartialEq, Eq, Debug, Error)]
 pub enum InvalidQnError {
     /// `n` is zero.
-    #[error("must satisfy n > 0")]
+    #[error("must satisfy 0 < n")]
     N,
     /// `l` is too large.
-    #[error("must satisfy n > l; got n={n}, l={l}")]
+    #[error("must satisfy l < n; got n={n}, l={l}")]
     L { n: u32, l: u32 },
     /// `|m|` is too large.
-    #[error("must satisfy l >= |m|; got l={l}, m={m}")]
+    #[error("must satisfy |m| <= l; got l={l}, m={m}")]
     M { l: u32, m: i32 },
 }
 
@@ -23,7 +25,7 @@ type Result<T, E = InvalidQnError> = std::result::Result<T, E>;
 /// Type representing the quantum numbers `n`, `l`, and `m`.
 ///
 /// # Invariants
-/// `Qn` must satisfy that `n > 0`, `n > l` and `l >= |m|`.
+/// `Qn` must satisfy that `0 < n`, `l < n` and `|m| <= l`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
@@ -42,13 +44,13 @@ impl Qn {
     /// # Errors
     /// This function will return [`Err`] if [`Qn`]'s invariants are not satisfied.
     pub const fn new(n: u32, l: u32, m: i32) -> Result<Self> {
-        if n == 0 {
+        if !(0 < n) {
             return Err(InvalidQnError::N);
         }
-        if n <= l {
+        if !(l < n) {
             return Err(InvalidQnError::L { n, l });
         }
-        if l < m.unsigned_abs() {
+        if !(m.unsigned_abs() <= l) {
             return Err(InvalidQnError::M { l, m });
         }
         Ok(Self { n, l, m })
@@ -59,7 +61,7 @@ impl Qn {
     /// # Errors
     /// This function will return an [`Err`] if the passed value of n is zero.
     pub fn enumerate_l_for_n(n: u32) -> Result<Range<u32>> {
-        if n == 0 {
+        if !(0 < n) {
             return Err(InvalidQnError::N);
         }
         Ok(0..n)
@@ -75,7 +77,7 @@ impl Qn {
     /// # Errors
     /// This function will return an [`Err`] if the passed value of n is zero.
     pub fn enumerate_up_to_n(n: u32) -> Result<impl Iterator<Item = Self>> {
-        if n == 0 {
+        if !(0 < n) {
             return Err(InvalidQnError::N);
         }
         Ok((1..=n).flat_map(|n| {
@@ -92,11 +94,15 @@ impl Qn {
     /// the values passed.
     ///
     /// # Errors
-    /// This function will return an [`Err`] if the passed value of n is zero.
+    /// This function will return an [`Err`] if the passed values do not satisfy `0 < n` and
+    /// `l < n`.
     #[allow(clippy::manual_filter_map)] // Stylistic.
     pub fn enumerate_up_to_n_l(n: u32, l: u32) -> Result<impl Iterator<Item = Self>> {
-        if n == 0 {
+        if !(0 < n) {
             return Err(InvalidQnError::N);
+        }
+        if !(l < n) {
+            return Err(InvalidQnError::L { n, l });
         }
         Ok((1..=n).flat_map(move |n| {
             Self::enumerate_l_for_n(n)
@@ -105,7 +111,7 @@ impl Qn {
                 .filter(move |&possible_l| possible_l <= l)
                 .flat_map(move |l| {
                     Self::enumerate_m_for_l(l)
-                        .map(move |m| Self::new(n, l, m).expect("generated `Qn` is invalid"))
+                        .map(move |m| Self::new(n, l, m).expect("QNs are valid by construction"))
                 })
         }))
     }
@@ -115,10 +121,10 @@ impl Qn {
     /// # Errors
     /// This function will return an [`Err`] if the passed value of n is zero.
     pub fn set_n_clamping(&mut self, n: u32) -> Result<()> {
-        if n == 0 {
+        if !(0 < n) {
             return Err(InvalidQnError::N);
         }
-        if self.l >= n {
+        if !(self.l < n) {
             self.set_l_clamping(n - 1)?;
         }
         self.n = n;
@@ -128,12 +134,12 @@ impl Qn {
     /// Set `l`, the azimuthal quantum number, clamping `m` as necessary.
     ///
     /// # Errors
-    /// This function will return an [`Err`] if `l` does not satisfy `self.n > l`.
+    /// This function will return an [`Err`] if `l` does not satisfy `l < self.n`.
     pub fn set_l_clamping(&mut self, l: u32) -> Result<()> {
-        if self.n <= l {
+        if !(l < self.n) {
             return Err(InvalidQnError::L { n: self.n, l });
         }
-        if self.m.unsigned_abs() > l {
+        if !(self.m.unsigned_abs() <= l) {
             self.set_m(self.m.signum() * l as i32)?;
         }
         self.l = l;
@@ -143,9 +149,9 @@ impl Qn {
     /// Set `m`, the magnetic quantum number.
     ///
     /// # Errors
-    /// This function will return an [`Err`] if `m` does not satisfy `self.l >= |m|`.
+    /// This function will return an [`Err`] if `m` does not satisfy `|m| <= self.l`.
     pub fn set_m(&mut self, m: i32) -> Result<()> {
-        if self.l < m.unsigned_abs() {
+        if !(m.unsigned_abs() <= self.l) {
             return Err(InvalidQnError::M { l: self.l, m });
         }
         self.m = m;
@@ -174,7 +180,7 @@ impl std::fmt::Display for Qn {
 /// Type representing the quantum numbers `n` and `l`.
 ///
 /// # Invariants
-/// `Nl` must satisfy that `n > 0` and `n > l`.
+/// `Nl` must satisfy that `0 < n` and `l < n`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
@@ -191,10 +197,10 @@ impl Nl {
     /// # Errors
     /// This function will return [`Err`] if [`Nl`]'s invariants are not satisfied.
     pub const fn new(n: u32, l: u32) -> Result<Self> {
-        if n == 0 {
+        if !(0 < n) {
             return Err(InvalidQnError::N);
         }
-        if n <= l {
+        if !(l < n) {
             return Err(InvalidQnError::L { n, l });
         }
         Ok(Self { n, l })
@@ -218,7 +224,7 @@ impl From<&Qn> for Nl {
 /// Type representing the quantum numbers `l` and `m`.
 ///
 /// # Invariants
-/// `Lm` must satisfy that `l >= |m|`.
+/// `Lm` must satisfy that `|m| <= l`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
@@ -235,7 +241,7 @@ impl Lm {
     /// # Errors
     /// This function will return [`Err`] if [`Lm`]'s invariants are not satisfied.
     pub const fn new(l: u32, m: i32) -> Result<Self> {
-        if l < m.unsigned_abs() {
+        if !(m.unsigned_abs() <= l) {
             return Err(InvalidQnError::M { l, m });
         }
         Ok(Self { l, m })
@@ -352,7 +358,7 @@ mod tests {
             Qn::new(3, 1, -1),
             Qn::new(3, 1, 0),
             Qn::new(3, 1, 1),
-            // ^^ There are 9 quantum numbers through n=3, l=2. ^^
+            // ^^ There are 9 quantum numbers up until n=3, l=2. ^^
             Qn::new(3, 2, -2),
             Qn::new(3, 2, -1),
             Qn::new(3, 2, 0),

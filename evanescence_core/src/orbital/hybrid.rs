@@ -289,23 +289,19 @@ impl Kind {
         for (&l, &count) in self.mixture.iter().sorted_by_key(|(&l, _)| l) {
             kind.push_str(super::atomic::subshell_name(l).unwrap_or("<?>"));
             if count != 1 {
-                count
-                    .to_string()
-                    .chars()
-                    .map(|c| match c {
-                        '0' => '⁰',
-                        '1' => '¹',
-                        '2' => '²',
-                        '3' => '³',
-                        '4' => '⁴',
-                        '5' => '⁵',
-                        '6' => '⁶',
-                        '7' => '⁷',
-                        '8' => '⁸',
-                        '9' => '⁹',
-                        _ => unreachable!("representation of a `u32` can only contain `[0-9]`"),
-                    })
-                    .for_each(|c| kind.push(c));
+                kind.extend(count.to_string().chars().map(|c| match c {
+                    '0' => '⁰',
+                    '1' => '¹',
+                    '2' => '²',
+                    '3' => '³',
+                    '4' => '⁴',
+                    '5' => '⁵',
+                    '6' => '⁶',
+                    '7' => '⁷',
+                    '8' => '⁸',
+                    '9' => '⁹',
+                    _ => unreachable!("representation of a `u32` can only contain `[0-9]`"),
+                }));
             }
         }
         kind
