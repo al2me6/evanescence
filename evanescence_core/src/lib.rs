@@ -27,7 +27,7 @@
 #![feature(array_windows, destructuring_assignment, type_alias_impl_trait)]
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
-    clippy::if_then_panic, // Triggered by approx.
+    clippy::manual_assert, // Triggered by approx.
     clippy::must_use_candidate, // Annoying.
     clippy::non_ascii_literal, // Unicode support is expected.
 )]
