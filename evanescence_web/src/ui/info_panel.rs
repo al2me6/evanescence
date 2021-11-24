@@ -116,34 +116,34 @@ impl Component for InfoPanelImpl {
                 html! {
                     <>
                     <p>
-                        {"Viewing " }
-                        { kind_name.clone() }
-                        { "-hybridized orbital formed by the linear combination " }
-                        <RawSpan inner_html = utils::fmt_orbital_name_html(
-                            kind.archetype().expression()
-                        ) />
-                        { "." }
-                    </p>
-                    <p>
-                        { "There are " }
+                        {"Viewing one of " }
                         { kind.count() }
                         { " " }
                         { kind_name.clone() }
-                        { " orbitals with " }
+                        { "-hybridized orbitals, which have " }
                         { kind.symmetry() }
-                        { " symmetry. The other " }
-                        { kind_name.clone() }
-                        { " orbitals (which can be drawn by enabling \"Show symmetry\") are formed from the following linear combinations:" }
+                        { " symmetry. They are formed from the following linear combinations:" }
                     </p>
                     <ul>
-                        { for kind.iter().skip(1).map(|lc| html! {
+                        { for kind.iter().map(|lc| html! {
                             <li>
                                 <RawSpan
                                     inner_html = utils::fmt_orbital_name_html(lc.expression())
                                 />
+                                { match (lc == kind.archetype(), state.silhouettes()) {
+                                    (true, true) => " (displayed & outlined)",
+                                    (true, false) => " (displayed)",
+                                    (false, true) => " (outlined)",
+                                    (false, false) => "",
+                                }}
                             </li>
                         }) }
                     </ul>
+                    <p>
+                        { "To draw all " }
+                        { kind_name }
+                        { r#" orbitals to visualize their symmetry, enable the "Show symmetry" toggle."# }
+                    </p>
                     </>
                 }
             }

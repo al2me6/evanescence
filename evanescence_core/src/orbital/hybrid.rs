@@ -1,6 +1,7 @@
 //! Implementation of hybrid orbitals.
 use std::collections::HashMap;
-use std::{fmt, iter, ops};
+use std::f32::consts::FRAC_1_SQRT_2;
+use std::{fmt, ops};
 
 use approx::relative_eq;
 use getset::{CopyGetters, Getters};
@@ -57,33 +58,50 @@ impl LinearCombination {
 
     /// Pretty-print a single orbital and its weight.
     fn format_orbital_weight(weight: f32, qn: &Qn) -> String {
-        format!(
-            "{} {}",
-            format!("{:.3}", weight).trim_end_matches('0'),
-            Real1::name(qn)
-        )
+        // Try to express exact values as such.
+        // FIXME: This is a rather ad-hoc and fragile way to do this.
+        const EXACT_VALUES: [(f32, &str); 6] = [
+            (0.288_675_1, "1/√12"),
+            (0.408_248_3, "1/√6"),
+            (0.5, "1/2"),
+            (0.577_350_3, "1/√3"),
+            (FRAC_1_SQRT_2, "1/√2"),
+            (0.816_496_6, "√(2/3)"),
+        ];
+        let expr = EXACT_VALUES
+            .iter()
+            .find_map(|&(val, expr)| {
+                approx::relative_eq!(val, weight.abs(), epsilon = 1E-4).then(|| {
+                    if weight > 0.0 {
+                        expr.to_owned()
+                    } else {
+                        format!("-{}", expr)
+                    }
+                })
+            })
+            .unwrap_or_else(|| format!("{:.3}", weight).trim_end_matches('0').to_owned());
+        format!("{} {}", expr, Real1::name(qn))
     }
 
     /// Give an expression describing the linear combination. (Ex. `0.707 2s + 0.707 2p_z`),
     /// where subscripts are represented with the `<sub></sub>` HTML tag.
     pub fn expression(&self) -> String {
-        let mut combination = self.iter();
-        iter::once({
-            let Component { qn, weight } = combination
-                .next()
-                .expect("linear combination cannot ever be empty");
-            Self::format_orbital_weight(*weight, qn)
-        })
-        .chain(combination.map(|Component { qn, weight }| {
-            format!(
-                "{sign}{weighted_orbital}",
-                // Manually add signs to add padding.
-                sign = if *weight < 0.0 { " − " } else { " + " },
-                // Note that we take the absolute value since we already manually added the sign.
-                weighted_orbital = Self::format_orbital_weight(weight.abs(), qn)
-            )
-        }))
-        .collect()
+        self.iter()
+            .enumerate()
+            .map(|(i, Component { qn, weight })| {
+                if i == 0 {
+                    Self::format_orbital_weight(*weight, qn)
+                } else {
+                    format!(
+                        "{sign}{weighted_orbital}",
+                        // Manually add signs to add padding.
+                        sign = if *weight < 0.0 { " − " } else { " + " },
+                        // Take the absolute value since the sign was added manually.
+                        weighted_orbital = Self::format_orbital_weight(weight.abs(), qn)
+                    )
+                }
+            })
+            .collect()
     }
 }
 
