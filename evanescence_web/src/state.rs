@@ -80,7 +80,7 @@ impl TryFrom<Visualization> for Plane {
             Visualization::WavefunctionXY | Visualization::ProbabilityDensityXY => Ok(Plane::XY),
             Visualization::WavefunctionYZ | Visualization::ProbabilityDensityYZ => Ok(Plane::YZ),
             Visualization::WavefunctionZX | Visualization::ProbabilityDensityZX => Ok(Plane::ZX),
-            _ => Err(format!("{:?} does not have an associated plane", value)),
+            _ => Err(format!("{value:?} does not have an associated plane")),
         }
     }
 }
@@ -92,7 +92,7 @@ impl TryFrom<Visualization> for RadialPlot {
         match value {
             Visualization::RadialWavefunction => Ok(RadialPlot::Wavefunction),
             Visualization::RadialProbabilityDistribution => Ok(RadialPlot::ProbabilityDistribution),
-            _ => Err(format!("{:?} is not a radial plot", value)),
+            _ => Err(format!("{value:?} is not a radial plot")),
         }
     }
 }

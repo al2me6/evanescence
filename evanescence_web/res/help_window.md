@@ -48,7 +48,7 @@ The size of the point corresponds to the magnitude of the wavefunction at that p
 
 You need more samples to adequately reflect the geometry of the orbital – increase the quality.
 
-#### Jumbled triangles appearing on angular nodes
+#### Jumbled triangles appearing on certain isosurfaces
 
 This is caused by numerical instabilities in the graphing library. Try changing the quality.
 
@@ -72,9 +72,8 @@ I'd like to extend my gratitude to the following people for helping this project
 * Dr. B. Kennedy, for overseeing the initial phases of this project;
 * Mr. H. Kauffman, for inspiring me to take on this project;
 * Dr. J. Osborne, for giving me invaluable advice and pointers;
-* Michelle R., for putting up with my barrage of progress screenshots with great enthusiasm;
-* Ms. A. Holman, Liam C., and Tyler A., for offering helpful feedback; and
-* Thomas L., for suggesting that I look into a project in computational chemistry.
+* Michelle R. and Thomas L., for putting up with my barrage of progress screenshots with great enthusiasm; and
+* Ms. A. Holman, Liam C., and Tyler A., for offering helpful feedback.
 
 ## About Evanescence
 

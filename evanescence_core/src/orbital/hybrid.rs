@@ -75,12 +75,12 @@ impl LinearCombination {
                     if weight > 0.0 {
                         expr.to_owned()
                     } else {
-                        format!("-{}", expr)
+                        format!("-{expr}")
                     }
                 })
             })
             .unwrap_or_else(|| format!("{:.3}", weight).trim_end_matches('0').to_owned());
-        format!("{} {}", expr, Real1::name(qn))
+        format!("{expr} {}", Real1::name(qn))
     }
 
     /// Give an expression describing the linear combination. (Ex. `0.707 2s + 0.707 2p_z`),
@@ -329,7 +329,7 @@ impl Kind {
 impl fmt::Display for Kind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(ref desc) = self.description {
-            write!(f, "{} ({})", self.mixture_name(), desc)
+            write!(f, "{} ({desc})", self.mixture_name())
         } else {
             write!(f, "{}", self.mixture_name())
         }
@@ -367,7 +367,7 @@ macro_rules! kind {
                 $($lc),+
             ],
         )
-        .unwrap_or_else(|err| panic!("attempted to create invalid `Kind`: {}", err))
+        .unwrap_or_else(|err| panic!("attempted to create invalid `Kind`: {err}"))
     };
     (@desc $some:literal) => { std::option::Option::Some($some.to_owned()) };
     (@desc) => { std::option::Option::None };

@@ -34,18 +34,16 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
         RadialPlot::ProbabilityDistribution => "r²R(r)²",
     };
     let variant_label = format!(
-        "{} [ {} ]",
-        utils::capitalize_words(state.supplement().to_string()),
-        function_expr
+        "{} [ {function_expr} ]",
+        utils::capitalize_words(state.supplement().to_string())
     );
 
     let (x, y) = orbital::atomic::sample_radial::<1>(state.qn(), variant, NUM_POINTS);
 
     if variant == RadialPlot::ProbabilityDistribution {
         log::info!(
-            "[{}][{} pts] Integrated total probability density: {}",
+            "[{}][{NUM_POINTS} pts] Integrated total probability density: {}",
             state.qn().to_string_as_wavefunction(),
-            NUM_POINTS,
             numerics::trapezoidal_integrate(&x, &y),
         );
     }

@@ -87,9 +87,9 @@ impl Component for MainImpl {
     fn view(&self) -> Html {
         let footer = html! {
             <footer>
-                <p>{ format!("Evanescence {}", VERSION) }</p>
+                <p>{ format!("Evanescence {VERSION}") }</p>
                 <span>
-                    <a href = format!("{}/blob/master/CHANGELOG.md", REPO) target = "_blank">
+                    <a href = format!("{REPO}/blob/master/CHANGELOG.md") target = "_blank">
                         { "Change Log" }
                     </a>
                 </span>
@@ -151,8 +151,7 @@ fn main() {
             },
         };
         gloo::dialogs::alert(&format!(
-            "Evanescence encountered a serious error: {}.\nPlease refresh the page.",
-            payload,
+            "Evanescence encountered a serious error: {payload}.\nPlease refresh the page.",
         ));
     }));
 

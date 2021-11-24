@@ -284,7 +284,7 @@ pub fn find_roots_in_interval<'a>(
         .filter(|((_, f_a), (_, f_b))| f_a * f_b < 0.0) // ab < 0 iff a < 0 xor b < 0.
         .map(move |((a, _), (b, _))| {
             roots::find_root_brent(a, b, f, &mut 1E-4_f32)
-                .unwrap_or_else(|err| panic!("root finder encountered an error: {}", err))
+                .unwrap_or_else(|err| panic!("root finder encountered an error: {err}"))
         })
 }
 

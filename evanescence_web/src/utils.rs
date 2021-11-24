@@ -41,7 +41,7 @@ pub fn fmt_orbital_name_html<T: AsRef<str>>(source: T) -> String {
             let group = chars.collect::<String>();
             // HACK: In this context "sub" is an HTML tag.
             if is_letter && group != "sub" {
-                format!("<i>{}</i>", group)
+                format!("<i>{group}</i>")
             } else {
                 group
             }
@@ -135,7 +135,7 @@ impl Drop for ScopeTimer {
         let time = self.begin.elapsed().as_millis();
         log::logger().log(
             &Record::builder()
-                .args(format_args!("{}: {}ms", self.action_description, time))
+                .args(format_args!("{}: {time}ms", self.action_description))
                 .level(Level::Info)
                 .file(Some(self.file))
                 .line(Some(self.line))

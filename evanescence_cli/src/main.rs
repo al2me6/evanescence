@@ -33,7 +33,7 @@ impl TryInto<RadialPlot> for Mode {
         match self {
             Self::Radial => Ok(RadialPlot::Wavefunction),
             Self::RadialProbabilityDistribution => Ok(RadialPlot::ProbabilityDistribution),
-            _ => Err(anyhow!("Cannot plot {} as a radial plot.", self)),
+            _ => Err(anyhow!("Cannot plot {self} as a radial plot.")),
         }
     }
 }
@@ -46,7 +46,7 @@ impl TryInto<Plane> for Mode {
             Self::CrossSectionXY => Ok(Plane::XY),
             Self::CrossSectionYZ => Ok(Plane::YZ),
             Self::CrossSectionZX => Ok(Plane::ZX),
-            _ => Err(anyhow!("Cannot plot {} as a cross-section plot.", self)),
+            _ => Err(anyhow!("Cannot plot {self} as a cross-section plot.")),
         }
     }
 }

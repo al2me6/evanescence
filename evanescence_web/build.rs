@@ -10,7 +10,7 @@ const INPUT: &str = "res/help_window.md";
 const OUTPUT: &str = "help.html"; // In the `OUT_DIR` folder.
 
 fn main() -> Result<(), Box<dyn Error>> {
-    println!("cargo:rerun-if-changed={}", INPUT);
+    println!("cargo:rerun-if-changed={INPUT}");
 
     let md = fs::read_to_string(INPUT)?;
 
@@ -29,11 +29,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Event::Text(heading_text) if heading_level.is_some() => {
             Some(Event::Html(CowStr::from(format!(
-                r#"<h{} id="{}">{}"#,
+                r#"<h{} id="{}">{heading_text}"#,
                 heading_level.take().unwrap(),
                 // WARNING: This is potentially fragile if used with non-ASCII heading text!
                 heading_text.trim().to_lowercase().replace(" ", "-"),
-                heading_text,
             ))))
         }
         rest => Some(rest),
@@ -45,8 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             if dest.starts_with("http") =>
         {
             Event::Html(CowStr::from(format!(
-                r#"<a href="{}" target="_blank">{}"#,
-                dest, title
+                r#"<a href="{dest}" target="_blank">{title}"#,
             )))
         }
         rest => rest,

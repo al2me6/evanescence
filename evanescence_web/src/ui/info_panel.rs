@@ -47,10 +47,8 @@ impl Component for InfoPanelImpl {
                 let num_radial_nodes = Real1::num_radial_nodes(qn);
                 let num_angular_nodes = Real1::num_angular_nodes(qn);
                 let nodes_description = format!(
-                    " {} radial {} and {} angular{} {}.",
-                    num_radial_nodes,
+                    " {num_radial_nodes} radial {} and {num_angular_nodes} angular{} {}.",
                     node_pluralize(num_radial_nodes),
-                    num_angular_nodes,
                     match (
                         Real1::num_conical_nodes(&qn.into()),
                         Real1::num_planar_nodes(&qn.into()),
@@ -63,7 +61,7 @@ impl Component for InfoPanelImpl {
                         (0, 2) => " (both planar)".to_owned(),
                         (c, 0) if c > 0 => " (all conical)".to_owned(),
                         (0, p) if p > 0 => " (all planar)".to_owned(),
-                        (c, p) => format!(" ({} conical, {} planar)", c, p),
+                        (c, p) => format!(" ({c} conical, {p} planar)"),
                     },
                     node_pluralize(num_angular_nodes),
                 );

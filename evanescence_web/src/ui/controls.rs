@@ -280,14 +280,14 @@ impl Component for QnPickers {
         let m_options = Qn::enumerate_m_for_l(qn.l()).collect_vec();
 
         let format_l = |l: u32| match orbital::atomic::subshell_name(l) {
-            Some(subshell) => format!("{} [{}]", l, subshell),
+            Some(subshell) => format!("{l} [{subshell}]"),
             None => l.to_string(),
         };
 
         let format_m = |m: i32| match self.props.mode {
             Mode::Real => match RealSphericalHarmonic::expression(&Lm::new(qn.l(), m).unwrap()) {
                 Some(expression) if !expression.is_empty() => {
-                    format!("{} [ {} ]", utils::fmt_replace_minus(m), expression)
+                    format!("{} [ {expression} ]", utils::fmt_replace_minus(m))
                 }
                 _ => utils::fmt_replace_minus(m),
             },

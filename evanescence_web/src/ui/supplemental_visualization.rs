@@ -104,7 +104,7 @@ impl Component for SupplementalVisualizationImpl {
                 .sum::<i32>();
             placeholder
                 .style()
-                .set_property("height", &format!("{}px", content_height))
+                .set_property("height", &format!("{content_height}px"))
                 .unwrap();
         } else {
             placeholder.style().set_property("height", "0px").unwrap();

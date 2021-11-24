@@ -50,7 +50,7 @@ macro_rules! real_z {
             }
 
             fn name((qn, elem): &Self::Parameters) -> String {
-                format!("{} ({})", Real1::name(qn), elem)
+                format!("{} ({elem})", Real1::name(qn))
             }
         }
     }
@@ -187,7 +187,6 @@ impl Orbital for Molecular {
         format!(
             "{name_short} [{character}]",
             name_short = Self::orbital_type(params),
-            character = character
         )
     }
 }

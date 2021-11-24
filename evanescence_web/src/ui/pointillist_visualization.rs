@@ -123,7 +123,7 @@ impl PointillistVisualizationImpl {
         self.rendered_kinds
             .iter()
             .filter(|&&kind| kind != Trace::Pointillist)
-            .for_each(|kind| log::debug!("Removing {:?}.", kind));
+            .for_each(|kind| log::debug!("Removing {kind:?}."));
         Plotly::delete_traces(
             Self::ID,
             (0..self.rendered_kinds.len())
@@ -143,7 +143,7 @@ impl PointillistVisualizationImpl {
         Trace::iter()
             .filter(|kind| kind.should_render(state))
             .for_each(|kind| {
-                log::debug!("Rerendering {:?}.", kind);
+                log::debug!("Rerendering {kind:?}.");
                 let traces = kind.render_to_vec(state);
                 rendered_kinds.extend(itertools::repeat_n(kind, traces.len()));
                 traces_to_render.extend(traces.into_iter());
@@ -180,7 +180,7 @@ impl PointillistVisualizationImpl {
             );
             // And also remove them from the record.
             let removed = self.rendered_kinds.drain_filter(|&mut t| t == kind);
-            removed.for_each(|kind| log::debug!("Removing {:?}.", kind));
+            removed.for_each(|kind| log::debug!("Removing {kind:?}."));
         }
         // There should be no traces of this kind left.
         assert!(!self.rendered_kinds.contains(&kind));
@@ -188,7 +188,7 @@ impl PointillistVisualizationImpl {
         // Check the current state to see if we should render new traces. If so, compute and
         // render them.
         if kind.should_render(state) {
-            log::debug!("Adding {:?}.", kind);
+            log::debug!("Adding {kind:?}.");
             let traces = kind.render_to_vec(state);
             self.rendered_kinds
                 .extend(itertools::repeat_n(kind, traces.len()));

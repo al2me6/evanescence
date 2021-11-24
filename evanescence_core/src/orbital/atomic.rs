@@ -301,7 +301,7 @@ impl<const Z: u32> Orbital for Real<Z> {
             subshell_name(qn.l()),
             RealSphericalHarmonic::expression(&qn.into()),
         ) {
-            format!("{}{}<sub>{}</sub>", qn.n(), subshell, linear_combination)
+            format!("{}{subshell}<sub>{linear_combination}</sub>", qn.n())
         } else {
             Complex::name(qn)
         }
@@ -568,7 +568,7 @@ mod tests {
             .filter(|qn| qn.m() == 0)
             .map(|qn| (qn, Real1::radial_node_positions(&qn)))
             .for_each(|(qn, pts)| {
-                println!("[{}]: {}", qn, pts.iter().join(", "));
+                println!("[{qn}]: {}", pts.iter().join(", "));
             });
     }
 
@@ -581,8 +581,7 @@ mod tests {
             .map(|lm| (lm, Real1::conical_node_angles(lm)))
             .for_each(|(lm, pts)| {
                 println!(
-                    "[{:?}]: {}",
-                    lm,
+                    "[{lm:?}]: {}",
                     pts.iter().map(|theta| theta.to_degrees()).join(", ")
                 );
             });
@@ -597,8 +596,7 @@ mod tests {
             .map(|lm| (lm, Real1::planar_node_angles(lm)))
             .for_each(|(lm, pts)| {
                 println!(
-                    "[{:?}]: {}",
-                    lm,
+                    "[{lm:?}]: {}",
                     pts.iter().map(|phi| phi.to_degrees()).join(", ")
                 );
             });
