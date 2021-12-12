@@ -5,6 +5,7 @@ use evanescence_core::geometry::Plane;
 use evanescence_core::numerics::{self, EvaluateBounded};
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::{self, Complex, Real1};
+use num_complex::Complex32;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -12,10 +13,16 @@ use crate::plotly::layout::{Axis, Font, Scene, Title};
 use crate::plotly::scatter::Line;
 use crate::plotly::surface::{Contour, Contours, Project};
 use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
-use crate::state::State;
+use crate::state::{Mode, State};
 use crate::utils::{self, b16_colors};
 
 const ZERO_THRESHOLD: f32 = 1E-7;
+
+fn split_moduli_arguments(values: &[Complex32]) -> (Vec<f32>, Vec<f32>) {
+    let moduli = values.iter().map(|v| v.norm()).collect();
+    let arguments = values.iter().map(|v| v.arg()).collect();
+    (moduli, arguments)
+}
 
 fn zero_values(grid: &mut Vec<Vec<f32>>) {
     grid.iter_mut()
@@ -154,14 +161,7 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) =
             Complex::sample_plane(state.qn(), plane, state.quality().for_grid()).into_components();
-        let moduli = values
-            .iter()
-            .map(|row| row.iter().map(|v| v.norm()).collect())
-            .collect();
-        let arguments: Vec<Vec<_>> = values
-            .iter()
-            .map(|row| row.iter().map(|v| v.arg()).collect())
-            .collect();
+        let (moduli, arguments) = values.iter().map(|row| split_moduli_arguments(row)).unzip();
         (x, y, moduli, Some(arguments))
     } else {
         let (x, y, z) = state.sample_plane_real(plane).into_components();
@@ -264,28 +264,29 @@ pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
 }
 
 pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
-    assert!(state.mode().is_real_or_simple() || state.mode().is_hybrid());
-
-    let trace = if state.mode().is_hybrid() {
-        super::compute_isosurface_hybrid(state.hybrid_kind(), 0, state.quality())
-    } else {
-        let (x, y, z, value) =
-            Real1::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
-                .into_components();
-        let cutoff = super::isosurface_cutoff_heuristic_real(state.qn());
-        Isosurface {
-            x,
-            y,
-            z,
-            value,
-            iso_min: -cutoff,
-            iso_max: cutoff,
-            surface: isosurface::Surface { count: 2 },
-            color_scale: color_scales::RD_BU_R,
-            opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
-            ..default()
-        }
+    let trace = match state.mode() {
+        Mode::RealSimple | Mode::Real => {
+            let (x, y, z, value) =
+                Real1::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
+                    .into_components();
+            let cutoff = super::isosurface_cutoff_heuristic_real(state.qn());
+            Isosurface {
+                x,
+                y,
+                z,
+                value,
+                iso_min: -cutoff,
+                iso_max: cutoff,
+                surface: isosurface::Surface { count: 2 },
+                color_scale: color_scales::RD_BU_R,
+                opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
+                ..default()
+            }
+        },
+        Mode::Hybrid => super::compute_isosurface_hybrid(state.hybrid_kind(), 0, state.quality()),
+        Mode::Complex | Mode::Mo => unreachable!(),
     };
+
     let cutoff = trace.iso_max;
     let trace = Isosurface {
         c_min: Some(-cutoff * 1.2),
