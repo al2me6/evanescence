@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::fmt;
 
-use gloo_utils::window;
+use gloo::utils::window;
 use instant::Instant;
 use itertools::Itertools;
 use log::{Level, Record};

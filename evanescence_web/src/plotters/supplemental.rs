@@ -282,7 +282,7 @@ pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
                 opacity: if state.qn().l() == 0 { 0.5 } else { 1.0 },
                 ..default()
             }
-        },
+        }
         Mode::Hybrid => super::compute_isosurface_hybrid(state.hybrid_kind(), 0, state.quality()),
         Mode::Complex | Mode::Mo => unreachable!(),
     };

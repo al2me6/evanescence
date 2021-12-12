@@ -1,4 +1,4 @@
-use gloo_utils::body;
+use gloo::utils::body;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew::virtual_dom::VNode;

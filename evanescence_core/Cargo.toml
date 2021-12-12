@@ -23,7 +23,7 @@ roots = "0.0"
 serde = { version = "1", features = [
     "derive",
 ], optional = true, default-features = false }
-strum = { version = "0.22", features = ["derive"] }
+strum = { version = "0.23", features = ["derive"] }
 thiserror = "1"
 
 [dev-dependencies]

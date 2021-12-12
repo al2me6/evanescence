@@ -6,7 +6,7 @@ use evanescence_web::plotly::{Config, Plotly};
 use evanescence_web::plotters::supplemental as plot;
 use evanescence_web::state::{AppDispatch, State, Visualization};
 use evanescence_web::{time_scope, utils};
-use gloo_utils::document;
+use gloo::utils::document;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlElement;
 use yew::prelude::*;
