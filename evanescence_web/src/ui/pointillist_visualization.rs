@@ -1,3 +1,6 @@
+use std::mem;
+use std::rc::Rc;
+
 use evanescence_core::orbital::Real1;
 use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::layout::{LayoutRangeUpdate, Scene};
@@ -10,7 +13,6 @@ use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
 use yewdux::prelude::*;
-use yewtil::NeqAssign;
 
 enum TraceRenderer {
     Single(fn(&State) -> JsValue),
@@ -74,7 +76,7 @@ impl Trace {
 }
 
 pub struct PointillistVisualizationImpl {
-    dispatch: AppDispatch,
+    current_state: Rc<State>,
     rendered_kinds: Vec<Trace>,
 }
 
@@ -111,7 +113,7 @@ impl PointillistVisualizationImpl {
     }
 
     fn rerender_all(&mut self) {
-        let state = self.dispatch.state();
+        let state = &self.current_state;
 
         let _timer = time_scope!(
             "[{}][{}] Full Pointillist render",
@@ -156,7 +158,7 @@ impl PointillistVisualizationImpl {
         // changed then all other traces must also change.
         assert_ne!(kind, Trace::Pointillist);
 
-        let state = self.dispatch.state();
+        let state = &self.current_state;
 
         let _timer = time_scope!(
             "[{}][{}] Render {:?} trace",
@@ -201,18 +203,14 @@ impl Component for PointillistVisualizationImpl {
     type Message = ();
     type Properties = AppDispatch;
 
-    fn create(dispatch: Self::Properties, _link: ComponentLink<Self>) -> Self {
+    fn create(ctx: &Context<Self>) -> Self {
         Self {
-            dispatch,
+            current_state: ctx.props().state(),
             rendered_kinds: Vec::new(),
         }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
-    }
-
-    fn change(&mut self, dispatch: Self::Properties) -> ShouldRender {
+    fn changed(&mut self, ctx: &Context<Self>) -> bool {
         #[derive(Clone, Copy)]
         enum RenderDirective {
             All,
@@ -220,8 +218,8 @@ impl Component for PointillistVisualizationImpl {
             Skip,
         }
 
-        let old = self.dispatch.state();
-        let new = dispatch.state();
+        let old = &mem::replace(&mut self.current_state, ctx.props().state());
+        let new = &self.current_state;
 
         let directive = if new.is_new_orbital(old) || new.quality() != old.quality() {
             RenderDirective::All
@@ -251,9 +249,6 @@ impl Component for PointillistVisualizationImpl {
             directive
         };
 
-        // Note that the rendering operation requires the state to be updated!
-        self.dispatch.neq_assign(dispatch);
-
         match directive {
             RenderDirective::All => self.rerender_all(),
             RenderDirective::Single(kind) => self.add_or_remove_kind(kind),
@@ -263,13 +258,13 @@ impl Component for PointillistVisualizationImpl {
         false
     }
 
-    fn view(&self) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <div class = "visualization" id = Self::ID />
+            <div class = "visualization" id = { Self::ID } />
         }
     }
 
-    fn rendered(&mut self, first_render: bool) {
+    fn rendered(&mut self, _ctx: &Context<Self>, first_render: bool) {
         assert!(first_render);
         self.init_plot();
     }

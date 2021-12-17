@@ -1,23 +1,18 @@
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use yewtil::NeqAssign;
 
 use super::Tooltip;
-use crate::utils::CowStr;
 
 pub struct CheckBox {
-    link: ComponentLink<Self>,
-    props: CheckBoxProps,
-    state: bool,
     node_ref: NodeRef,
 }
 
-#[derive(Clone, PartialEq, Properties)]
+#[derive(PartialEq, Properties)]
 pub struct CheckBoxProps {
-    pub id: CowStr,
+    pub id: &'static str,
     pub on_change: Callback<bool>,
-    pub initial_state: bool,
-    pub label: CowStr,
+    pub checked: bool,
+    pub label: String,
     #[prop_or_default]
     pub tooltip: Option<&'static str>,
 }
@@ -26,43 +21,44 @@ impl Component for CheckBox {
     type Message = ();
     type Properties = CheckBoxProps;
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let state = props.initial_state;
+    fn create(_ctx: &Context<Self>) -> Self {
         Self {
-            link,
-            props,
-            state,
             node_ref: NodeRef::default(),
         }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        self.state = self.node_ref.cast::<HtmlInputElement>().unwrap().checked();
-        self.props.on_change.emit(self.state);
+    fn update(&mut self, ctx: &Context<Self>, _msg: Self::Message) -> bool {
+        let state = self.node_ref.cast::<HtmlInputElement>().unwrap().checked();
+        ctx.props().on_change.emit(state);
         false
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props.neq_assign(props)
+    fn changed(&mut self, ctx: &Context<Self>) -> bool {
+        self.node_ref
+            .cast::<HtmlInputElement>()
+            .unwrap()
+            .set_checked(ctx.props().checked);
+        true
     }
 
-    fn view(&self) -> Html {
-        let label_text = if let Some(tooltip) = self.props.tooltip {
-            html! {
-                <Tooltip text = &self.props.label tooltip = tooltip />
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let props = ctx.props();
+        let label_text = html! {
+            if let Some(tooltip) = props.tooltip {
+                <Tooltip text = { props.label.clone() } { tooltip } />
+            } else {
+                <span>{ props.label.clone() }</span>
             }
-        } else {
-            html! { <span>{ &self.props.label }</span> }
         };
         html! {
             <label class = "checkbox">
                 <input
-                    ref = self.node_ref.clone()
+                    ref = { self.node_ref.clone() }
                     type = "checkbox"
-                    id = &self.props.id
-                    onchange = self.link.callback(|_| ())  // All hail the toilet closure.
-                    checked = self.state
-                    aria-label = &self.props.label
+                    id = { props.id }
+                    onchange = { ctx.link().callback(|_| ()) }
+                    checked = { props.checked }
+                    aria-label = { props.label.clone() }
                 />
                 { label_text }
             </label>

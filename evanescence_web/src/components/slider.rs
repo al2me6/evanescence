@@ -1,40 +1,36 @@
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use yewtil::NeqAssign;
-
-use crate::utils::CowStr;
 
 pub struct Slider {
-    link: ComponentLink<Self>,
-    props: SliderProps,
+    /// Store the value internally so that the label can be updated while dragging.
+    value: f32,
     node_ref: NodeRef,
 }
 
-#[derive(Clone, PartialEq, Properties)]
+#[derive(PartialEq, Properties)]
 pub struct SliderProps {
-    pub id: CowStr,
+    pub id: &'static str,
     pub on_change: Callback<f32>,
     pub min: f32,
     pub value: f32,
     pub max: f32,
     pub step: f32,
-    pub value_postfix: CowStr,
+    pub value_postfix: String,
 }
 
 impl Component for Slider {
     type Message = bool;
     type Properties = SliderProps;
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(ctx: &Context<Self>) -> Self {
         Self {
-            link,
-            props,
+            value: ctx.props().value,
             node_ref: NodeRef::default(),
         }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        self.props.value = self
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        self.value = self
             .node_ref
             .cast::<HtmlInputElement>()
             .unwrap()
@@ -42,32 +38,35 @@ impl Component for Slider {
             .parse()
             .unwrap();
         if msg {
-            self.props.on_change.emit(self.props.value);
+            // true = mouse released
+            ctx.props().on_change.emit(self.value);
         }
+        !msg
+    }
+
+    fn changed(&mut self, ctx: &Context<Self>) -> bool {
+        self.value = ctx.props().value;
         true
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props.neq_assign(props)
-    }
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let props = ctx.props();
 
-    fn view(&self) -> Html {
         html! {
-            <div class = "slider">
+            <div class = "slider" id = { props.id }>
                 <input
-                    ref = self.node_ref.clone()
+                    ref = { self.node_ref.clone() }
                     type = "range"
-                    id = &self.props.id
-                    oninput = self.link.callback(|_| false)
-                    onchange = self.link.callback(|_| true)
-                    min = self.props.min.to_string()
-                    value = self.props.value.to_string()
-                    max = self.props.max.to_string()
-                    step = self.props.step.to_string()
-                    aria-label = &self.props.id
+                    oninput = { ctx.link().callback(|_| false) }
+                    onchange = { ctx.link().callback(|_| true) }
+                    min = { props.min.to_string() }
+                    value = { self.value.to_string() }
+                    max = { props.max.to_string() }
+                    step = { props.step.to_string() }
+                    aria-label = { props.id }
                 />
                 <p class = "slider-label">
-                    { format!("{:.1}{}", self.props.value, self.props.value_postfix) }
+                    { format!("{:.1}{}", self.value, props.value_postfix) }
                 </p>
             </div>
         }

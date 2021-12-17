@@ -1,14 +1,8 @@
 use gloo::utils::body;
 use web_sys::HtmlElement;
 use yew::prelude::*;
-use yew::virtual_dom::VNode;
-use yewtil::NeqAssign;
-
-use crate::utils::CowStr;
 
 pub struct Window {
-    link: ComponentLink<Self>,
-    props: WindowProps,
     node_ref: NodeRef,
 }
 
@@ -17,7 +11,7 @@ pub enum OpenButton {
     /// (character on button, optional hover info).
     Text(char, Option<&'static str>),
     /// Function returning a `button` element whose `onclick` is set to the callback passed in.
-    Custom(fn(Callback<MouseEvent>) -> VNode),
+    Custom(fn(Callback<MouseEvent>) -> Html),
 }
 
 pub enum WindowMsg {
@@ -25,12 +19,12 @@ pub enum WindowMsg {
     Close,
 }
 
-#[derive(Clone, PartialEq, Properties)]
+#[derive(PartialEq, Properties)]
 pub struct WindowProps {
-    pub title: CowStr,
-    pub id: CowStr,
+    pub title: String,
+    pub id: &'static str,
     #[prop_or_default]
-    pub content_id: CowStr,
+    pub content_id: &'static str,
     pub open_button: OpenButton,
     #[prop_or_default]
     pub on_toggle: Option<Callback<bool>>,
@@ -42,15 +36,13 @@ impl Component for Window {
     type Message = WindowMsg;
     type Properties = WindowProps;
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_ctx: &Context<Self>) -> Self {
         Self {
-            link,
-            props,
             node_ref: NodeRef::default(),
         }
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         self.node_ref
             .cast::<HtmlElement>()
             .unwrap()
@@ -67,46 +59,42 @@ impl Component for Window {
             WindowMsg::Open => body().class_list().add_1("window-open").unwrap(),
             WindowMsg::Close => body().class_list().remove_1("window-open").unwrap(),
         }
-        if let Some(cb) = self.props.on_toggle.as_ref() {
+        if let Some(ref cb) = ctx.props().on_toggle {
             cb.emit(matches!(msg, WindowMsg::Open));
         }
         false
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.props.neq_assign(props)
-    }
-
-    fn view(&self) -> Html {
-        let open_button = match &self.props.open_button {
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let open_button = match &ctx.props().open_button {
             OpenButton::Text(ch, hover) => html! {
                 <button
                     type = "button"
                     class = "window-button"
-                    title = hover.unwrap_or("")
-                    onclick = self.link.callback(|_| WindowMsg::Open)
+                    title = { hover.unwrap_or("") }
+                    onclick = { ctx.link().callback(|_| WindowMsg::Open) }
                 >
                     { ch }
                 </button>
             },
-            OpenButton::Custom(gen) => gen(self.link.callback(|_| WindowMsg::Open)),
+            OpenButton::Custom(gen) => gen(ctx.link().callback(|_| WindowMsg::Open)),
         };
         html! {
             <>
             { open_button }
-            <div id = &self.props.id class = "window-bg" ref = self.node_ref.clone()>
+            <div id = {ctx.props().id} class = "window-bg" ref = {self.node_ref.clone()}>
                 <div class = "window-container">
                     <div class = "window-header">
-                        <h1>{ &self.props.title }</h1>
+                        <h1>{ &ctx.props().title }</h1>
                         <button
                             type = "button"
                             class = "window-button window-close-button"
-                            onclick = self.link.callback(|_| WindowMsg::Close)
+                            onclick = { ctx.link().callback(|_| WindowMsg::Close) }
                             title = "Close"
                         />
                     </div>
-                    <div id = &self.props.content_id class = "window-content">
-                        { self.props.children.clone() }
+                    <div id = { ctx.props().content_id } class = "window-content">
+                        { ctx.props().children.clone() }
                     </div>
                 </div>
             </div>
@@ -114,9 +102,9 @@ impl Component for Window {
         }
     }
 
-    fn rendered(&mut self, first_render: bool) {
+    fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
         if first_render {
-            self.update(WindowMsg::Close);
+            self.update(ctx, WindowMsg::Close);
         }
     }
 }

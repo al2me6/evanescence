@@ -1,3 +1,6 @@
+use std::mem;
+use std::rc::Rc;
+
 use evanescence_web::components::raw::RawSpan;
 use evanescence_web::components::window::OpenButton;
 use evanescence_web::components::Window;
@@ -11,13 +14,11 @@ use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yewdux::prelude::*;
-use yewtil::NeqAssign;
 
 use super::descriptions::DESC;
 
 pub struct SupplementalVisualizationImpl {
-    link: ComponentLink<Self>,
-    dispatch: AppDispatch,
+    current_state: Rc<State>,
 }
 
 impl SupplementalVisualizationImpl {
@@ -27,9 +28,7 @@ impl SupplementalVisualizationImpl {
     const ID_PLOT: &'static str = "supplemental";
     const ID_WRAPPER: &'static str = "supplemental-panel";
 
-    fn rerender(&mut self) {
-        let state = self.dispatch.state();
-
+    fn rerender(&mut self, state: &State) {
         let renderer: fn(&State) -> (JsValue, JsValue) = match state.supplement() {
             Visualization::None => return, // No need to render.
             Visualization::RadialWavefunction | Visualization::RadialProbabilityDistribution => {
@@ -81,11 +80,13 @@ impl Component for SupplementalVisualizationImpl {
     type Message = bool;
     type Properties = AppDispatch;
 
-    fn create(dispatch: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self { link, dispatch }
+    fn create(ctx: &Context<Self>) -> Self {
+        Self {
+            current_state: ctx.props().state(),
+        }
     }
 
-    fn update(&mut self, is_open: Self::Message) -> ShouldRender {
+    fn update(&mut self, _ctx: &Context<Self>, is_open: Self::Message) -> bool {
         let content = document().get_element_by_id(Self::ID_INFO_PLOT).unwrap();
 
         // Prevent the background from resizing itself by creating a placeholder element that is
@@ -123,22 +124,19 @@ impl Component for SupplementalVisualizationImpl {
         false
     }
 
-    fn change(&mut self, dispatch: Self::Properties) -> ShouldRender {
-        let old_state = self.dispatch.state();
-        let new_state = dispatch.state();
+    fn changed(&mut self, ctx: &Context<Self>) -> bool {
+        let old_state = &mem::replace(&mut self.current_state, ctx.props().state());
+        let new_state = &self.current_state;
 
-        let should_render = new_state.is_new_orbital(old_state)
+        new_state.is_new_orbital(old_state)
             || new_state.supplement() != old_state.supplement()
-            || (new_state.quality() != old_state.quality()) && !old_state.supplement().is_radial();
-
-        self.dispatch.neq_assign(dispatch);
-
-        should_render
+            || (new_state.quality() != old_state.quality()) && !old_state.supplement().is_radial()
     }
 
-    fn view(&self) -> Html {
-        let state = self.dispatch.state();
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let state = ctx.props().state();
         let supplement = state.supplement();
+
         if supplement.is_enabled() {
             let title = utils::capitalize_words(supplement.to_string());
             let desc = match supplement {
@@ -154,29 +152,27 @@ impl Component for SupplementalVisualizationImpl {
                 Visualization::Isosurface3D => DESC.isosurface_3d,
             };
 
-            let isosurface_cutoff_text = if supplement == Visualization::Isosurface3D {
-                html! {
+            let isosurface_cutoff_text = html! {
+                if supplement == Visualization::Isosurface3D {
                     <p>
                         { "Specifically, the cutoff value used is " }
-                        <RawSpan inner_html = utils::fmt_scientific_notation(
+                        <RawSpan inner_html = { utils::fmt_scientific_notation(
                             state.isosurface_cutoff().powi(2),
                             3,
-                        ) />
+                        ) } />
                         { "." }
                     </p>
                 }
-            } else {
-                html!()
             };
 
-            let open_button_gen = |cb| {
+            let open_button_gen = |onclick| {
                 html! {
                     <button
                         type = "button"
                         id = "supplemental-maximize-btn"
                         class = "window-button"
                         title = "Enlarge"
-                        onclick = cb
+                        { onclick }
                     >
                         { "\u{200B}" } // U+200B ZERO WIDTH SPACE for alignment purposes.
                     </button>
@@ -184,26 +180,26 @@ impl Component for SupplementalVisualizationImpl {
             };
 
             html! {
-                <div id = Self::ID_WRAPPER>
+                <div id = {Self::ID_WRAPPER}>
                     <div id = "supplemental-title">
                         <h3>{ &title }</h3>
                         <Window
-                            title = title
+                            {title}
                             id = "supplemental-fullscreen-window"
-                            content_id = Self::ID_FULLSCREEN_CONTAINER
-                            open_button = OpenButton::Custom(open_button_gen)
-                            on_toggle = self.link.callback(std::convert::identity)
+                            content_id = { Self::ID_FULLSCREEN_CONTAINER }
+                            open_button = { OpenButton::Custom(open_button_gen) }
+                            on_toggle = { ctx.link().callback(std::convert::identity) }
                         />
                     </div>
-                    <div id = Self::ID_PLACEHOLDER />
-                    <div id = Self::ID_INFO_PLOT>
+                    <div id = { Self::ID_PLACEHOLDER } />
+                    <div id = { Self::ID_INFO_PLOT }>
                         // HACK: Wrap the text elements in another div so that the height of their
                         // margins is included when summing the `scrollHeight`s of the parent div.
                         <div>
-                            <p><RawSpan inner_html = desc /></p>
+                            <p><RawSpan inner_html = { desc } /></p>
                             { isosurface_cutoff_text }
                         </div>
-                        <div class = "visualization" id = Self::ID_PLOT />
+                        <div class = "visualization" id = { Self::ID_PLOT } />
                     </div>
                 </div>
             }
@@ -212,9 +208,9 @@ impl Component for SupplementalVisualizationImpl {
         }
     }
 
-    fn rendered(&mut self, _first_render: bool) {
-        if self.dispatch.state().supplement().is_enabled() {
-            self.rerender();
+    fn rendered(&mut self, ctx: &Context<Self>, _first_render: bool) {
+        if ctx.props().state().supplement().is_enabled() {
+            self.rerender(&ctx.props().state());
             // Resize since the size of the description may change.
             Plotly::resize(Self::ID_PLOT);
         }

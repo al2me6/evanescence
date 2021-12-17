@@ -5,30 +5,19 @@ use evanescence_web::state::{AppDispatch, Mode};
 use evanescence_web::utils;
 use yew::prelude::*;
 use yewdux::prelude::*;
-use yewtil::NeqAssign;
 
-pub struct InfoPanelImpl {
-    dispatch: AppDispatch,
-}
+pub struct InfoPanelImpl {}
 
 impl Component for InfoPanelImpl {
     type Message = ();
     type Properties = AppDispatch;
 
-    fn create(dispatch: AppDispatch, _link: ComponentLink<Self>) -> Self {
-        Self { dispatch }
-    }
-
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
-    }
-
-    fn change(&mut self, dispatch: AppDispatch) -> ShouldRender {
-        self.dispatch.neq_assign(dispatch)
+    fn create(_ctx: &Context<Self>) -> Self {
+        Self {}
     }
 
     #[allow(clippy::too_many_lines)] // UIs are lengthy.
-    fn view(&self) -> Html {
+    fn view(&self, ctx: &Context<Self>) -> Html {
         fn node_pluralize(n: u32) -> &'static str {
             if n == 1 {
                 "node"
@@ -37,7 +26,7 @@ impl Component for InfoPanelImpl {
             }
         }
 
-        let state = self.dispatch.state();
+        let state = ctx.props().state();
 
         let description = match state.mode() {
             Mode::RealSimple | Mode::Real => {
@@ -70,51 +59,49 @@ impl Component for InfoPanelImpl {
                     <p>
                         { "Viewing orbital " }
                         <RawSpan
-                            inner_html = utils::fmt_orbital_name_html(Real1::name(qn))
+                            inner_html = { utils::fmt_orbital_name_html(Real1::name(qn)) }
                         />
                         // Show quantum numbers here in Real (Simple) mode, since it's not shown
                         // in the picker.
-                        { if state.mode() == Mode::RealSimple { html! {
+                        if state.mode() == Mode::RealSimple {
                             <RawSpan
-                                inner_html = format!(
+                                inner_html = { format!(
                                     " (<i>n</i> = {}, <i>ℓ</i> = {}, <i>m</i> = {})",
                                     qn.n(),
                                     qn.l(),
                                     utils::fmt_replace_minus(qn.m()),
-                                )
+                                ) }
                             />
-                        }} else { html!() }}
+                        }
                         { ", which " }
-                        { if let Some(subshell) = subshell_name { html! {
-                            <>
-                            { "is "}
+                        if let Some(subshell) = subshell_name {
+                            { "is " }
                             { if "sfhi".contains(subshell) { "an " } else { "a " } } // English is hard.
                             <i>{ subshell }</i>
                             { " orbital with" }
-                            </>
-                        }} else { html! {
-                            { " has" }
-                        } }}
+                        } else {
+                            { "has" }
+                        }
                         { nodes_description }
                     </p>
                 }
             }
             Mode::Complex => html! {
                 <p>
-                    {"Viewing orbital "}
-                    <RawSpan inner_html = Complex::name(state.qn()) />
+                    { "Viewing orbital " }
+                    <RawSpan inner_html = { Complex::name(state.qn()) } />
                     { "." }
                 </p>
             },
             Mode::Hybrid => {
                 let kind = state.hybrid_kind();
                 let kind_name = html! {
-                    <RawSpan inner_html = utils::fmt_orbital_name_html(kind.mixture_name()) />
+                    <RawSpan inner_html = { utils::fmt_orbital_name_html(kind.mixture_name()) } />
                 };
                 html! {
                     <>
                     <p>
-                        {"Viewing one of " }
+                        { "Viewing one of " }
                         { kind.count() }
                         { " " }
                         { kind_name.clone() }
@@ -126,7 +113,7 @@ impl Component for InfoPanelImpl {
                         { for kind.iter().map(|lc| html! {
                             <li>
                                 <RawSpan
-                                    inner_html = utils::fmt_orbital_name_html(lc.expression())
+                                    inner_html = { utils::fmt_orbital_name_html(lc.expression()) }
                                 />
                                 { match (lc == kind.archetype(), state.silhouettes()) {
                                     (true, true) => " (displayed & outlined)",
@@ -149,7 +136,7 @@ impl Component for InfoPanelImpl {
                 html! {
                     <p>
                         { "Viewing a " }
-                        <RawSpan inner_html = Molecular::orbital_type(&state.lcao()) />
+                        <RawSpan inner_html = { Molecular::orbital_type(&state.lcao()) } />
                         { " molecular orbital of the "}
                         <RawSpan inner_html = "H<sub>2</sub><sup>+</sup>" />
                         { " molecule-ion with an interatomic separation of " }

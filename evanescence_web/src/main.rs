@@ -9,7 +9,6 @@ use gloo::storage::{SessionStorage, Storage};
 use gloo::utils::{body, document, window};
 use yew::prelude::*;
 use yewdux::prelude::*;
-use yewtil::NeqAssign;
 
 pub mod ui;
 
@@ -22,11 +21,9 @@ pub const REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
 pub const HELP_HTML: &str = include_str!(concat!(env!("OUT_DIR"), "/help.html"));
 
-#[allow(dead_code)] // The listeners are RAII.
 struct MainImpl {
-    dispatch: AppDispatch,
-    resize_listener: EventListener,
-    orientation_listener: EventListener,
+    _resize_listener: EventListener,
+    _orientation_listener: EventListener,
 }
 
 impl MainImpl {
@@ -62,38 +59,32 @@ impl Component for MainImpl {
     type Message = ();
     type Properties = AppDispatch;
 
-    fn create(dispatch: AppDispatch, _link: ComponentLink<Self>) -> Self {
+    fn create(_ctx: &Context<Self>) -> Self {
         let resize_listener =
             EventListener::new(&window(), "resize", |_| Self::viewport_change_handler());
         let orientation_listener = EventListener::new(&window(), "orientationchange", |_| {
             Self::viewport_change_handler()
         });
         Self {
-            dispatch,
-            resize_listener,
-            orientation_listener,
+            _resize_listener: resize_listener,
+            _orientation_listener: orientation_listener,
         }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
         false
     }
 
-    fn change(&mut self, dispatch: AppDispatch) -> ShouldRender {
-        self.dispatch.neq_assign(dispatch);
-        false
-    }
-
-    fn view(&self) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         let footer = html! {
             <footer>
                 <p>{ format!("Evanescence {VERSION}") }</p>
                 <span>
-                    <a href = format!("{REPO}/blob/master/CHANGELOG.md") target = "_blank">
+                    <a href = { format!("{REPO}/blob/master/CHANGELOG.md") } target = "_blank">
                         { "Change Log" }
                     </a>
                 </span>
-                <span><a href = REPO target = "_blank">{ "Source" }</a></span>
+                <span><a href = { REPO } target = "_blank">{ "Source" }</a></span>
             </footer>
         };
 
@@ -102,7 +93,7 @@ impl Component for MainImpl {
             <main>
                 <PointillistVisualization/>
             </main>
-            <div id = Self::SIDEBAR_ID>
+            <div id = { Self::SIDEBAR_ID }>
                 <header>
                     <div id = "title-and-help-btn">
                         <h1>{ "Hydrogenic Orbitals" }</h1>
@@ -110,9 +101,9 @@ impl Component for MainImpl {
                             title = "Help"
                             id = "help-window"
                             content_id = "help-content"
-                            open_button = OpenButton::Text('?', Some("Help"))
+                            open_button = { OpenButton::Text('?', Some("Help")) }
                         >
-                            <RawDiv inner_html = HELP_HTML />
+                            <RawDiv inner_html = { HELP_HTML } />
                         </Window>
                     </div>
                     <ModeBar/> // Mutates state!
@@ -126,7 +117,7 @@ impl Component for MainImpl {
         }
     }
 
-    fn rendered(&mut self, first_render: bool) {
+    fn rendered(&mut self, _ctx: &Context<Self>, first_render: bool) {
         if first_render {
             Self::viewport_change_handler();
         }
@@ -137,7 +128,13 @@ type Main = WithDispatch<MainImpl>;
 
 #[allow(clippy::missing_panics_doc)]
 fn main() {
-    std::panic::set_hook(Box::new(|info| {
+    #[cfg(debug_assertions)]
+    let config = wasm_logger::Config::default();
+    #[cfg(not(debug_assertions))]
+    let config = wasm_logger::Config::new(log::Level::Info);
+    wasm_logger::init(config);
+
+    yew::set_custom_panic_hook(Box::new(|info| {
         // Clear state to prevent the page from crashing again upon reload.
         #[cfg(feature = "persistent")]
         SessionStorage::clear();
@@ -151,15 +148,9 @@ fn main() {
             },
         };
         gloo::dialogs::alert(&format!(
-            "Evanescence encountered a serious error: {payload}.\nPlease refresh the page.",
+            "Evanescence encountered a serious error: \n{payload}.\n\nPlease refresh the page.",
         ));
     }));
 
-    #[cfg(debug_assertions)]
-    let config = wasm_logger::Config::default();
-    #[cfg(not(debug_assertions))]
-    let config = wasm_logger::Config::new(log::Level::Info);
-    wasm_logger::init(config);
-
-    App::<Main>::new().mount_to_body();
+    yew::start_app::<Main>();
 }
