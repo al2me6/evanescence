@@ -312,8 +312,9 @@ select:focus {
 }
 
 .slider-label {
-  margin: 0 0 0 0.75rem;
+  margin: 0 0 0 0.6rem;
   flex-shrink: 0;
+  text-align: right;
 }
 
 .slider input[type="range"] {
@@ -623,6 +624,10 @@ main {
 #controls input {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+#id-slider>.slider-label {
+  width: 3.25em;
 }
 
 #supplemental-panel {
