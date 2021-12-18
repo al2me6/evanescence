@@ -293,7 +293,7 @@ impl Component for QnPickers {
                     id = "l-picker"
                     on_change = { ctx.link().callback(QnPickersMsg::L) }
                     options = { l_options }
-                    custom_display = {l_options.iter().map(|&l| format_l(l)).collect_vec() }
+                    custom_display = { l_options.iter().map(|&l| format_l(l)).collect_vec() }
                     selected = { qn.l() }
                 /></td>
             </tr>

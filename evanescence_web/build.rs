@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 r#"<h{} id="{}">{heading_text}"#,
                 heading_level.take().unwrap(),
                 // WARNING: This is potentially fragile if used with non-ASCII heading text!
-                heading_text.trim().to_lowercase().replace(" ", "-"),
+                heading_text.trim().to_lowercase().replace(' ', "-"),
             ))))
         }
         rest => Some(rest),

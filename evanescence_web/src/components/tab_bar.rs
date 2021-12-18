@@ -33,6 +33,7 @@ impl<T: TabBarItem> Component for TabBar<T> {
         false
     }
 
+    #[allow(clippy::similar_names)] // Generated within html macro.
     fn view(&self, ctx: &Context<Self>) -> Html {
         let props = ctx.props();
 

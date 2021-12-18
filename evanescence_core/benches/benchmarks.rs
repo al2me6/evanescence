@@ -49,7 +49,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
                     "{}_{}_{}",
                     qn.n(),
                     qn.l(),
-                    qn.m().to_string().replace("-", "n")
+                    qn.m().to_string().replace('-', "n")
                 ),
             ),
             &qn,

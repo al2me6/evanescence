@@ -25,8 +25,8 @@ pub fn capitalize_words<T: AsRef<str>>(source: T) -> String {
 
 pub fn fmt_scientific_notation<T: fmt::LowerExp>(source: T, precision: usize) -> String {
     format!("{:.*e}</sup>", precision, source)
-        .replace("-", "−") // "hyphen" -> "minus".
-        .replace("e", " × 10<sup>")
+        .replace('-', "−") // "hyphen" -> "minus".
+        .replace('e', " × 10<sup>")
 }
 
 /// Italicize the parts of an orbital name that should be italicized (i.e., the alpha characters).
