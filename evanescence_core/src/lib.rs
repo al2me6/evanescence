@@ -24,7 +24,7 @@
 //! let results = Real1::monte_carlo_simulate(&qn, quality, false);
 //! ```
 
-#![feature(array_windows, destructuring_assignment, type_alias_impl_trait)]
+#![feature(array_windows, type_alias_impl_trait)]
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
     clippy::manual_assert, // Triggered by approx.
