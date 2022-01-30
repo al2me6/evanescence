@@ -54,7 +54,7 @@ impl<T: TabBarItem> Component for TabBar<T> {
                 <input
                     type = "radio"
                     name = { props.id }
-                    checked = {mode == selected_mode }
+                    checked = { mode == selected_mode }
                     value = { idx.to_string() }
                     label_text_ = { mode.to_string() }
                     { onchange }
