@@ -1,5 +1,16 @@
 # Version History
 
+## 0.4.17, 2022-01-31
+
+### Features
+
+* Improved display of linear combinations in Hybrid mode.
+* In Real mode, nodal surfaces are no longer unnecessarily rerendered when changing quality.
+
+### Internal improvements
+
+* Migrated to Yew v0.19.
+
 ## 0.4.16, 2021-11-05
 
 ### Features
