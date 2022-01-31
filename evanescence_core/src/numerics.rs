@@ -9,6 +9,7 @@ use crate::geometry::{ComponentForm, GridValues, Linspace, Plane, Point, PointVa
 /// Compute the [double factorial](https://en.wikipedia.org/wiki/Double_factorial).
 pub trait DoubleFactorial {
     /// `x!!`
+    #[must_use]
     fn double_factorial(self) -> Self;
 }
 
