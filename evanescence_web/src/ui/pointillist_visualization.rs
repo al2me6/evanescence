@@ -154,10 +154,6 @@ impl PointillistVisualizationImpl {
     }
 
     fn add_or_remove_kind(&mut self, kind: Trace) {
-        // This function should not be touching the pointillist trace, since if that needs to be
-        // changed then all other traces must also change.
-        assert_ne!(kind, Trace::Pointillist);
-
         let state = &self.current_state;
 
         let _timer = time_scope!(
@@ -221,7 +217,14 @@ impl Component for PointillistVisualizationImpl {
         let old = &mem::replace(&mut self.current_state, ctx.props().state());
         let new = &self.current_state;
 
-        let directive = if new.is_new_orbital(old) || new.quality() != old.quality() {
+        let directive = if new.mode().is_real_or_simple()
+            && !new.is_new_orbital(old)
+            && new.quality() != old.quality()
+        {
+            assert_eq!(new.nodes_ang(), old.nodes_ang());
+            assert_eq!(new.nodes_rad(), old.nodes_rad());
+            RenderDirective::Single(Trace::Pointillist)
+        } else if new.is_new_orbital(old) || new.quality() != old.quality() {
             RenderDirective::All
         } else {
             let mut possible_changes = [
