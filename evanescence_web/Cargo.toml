@@ -38,8 +38,8 @@ web-sys = { version = "0.3", features = [
     "Storage",
     "Window",
 ] }
-yew = { git = "https://github.com/yewstack/yew", rev="8a16d4fc3d9b96a3aab7c98b3ab61b55deac9d3c" }
-yewdux = { git = "https://github.com/intendednull/yewdux" }
+yew = "0.19"
+yewdux = "0.7"
 
 [features]
 default = ["persistent"]
