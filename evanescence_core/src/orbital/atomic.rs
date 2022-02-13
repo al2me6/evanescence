@@ -331,32 +331,32 @@ impl<const Z: u32> Real<Z> {
 
     /// Give the `r` values of all radial nodes of a given `n` and `l` pair.
     #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
-    pub fn radial_node_positions(qn: &Qn) -> Vec<f32> {
-        let points = numerics::find_roots_in_interval(0.05..=Self::bound(qn), 100, |r| {
+    pub fn radial_node_positions(qn: Qn) -> Vec<f32> {
+        let roots = numerics::find_roots_in_interval(0.05..=Self::bound(&qn), 100, |r| {
             Radial::<Z>::evaluate_r(&qn.into(), r)
         })
         .collect::<Vec<_>>();
         assert_eq!(
-            points.len(),
-            Self::num_radial_nodes(qn) as usize,
+            roots.len(),
+            Self::num_radial_nodes(&qn) as usize,
             "not all radial nodes were found"
         );
-        points
+        roots
     }
 
     /// Give the theta angles of all conical nodes of a given `l` and `m` pair.
     #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
     pub fn conical_node_angles(lm: Lm) -> Vec<f32> {
-        let points = numerics::find_roots_in_interval(0.0..=PI, 90, |theta| {
+        let roots = numerics::find_roots_in_interval(0.0..=PI, 90, |theta| {
             associated_legendre((lm.l(), lm.m().unsigned_abs()), theta.cos())
         })
         .collect::<Vec<_>>();
         assert_eq!(
-            points.len(),
+            roots.len(),
             Self::num_conical_nodes(&lm) as usize,
             "not all conical node angles were found"
         );
-        points
+        roots
     }
 
     /// Give the phi angles of all planar nodes of a given `l` and `m` pair.
@@ -366,20 +366,21 @@ impl<const Z: u32> Real<Z> {
         let m_abs = m.unsigned_abs();
         // Offset the search interval clockwise by ~0.9 degrees to ensure that planes at 0 degs are
         // correctly sampled, and that they aren't double-counted at 180 degs.
-        let points = numerics::find_roots_in_interval((0.0 - 0.015)..=(PI - 0.015), 90, |phi| {
-            match m.cmp(&0) {
-                Ordering::Greater => SQRT_2 * (m as f32 * phi).cos(),
-                Ordering::Equal => 1.0,
-                Ordering::Less => SQRT_2 * (m_abs as f32 * phi).sin(),
-            }
-        })
-        .collect::<Vec<_>>();
+        let roots =
+            numerics::find_roots_in_interval((0.0 - 0.015)..=(PI - 0.015), 90, |phi| {
+                match m.cmp(&0) {
+                    Ordering::Greater => (m as f32 * phi).cos(),
+                    Ordering::Equal => 1.0,
+                    Ordering::Less => (m_abs as f32 * phi).sin(),
+                }
+            })
+            .collect::<Vec<_>>();
         assert_eq!(
-            points.len(),
+            roots.len(),
             Self::num_planar_nodes(&lm) as usize,
             "not all planar node angles were found"
         );
-        points
+        roots
     }
 }
 
@@ -566,7 +567,7 @@ mod tests {
         Qn::enumerate_up_to_n(10)
             .unwrap()
             .filter(|qn| qn.m() == 0)
-            .map(|qn| (qn, Real1::radial_node_positions(&qn)))
+            .map(|qn| (qn, Real1::radial_node_positions(qn)))
             .for_each(|(qn, pts)| {
                 println!("[{qn}]: {}", pts.iter().join(", "));
             });

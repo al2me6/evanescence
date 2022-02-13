@@ -35,23 +35,23 @@ impl Component for InfoPanelImpl {
 
                 let num_radial_nodes = Real1::num_radial_nodes(qn);
                 let num_angular_nodes = Real1::num_angular_nodes(qn);
+                let nodes_geometry = match (
+                    Real1::num_conical_nodes(&qn.into()),
+                    Real1::num_planar_nodes(&qn.into()),
+                ) {
+                    // English is hard.
+                    (0, 0) => "".to_owned(),
+                    (1, 0) => " (conical)".to_owned(),
+                    (0, 1) => " (planar)".to_owned(),
+                    (2, 0) => " (both conical)".to_owned(),
+                    (0, 2) => " (both planar)".to_owned(),
+                    (c, 0) if c > 0 => " (all conical)".to_owned(),
+                    (0, p) if p > 0 => " (all planar)".to_owned(),
+                    (c, p) => format!(" ({c} conical, {p} planar)"),
+                };
                 let nodes_description = format!(
-                    " {num_radial_nodes} radial {} and {num_angular_nodes} angular{} {}.",
+                    " {num_radial_nodes} radial {} and {num_angular_nodes} angular{nodes_geometry} {}.",
                     node_pluralize(num_radial_nodes),
-                    match (
-                        Real1::num_conical_nodes(&qn.into()),
-                        Real1::num_planar_nodes(&qn.into()),
-                    ) {
-                        // English is hard.
-                        (0, 0) => "".to_owned(),
-                        (1, 0) => " (conical)".to_owned(),
-                        (0, 1) => " (planar)".to_owned(),
-                        (2, 0) => " (both conical)".to_owned(),
-                        (0, 2) => " (both planar)".to_owned(),
-                        (c, 0) if c > 0 => " (all conical)".to_owned(),
-                        (0, p) if p > 0 => " (all planar)".to_owned(),
-                        (c, p) => format!(" ({c} conical, {p} planar)"),
-                    },
                     node_pluralize(num_angular_nodes),
                 );
 

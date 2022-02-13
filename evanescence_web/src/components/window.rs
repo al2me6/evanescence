@@ -14,6 +14,7 @@ pub enum OpenButton {
     Custom(fn(Callback<MouseEvent>) -> Html),
 }
 
+#[derive(PartialEq, Eq)]
 pub enum WindowMsg {
     Open,
     Close,
@@ -60,29 +61,31 @@ impl Component for Window {
             WindowMsg::Close => body().class_list().remove_1("window-open").unwrap(),
         }
         if let Some(ref cb) = ctx.props().on_toggle {
-            cb.emit(matches!(msg, WindowMsg::Open));
+            cb.emit(msg == WindowMsg::Open);
         }
         false
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        let on_open = ctx.link().callback(|_| WindowMsg::Open);
         let open_button = match &ctx.props().open_button {
             OpenButton::Text(ch, hover) => html! {
                 <button
                     type = "button"
                     class = "window-button"
                     title = { hover.unwrap_or("") }
-                    onclick = { ctx.link().callback(|_| WindowMsg::Open) }
+                    onclick = { on_open }
                 >
                     { ch }
                 </button>
             },
-            OpenButton::Custom(gen) => gen(ctx.link().callback(|_| WindowMsg::Open)),
+            OpenButton::Custom(gen) => gen(on_open),
         };
+
         html! {
             <>
             { open_button }
-            <div id = {ctx.props().id} class = "window-bg" ref = {self.node_ref.clone()}>
+            <div id = { ctx.props().id } class = "window-bg" ref = { self.node_ref.clone() }>
                 <div class = "window-container">
                     <div class = "window-header">
                         <h1>{ &ctx.props().title }</h1>

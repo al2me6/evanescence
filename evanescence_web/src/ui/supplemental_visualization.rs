@@ -137,74 +137,74 @@ impl Component for SupplementalVisualizationImpl {
         let state = ctx.props().state();
         let supplement = state.supplement();
 
-        if supplement.is_enabled() {
-            let title = utils::capitalize_words(supplement.to_string());
-            let desc = match supplement {
-                Visualization::None => unreachable!(),
-                Visualization::RadialWavefunction => DESC.rad_wavefunction,
-                Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
-                Visualization::WavefunctionXY
-                | Visualization::WavefunctionYZ
-                | Visualization::WavefunctionZX => DESC.cross_section_wavefunction,
-                Visualization::ProbabilityDensityXY
-                | Visualization::ProbabilityDensityYZ
-                | Visualization::ProbabilityDensityZX => DESC.cross_section_prob_density,
-                Visualization::Isosurface3D => DESC.isosurface_3d,
-            };
+        if !supplement.is_enabled() {
+            return html!();
+        }
 
-            let isosurface_cutoff_text = html! {
-                if supplement == Visualization::Isosurface3D {
-                    <p>
-                        { "Specifically, the cutoff value used is " }
-                        <RawSpan inner_html = { utils::fmt_scientific_notation(
-                            state.isosurface_cutoff().powi(2),
-                            3,
-                        ) } />
-                        { "." }
-                    </p>
-                }
-            };
+        let title = utils::capitalize_words(supplement.to_string());
+        let desc = match supplement {
+            Visualization::None => unreachable!(),
+            Visualization::RadialWavefunction => DESC.rad_wavefunction,
+            Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
+            Visualization::WavefunctionXY
+            | Visualization::WavefunctionYZ
+            | Visualization::WavefunctionZX => DESC.cross_section_wavefunction,
+            Visualization::ProbabilityDensityXY
+            | Visualization::ProbabilityDensityYZ
+            | Visualization::ProbabilityDensityZX => DESC.cross_section_prob_density,
+            Visualization::Isosurface3D => DESC.isosurface_3d,
+        };
 
-            let open_button_gen = |onclick| {
-                html! {
-                    <button
-                        type = "button"
-                        id = "supplemental-maximize-btn"
-                        class = "window-button"
-                        title = "Enlarge"
-                        { onclick }
-                    >
-                        { "\u{200B}" } // U+200B ZERO WIDTH SPACE for alignment purposes.
-                    </button>
-                }
-            };
-
-            html! {
-                <div id = {Self::ID_WRAPPER}>
-                    <div id = "supplemental-title">
-                        <h3>{ &title }</h3>
-                        <Window
-                            {title}
-                            id = "supplemental-fullscreen-window"
-                            content_id = { Self::ID_FULLSCREEN_CONTAINER }
-                            open_button = { OpenButton::Custom(open_button_gen) }
-                            on_toggle = { ctx.link().callback(std::convert::identity) }
-                        />
-                    </div>
-                    <div id = { Self::ID_PLACEHOLDER } />
-                    <div id = { Self::ID_INFO_PLOT }>
-                        // HACK: Wrap the text elements in another div so that the height of their
-                        // margins is included when summing the `scrollHeight`s of the parent div.
-                        <div>
-                            <p><RawSpan inner_html = { desc } /></p>
-                            { isosurface_cutoff_text }
-                        </div>
-                        <div class = "visualization" id = { Self::ID_PLOT } />
-                    </div>
-                </div>
+        let isosurface_cutoff_text = html! {
+            if supplement == Visualization::Isosurface3D {
+                <p>
+                    { "Specifically, the cutoff value used is " }
+                    <RawSpan inner_html = { utils::fmt_scientific_notation(
+                        state.isosurface_cutoff().powi(2),
+                        3,
+                    ) } />
+                    { "." }
+                </p>
             }
-        } else {
-            html!()
+        };
+
+        let open_button_gen = |onclick| {
+            html! {
+                <button
+                    type = "button"
+                    id = "supplemental-maximize-btn"
+                    class = "window-button"
+                    title = "Enlarge"
+                    { onclick }
+                >
+                    { "\u{200B}" } // U+200B ZERO WIDTH SPACE for alignment purposes.
+                </button>
+            }
+        };
+
+        html! {
+            <div id = {Self::ID_WRAPPER}>
+                <div id = "supplemental-title">
+                    <h3>{ &title }</h3>
+                    <Window
+                        {title}
+                        id = "supplemental-fullscreen-window"
+                        content_id = { Self::ID_FULLSCREEN_CONTAINER }
+                        open_button = { OpenButton::Custom(open_button_gen) }
+                        on_toggle = { ctx.link().callback(std::convert::identity) }
+                    />
+                </div>
+                <div id = { Self::ID_PLACEHOLDER } />
+                <div id = { Self::ID_INFO_PLOT }>
+                    // HACK: Wrap the text elements in another div so that the height of their
+                    // margins is included when summing the `scrollHeight`s of the parent div.
+                    <div>
+                        <p><RawSpan inner_html = { desc } /></p>
+                        { isosurface_cutoff_text }
+                    </div>
+                    <div class = "visualization" id = { Self::ID_PLOT } />
+                </div>
+            </div>
         }
     }
 

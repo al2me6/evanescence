@@ -10,7 +10,7 @@ impl<T> DropdownItem for T where T: Copy + PartialEq + Display + 'static {}
 
 pub struct Dropdown<T: DropdownItem> {
     node_ref: NodeRef,
-    _item_ty: PhantomData<T>,
+    phantom: PhantomData<T>,
 }
 
 #[derive(PartialEq, Properties)]
@@ -19,7 +19,6 @@ pub struct DropdownProps<T: DropdownItem> {
     pub on_change: Callback<T>,
     pub options: Vec<T>,
     pub selected: T,
-    // FIXME: `Option<fn(&T) -> String>` is not `PartialEq`... something something HRTB?
     #[prop_or_default]
     pub custom_display: Option<Vec<String>>,
 }
@@ -31,7 +30,7 @@ impl<T: DropdownItem> Component for Dropdown<T> {
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
             node_ref: NodeRef::default(),
-            _item_ty: PhantomData,
+            phantom: PhantomData,
         }
     }
 

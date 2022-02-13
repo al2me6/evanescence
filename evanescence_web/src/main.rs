@@ -19,7 +19,7 @@ use crate::ui::{
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
-pub const HELP_HTML: &str = include_str!(concat!(env!("OUT_DIR"), "/help.html"));
+pub static HELP_HTML: &str = include_str!(concat!(env!("OUT_DIR"), "/help.html"));
 
 struct MainImpl {
     _resize_listener: EventListener,

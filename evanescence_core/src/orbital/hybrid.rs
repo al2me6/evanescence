@@ -203,7 +203,7 @@ pub type Mixture = HashMap<u32, u32>;
 /// The following are expected of a valid `Kind`:
 ///
 /// * The mixture is not empty.
-/// * The number of orbitals, as indicated by the sum of the number of orbitals mixed, is
+/// * The number of orbitals, as indicated by the sum of the number of orbitals mixed, is equal
 ///   to the number of [`LinearCombination`]s provided.
 /// * The value of `n` is valid: It is nonzero and greater than the `l` values specified in
 ///   the `mixture`.

@@ -42,9 +42,7 @@ pub trait Orbital: EvaluateBounded {
 ///     ProbabilityDensity::<Real1>::evaluate(&qn, &Point::new(6.0, -0.3, 8.5))
 /// );
 /// ```
-pub struct ProbabilityDensity<O> {
-    marker: PhantomData<O>,
-}
+pub struct ProbabilityDensity<O>(PhantomData<O>);
 
 impl<O: Orbital> Evaluate for ProbabilityDensity<O> {
     type Output = f32;

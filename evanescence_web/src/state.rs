@@ -15,7 +15,7 @@ use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yewdux::prelude::*;
 
 use crate::plotters;
-use crate::presets::{HybridPreset, MoPreset, ProtoDiatomicLcao, QnPreset};
+use crate::presets::{HybridPreset, MoPreset, QnPreset};
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display, Serialize, Deserialize)]
@@ -62,7 +62,7 @@ impl Visualization {
     }
 
     pub fn is_enabled(self) -> bool {
-        !matches!(self, Self::None)
+        self != Self::None
     }
 }
 
@@ -152,8 +152,6 @@ struct MoState {
     separation: f32,
 }
 
-impl std::cmp::Eq for MoState {} // FIXME: ew.
-
 impl Default for MoState {
     fn default() -> Self {
         Self {
@@ -164,7 +162,7 @@ impl Default for MoState {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug, EnumDiscriminants, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, EnumDiscriminants, Serialize, Deserialize)]
 #[strum_discriminants(vis(pub), name(Mode), derive(EnumIter))]
 enum StateInner {
     RealSimple(RealSimpleState),
@@ -180,19 +178,19 @@ impl Mode {
     }
 
     pub fn is_real(self) -> bool {
-        matches!(self, Self::Real)
+        self == Self::Real
     }
 
     pub fn is_complex(self) -> bool {
-        matches!(self, Self::Complex)
+        self == Self::Complex
     }
 
     pub fn is_hybrid(self) -> bool {
-        matches!(self, Self::Hybrid)
+        self == Self::Hybrid
     }
 
     pub fn is_mo(self) -> bool {
-        matches!(self, Self::Mo)
+        self == Self::Mo
     }
 }
 
@@ -223,14 +221,14 @@ impl StateInner {
             // To `RealSimple`:
             (Real(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
-                    preset: QnPreset::from_qn_lossy(state.qn),
+                    preset: QnPreset::find_closest_match(state.qn),
                     nodes_rad: state.nodes_rad,
                     nodes_ang: state.nodes_ang,
                 });
             }
             (Complex(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
-                    preset: QnPreset::from_qn_lossy(state.qn),
+                    preset: QnPreset::find_closest_match(state.qn),
                     ..default()
                 });
             }
@@ -246,7 +244,7 @@ impl StateInner {
             // To `Real`:
             (RealSimple(state), Mode::Real) => {
                 *self = Real(RealState {
-                    qn: state.preset.into(),
+                    qn: *state.preset.item(),
                     nodes_rad: state.nodes_rad,
                     nodes_ang: state.nodes_ang,
                     ..default()
@@ -271,7 +269,7 @@ impl StateInner {
             // To `Complex`:
             (RealSimple(state), Mode::Complex) => {
                 *self = Complex(ComplexState {
-                    qn: state.preset.into(),
+                    qn: *state.preset.item(),
                     ..default()
                 });
             }
@@ -310,7 +308,7 @@ impl StateInner {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Debug, CopyGetters, Default, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, CopyGetters, Default, Serialize, Deserialize)]
 pub struct State {
     state: StateInner,
     #[getset(get_copy = "pub")]
@@ -389,7 +387,7 @@ impl State {
 
     pub fn qn(&self) -> &Qn {
         match &self.state {
-            RealSimple(state) => state.preset.into(),
+            RealSimple(state) => state.preset.item(),
             Real(state) => &state.qn,
             Complex(state) => &state.qn,
             Hybrid(_) | Mo(_) => panic!("hybrid or molecular orbital does not have a `qn`"),
@@ -431,7 +429,7 @@ impl State {
 
     pub fn hybrid_kind(&self) -> &'static Kind {
         match &self.state {
-            Hybrid(state) => state.preset.into(),
+            Hybrid(state) => state.preset.item(),
             _ => panic!("{:?} does not have a `hybrid_kind`", self.mode()),
         }
     }
@@ -460,9 +458,7 @@ impl State {
 
     pub fn lcao(&self) -> Lcao {
         match &self.state {
-            Mo(state) => {
-                <&'_ ProtoDiatomicLcao>::from(state.preset).with_separation(self.separation())
-            }
+            Mo(state) => state.preset.item().with_separation(self.separation()),
             _ => panic!("{:?} does not have an `lcao`", self.mode()),
         }
     }

@@ -6,9 +6,7 @@ use yew::prelude::*;
 
 pub trait TabBarItem: Copy + PartialEq + Display + 'static {}
 impl<T> TabBarItem for T where T: Copy + PartialEq + Display + 'static {}
-pub struct TabBar<T: TabBarItem> {
-    _item_ty: PhantomData<T>,
-}
+pub struct TabBar<T: TabBarItem>(PhantomData<T>);
 
 #[derive(PartialEq, Properties)]
 pub struct TabBarProps<T: TabBarItem> {
@@ -23,9 +21,7 @@ impl<T: TabBarItem> Component for TabBar<T> {
     type Properties = TabBarProps<T>;
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Self {
-            _item_ty: PhantomData,
-        }
+        Self(PhantomData)
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {

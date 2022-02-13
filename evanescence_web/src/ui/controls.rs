@@ -84,7 +84,7 @@ impl ControlsImpl {
                     <td><Dropdown<QnPreset>
                         id = "preset_picker"
                         on_change = { dispatch.reduce_callback_with(State::set_qn_preset) }
-                        options = { QnPreset::iter().collect_vec() }
+                        options = { QnPreset::presets() }
                         selected = { state.qn_preset() }
                     /></td>
                 </tr>
@@ -138,7 +138,7 @@ impl ControlsImpl {
                 <td><Dropdown<HybridPreset>
                     id = "preset_picker"
                     on_change = { dispatch.reduce_callback_with(State::set_hybrid_preset) }
-                    options = { HybridPreset::iter().collect_vec() }
+                    options = { HybridPreset::presets() }
                     selected = { state.hybrid_preset() }
                 /></td>
             </tr>
@@ -176,7 +176,7 @@ impl ControlsImpl {
                 <td><Dropdown<MoPreset>
                     id = "preset_picker"
                     on_change = { dispatch.reduce_callback_with(State::set_mo_preset) }
-                    options = { MoPreset::iter().collect_vec() }
+                    options = { MoPreset::presets() }
                     selected = { state.mo_preset() }
                 /></td>
             </tr>
@@ -222,6 +222,7 @@ pub struct QnPickersProps {
     on_toggle_instant: Callback<bool>,
 }
 
+#[derive(PartialEq, Eq)]
 pub enum QnPickersMsg {
     N(u32),
     L(u32),
@@ -247,8 +248,7 @@ impl Component for QnPickers {
             Msg::SetInstant(instant) => ctx.props().on_toggle_instant.emit(instant),
             Msg::Apply => ctx.props().on_apply.emit(self.qn),
         }
-        if ctx.props().instant && !matches!(msg, Msg::Apply) || matches!(msg, Msg::SetInstant(true))
-        {
+        if ctx.props().instant && msg != Msg::Apply || msg == Msg::SetInstant(true) {
             ctx.link().send_message(Msg::Apply);
         }
         true
@@ -260,13 +260,13 @@ impl Component for QnPickers {
         let l_options = Qn::enumerate_l_for_n(qn.n()).unwrap().collect_vec();
         let m_options = Qn::enumerate_m_for_l(qn.l()).collect_vec();
 
-        let format_l = |l: u32| match orbital::atomic::subshell_name(l) {
+        let format_l = |l: &u32| match orbital::atomic::subshell_name(*l) {
             Some(subshell) => format!("{l} [{subshell}]"),
             None => l.to_string(),
         };
 
-        let format_m = |m: i32| match ctx.props().mode {
-            Mode::Real => match RealSphericalHarmonic::expression(&Lm::new(qn.l(), m).unwrap()) {
+        let format_m = |m: &i32| match ctx.props().mode {
+            Mode::Real => match RealSphericalHarmonic::expression(&Lm::new(qn.l(), *m).unwrap()) {
                 Some(expression) if !expression.is_empty() => {
                     format!("{} [ {expression} ]", utils::fmt_replace_minus(m))
                 }
@@ -293,7 +293,7 @@ impl Component for QnPickers {
                     id = "l-picker"
                     on_change = { ctx.link().callback(QnPickersMsg::L) }
                     options = { l_options }
-                    custom_display = { l_options.iter().map(|&l| format_l(l)).collect_vec() }
+                    custom_display = { l_options.iter().map(format_l).collect_vec() }
                     selected = { qn.l() }
                 /></td>
             </tr>
@@ -303,7 +303,7 @@ impl Component for QnPickers {
                     id = "m-picker"
                     on_change = { ctx.link().callback(QnPickersMsg::M) }
                     options = { m_options }
-                    custom_display = { m_options.iter().map(|&m| format_m(m)).collect_vec() }
+                    custom_display = { m_options.iter().map(format_m).collect_vec() }
                     selected = { qn.m() }
                 /></td>
             </tr>

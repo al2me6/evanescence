@@ -150,7 +150,7 @@ fn cross_section_z_contour(max_abs: f32) -> Contour<'static> {
             z: true,
             ..default()
         }),
-        ..Default::default()
+        ..default()
     }
 }
 

@@ -565,7 +565,7 @@ main {
   overflow-y: auto;
 }
 
-/* This class is added and removed dynamically (see `lib.rs`). */
+/* This class is added and removed dynamically (see `main.rs`). */
 .vertical-layout #sidebar {
   overflow-y: unset;
   max-height: unset;

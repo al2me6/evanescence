@@ -1,7 +1,6 @@
 // Module declarations at end of file.
 
 use serde::Serialize;
-use wasm_bindgen::JsValue;
 
 pub use self::config::Config;
 pub use self::isosurface::Isosurface;
@@ -53,28 +52,6 @@ pub mod Plotly {
         pub fn resize(graph_div: &str);
     }
 }
-
-macro_rules! impl_into_js_value {
-    ($a:lifetime; $($ty:ident),+) => {$(
-        impl<$a> From<$ty<$a>> for JsValue {
-            impl_into_js_value!(@inner $ty<$a>);
-        }
-    )+};
-    ($($ty:ty),+) => {$(
-        impl From<$ty> for JsValue {
-            impl_into_js_value!(@inner $ty);
-        }
-    )+};
-    (@inner $ty:ty) => {
-        fn from(value: $ty) -> Self {
-            serde_wasm_bindgen::to_value(&value).unwrap()
-        }
-    }
-}
-impl_into_js_value!('a; Config, Layout, Isosurface, Scatter, Scatter3D, Surface);
-impl_into_js_value!(LayoutRangeUpdate);
-
-// Note that the macro must be defined before the modules using it!!
 
 /// Define a new Plotly configuration type.
 ///
@@ -156,13 +133,19 @@ macro_rules! def_plotly_ty {
             ),+
         }
 
-        impl $(<$($a),+>)? std::default::Default for $name $(<$($a),+>)? {
+        impl $(<$($a),+>)? ::std::default::Default for $name $(<$($a),+>)? {
             fn default() -> Self {
                 Self {
                     $(
                         $($field)? $($optional_field)? : def_plotly_ty!(@field_default $($default)?)
                     ),+
                 }
+            }
+        }
+
+        impl $(<$($a),+>)? ::std::convert::From<$name $(<$($a),+>)?> for wasm_bindgen::JsValue {
+            fn from(value: $name) -> Self {
+                serde_wasm_bindgen::to_value(&value).unwrap()
             }
         }
     };

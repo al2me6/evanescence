@@ -132,7 +132,7 @@ pub fn nodes_radial(state: &State) -> Vec<JsValue> {
 
     assert!(state.mode().is_real_or_simple());
 
-    Real1::radial_node_positions(state.qn())
+    Real1::radial_node_positions(*state.qn())
         .into_iter()
         .map(|r| parametric_sphere(r, NUM_POINTS))
         .map(|[x, y, z]| {
@@ -173,7 +173,7 @@ impl Evaluate for VerticalCone {
 }
 
 pub fn nodes_angular(state: &State) -> Vec<JsValue> {
-    const NUM_POINTS_CONE: usize = 75;
+    const NUM_POINTS: usize = 75;
 
     assert!(state.mode().is_real_or_simple());
 
@@ -183,14 +183,14 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
         Real1::conical_node_angles(qn.into())
             .into_iter()
             .map(|theta| {
-                VerticalCone::evaluate_on_plane(&theta, Plane::XY, bound, NUM_POINTS_CONE)
+                VerticalCone::evaluate_on_plane(&theta, Plane::XY, bound, NUM_POINTS)
                     .into_components()
             })
             .map(|(x, y, z)| Surface {
                 x: Some(x),
                 y: Some(y),
                 z,
-                surface_color: Some(vec![vec![0.0_f32; NUM_POINTS_CONE]; NUM_POINTS_CONE]),
+                surface_color: Some(vec![vec![0.0_f32; NUM_POINTS]; NUM_POINTS]),
                 ..default()
             }),
         Real1::planar_node_angles(qn.into()).into_iter().map(|phi| {
