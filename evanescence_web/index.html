@@ -12,6 +12,17 @@
     <script src="https://cdn.plot.ly/plotly-2.8.0.min.js"></script>
     <link data-trunk rel="rust" data-bin="evanescence_web" data-wasm-opt="4" />
 
+    <script>
+      if (
+        typeof WebAssembly !== "object" ||
+        typeof WebAssembly.instantiate !== "function"
+      ) {
+        alert(
+          "Error: Evanescence requires a browser that supports WebAssembly (e.g. recent versions of Firefox, Chrome, or Edge)."
+        );
+      }
+    </script>
+
     <meta
       name="google-site-verification"
       content="HxwFMkIKO68mmNMQDWNS2fWVaJdgTuXIpAtDG0qtwHo"
