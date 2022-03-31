@@ -222,7 +222,7 @@ impl RealSphericalHarmonic {
                 1 => "xz⁴",
                 2 => "z³(x²−y²)",
                 3 => "x³z²",
-                4 => "z(x⁴-6x²y²+y⁴)",
+                4 => "z(x⁴−6x²y²+y⁴)",
                 5 => "xy⁴",
                 _ => unreachable!(),
             }),
