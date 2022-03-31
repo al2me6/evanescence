@@ -51,7 +51,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
         log::info!(
             "[{}][{NUM_POINTS} pts] Integrated total probability density: {}",
             state.qn().to_string_as_wavefunction(),
-            numerics::trapezoidal_integrate(&x, &y),
+            numerics::integrate_trapezoidal(&x, &y),
         );
     }
 

@@ -265,24 +265,23 @@ impl<const Z: u32> Evaluate for Real<Z> {
 }
 
 impl<const Z: u32> EvaluateBounded for Real<Z> {
-    /// Return the radius of the sphere that contains 99.8% of all probability density.
+    /// Return the radius of the sphere within which the probability of the electron being found is
+    /// [`Self::PROBABILITY_WITHIN_BOUND`].
     #[inline]
     fn bound(qn: &Qn) -> f32 {
-        const INCREMENT: f32 = 0.005;
-        const THRESHOLD: f32 = 0.998;
+        const STEP: f32 = 0.05;
 
-        let evaluator = RadialProbabilityDistribution::<Z>::evaluate_r;
         let nl = Nl::from(qn);
-        let mut r = INCREMENT;
-        let (mut prev_val, mut val) = (evaluator(&nl, 0_f32), evaluator(&nl, r));
-        let mut sum = 0_f32;
+        let mut r = 0_f32;
+        let mut probability = 0_f32;
 
-        while sum < THRESHOLD {
-            // Trapezoidal integrator.
-            sum += (prev_val + val) * INCREMENT * 0.5;
-            prev_val = val;
-            r += INCREMENT;
-            val = evaluator(&nl, r);
+        while probability < Self::PROBABILITY_WITHIN_BOUND {
+            numerics::integrate_rk4_step(
+                |r| RadialProbabilityDistribution::<Z>::evaluate_r(&nl, r),
+                &mut r,
+                &mut probability,
+                STEP,
+            );
         }
         r
     }
@@ -309,6 +308,9 @@ impl<const Z: u32> Orbital for Real<Z> {
 }
 
 impl<const Z: u32> Real<Z> {
+    /// The minimum total probability enclosed within the sphere of radius [`Self::bound`].
+    pub const PROBABILITY_WITHIN_BOUND: f32 = 0.998;
+
     /// Give the number of radial nodes in an orbital.
     pub fn num_radial_nodes(qn: &Qn) -> u32 {
         qn.n() - qn.l() - 1
@@ -425,8 +427,9 @@ mod tests {
 
     use super::{Radial, RadialPlot, Real1, RealSphericalHarmonic};
     use crate::geometry::Point;
-    use crate::numerics::{self, Evaluate};
+    use crate::numerics::{self, Evaluate, EvaluateBounded};
     use crate::orbital::quantum_numbers::{Lm, Nl, Qn};
+    use crate::orbital::ProbabilityDensity;
 
     static TEST_POINTS: Lazy<Vec<Point>> = Lazy::new(|| {
         vec![
@@ -611,9 +614,9 @@ mod tests {
             .map(|qn| super::sample_radial::<1>(&qn, RadialPlot::ProbabilityDistribution, 1_000))
             .for_each(|(xs, ys)| {
                 approx::assert_abs_diff_eq!(
-                    1.0,
-                    numerics::trapezoidal_integrate(&xs, &ys),
-                    epsilon = 0.005
+                    Real1::PROBABILITY_WITHIN_BOUND,
+                    numerics::integrate_trapezoidal(&xs, &ys),
+                    epsilon = 5E-4
                 );
             });
     }
