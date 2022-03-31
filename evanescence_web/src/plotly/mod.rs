@@ -40,16 +40,25 @@ pub mod Plotly {
         #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
         pub fn delete_trace(graph_div: &str, index: isize);
 
-        /// Note that we have a `Box<[JsValue]>` and not a `Box<[isize]>`! The latter produces a
-        /// `TypedArray` instead of a plain `Array` and causes problems.
         #[wasm_bindgen(js_namespace = Plotly, js_name = deleteTraces)]
-        pub fn delete_traces(graph_div: &str, indices: Box<[JsValue]>);
+        fn delete_traces_inner(graph_div: &str, indices: Box<[JsValue]>);
 
         #[wasm_bindgen(js_namespace = Plotly, js_name = relayout)]
         pub fn relayout(graph_div: &str, update: JsValue);
 
         #[wasm_bindgen(js_namespace = ["Plotly", "Plots"])]
         pub fn resize(graph_div: &str);
+    }
+
+    pub fn delete_traces(graph_div: &str, indices: impl IntoIterator<Item = isize>) {
+        delete_traces_inner(
+            graph_div,
+            indices
+                .into_iter()
+                .map(|i| JsValue::from_f64(i as _))
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
+        );
     }
 }
 
@@ -106,7 +115,7 @@ pub mod Plotly {
 macro_rules! def_plotly_ty {
     (
         $(#[$item_meta:meta])*
-        $name:ident $(<$($a:lifetime),+>)?
+        $PlotlyTy:ident $(<$($a:lifetime),+>)?
         $(
             $(#[$field_meta:meta])*
             $($field:ident)?
@@ -119,7 +128,7 @@ macro_rules! def_plotly_ty {
     ) => {
         #[derive(serde::Serialize)]
         $(#[$item_meta])*
-        pub struct $name $(<$($a),+>)? {
+        pub struct $PlotlyTy $(<$($a),+>)? {
             $(
                 $(#[$field_meta])*
                 $(#[serde(rename = $rename)])?
@@ -133,7 +142,7 @@ macro_rules! def_plotly_ty {
             ),+
         }
 
-        impl $(<$($a),+>)? ::std::default::Default for $name $(<$($a),+>)? {
+        impl $(<$($a),+>)? std::default::Default for $PlotlyTy $(<$($a),+>)? {
             fn default() -> Self {
                 Self {
                     $(
@@ -143,8 +152,8 @@ macro_rules! def_plotly_ty {
             }
         }
 
-        impl $(<$($a),+>)? ::std::convert::From<$name $(<$($a),+>)?> for wasm_bindgen::JsValue {
-            fn from(value: $name) -> Self {
+        impl $(<$($a),+>)? std::convert::From<$PlotlyTy $(<$($a),+>)?> for wasm_bindgen::JsValue {
+            fn from(value: $PlotlyTy) -> Self {
                 serde_wasm_bindgen::to_value(&value).unwrap()
             }
         }

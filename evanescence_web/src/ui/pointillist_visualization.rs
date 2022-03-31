@@ -126,13 +126,7 @@ impl PointillistVisualizationImpl {
             .iter()
             .filter(|&&kind| kind != Trace::Pointillist)
             .for_each(|kind| log::debug!("Removing {kind:?}."));
-        Plotly::delete_traces(
-            Self::ID,
-            (0..self.rendered_kinds.len())
-                .map(|i| JsValue::from_f64(i as _))
-                .collect::<Vec<_>>()
-                .into_boxed_slice(),
-        );
+        Plotly::delete_traces(Self::ID, 0..(self.rendered_kinds.len() as isize));
         self.rendered_kinds.clear();
 
         // Relayout to set new plot range. Note that we relayout when there are no points
@@ -171,10 +165,7 @@ impl PointillistVisualizationImpl {
                 self.rendered_kinds // Get all indices of matching traces.
                     .iter()
                     .enumerate()
-                    .filter_map(|(idx, &t)| (t == kind).then(|| idx as f64))
-                    .map(JsValue::from_f64)
-                    .collect::<Vec<_>>()
-                    .into_boxed_slice(),
+                    .filter_map(|(idx, &t)| (t == kind).then(|| idx as isize)),
             );
             // And also remove them from the record.
             let removed = self.rendered_kinds.drain_filter(|&mut t| t == kind);
