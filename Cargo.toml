@@ -1,5 +1,9 @@
 [workspace]
-members = ["evanescence_core", "evanescence_cli", "evanescence_web"]
+members = ["evanescence_core", "evanescence_web"]
+
+[profile.test.package]
+evanescence_core.opt-level = 3
+evanescence_web.opt-level = 3
 
 [profile.dev.package]
 evanescence_core.opt-level = 3
