@@ -18,12 +18,7 @@ use crate::utils::{self, b16_colors};
 
 const ZERO_THRESHOLD: f32 = 1E-7;
 
-fn split_moduli_arguments(values: &[Complex32]) -> (Vec<f32>, Vec<f32>) {
-    let moduli = values.iter().map(|v| v.norm()).collect();
-    let arguments = values.iter().map(|v| v.arg()).collect();
-    (moduli, arguments)
-}
-
+#[allow(clippy::ptr_arg)] // This is a function intended to be used with a specific type.
 fn zero_values(grid: &mut Vec<Vec<f32>>) {
     grid.iter_mut()
         .flat_map(|row| row.iter_mut())
