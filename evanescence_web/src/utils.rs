@@ -4,6 +4,7 @@ use gloo::utils::window;
 use instant::Instant;
 use itertools::Itertools;
 use log::{Level, Record};
+use num_complex::Complex32;
 
 pub mod consts {
     pub const FRAC_1_SQRT_3: f32 = 0.577_350_3;
@@ -80,6 +81,12 @@ where
     <I as IntoIterator>::Item: PartialOrd,
 {
     values.into_iter().max_by(|a, b| a.partial_cmp(b).unwrap())
+}
+
+pub fn split_moduli_arguments(values: &[Complex32]) -> (Vec<f32>, Vec<f32>) {
+    let moduli = values.iter().map(|v| v.norm()).collect();
+    let arguments = values.iter().map(|v| v.arg()).collect();
+    (moduli, arguments)
 }
 
 /// [Base16 Tomorrow Night](https://github.com/chriskempson/base16-tomorrow-scheme/blob/master/tomorrow-night.yaml)

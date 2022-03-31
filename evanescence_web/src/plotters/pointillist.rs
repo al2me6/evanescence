@@ -1,5 +1,5 @@
 use std::default::default;
-use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI, TAU};
+use std::f32::consts::{PI, TAU};
 
 use evanescence_core::geometry::{ComponentForm, Linspace, Plane, Point, PointValue};
 use evanescence_core::monte_carlo::MonteCarlo;
@@ -20,25 +20,24 @@ pub fn real(state: &State) -> JsValue {
     assert!([Mode::RealSimple, Mode::Real, Mode::Hybrid, Mode::Mo].contains(&state.mode()));
 
     let (x, y, z, values) = state.monte_carlo_simulate_real().into_components();
-    let values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
-    let max_abs = *utils::partial_max(&values_abs).unwrap();
 
     // Special handling for s orbitals.
     let min_point_size = if state.mode().is_real_or_simple() && state.qn().l() == 0 {
-        0.6
+        0.4
     } else {
-        0.3
+        0.2
     };
+
+    let mut values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
+    let max_abs = *utils::partial_max(&values_abs).unwrap();
+    numerics::normalize_collection(0.0..=max_abs, min_point_size..=4.0, &mut values_abs);
 
     Scatter3D {
         x,
         y,
         z,
         marker: Marker {
-            size: values_abs
-                .into_iter()
-                .map(|v| numerics::normalize(0.0..=max_abs, min_point_size..=4.0, v))
-                .collect(),
+            size: values_abs,
             color: values,
             show_scale: true,
             color_bar: ColorBar {
@@ -60,22 +59,19 @@ pub fn complex(state: &State) -> JsValue {
     let simulation = Complex::monte_carlo_simulate(state.qn(), state.quality(), true);
     let (x, y, z, values) = simulation.into_components();
 
-    let moduli: Vec<_> = values.iter().map(|v| v.norm()).collect();
-    let arguments: Vec<_> = values.iter().map(|v| v.arg()).collect();
-    let max_modulus = *utils::partial_max(&moduli).unwrap();
+    let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
 
     // Special handling for s orbitals.
     let min_point_size = if state.qn().l() == 0 { 0.8 } else { 0.4 };
+    let max_modulus = *utils::partial_max(&moduli).unwrap();
+    numerics::normalize_collection(0.0..=max_modulus, min_point_size..=4.0, &mut moduli);
 
     Scatter3D {
         x,
         y,
         z,
         marker: Marker {
-            size: moduli
-                .into_iter()
-                .map(|m| numerics::normalize(0.0..=max_modulus, min_point_size..=3.0, m))
-                .collect(),
+            size: moduli,
             color: arguments,
             color_scale: color_scales::PHASE,
             show_scale: true,
@@ -152,12 +148,9 @@ pub fn nodes_radial(state: &State) -> Vec<JsValue> {
         .collect()
 }
 
-fn radius_to_square_multiplier(mut theta: f32) -> f32 {
-    theta = theta.abs() % FRAC_PI_2;
-    if theta > FRAC_PI_4 {
-        theta = FRAC_PI_2 - theta;
-    }
-    1.0 / theta.cos()
+/// A square of side length 2 centered at the origin.
+fn polar_square(theta: f32) -> f32 {
+    f32::min(theta.cos().recip().abs(), theta.sin().recip().abs())
 }
 
 struct VerticalCone;
@@ -195,8 +188,8 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
             }),
         Real1::planar_node_angles(qn.into()).into_iter().map(|phi| {
             let r = bound;
-            let mult = radius_to_square_multiplier(phi);
-            let (x1, y1) = (r * mult * phi.cos(), r * mult * phi.sin());
+            let r_square = polar_square(phi);
+            let (x1, y1) = (r * phi.cos() * r_square, r * phi.sin() * r_square);
             let (x2, y2) = (-x1, -y1);
             Surface {
                 x_parametric: Some(vec![vec![x1, x2]; 2]),

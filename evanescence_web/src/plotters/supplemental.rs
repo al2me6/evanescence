@@ -5,7 +5,6 @@ use evanescence_core::geometry::Plane;
 use evanescence_core::numerics::{self, EvaluateBounded};
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::{self, Complex, Real1};
-use num_complex::Complex32;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -156,7 +155,10 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) =
             Complex::sample_plane(state.qn(), plane, state.quality().for_grid()).into_components();
-        let (moduli, arguments) = values.iter().map(|row| split_moduli_arguments(row)).unzip();
+        let (moduli, arguments) = values
+            .iter()
+            .map(|row| utils::split_moduli_arguments(row))
+            .unzip();
         (x, y, moduli, Some(arguments))
     } else {
         let (x, y, z) = state.sample_plane_real(plane).into_components();
