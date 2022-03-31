@@ -424,6 +424,7 @@ impl Orbital for Complex {
 mod tests {
     use itertools::Itertools;
     use once_cell::sync::Lazy;
+    use rayon::prelude::*;
 
     use super::{Radial, RadialPlot, Real1, RealSphericalHarmonic};
     use crate::geometry::Point;
@@ -619,5 +620,25 @@ mod tests {
                     epsilon = 5E-4
                 );
             });
+    }
+
+    #[test]
+    fn test_real_probability_unity() {
+        let qns = Qn::enumerate_up_to_n(7)
+            .unwrap()
+            .step_by(3)
+            .collect_vec();
+        qns.par_iter().for_each(|qn| {
+            let bound = Real1::bound(qn);
+            let prob = integrate_rk4_multiple!(
+                ProbabilityDensity::<Real1>::evaluate(qn, &Point::new(x, y, z)),
+                step: bound / 40_f32,
+                x: (-bound, bound),
+                y: (-bound, bound),
+                z: (-bound, bound),
+            );
+            println!("{qn}: {prob}");
+            assert!(prob > Real1::PROBABILITY_WITHIN_BOUND && prob <= 1_f32 + 5E-5);
+        });
     }
 }
