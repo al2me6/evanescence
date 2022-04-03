@@ -190,7 +190,7 @@ mod tests {
     }
 
     test!(
-        test_radial_1_0,
+        radial_1_0,
         Radial,
         Nl::new(1, 0).unwrap(),
         &[
@@ -199,7 +199,7 @@ mod tests {
         ]
     );
     test!(
-        test_radial_2_1,
+        radial_2_1,
         Radial,
         Nl::new(2, 1).unwrap(),
         &[
@@ -208,7 +208,7 @@ mod tests {
         ]
     );
     test!(
-        test_radial_3_0,
+        radial_3_0,
         Radial,
         Nl::new(3, 0).unwrap(),
         &[
@@ -217,7 +217,7 @@ mod tests {
         ]
     );
     test!(
-        test_radial_5_3,
+        radial_5_3,
         Radial,
         Nl::new(5, 3).unwrap(),
         &[
@@ -227,7 +227,7 @@ mod tests {
     );
 
     #[test]
-    fn test_radial_probability_density_unity() {
+    fn radial_probability_density_unity() {
         Qn::enumerate_up_to_n(17)
             .unwrap()
             .filter(|qn| qn.m() == 0) // The radial component depends only on n and l.

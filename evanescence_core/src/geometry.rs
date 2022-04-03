@@ -576,7 +576,7 @@ mod tests {
     /// the expected radius. It makes no attempt to verify the uniformity of
     /// the distribution produced.
     #[test]
-    fn test_point_rng_max_radius() {
+    fn point_rng_max_radius() {
         let sampling_radius = 2_f32;
         let mut rng = WyRand::new();
         Point::sample_from_ball_iter(sampling_radius, &mut rng)
@@ -585,7 +585,7 @@ mod tests {
     }
 
     #[test]
-    fn test_spherical_coordinates() {
+    fn spherical_coordinates() {
         let point = Point::new(1.0, 2.0, -3.0);
         assert_relative_eq!(point.r, 3.7416573867739413856);
         assert_relative_eq!(point.cos_theta.acos(), 2.5010703409103686643);
@@ -597,7 +597,7 @@ mod tests {
     }
 
     #[test]
-    fn test_rng_spherical_coordinates() {
+    fn rng_spherical_coordinates() {
         let mut rng = WyRand::new();
         let rng_point = Point::sample_from_ball_iter(2.0, &mut rng).next().unwrap();
         let recomputed_point = Point::new(rng_point.x, rng_point.y, rng_point.z);

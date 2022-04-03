@@ -279,14 +279,14 @@ mod tests {
     }
 
     test_invalid!(
-        test_000, 0, 0, 0;
-        test_21n2, 2, 1, -2;
-        test_253, 2, 5, 3;
-        test_443, 4, 4, 3;
+        qn_000, 0, 0, 0;
+        qn_21n2, 2, 1, -2;
+        qn_253, 2, 5, 3;
+        qn_443, 4, 4, 3;
     );
 
     #[test]
-    fn test_clamping_setters() {
+    fn clamping_setters() {
         let mut qn = Qn::new(5, 4, -3).unwrap();
         qn.set_n_clamping(3).unwrap();
         assert_eq!(Qn::new(3, 2, -2).unwrap(), qn);
@@ -298,7 +298,7 @@ mod tests {
     }
 
     #[test]
-    fn test_m_setter() {
+    fn m_setter() {
         let mut qn = Qn::new(5, 4, -3).unwrap();
         qn.set_m(2).unwrap();
         assert_eq!(Qn::new(5, 4, 2).unwrap(), qn);
@@ -307,30 +307,30 @@ mod tests {
     }
 
     #[test]
-    fn test_invalid_n_setter() {
+    fn invalid_n_setter() {
         let mut qn = Qn::new(5, 4, -3).unwrap();
         assert_eq!(Err(InvalidQnError::N), qn.set_n_clamping(0));
     }
 
     #[test]
-    fn test_invalid_enumerate() {
+    fn invalid_enumerate() {
         assert!(Qn::enumerate_up_to_n(0).is_err());
     }
 
     #[test]
-    fn test_invalid_l_setter() {
+    fn invalid_l_setter() {
         let mut qn = Qn::new(5, 4, -3).unwrap();
         assert_eq!(Err(InvalidQnError::L { n: 5, l: 5 }), qn.set_l_clamping(5));
     }
 
     #[test]
-    fn test_invalid_m_setter() {
+    fn invalid_m_setter() {
         let mut qn = Qn::new(5, 4, -3).unwrap();
         assert_eq!(Err(InvalidQnError::M { l: 4, m: 5 }), qn.set_m(5));
     }
 
     #[test]
-    fn test_enumerate_l_m() {
+    fn enumerate_l_m() {
         assert_eq!(
             vec![0],
             Qn::enumerate_l_for_n(1).unwrap().collect::<Vec<_>>()
@@ -347,7 +347,7 @@ mod tests {
     }
 
     #[test]
-    fn test_enumerate_qn() {
+    fn enumerate_qn() {
         let expected = &[
             Qn::new(1, 0, 0),
             Qn::new(2, 0, 0),

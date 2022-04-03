@@ -315,7 +315,7 @@ mod tests {
     use crate::geometry::Linspace;
 
     #[test]
-    fn test_double_factorial() {
+    fn double_factorial() {
         assert_eq!(
             vec![1, 1, 2, 3, 8, 15, 48, 105, 384, 945, 3840],
             (0_u32..=10)
@@ -325,7 +325,7 @@ mod tests {
     }
 
     #[test]
-    fn test_trapezoidal() {
+    fn trapezoidal() {
         let xs = (-2_f32..=4.0).linspace(100).collect::<Vec<_>>();
 
         assert_relative_eq!(
@@ -352,7 +352,7 @@ mod tests {
     }
 
     #[test]
-    fn test_rk4() {
+    fn rk4() {
         assert_relative_eq!(integrate_rk4(|x| x, 0.0, 5.0, 1.0), 12.5, epsilon = 1E-6);
 
         assert_relative_eq!(
@@ -368,7 +368,7 @@ mod tests {
     }
 
     #[test]
-    fn test_rk4_triple() {
+    fn rk4_triple() {
         assert_relative_eq!(
             integrate_rk4_multiple!(
                 x * x * y + z.cos(),

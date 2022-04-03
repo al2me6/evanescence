@@ -159,7 +159,7 @@ mod tests {
     use crate::orbital::ProbabilityDensity;
 
     #[test]
-    fn test_real_radial_nodes() {
+    fn real_radial_nodes() {
         Qn::enumerate_up_to_n(10)
             .unwrap()
             .filter(|qn| qn.m() == 0)
@@ -170,7 +170,7 @@ mod tests {
     }
 
     #[test]
-    fn test_real_conical_node_angles() {
+    fn real_conical_node_angles() {
         Qn::enumerate_up_to_n(10)
             .unwrap()
             .map(Lm::from)
@@ -185,7 +185,7 @@ mod tests {
     }
 
     #[test]
-    fn test_real_planar_node_angles() {
+    fn real_planar_node_angles() {
         Qn::enumerate_up_to_n(10)
             .unwrap()
             .map(Lm::from)
@@ -200,7 +200,7 @@ mod tests {
     }
 
     #[test]
-    fn test_real_probability_unity() {
+    fn real_probability_unity() {
         let qns = Qn::enumerate_up_to_n(7).unwrap().step_by(3).collect_vec();
         qns.into_par_iter().for_each(|qn| {
             let psi_sq = ProbabilityDensity::new(Real::new(qn));

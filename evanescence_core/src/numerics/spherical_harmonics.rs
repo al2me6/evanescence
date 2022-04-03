@@ -164,7 +164,7 @@ mod tests {
     use crate::numerics::Evaluate;
     use crate::orbital::quantum_numbers::Lm;
 
-    static TEST_POINTS: Lazy<Vec<Point>> = Lazy::new(|| {
+    static POINTS: Lazy<Vec<Point>> = Lazy::new(|| {
         vec![
             Point::new(0.4817551668747674, -0.0804650251296536, -5.6874218288168015),
             Point::new(2.0333187824258494, -5.438747021019332, -0.6049420414492214),
@@ -184,7 +184,7 @@ mod tests {
             #[test]
             fn $fn_name() {
                 let evaluator = <$target>::new($target_params);
-                let calculated: Vec<_> = TEST_POINTS
+                let calculated: Vec<_> = POINTS
                     .iter()
                     .map(|pt| evaluator.evaluate(pt))
                     .collect();
@@ -194,7 +194,7 @@ mod tests {
     }
 
     test!(
-        test_real_sph_harm_1_0,
+        real_sph_1_0,
         RealSphericalHarmonic,
         Lm::new(1, 0).unwrap(),
         &[
@@ -203,7 +203,7 @@ mod tests {
         ]
     );
     test!(
-        test_real_sph_harm_1_1,
+        real_sph_1_1,
         RealSphericalHarmonic,
         Lm::new(1, 1).unwrap(),
         &[
@@ -212,7 +212,7 @@ mod tests {
         ]
     );
     test!(
-        test_real_sph_harm_1_n1,
+        real_sph_1_n1,
         RealSphericalHarmonic,
         Lm::new(1, -1).unwrap(),
         &[
@@ -221,7 +221,7 @@ mod tests {
         ]
     );
     test!(
-        test_real_sph_harm_2_1,
+        real_sph_2_1,
         RealSphericalHarmonic,
         Lm::new(2, 1).unwrap(),
         &[
@@ -230,7 +230,7 @@ mod tests {
         ]
     );
     test!(
-        test_real_sph_harm_3_n2,
+        real_sph_3_n2,
         RealSphericalHarmonic,
         Lm::new(3, -2).unwrap(),
         &[
@@ -239,7 +239,7 @@ mod tests {
         ]
     );
     test!(
-        test_real_sph_harm_5_n3,
+        real_sph_5_n3,
         RealSphericalHarmonic,
         Lm::new(5, -3).unwrap(),
         &[

@@ -93,7 +93,7 @@ mod tests {
         };
     }
     test!(
-        test_laguerre_1_0,
+        laguerre_1_0,
         associated_laguerre,
         (1, 0),
         &[
@@ -105,7 +105,7 @@ mod tests {
         ]
     );
     test!(
-        test_laguerre_3_2,
+        laguerre_3_2,
         associated_laguerre,
         (3, 2),
         &[
@@ -117,7 +117,7 @@ mod tests {
         ]
     );
     test!(
-        test_laguerre_4_5,
+        laguerre_4_5,
         associated_laguerre,
         (4, 5),
         &[
@@ -129,7 +129,7 @@ mod tests {
         ]
     );
     test!(
-        test_laguerre_7_3,
+        laguerre_7_3,
         associated_laguerre,
         (7, 3),
         &[
@@ -142,7 +142,7 @@ mod tests {
     );
 
     test!(
-        test_legendre_1_0,
+        legendre_1_0,
         associated_legendre,
         (1, 0),
         &[
@@ -154,7 +154,7 @@ mod tests {
         ]
     );
     test!(
-        test_legendre_3_1,
+        legendre_3_1,
         associated_legendre,
         (3, 1),
         &[
@@ -166,13 +166,13 @@ mod tests {
         ]
     );
     test!(
-        test_legendre_4_3,
+        legendre_4_3,
         associated_legendre,
         (4, 3),
         &[0.0, 34.0997502740123, 0.0, -34.0997502740123, 0.0]
     );
     test!(
-        test_legendre_4_4,
+        legendre_4_4,
         associated_legendre,
         (4, 4),
         &[
@@ -184,13 +184,13 @@ mod tests {
         ]
     );
     test!(
-        test_legendre_5_4,
+        legendre_5_4,
         associated_legendre,
         (5, 4),
         &[0.0, -265.781250000000, 0.0, 265.781250000000, 0.0]
     );
     test!(
-        test_legendre_6_0,
+        legendre_6_0,
         associated_legendre,
         (6, 0),
         &[
