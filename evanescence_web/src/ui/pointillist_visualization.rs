@@ -1,7 +1,7 @@
 use std::mem;
 use std::rc::Rc;
 
-use evanescence_core::orbital::Real1;
+use evanescence_core::orbital::Real;
 use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::layout::{LayoutRangeUpdate, Scene};
 use evanescence_web::plotly::{Config, Layout, Plotly};
@@ -27,7 +27,7 @@ enum Trace {
     CrossSectionIndicator,
     Silhouettes,
     Nodes,
-    NucleusMarkers,
+    // NucleusMarkers,
 }
 
 impl Trace {
@@ -37,17 +37,17 @@ impl Trace {
             Self::NodesRadial => {
                 state.mode().is_real_or_simple()
                     && state.nodes_rad()
-                    && Real1::num_radial_nodes(state.qn()) > 0
+                    && Real::num_radial_nodes(*state.qn()) > 0
             }
             Self::NodesAngular => {
                 state.mode().is_real_or_simple()
                     && state.nodes_ang()
-                    && Real1::num_angular_nodes(state.qn()) > 0
+                    && Real::num_angular_nodes(*state.qn()) > 0
             }
             Self::CrossSectionIndicator => state.supplement().is_cross_section(),
             Self::Silhouettes => state.mode().is_hybrid() && state.silhouettes(),
-            Self::Nodes => (state.mode().is_hybrid() || state.mode().is_mo()) && state.nodes(),
-            Self::NucleusMarkers => state.mode().is_mo(),
+            Self::Nodes => state.mode().is_hybrid() && state.nodes(),
+            // Self::NucleusMarkers => state.mode().is_mo(),
         }
     }
 
@@ -55,7 +55,7 @@ impl Trace {
         use TraceRenderer::{Multiple, Single};
         match self {
             Self::Pointillist => Single(match state.mode() {
-                Mode::RealSimple | Mode::Real | Mode::Hybrid | Mode::Mo => plot::real,
+                Mode::RealSimple | Mode::Real | Mode::Hybrid => plot::real,
                 Mode::Complex => plot::complex,
             }),
             Self::NodesRadial => Multiple(plot::nodes_radial),
@@ -63,7 +63,7 @@ impl Trace {
             Self::CrossSectionIndicator => Single(plot::cross_section_indicator),
             Self::Silhouettes => Multiple(plot::silhouettes),
             Self::Nodes => Single(plot::nodes_combined),
-            Self::NucleusMarkers => Single(plot::nucleus_markers),
+            // Self::NucleusMarkers => Single(plot::nucleus_markers),
         }
     }
 

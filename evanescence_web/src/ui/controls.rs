@@ -1,9 +1,9 @@
-use evanescence_core::monte_carlo::Quality;
-use evanescence_core::orbital::atomic::RealSphericalHarmonic;
+use evanescence_core::numerics::spherical_harmonics::RealSphericalHarmonic;
+use evanescence_core::orbital::monte_carlo::Quality;
 use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::{self, Qn};
-use evanescence_web::components::{Button, CheckBox, Dropdown, Slider, Tooltip};
-use evanescence_web::presets::{HybridPreset, MoPreset, QnPreset};
+use evanescence_web::components::{Button, CheckBox, Dropdown, Tooltip};
+use evanescence_web::presets::{HybridPreset, QnPreset};
 use evanescence_web::state::{AppDispatch, Mode, State, Visualization};
 use evanescence_web::utils;
 use itertools::Itertools;
@@ -37,7 +37,7 @@ impl Component for ControlsImpl {
             Mode::RealSimple | Mode::Real => self.real_modes_controls(dispatch),
             Mode::Complex => self.qn_pickers(dispatch),
             Mode::Hybrid => self.hybrid_picker(dispatch),
-            Mode::Mo => self.mo_picker(dispatch),
+            // Mode::Mo => self.mo_picker(dispatch),
         };
 
         html! {
@@ -166,45 +166,45 @@ impl ControlsImpl {
         }
     }
 
-    fn mo_picker(&self, dispatch: &AppDispatch) -> Html {
-        let state = dispatch.state();
-        assert!(state.mode().is_mo());
-        html! {
-            <>
-            <tr>
-                { td_tooltip("Select molecular orbital:", DESC.hybrid_dropdown) }
-                <td><Dropdown<MoPreset>
-                    id = "preset_picker"
-                    on_change = { dispatch.reduce_callback_with(State::set_mo_preset) }
-                    options = { MoPreset::presets() }
-                    selected = { state.mo_preset() }
-                /></td>
-            </tr>
-            <tr>
-                { td_tooltip("Interatomic separation:", DESC.interatomic_separation) }
-                <td><Slider
-                    id = "sep-slider"
-                    on_change = { dispatch.reduce_callback_with(State::set_separation) }
-                    min = 0.0
-                    value = { state.separation() }
-                    max = 10.0
-                    step = 0.1
-                    value_postfix = " A₀"
-                /></td>
-            </tr>
-            <tr>
-                <td/>
-                <td><CheckBox
-                    id = "mo-nodes-toggle"
-                    on_change = { dispatch.reduce_callback_with(State::set_nodes) }
-                    checked = { state.nodes() }
-                    label = "Show nodes"
-                    tooltip = { DESC.nodes_hybrid }
-                /></td>
-            </tr>
-            </>
-        }
-    }
+    //     fn mo_picker(&self, dispatch: &AppDispatch) -> Html {
+    //         let state = dispatch.state();
+    //         assert!(state.mode().is_mo());
+    //         html! {
+    //             <>
+    //             <tr>
+    //                 { td_tooltip("Select molecular orbital:", DESC.hybrid_dropdown) }
+    //                 <td><Dropdown<MoPreset>
+    //                     id = "preset_picker"
+    //                     on_change = { dispatch.reduce_callback_with(State::set_mo_preset) }
+    //                     options = { MoPreset::presets() }
+    //                     selected = { state.mo_preset() }
+    //                 /></td>
+    //             </tr>
+    //             <tr>
+    //                 { td_tooltip("Interatomic separation:", DESC.interatomic_separation) }
+    //                 <td><Slider
+    //                     id = "sep-slider"
+    //                     on_change = { dispatch.reduce_callback_with(State::set_separation) }
+    //                     min = 0.0
+    //                     value = { state.separation() }
+    //                     max = 10.0
+    //                     step = 0.1
+    //                     value_postfix = " A₀"
+    //                 /></td>
+    //             </tr>
+    //             <tr>
+    //                 <td/>
+    //                 <td><CheckBox
+    //                     id = "mo-nodes-toggle"
+    //                     on_change = { dispatch.reduce_callback_with(State::set_nodes) }
+    //                     checked = { state.nodes() }
+    //                     label = "Show nodes"
+    //                     tooltip = { DESC.nodes_hybrid }
+    //                 /></td>
+    //             </tr>
+    //             </>
+    //         }
+    //     }
 }
 
 pub type Controls = WithDispatch<ControlsImpl>;
@@ -266,14 +266,14 @@ impl Component for QnPickers {
         };
 
         let format_m = |m: &i32| match ctx.props().mode {
-            Mode::Real => match RealSphericalHarmonic::expression(&Lm::new(qn.l(), *m).unwrap()) {
+            Mode::Real => match RealSphericalHarmonic::expression(Lm::new(qn.l(), *m).unwrap()) {
                 Some(expression) if !expression.is_empty() => {
                     format!("{} [ {expression} ]", utils::fmt_replace_minus(m))
                 }
                 _ => utils::fmt_replace_minus(m),
             },
             Mode::Complex => utils::fmt_replace_minus(m),
-            Mode::RealSimple | Mode::Hybrid | Mode::Mo => unreachable!(),
+            Mode::RealSimple | Mode::Hybrid => unreachable!(),
         };
 
         html! {

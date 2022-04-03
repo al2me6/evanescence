@@ -1,12 +1,11 @@
 use std::default::default;
 use std::f32::consts::{PI, TAU};
 
-use evanescence_core::geometry::{ComponentForm, Linspace, Plane, Point, PointValue};
-use evanescence_core::monte_carlo::MonteCarlo;
+use evanescence_core::geometry::{Linspace, Plane, Point};
 use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::Hybrid;
-use evanescence_core::orbital::molecular::{LcaoAtom, Molecular};
-use evanescence_core::orbital::{Complex, Real1};
+use evanescence_core::orbital::monte_carlo::MonteCarlo;
+use evanescence_core::orbital::{Complex, Real};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -17,7 +16,7 @@ use crate::state::{Mode, State};
 use crate::utils;
 
 pub fn real(state: &State) -> JsValue {
-    assert!([Mode::RealSimple, Mode::Real, Mode::Hybrid, Mode::Mo].contains(&state.mode()));
+    assert!([Mode::RealSimple, Mode::Real, Mode::Hybrid].contains(&state.mode()));
 
     let (x, y, z, values) = state.monte_carlo_simulate_real().into_components();
 
@@ -56,7 +55,7 @@ pub fn real(state: &State) -> JsValue {
 pub fn complex(state: &State) -> JsValue {
     assert!(state.mode().is_complex());
 
-    let simulation = Complex::monte_carlo_simulate(state.qn(), state.quality(), true);
+    let simulation = Complex::new(*state.qn()).monte_carlo_simulate(state.quality(), true);
     let (x, y, z, values) = simulation.into_components();
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
@@ -128,7 +127,7 @@ pub fn nodes_radial(state: &State) -> Vec<JsValue> {
 
     assert!(state.mode().is_real_or_simple());
 
-    Real1::radial_node_positions(*state.qn())
+    Real::radial_node_positions(*state.qn())
         .into_iter()
         .map(|r| parametric_sphere(r, NUM_POINTS))
         .map(|[x, y, z]| {
@@ -153,15 +152,22 @@ fn polar_square(theta: f32) -> f32 {
     f32::min(theta.cos().recip().abs(), theta.sin().recip().abs())
 }
 
-struct VerticalCone;
+struct VerticalCone {
+    theta: f32,
+}
+
+impl VerticalCone {
+    fn new(theta: f32) -> Self {
+        Self { theta }
+    }
+}
 
 impl Evaluate for VerticalCone {
     type Output = f32;
-    type Parameters = f32;
 
-    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output {
+    fn evaluate(&self, point: &Point) -> Self::Output {
         // Note that the z values of passed points are ignored!
-        (point.x() * point.x() + point.y() * point.y()).sqrt() / params.tan()
+        (point.x() * point.x() + point.y() * point.y()).sqrt() / self.theta.tan()
     }
 }
 
@@ -173,10 +179,11 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
     let qn = state.qn();
     let bound = state.bound();
     Iterator::chain(
-        Real1::conical_node_angles(qn.into())
+        Real::conical_node_angles(qn.into())
             .into_iter()
             .map(|theta| {
-                VerticalCone::evaluate_on_plane(&theta, Plane::XY, bound, NUM_POINTS)
+                VerticalCone::new(theta)
+                    .evaluate_on_plane(Plane::XY, bound, NUM_POINTS)
                     .into_components()
             })
             .map(|(x, y, z)| Surface {
@@ -186,7 +193,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
                 surface_color: Some(vec![vec![0.0_f32; NUM_POINTS]; NUM_POINTS]),
                 ..default()
             }),
-        Real1::planar_node_angles(qn.into()).into_iter().map(|phi| {
+        Real::planar_node_angles(qn.into()).into_iter().map(|phi| {
             let r = bound;
             let r_square = polar_square(phi);
             let (x1, y1) = (r * phi.cos() * r_square, r * phi.sin() * r_square);
@@ -259,17 +266,11 @@ pub fn silhouettes(state: &State) -> Vec<JsValue> {
 }
 
 pub fn nodes_combined(state: &State) -> JsValue {
-    assert!(state.mode().is_hybrid() || state.mode().is_mo());
+    assert!(state.mode().is_hybrid());
 
-    let (x, y, z, value) = if state.mode().is_hybrid() {
-        Hybrid::sample_region(
-            state.hybrid_kind().archetype(),
-            state.quality().for_isosurface(),
-        )
-        .into_components()
-    } else {
-        Molecular::sample_region(&state.lcao(), state.quality().for_isosurface()).into_components()
-    };
+    let (x, y, z, value) = Hybrid::new(state.hybrid_kind().archetype().clone())
+        .sample_region(state.quality().for_isosurface())
+        .into_components();
 
     Isosurface {
         x,
@@ -278,39 +279,6 @@ pub fn nodes_combined(state: &State) -> JsValue {
         value,
         color_scale: color_scales::PURP,
         opacity: 0.125,
-        ..default()
-    }
-    .into()
-}
-
-pub fn nucleus_markers(state: &State) -> JsValue {
-    const MARKER_SIZE: f32 = 15.0;
-
-    assert!(state.mode().is_mo());
-
-    let offsets = state
-        .lcao()
-        .combination
-        .iter()
-        .map(|LcaoAtom { offset, .. }| offset)
-        .map(Point::from)
-        .map(|pt| PointValue(pt, MARKER_SIZE))
-        .collect::<Vec<_>>();
-    let (x, y, z, v) = ComponentForm::from(offsets).into_components();
-
-    Scatter3D {
-        x,
-        y,
-        z,
-        marker: Marker {
-            size: v.clone(),
-            color: v,
-            color_scale: color_scales::GREENS,
-            c_min: Some(0.0),
-            c_max: Some(MARKER_SIZE * 1.25),
-            ..default()
-        },
-        show_legend: false,
         ..default()
     }
     .into()

@@ -1,5 +1,4 @@
 mod hybrid_preset;
-mod mo_preset;
 mod qn_preset;
 
 use std::marker::PhantomData;
@@ -7,7 +6,6 @@ use std::marker::PhantomData;
 use derivative::Derivative;
 use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::orbital::Qn;
-pub use mo_preset::ProtoDiatomicLcao;
 use serde::{Deserialize, Serialize};
 
 #[derive(Derivative, Serialize, Deserialize)]
@@ -57,4 +55,3 @@ where
 
 pub type QnPreset = Preset<Qn>;
 pub type HybridPreset = Preset<Kind>;
-pub type MoPreset = Preset<ProtoDiatomicLcao>;

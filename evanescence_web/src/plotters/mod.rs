@@ -1,10 +1,10 @@
 pub mod pointillist;
 pub mod supplemental;
 
-use evanescence_core::monte_carlo::Quality;
 use evanescence_core::numerics::{Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::{Hybrid, Kind};
-use evanescence_core::orbital::{Qn, Real1};
+use evanescence_core::orbital::monte_carlo::Quality;
+use evanescence_core::orbital::{Qn, Real};
 
 use crate::plotly::color::color_scales;
 use crate::plotly::isosurface::{self, Isosurface};
@@ -15,8 +15,8 @@ use crate::plotly::isosurface::{self, Isosurface};
 ///
 /// Note that this cutoff value is for the wavefunction, not the probability density.
 pub fn isosurface_cutoff_heuristic_real(qn: &Qn) -> f32 {
-    let num_radial_nodes = Real1::num_radial_nodes(qn);
-    let num_angular_nodes = Real1::num_angular_nodes(qn);
+    let num_radial_nodes = Real::num_radial_nodes(*qn);
+    let num_angular_nodes = Real::num_angular_nodes(*qn);
     let num_lobes = (num_radial_nodes + 1) * (num_angular_nodes + 1);
     let damping_factor = if num_radial_nodes == 0 {
         0.3 + 0.02 * num_angular_nodes as f32
@@ -42,13 +42,14 @@ pub fn isosurface_cutoff_heuristic_hybrid(kind: &Kind) -> f32 {
 
 fn compute_isosurface_hybrid(kind: &Kind, idx: usize, quality: Quality) -> Isosurface<'static> {
     let lc = &kind.combinations()[idx];
-    let (x, y, z, value) = Hybrid::evaluate_in_region(
-        lc,
-        // Manually shrink the extent sampled for higher quality.
-        Hybrid::bound(lc) * 0.82,
-        quality.for_isosurface(),
-    )
-    .into_components();
+    let hybrid = Hybrid::new(lc.clone());
+    let (x, y, z, value) = hybrid
+        .evaluate_in_region(
+            // Manually shrink the extent sampled for higher quality.
+            hybrid.bound() * 0.82,
+            quality.for_isosurface(),
+        )
+        .into_components();
     let cutoff = isosurface_cutoff_heuristic_hybrid(kind);
 
     Isosurface {

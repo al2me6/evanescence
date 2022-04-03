@@ -4,7 +4,7 @@ use std::f32::consts::PI;
 use evanescence_core::geometry::Plane;
 use evanescence_core::numerics::{self, EvaluateBounded};
 use evanescence_core::orbital::atomic::RadialPlot;
-use evanescence_core::orbital::{self, Complex, Real1};
+use evanescence_core::orbital::{Complex, Real};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -39,7 +39,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
         utils::capitalize_words(state.supplement().to_string())
     );
 
-    let (x, y) = orbital::atomic::sample_radial::<1>(state.qn(), variant, NUM_POINTS);
+    let (x, y) = variant.sample(*state.qn(), NUM_POINTS);
 
     if variant == RadialPlot::ProbabilityDistribution {
         log::info!(
@@ -153,8 +153,9 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     let plane: Plane = state.supplement().try_into().unwrap();
 
     let (x, y, mut z, mut custom_color) = if is_complex {
-        let (x, y, values) =
-            Complex::sample_plane(state.qn(), plane, state.quality().for_grid()).into_components();
+        let (x, y, values) = Complex::new(*state.qn())
+            .sample_plane(plane, state.quality().for_grid())
+            .into_components();
         let (moduli, arguments) = values
             .iter()
             .map(|row| utils::split_moduli_arguments(row))
@@ -263,9 +264,9 @@ pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
 pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     let trace = match state.mode() {
         Mode::RealSimple | Mode::Real => {
-            let (x, y, z, value) =
-                Real1::sample_region(state.qn(), state.quality().for_isosurface() * 3 / 2)
-                    .into_components();
+            let (x, y, z, value) = Real::new(*state.qn())
+                .sample_region(state.quality().for_isosurface() * 3 / 2)
+                .into_components();
             let cutoff = super::isosurface_cutoff_heuristic_real(state.qn());
             Isosurface {
                 x,
@@ -281,7 +282,7 @@ pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
             }
         }
         Mode::Hybrid => super::compute_isosurface_hybrid(state.hybrid_kind(), 0, state.quality()),
-        Mode::Complex | Mode::Mo => unreachable!(),
+        Mode::Complex => unreachable!(),
     };
 
     let cutoff = trace.iso_max;

@@ -8,7 +8,7 @@ use getset::{CopyGetters, Getters};
 use itertools::Itertools;
 use thiserror::Error;
 
-use super::{EvaluateBounded, Orbital, Qn, Real1};
+use super::{EvaluateBounded, Orbital, Qn, Real};
 use crate::geometry::Point;
 use crate::numerics::Evaluate;
 
@@ -80,7 +80,7 @@ impl LinearCombination {
                 })
             })
             .unwrap_or_else(|| format!("{:.3}", weight).trim_end_matches('0').to_owned());
-        format!("{expr} {}", Real1::name(qn))
+        format!("{expr} {}", Real::name_qn(*qn))
     }
 
     /// Give an expression describing the linear combination. (Ex. `0.707 2s + 0.707 2p_z`),
@@ -155,26 +155,35 @@ macro_rules! lc {
 }
 
 /// Implementation of hybrid orbitals.
-pub struct Hybrid;
+pub struct Hybrid {
+    lc: LinearCombination,
+    reals: Vec<Real>,
+}
+
+impl Hybrid {
+    pub fn new(lc: LinearCombination) -> Self {
+        let reals = lc.iter().map(|comp| Real::new(comp.qn)).collect();
+        Self { lc, reals }
+    }
+}
 
 impl Evaluate for Hybrid {
     type Output = f32;
-    type Parameters = LinearCombination;
 
-    fn evaluate(combination: &LinearCombination, point: &Point) -> Self::Output {
-        combination
+    fn evaluate(&self, point: &Point) -> Self::Output {
+        self.lc
             .iter()
-            .map(|Component { qn, weight }| weight * Real1::evaluate(qn, point))
+            .enumerate()
+            .map(|(idx, Component { weight, .. })| weight * self.reals[idx].evaluate(point))
             .sum()
     }
 }
 
 impl EvaluateBounded for Hybrid {
-    fn bound(params: &Self::Parameters) -> f32 {
-        params
+    fn bound(&self) -> f32 {
+        self.reals
             .iter()
-            .map(|Component { qn, .. }| qn)
-            .map(Real1::bound)
+            .map(EvaluateBounded::bound)
             .reduce(f32::max)
             .expect("linear combination must contain at least one orbital")
             * 0.9
@@ -183,12 +192,12 @@ impl EvaluateBounded for Hybrid {
 
 impl Orbital for Hybrid {
     #[inline]
-    fn probability_density_of(value: Self::Output) -> f32 {
+    fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value
     }
 
-    fn name(params: &Self::Parameters) -> String {
-        params.to_string()
+    fn name(&self) -> String {
+        self.lc.to_string()
     }
 }
 

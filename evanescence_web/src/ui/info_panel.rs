@@ -1,5 +1,4 @@
-use evanescence_core::orbital::molecular::Molecular;
-use evanescence_core::orbital::{self, Complex, Orbital, Real1};
+use evanescence_core::orbital::{self, Complex, Real};
 use evanescence_web::components::raw::RawSpan;
 use evanescence_web::state::{AppDispatch, Mode};
 use evanescence_web::utils;
@@ -33,11 +32,11 @@ impl Component for InfoPanelImpl {
                 let qn = state.qn();
                 let subshell_name = orbital::atomic::subshell_name(qn.l());
 
-                let num_radial_nodes = Real1::num_radial_nodes(qn);
-                let num_angular_nodes = Real1::num_angular_nodes(qn);
+                let num_radial_nodes = Real::num_radial_nodes(*qn);
+                let num_angular_nodes = Real::num_angular_nodes(*qn);
                 let nodes_geometry = match (
-                    Real1::num_conical_nodes(&qn.into()),
-                    Real1::num_planar_nodes(&qn.into()),
+                    Real::num_conical_nodes(qn.into()),
+                    Real::num_planar_nodes(qn.into()),
                 ) {
                     // English is hard.
                     (0, 0) => "".to_owned(),
@@ -59,7 +58,7 @@ impl Component for InfoPanelImpl {
                     <p>
                         { "Viewing orbital " }
                         <RawSpan
-                            inner_html = { utils::fmt_orbital_name_html(Real1::name(qn)) }
+                            inner_html = { utils::fmt_orbital_name_html(Real::name_qn(*qn)) }
                         />
                         // Show quantum numbers here in Real (Simple) mode, since it's not shown
                         // in the picker.
@@ -89,7 +88,7 @@ impl Component for InfoPanelImpl {
             Mode::Complex => html! {
                 <p>
                     { "Viewing orbital " }
-                    <RawSpan inner_html = { Complex::name(state.qn()) } />
+                    <RawSpan inner_html = { Complex::name_qn(*state.qn()) } />
                     { "." }
                 </p>
             },
@@ -131,20 +130,19 @@ impl Component for InfoPanelImpl {
                     </p>
                     </>
                 }
-            }
-            Mode::Mo => {
-                html! {
-                    <p>
-                        { "Viewing a " }
-                        <RawSpan inner_html = { Molecular::orbital_type(&state.lcao()) } />
-                        { " molecular orbital of the "}
-                        <RawSpan inner_html = "H<sub>2</sub><sup>+</sup>" />
-                        { " molecule-ion with an interatomic separation of " }
-                        { format!("{:.1}", state.separation()) }
-                        { " Bohr radii." }
-                    </p>
-                }
-            }
+            } /* Mode::Mo => {
+               *     html! {
+               *         <p>
+               *             { "Viewing a " }
+               *             <RawSpan inner_html = { Molecular::orbital_type(&state.lcao()) } />
+               *             { " molecular orbital of the "}
+               *             <RawSpan inner_html = "H<sub>2</sub><sup>+</sup>" />
+               *             { " molecule-ion with an interatomic separation of " }
+               *             { format!("{:.1}", state.separation()) }
+               *             { " Bohr radii." }
+               *         </p>
+               *     }
+               * } */
         };
 
         html! {

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use evanescence_core::orbital::atomic::RealSphericalHarmonic;
+use evanescence_core::numerics::spherical_harmonics::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
 use once_cell::sync::Lazy;
 
@@ -32,7 +32,7 @@ impl fmt::Display for Preset<Qn> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let qn = self.item();
         let subscript =
-            RealSphericalHarmonic::expression(&qn.into()).expect("failed to get expression");
+            RealSphericalHarmonic::expression(qn.into()).expect("failed to get expression");
         write!(
             f,
             "{principal}{shell} {subscript}",

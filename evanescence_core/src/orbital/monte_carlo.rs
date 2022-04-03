@@ -3,10 +3,9 @@
 use nanorand::{Rng, WyRand};
 use strum::{Display, EnumIter, EnumString};
 
+use super::hybrid::Hybrid;
+use super::{Complex, Orbital, Qn, Real};
 use crate::geometry::{ComponentForm, Point, PointValue};
-use crate::orbital::hybrid::Hybrid;
-use crate::orbital::molecular::Molecular;
-use crate::orbital::{Complex, Orbital, Real, Real1};
 
 /// A set of predefined qualities (i.e., number of points computed) for sampling orbitals, either
 /// for Monte Carlo simulations or plotting.
@@ -86,16 +85,19 @@ impl Quality {
 pub trait MonteCarlo: Orbital {
     /// The minimum number of points required to get a reasonable estimate of the maximum value
     /// attained by an orbital.
-    const MINIMUM_ESTIMATION_SAMPLES: usize = 100_000;
+    fn minimum_estimation_samples(&self) -> usize {
+        100_000
+    }
 
-    // TODO: Change based on `params`?
     /// For a given [`Quality`], sample this many times more points for max value estimation.
-    const ESTIMATION_SAMPLE_FACTOR: usize = 4;
+    fn estimation_sample_factor(&self) -> usize {
+        4
+    }
 
     /// An optional factor that can be used to scale the computed max value as an approximation
     /// for the Monte Carlo simulation. This can significantly improve speed depending on the
     /// geometry of the specific orbital; see [`MonteCarlo::monte_carlo_simulate`].
-    fn max_value_multiplier(_params: &Self::Parameters) -> Option<f32> {
+    fn max_value_multiplier(&self) -> Option<f32> {
         None
     }
 
@@ -103,21 +105,20 @@ pub trait MonteCarlo: Orbital {
     /// In addition to the maximum value, this function returns the points (and values) sampled
     /// for later use.
     fn estimate_max_prob_density(
-        params: &Self::Parameters,
+        &self,
         num_samples: usize,
         rng: &mut WyRand,
     ) -> (f32, Vec<PointValue<Self::Output>>) {
         // Note that we force the origin to be sampled. This is to ensure that s orbitals are
         // accurately estimated: They attain their maximum probability density over a very small
         // area near the origin, which is difficult to hit when sampling randomly.
-        let evaluated_points: Vec<_> =
-            Point::sample_from_ball_with_origin_iter(Self::bound(params), rng)
-                .map(|pt| Self::evaluate_at(params, &pt))
-                .take(num_samples)
-                .collect();
+        let evaluated_points: Vec<_> = Point::sample_from_ball_with_origin_iter(self.bound(), rng)
+            .map(|pt| self.evaluate_at(&pt))
+            .take(num_samples)
+            .collect();
         let max_prob_density = evaluated_points
             .iter()
-            .map(|PointValue(_, val)| Self::probability_density_of(*val))
+            .map(|PointValue(_, val)| self.probability_density_of(*val))
             .reduce(f32::max)
             .expect("there should be at least one sample");
         (max_prob_density, evaluated_points)
@@ -139,20 +140,20 @@ pub trait MonteCarlo: Orbital {
     /// results for larger, more intricate orbitals. However, excessive quality for small orbitals
     /// may obstruct details while significantly degrading user experience.
     fn monte_carlo_simulate(
-        params: &Self::Parameters,
+        &self,
         quality: Quality,
         use_fast_approximation: bool,
     ) -> ComponentForm<Self::Output> {
-        let num_estimation_samples = (quality as usize * Self::ESTIMATION_SAMPLE_FACTOR)
-            .max(Self::MINIMUM_ESTIMATION_SAMPLES);
+        let num_estimation_samples = (quality as usize * self.estimation_sample_factor())
+            .max(self.minimum_estimation_samples());
 
         let mut point_rng = WyRand::new();
         let mut value_rng = WyRand::new();
 
         let (mut max_value, estimation_samples) =
-            Self::estimate_max_prob_density(params, num_estimation_samples, &mut point_rng);
+            self.estimate_max_prob_density(num_estimation_samples, &mut point_rng);
         if use_fast_approximation {
-            if let Some(multiplier) = Self::max_value_multiplier(params) {
+            if let Some(multiplier) = self.max_value_multiplier() {
                 max_value *= multiplier;
             }
         }
@@ -162,29 +163,31 @@ pub trait MonteCarlo: Orbital {
             .into_iter() // Reuse the points sampled during estimation...
             .chain(
                 // ...before generating new ones.
-                Point::sample_from_ball_iter(Self::bound(params), &mut point_rng)
-                    .map(|pt| Self::evaluate_at(params, &pt)),
+                Point::sample_from_ball_iter(self.bound(), &mut point_rng)
+                    .map(|pt| self.evaluate_at(&pt)),
             )
             .filter(|PointValue(_, val)| {
-                Self::probability_density_of(*val) / max_value > value_rng.generate()
+                self.probability_density_of(*val) / max_value > value_rng.generate()
             })
             .take(quality as usize)
             .collect()
     }
 }
 
-impl<const Z: u32> MonteCarlo for Real<Z> {
-    fn max_value_multiplier(params: &Self::Parameters) -> Option<f32> {
-        Some(1.0 / (0.05 * (Self::num_radial_nodes(params) as f32).powi(3) + 1.0))
+fn atomic_orbital_mult(qn: Qn) -> f32 {
+    1.0 / (0.05 * (Real::num_radial_nodes(qn) as f32).powi(3) + 1.0)
+}
+
+impl MonteCarlo for Real {
+    fn max_value_multiplier(&self) -> Option<f32> {
+        Some(atomic_orbital_mult(self.qn))
     }
 }
 
 impl MonteCarlo for Complex {
-    fn max_value_multiplier(params: &Self::Parameters) -> Option<f32> {
-        Real1::max_value_multiplier(params)
+    fn max_value_multiplier(&self) -> Option<f32> {
+        Some(atomic_orbital_mult(self.qn))
     }
 }
 
 impl MonteCarlo for Hybrid {}
-
-impl MonteCarlo for Molecular {}

@@ -231,11 +231,7 @@ fn main() -> Result<()> {
                     const NUM_POINTS: usize = 1_000;
                     (
                         NUM_POINTS,
-                        orbital::atomic::sample_radial::<1>(
-                            &qn,
-                            mode.try_into().unwrap(),
-                            NUM_POINTS,
-                        ),
+                        orbital::atomic::sample_radial(&qn, mode.try_into().unwrap(), NUM_POINTS),
                     )
                 },
                 |(xs, ys)| {

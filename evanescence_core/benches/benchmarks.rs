@@ -1,12 +1,12 @@
 use std::time::Duration;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use evanescence_core::monte_carlo::{MonteCarlo, Quality};
 use evanescence_core::numerics::orthogonal_polynomials::{
     associated_laguerre, associated_legendre,
 };
 use evanescence_core::numerics::DoubleFactorial;
-use evanescence_core::orbital::{Qn, Real1};
+use evanescence_core::orbital::monte_carlo::{MonteCarlo, Quality};
+use evanescence_core::orbital::{Qn, Real};
 
 pub fn bench_numerics(c: &mut Criterion) {
     let mut fact_group = c.benchmark_group("factorials");
@@ -42,7 +42,8 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
         .measurement_time(Duration::from_secs(30));
     group.throughput(Throughput::Elements(Quality::Extreme as _));
     for qn in Qn::enumerate_up_to_n(5).unwrap() {
-        group.bench_with_input(
+        let orbital = Real::new(qn);
+        group.bench_function(
             BenchmarkId::new(
                 "real",
                 format!(
@@ -52,8 +53,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
                     qn.m().to_string().replace('-', "n")
                 ),
             ),
-            &qn,
-            |b, qn| b.iter(|| Real1::monte_carlo_simulate(qn, Quality::Extreme, true)),
+            |b| b.iter(|| orbital.monte_carlo_simulate(Quality::Extreme, true)),
         );
     }
 }

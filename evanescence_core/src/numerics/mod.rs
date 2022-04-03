@@ -25,6 +25,7 @@ macro_rules! assert_iterable_relative_eq {
 }
 
 pub mod orthogonal_polynomials;
+pub mod spherical_harmonics;
 
 /// Compute the [double factorial](https://en.wikipedia.org/wiki/Double_factorial).
 pub trait DoubleFactorial {
@@ -164,30 +165,29 @@ macro_rules! integrate_rk4_multiple {
 ///
 /// Utilities are provided for sampling the function on a line or plane.
 pub trait Evaluate {
-    type Parameters: Clone;
     type Output: Copy;
 
     /// Evaluate `Self` at a certain point, returning the value only.
-    fn evaluate(params: &Self::Parameters, point: &Point) -> Self::Output;
+    fn evaluate(&self, point: &Point) -> Self::Output;
 
     /// Evaluate `Self` at a certain point, returning the point *and* the value in the form of a
     /// [`PointValue`], or a `(Point, Self::Output)`.
     #[allow(clippy::inline_always)]
     #[inline(always)]
-    fn evaluate_at(params: &Self::Parameters, point: &Point) -> PointValue<Self::Output> {
-        PointValue(*point, Self::evaluate(params, point))
+    fn evaluate_at(&self, point: &Point) -> PointValue<Self::Output> {
+        PointValue(*point, self.evaluate(point))
     }
 
     /// Evaluate `Self` on a line segment running across `range` at a total of `num_points`
     /// different points, all evenly spaced (à la "`linspace`" operation).
     fn evaluate_on_line_segment(
-        params: &Self::Parameters,
+        &self,
         range: RangeInclusive<Vec3>,
         num_points: usize,
     ) -> Vec<PointValue<Self::Output>> {
         range
             .linspace(num_points)
-            .map(|pt| Self::evaluate_at(params, &pt.into()))
+            .map(|pt| self.evaluate_at(&pt.into()))
             .collect()
     }
 
@@ -195,7 +195,7 @@ pub trait Evaluate {
     /// spaced values. Specifically, the grid is a square centered at the origin with side
     /// length of 2 × `extent`, and `num_points` are sampled *in each dimension*.
     fn evaluate_on_plane(
-        params: &Self::Parameters,
+        &self,
         plane: Plane,
         extent: f32,
         num_points: usize,
@@ -224,7 +224,7 @@ pub trait Evaluate {
         for &col_pt in &points_in_col {
             let mut row = Vec::with_capacity(num_points);
             for &row_pt in &points_in_row {
-                row.push(Self::evaluate(params, &(row_pt + col_pt).into()));
+                row.push(self.evaluate(&(row_pt + col_pt).into()));
             }
             vals.push(row);
         }
@@ -244,16 +244,12 @@ pub trait Evaluate {
     ///
     /// That is, values are each of the form (x, y, z, val), sorted by increasing x, then y, and
     /// finally z.
-    fn evaluate_in_region(
-        params: &Self::Parameters,
-        extent: f32,
-        num_points: usize,
-    ) -> ComponentForm<Self::Output> {
+    fn evaluate_in_region(&self, extent: f32, num_points: usize) -> ComponentForm<Self::Output> {
         Vec3::symmetric_linspace(Vec3::I * extent, num_points)
             .flat_map(|x_pt| {
                 Vec3::symmetric_linspace(Vec3::J * extent, num_points).flat_map(move |y_pt| {
                     Vec3::symmetric_linspace(Vec3::K * extent, num_points)
-                        .map(move |z_pt| Self::evaluate_at(params, &(x_pt + y_pt + z_pt).into()))
+                        .map(move |z_pt| self.evaluate_at(&(x_pt + y_pt + z_pt).into()))
                 })
             })
             .collect::<Vec<_>>()
@@ -267,7 +263,7 @@ pub trait EvaluateBounded: Evaluate {
     /// Give an approximate bound for the function, in the sense that the function is "sufficiently
     /// close to zero" everywhere outside a sphere whose radius is the returned value and whose
     /// center is the origin.
-    fn bound(params: &Self::Parameters) -> f32;
+    fn bound(&self) -> f32;
 
     /// Compute a plot of the cross section of the function along a given `plane`.
     ///
@@ -275,12 +271,8 @@ pub trait EvaluateBounded: Evaluate {
     /// bound of the function.
     ///
     /// For more information, see the documentation on [`GridValues`].
-    fn sample_plane(
-        params: &Self::Parameters,
-        plane: Plane,
-        num_points: usize,
-    ) -> GridValues<Self::Output> {
-        Self::evaluate_on_plane(params, plane, Self::bound(params), num_points)
+    fn sample_plane(&self, plane: Plane, num_points: usize) -> GridValues<Self::Output> {
+        self.evaluate_on_plane(plane, self.bound(), num_points)
     }
 
     /// Compute a plot of the function in a cube centered at the origin. `num_points` are sampled
@@ -288,8 +280,8 @@ pub trait EvaluateBounded: Evaluate {
     /// function's bound.
     ///
     /// For more information, see [`Evaluate::evaluate_in_region`].
-    fn sample_region(params: &Self::Parameters, num_points: usize) -> ComponentForm<Self::Output> {
-        Self::evaluate_in_region(params, Self::bound(params), num_points)
+    fn sample_region(&self, num_points: usize) -> ComponentForm<Self::Output> {
+        self.evaluate_in_region(self.bound(), num_points)
     }
 }
 
