@@ -1,15 +1,14 @@
 use evanescence_core::orbital::{self, Complex, Real};
 use evanescence_web::components::raw::RawSpan;
-use evanescence_web::state::{AppDispatch, Mode};
+use evanescence_web::state::{StateDispatch, Mode};
 use evanescence_web::utils;
 use yew::prelude::*;
-use yewdux::prelude::*;
 
-pub struct InfoPanelImpl {}
+pub struct InfoPanel {}
 
-impl Component for InfoPanelImpl {
+impl Component for InfoPanel {
     type Message = ();
-    type Properties = AppDispatch;
+    type Properties = StateDispatch;
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {}
@@ -159,5 +158,3 @@ impl Component for InfoPanelImpl {
         }
     }
 }
-
-pub type InfoPanel = WithDispatch<InfoPanelImpl>;

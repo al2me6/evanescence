@@ -3,7 +3,7 @@
 use evanescence_web::components::raw::RawDiv;
 use evanescence_web::components::window::OpenButton;
 use evanescence_web::components::Window;
-use evanescence_web::state::AppDispatch;
+use evanescence_web::state::StateDispatch;
 use gloo::events::EventListener;
 use gloo::storage::{SessionStorage, Storage};
 use gloo::utils::{body, document, window};
@@ -21,12 +21,12 @@ pub const REPO: &str = env!("CARGO_PKG_REPOSITORY");
 
 pub static HELP_HTML: &str = include_str!(concat!(env!("OUT_DIR"), "/help.html"));
 
-struct MainImpl {
+struct Evanescence {
     _resize_listener: EventListener,
     _orientation_listener: EventListener,
 }
 
-impl MainImpl {
+impl Evanescence {
     const SIDEBAR_ID: &'static str = "sidebar";
 
     fn viewport_change_handler() {
@@ -55,9 +55,9 @@ impl MainImpl {
     }
 }
 
-impl Component for MainImpl {
+impl Component for Evanescence {
     type Message = ();
-    type Properties = AppDispatch;
+    type Properties = StateDispatch;
 
     fn create(_ctx: &Context<Self>) -> Self {
         let resize_listener =
@@ -91,7 +91,7 @@ impl Component for MainImpl {
         html! {
             <>
             <main>
-                <PointillistVisualization/>
+                <WithDispatch<PointillistVisualization>/>
             </main>
             <div id = { Self::SIDEBAR_ID }>
                 <header>
@@ -106,11 +106,11 @@ impl Component for MainImpl {
                             <RawDiv inner_html = { HELP_HTML } />
                         </Window>
                     </div>
-                    <ModeBar/> // Mutates state!
+                    <WithDispatch<ModeBar>/> // Mutates state!
                 </header>
-                <Controls/> // Mutates state!
-                <InfoPanel/>
-                <SupplementalVisualization/>
+                <WithDispatch<Controls>/> // Mutates state!
+                <WithDispatch<InfoPanel>/>
+                <WithDispatch<SupplementalVisualization>/>
                 { footer }
             </div>
             </>
@@ -124,9 +124,6 @@ impl Component for MainImpl {
     }
 }
 
-type Main = WithDispatch<MainImpl>;
-
-#[allow(clippy::missing_panics_doc)]
 fn main() {
     #[cfg(debug_assertions)]
     let config = wasm_logger::Config::default();
@@ -140,17 +137,17 @@ fn main() {
         SessionStorage::clear();
 
         console_error_panic_hook::hook(info);
-        let payload = match info.payload().downcast_ref::<&str>() {
-            Some(s) => *s,
-            None => match info.payload().downcast_ref::<String>() {
-                Some(s) => s.as_ref(),
-                None => "<unknown error>",
-            },
+        let payload = if let Some(s) = info.payload().downcast_ref::<&str>() {
+            *s
+        } else if let Some(s) = info.payload().downcast_ref::<String>() {
+            s.as_ref()
+        } else {
+            "<unknown error>"
         };
         gloo::dialogs::alert(&format!(
             "Evanescence encountered a serious error:\n{payload}.\nPlease refresh the page.",
         ));
     }));
 
-    yew::start_app::<Main>();
+    yew::start_app::<WithDispatch<Evanescence>>();
 }

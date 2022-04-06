@@ -1,13 +1,13 @@
 use evanescence_web::components::TabBar;
-use evanescence_web::state::{AppDispatch, Mode, State};
+use evanescence_web::state::{StateDispatch, Mode, State};
 use evanescence_web::utils;
 use strum::IntoEnumIterator;
 use yew::function_component;
 use yew::prelude::*;
 use yewdux::prelude::*;
 
-#[function_component(ModeBarImpl)]
-pub fn mode_bar(props: &AppDispatch) -> Html {
+#[function_component(ModeBar)]
+pub fn mode_bar(props: &StateDispatch) -> Html {
     let state = props.state();
 
     let set_mode = |state: &mut State, mode| {
@@ -26,5 +26,3 @@ pub fn mode_bar(props: &AppDispatch) -> Html {
         />
     }
 }
-
-pub type ModeBar = WithDispatch<ModeBarImpl>;

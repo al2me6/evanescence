@@ -6,13 +6,12 @@ use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::layout::{LayoutRangeUpdate, Scene};
 use evanescence_web::plotly::{Config, Layout, Plotly};
 use evanescence_web::plotters::pointillist as plot;
-use evanescence_web::state::{AppDispatch, Mode, State};
+use evanescence_web::state::{StateDispatch, Mode, State};
 use evanescence_web::time_scope;
 use evanescence_web::utils::b16_colors;
 use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
-use yewdux::prelude::*;
 
 enum TraceRenderer {
     Single(fn(&State) -> JsValue),
@@ -75,12 +74,12 @@ impl Trace {
     }
 }
 
-pub struct PointillistVisualizationImpl {
+pub struct PointillistVisualization {
     current_state: Rc<State>,
     rendered_kinds: Vec<Trace>,
 }
 
-impl PointillistVisualizationImpl {
+impl PointillistVisualization {
     const ID: &'static str = "pointillist";
 
     fn init_plot(&mut self) {
@@ -186,9 +185,9 @@ impl PointillistVisualizationImpl {
     }
 }
 
-impl Component for PointillistVisualizationImpl {
+impl Component for PointillistVisualization {
     type Message = ();
-    type Properties = AppDispatch;
+    type Properties = StateDispatch;
 
     fn create(ctx: &Context<Self>) -> Self {
         Self {
@@ -263,5 +262,3 @@ impl Component for PointillistVisualizationImpl {
         self.init_plot();
     }
 }
-
-pub type PointillistVisualization = WithDispatch<PointillistVisualizationImpl>;

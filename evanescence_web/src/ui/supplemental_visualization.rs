@@ -7,21 +7,20 @@ use evanescence_web::components::Window;
 use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::{Config, Plotly};
 use evanescence_web::plotters::supplemental as plot;
-use evanescence_web::state::{AppDispatch, State, Visualization};
+use evanescence_web::state::{StateDispatch, State, Visualization};
 use evanescence_web::{time_scope, utils};
 use gloo::utils::document;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::HtmlElement;
 use yew::prelude::*;
-use yewdux::prelude::*;
 
 use super::descriptions::DESC;
 
-pub struct SupplementalVisualizationImpl {
+pub struct SupplementalVisualization {
     current_state: Rc<State>,
 }
 
-impl SupplementalVisualizationImpl {
+impl SupplementalVisualization {
     const ID_FULLSCREEN_CONTAINER: &'static str = "supplemental-fullscreen-content";
     const ID_INFO_PLOT: &'static str = "supplemental-content";
     const ID_PLACEHOLDER: &'static str = "supplemental-placeholder";
@@ -76,9 +75,9 @@ impl SupplementalVisualizationImpl {
     }
 }
 
-impl Component for SupplementalVisualizationImpl {
+impl Component for SupplementalVisualization {
     type Message = bool;
-    type Properties = AppDispatch;
+    type Properties = StateDispatch;
 
     fn create(ctx: &Context<Self>) -> Self {
         Self {
@@ -159,10 +158,9 @@ impl Component for SupplementalVisualizationImpl {
             if supplement == Visualization::Isosurface3D {
                 <p>
                     { "Specifically, the cutoff value used is " }
-                    <RawSpan inner_html = { utils::fmt_scientific_notation(
-                        state.isosurface_cutoff().powi(2),
-                        3,
-                    ) } />
+                    <RawSpan inner_html = {
+                        utils::fmt_scientific_notation(state.isosurface_cutoff().powi(2), 3)
+                    } />
                     { "." }
                 </p>
             }
@@ -216,5 +214,3 @@ impl Component for SupplementalVisualizationImpl {
         }
     }
 }
-
-pub type SupplementalVisualization = WithDispatch<SupplementalVisualizationImpl>;

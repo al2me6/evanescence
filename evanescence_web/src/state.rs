@@ -653,6 +653,6 @@ impl Persistent for State {
 }
 
 #[cfg(feature = "persistent")]
-pub type AppDispatch = DispatchProps<PersistentStore<State>>;
+pub type StateDispatch = DispatchProps<PersistentStore<State>>;
 #[cfg(not(feature = "persistent"))]
-pub type AppDispatch = DispatchProps<BasicStore<State>>;
+pub type StateDispatch = DispatchProps<BasicStore<State>>;

@@ -4,7 +4,7 @@ use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::{self, Qn};
 use evanescence_web::components::{Button, CheckBox, Dropdown, Tooltip};
 use evanescence_web::presets::{HybridPreset, QnPreset};
-use evanescence_web::state::{AppDispatch, Mode, State, Visualization};
+use evanescence_web::state::{StateDispatch, Mode, State, Visualization};
 use evanescence_web::utils;
 use itertools::Itertools;
 use strum::IntoEnumIterator;
@@ -19,11 +19,11 @@ fn td_tooltip(text: &'static str, tooltip: &'static str) -> Html {
     }
 }
 
-pub struct ControlsImpl {}
+pub struct Controls {}
 
-impl Component for ControlsImpl {
+impl Component for Controls {
     type Message = ();
-    type Properties = AppDispatch;
+    type Properties = StateDispatch;
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self {}
@@ -69,8 +69,8 @@ impl Component for ControlsImpl {
     }
 }
 
-impl ControlsImpl {
-    fn real_modes_controls(&self, dispatch: &AppDispatch) -> Html {
+impl Controls {
+    fn real_modes_controls(&self, dispatch: &StateDispatch) -> Html {
         let state = dispatch.state();
         assert!(state.mode().is_real_or_simple());
 
@@ -113,7 +113,7 @@ impl ControlsImpl {
         }
     }
 
-    fn qn_pickers(&self, dispatch: &AppDispatch) -> Html {
+    fn qn_pickers(&self, dispatch: &StateDispatch) -> Html {
         let state = dispatch.state();
         assert!(state.mode().is_real() || state.mode().is_complex());
         html! {
@@ -127,7 +127,7 @@ impl ControlsImpl {
         }
     }
 
-    fn hybrid_picker(&self, dispatch: &AppDispatch) -> Html {
+    fn hybrid_picker(&self, dispatch: &StateDispatch) -> Html {
         let state = dispatch.state();
         assert!(state.mode().is_hybrid());
 
@@ -206,8 +206,6 @@ impl ControlsImpl {
     //         }
     //     }
 }
-
-pub type Controls = WithDispatch<ControlsImpl>;
 
 pub struct QnPickers {
     qn: Qn,
