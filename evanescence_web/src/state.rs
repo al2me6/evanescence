@@ -261,7 +261,7 @@ impl StateInner {
                     instant_apply: state.instant_apply,
                 });
             }
-            // (Hybrid(_) | Mo(_), Mode::Complex) => *self = Complex(default()),
+            (Hybrid(_), Mode::Complex) => *self = Complex(default()),
 
             // To `Hybrid`:
             (RealSimple(state), Mode::Hybrid) => {
@@ -276,7 +276,7 @@ impl StateInner {
                     ..default()
                 });
             }
-            // (Complex(_) | Mo(_), Mode::Hybrid) => *self = Hybrid(default()),
+            (Complex(_), Mode::Hybrid) => *self = Hybrid(default()),
 
             // To `Mo`:
             // (RealSimple(_) | Real(_) | Complex(_) | Hybrid(_), Mode::Mo) => {
