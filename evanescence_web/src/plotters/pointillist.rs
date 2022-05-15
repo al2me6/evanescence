@@ -16,7 +16,7 @@ use crate::state::{Mode, State};
 use crate::utils;
 
 pub fn real(state: &State) -> JsValue {
-    assert!([Mode::RealSimple, Mode::Real, Mode::Hybrid].contains(&state.mode()));
+    assert!([Mode::RealSimple, Mode::RealFull, Mode::Hybrid].contains(&state.mode()));
 
     let (x, y, z, values) = state.monte_carlo_simulate_real().into_components();
 

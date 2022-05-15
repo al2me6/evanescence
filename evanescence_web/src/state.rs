@@ -104,14 +104,14 @@ struct RealSimpleState {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
-struct RealState {
+struct RealFullState {
     qn: Qn,
     nodes_rad: bool,
     nodes_ang: bool,
     instant_apply: bool,
 }
 
-impl Default for RealState {
+impl Default for RealFullState {
     fn default() -> Self {
         Self {
             qn: default(),
@@ -148,7 +148,7 @@ struct HybridState {
 #[strum_discriminants(vis(pub), name(Mode), derive(EnumIter))]
 enum StateInner {
     RealSimple(RealSimpleState),
-    Real(RealState),
+    RealFull(RealFullState),
     Complex(ComplexState),
     Hybrid(HybridState),
     // Mo(MoState),
@@ -156,11 +156,11 @@ enum StateInner {
 
 impl Mode {
     pub fn is_real_or_simple(self) -> bool {
-        matches!(self, Self::RealSimple | Self::Real)
+        matches!(self, Self::RealSimple | Self::RealFull)
     }
 
     pub fn is_real(self) -> bool {
-        self == Self::Real
+        self == Self::RealFull
     }
 
     pub fn is_complex(self) -> bool {
@@ -180,7 +180,7 @@ impl fmt::Display for Mode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::RealSimple => write!(f, "Real (Simple)"),
-            Self::Real => write!(f, "Real (Full)"),
+            Self::RealFull => write!(f, "Real (Full)"),
             Self::Complex => write!(f, "Complex"),
             Self::Hybrid => write!(f, "Hybrid"),
             // Self::Mo => write!(f, "MO"),
@@ -201,7 +201,7 @@ impl StateInner {
     fn transition(&mut self, mode: Mode) {
         match (&self, mode) {
             // To `RealSimple`:
-            (Real(state), Mode::RealSimple) => {
+            (RealFull(state), Mode::RealSimple) => {
                 *self = RealSimple(RealSimpleState {
                     preset: QnPreset::find_closest_match(state.qn),
                     nodes_rad: state.nodes_rad,
@@ -224,23 +224,23 @@ impl StateInner {
             // (Mo(_), Mode::RealSimple) => *self = RealSimple(default()),
 
             // To `Real`:
-            (RealSimple(state), Mode::Real) => {
-                *self = Real(RealState {
+            (RealSimple(state), Mode::RealFull) => {
+                *self = RealFull(RealFullState {
                     qn: *state.preset.item(),
                     nodes_rad: state.nodes_rad,
                     nodes_ang: state.nodes_ang,
                     ..default()
                 });
             }
-            (Complex(state), Mode::Real) => {
-                *self = Real(RealState {
+            (Complex(state), Mode::RealFull) => {
+                *self = RealFull(RealFullState {
                     qn: state.qn,
                     instant_apply: state.instant_apply,
                     ..default()
                 });
             }
-            (Hybrid(state), Mode::Real) => {
-                *self = Real(RealState {
+            (Hybrid(state), Mode::RealFull) => {
+                *self = RealFull(RealFullState {
                     nodes_rad: state.nodes,
                     nodes_ang: state.nodes,
                     ..default()
@@ -255,7 +255,7 @@ impl StateInner {
                     ..default()
                 });
             }
-            (Real(state), Mode::Complex) => {
+            (RealFull(state), Mode::Complex) => {
                 *self = Complex(ComplexState {
                     qn: state.qn,
                     instant_apply: state.instant_apply,
@@ -270,7 +270,7 @@ impl StateInner {
                     ..default()
                 });
             }
-            (Real(state), Mode::Hybrid) => {
+            (RealFull(state), Mode::Hybrid) => {
                 *self = Hybrid(HybridState {
                     nodes: state.nodes_rad || state.nodes_ang,
                     ..default()
@@ -306,7 +306,7 @@ impl State {
 
     pub fn available_supplements(&self) -> Vec<Visualization> {
         match &self.mode() {
-            Mode::RealSimple | Mode::Real => Visualization::iter().collect(),
+            Mode::RealSimple | Mode::RealFull => Visualization::iter().collect(),
             Mode::Complex => vec![
                 Visualization::None,
                 Visualization::RadialWavefunction,
@@ -344,7 +344,7 @@ impl State {
         match (self.mode(), other.mode()) {
             (Mode::Hybrid, Mode::Hybrid) => self.hybrid_preset() != other.hybrid_preset(),
             // (Mode::Mo, Mode::Mo) => self.lcao() != other.lcao(),
-            (Mode::RealSimple | Mode::Real, Mode::RealSimple | Mode::Real)
+            (Mode::RealSimple | Mode::RealFull, Mode::RealSimple | Mode::RealFull)
             | (Mode::Complex, Mode::Complex) => self.qn() != other.qn(),
             // Different modes:
             _ => true,
@@ -361,7 +361,7 @@ impl State {
 
     pub fn debug_description(&self) -> String {
         match &self.state {
-            RealSimple(_) | Real(_) | Complex(_) => self.qn().to_string_as_wavefunction(),
+            RealSimple(_) | RealFull(_) | Complex(_) => self.qn().to_string_as_wavefunction(),
             Hybrid(_) => self.hybrid_kind().to_string(),
             // Mo(_) => orbital::molecular::Molecular::name(&self.lcao()),
         }
@@ -370,7 +370,7 @@ impl State {
     pub fn qn(&self) -> &Qn {
         match &self.state {
             RealSimple(state) => state.preset.item(),
-            Real(state) => &state.qn,
+            RealFull(state) => &state.qn,
             Complex(state) => &state.qn,
             Hybrid(_) => panic!("hybrid or molecular orbital does not have a `qn`"),
         }
@@ -386,7 +386,7 @@ impl State {
     pub fn nodes_rad(&self) -> bool {
         match &self.state {
             RealSimple(state) => state.nodes_rad,
-            Real(state) => state.nodes_rad,
+            RealFull(state) => state.nodes_rad,
             Complex(_) | Hybrid(_) => false,
         }
     }
@@ -394,14 +394,14 @@ impl State {
     pub fn nodes_ang(&self) -> bool {
         match &self.state {
             RealSimple(state) => state.nodes_ang,
-            Real(state) => state.nodes_ang,
+            RealFull(state) => state.nodes_ang,
             Complex(_) | Hybrid(_) => false,
         }
     }
 
     pub fn instant_apply(&self) -> bool {
         match &self.state {
-            Real(state) => state.instant_apply,
+            RealFull(state) => state.instant_apply,
             Complex(state) => state.instant_apply,
             RealSimple(_) | Hybrid(_) => {
                 panic!("instant-apply does not exist in {:?}", self.mode());
@@ -464,7 +464,9 @@ impl State {
 
     pub fn isosurface_cutoff(&self) -> f32 {
         match self.mode() {
-            Mode::Real | Mode::RealSimple => plotters::isosurface_cutoff_heuristic_real(self.qn()),
+            Mode::RealFull | Mode::RealSimple => {
+                plotters::isosurface_cutoff_heuristic_real(self.qn())
+            }
             Mode::Hybrid => plotters::isosurface_cutoff_heuristic_hybrid(self.hybrid_kind()),
             Mode::Complex => panic!("isosurface not available in `Complex` mode"),
             // Mode::Mo => todo!("isosurface not available in `Mo` mode"),
@@ -502,7 +504,7 @@ impl State {
     pub fn set_nodes_rad(&mut self, visibility: bool) {
         match &mut self.state {
             RealSimple(state) => state.nodes_rad = visibility,
-            Real(state) => state.nodes_rad = visibility,
+            RealFull(state) => state.nodes_rad = visibility,
             Complex(_) | Hybrid(_) => {
                 panic!("radial nodes cannot be viewed in {:?}", self.mode());
             }
@@ -512,7 +514,7 @@ impl State {
     pub fn set_nodes_ang(&mut self, visibility: bool) {
         match &mut self.state {
             RealSimple(state) => state.nodes_ang = visibility,
-            Real(state) => state.nodes_ang = visibility,
+            RealFull(state) => state.nodes_ang = visibility,
             Complex(_) | Hybrid(_) => {
                 panic!("angular nodes cannot be viewed in {:?}", self.mode());
             }
@@ -521,7 +523,7 @@ impl State {
 
     pub fn set_qn(&mut self, qn: Qn) {
         match &mut self.state {
-            Real(state) => state.qn = qn,
+            RealFull(state) => state.qn = qn,
             Complex(state) => state.qn = qn,
             RealSimple(_) | Hybrid(_) => {
                 panic!("`qn` cannot be set for {:?}", self.mode());
@@ -531,7 +533,7 @@ impl State {
 
     pub fn set_instant_apply(&mut self, instant: bool) {
         match &mut self.state {
-            Real(state) => state.instant_apply = instant,
+            RealFull(state) => state.instant_apply = instant,
             Complex(state) => state.instant_apply = instant,
             RealSimple(_) | Hybrid(_) => {
                 panic!("instant-apply cannot be set for {:?}", self.mode());
@@ -586,7 +588,9 @@ impl State {
 impl State {
     pub fn bound(&self) -> f32 {
         match self.mode() {
-            Mode::RealSimple | Mode::Real | Mode::Complex => orbital::Real::new(*self.qn()).bound(),
+            Mode::RealSimple | Mode::RealFull | Mode::Complex => {
+                orbital::Real::new(*self.qn()).bound()
+            }
             Mode::Hybrid => {
                 orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone()).bound()
             } // Mode::Mo => orbital::molecular::Molecular::bound(&self.lcao()),
@@ -595,7 +599,7 @@ impl State {
 
     pub fn monte_carlo_simulate_real(&self) -> ComponentForm<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::Real => {
+            Mode::RealSimple | Mode::RealFull => {
                 orbital::Real::new(*self.qn()).monte_carlo_simulate(self.quality(), true)
             }
             Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
@@ -611,7 +615,7 @@ impl State {
 
     pub fn sample_plane_real(&self, plane: Plane) -> GridValues<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::Real => {
+            Mode::RealSimple | Mode::RealFull => {
                 orbital::Real::new(*self.qn()).sample_plane(plane, self.quality().for_grid())
             }
             Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
@@ -627,7 +631,7 @@ impl State {
 
     pub fn sample_plane_prob_density(&self, plane: Plane) -> GridValues<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::Real => {
+            Mode::RealSimple | Mode::RealFull => {
                 ProbabilityDensity::new(orbital::Real::new(*self.qn()))
                     .sample_plane(plane, self.quality().for_grid())
             }

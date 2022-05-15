@@ -7,7 +7,7 @@ use evanescence_web::components::Window;
 use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::{Config, Plotly};
 use evanescence_web::plotters::supplemental as plot;
-use evanescence_web::state::{StateDispatch, State, Visualization};
+use evanescence_web::state::{State, StateDispatch, Visualization};
 use evanescence_web::{time_scope, utils};
 use gloo::utils::document;
 use wasm_bindgen::{JsCast, JsValue};

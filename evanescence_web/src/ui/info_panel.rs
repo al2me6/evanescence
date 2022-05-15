@@ -1,6 +1,6 @@
 use evanescence_core::orbital::{self, Complex, Real};
 use evanescence_web::components::raw::RawSpan;
-use evanescence_web::state::{StateDispatch, Mode};
+use evanescence_web::state::{Mode, StateDispatch};
 use evanescence_web::utils;
 use yew::prelude::*;
 
@@ -27,7 +27,7 @@ impl Component for InfoPanel {
         let state = ctx.props().state();
 
         let description = match state.mode() {
-            Mode::RealSimple | Mode::Real => {
+            Mode::RealSimple | Mode::RealFull => {
                 let qn = state.qn();
                 let subshell_name = orbital::atomic::subshell_name(qn.l());
 

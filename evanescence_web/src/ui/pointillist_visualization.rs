@@ -6,7 +6,7 @@ use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::layout::{LayoutRangeUpdate, Scene};
 use evanescence_web::plotly::{Config, Layout, Plotly};
 use evanescence_web::plotters::pointillist as plot;
-use evanescence_web::state::{StateDispatch, Mode, State};
+use evanescence_web::state::{Mode, State, StateDispatch};
 use evanescence_web::time_scope;
 use evanescence_web::utils::b16_colors;
 use strum::{EnumIter, IntoEnumIterator};
@@ -54,7 +54,7 @@ impl Trace {
         use TraceRenderer::{Multiple, Single};
         match self {
             Self::Pointillist => Single(match state.mode() {
-                Mode::RealSimple | Mode::Real | Mode::Hybrid => plot::real,
+                Mode::RealSimple | Mode::RealFull | Mode::Hybrid => plot::real,
                 Mode::Complex => plot::complex,
             }),
             Self::NodesRadial => Multiple(plot::nodes_radial),

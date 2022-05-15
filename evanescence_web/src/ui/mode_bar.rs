@@ -1,5 +1,5 @@
 use evanescence_web::components::TabBar;
-use evanescence_web::state::{StateDispatch, Mode, State};
+use evanescence_web::state::{Mode, State, StateDispatch};
 use evanescence_web::utils;
 use strum::IntoEnumIterator;
 use yew::function_component;

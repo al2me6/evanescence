@@ -263,7 +263,7 @@ pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
 
 pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     let trace = match state.mode() {
-        Mode::RealSimple | Mode::Real => {
+        Mode::RealSimple | Mode::RealFull => {
             let (x, y, z, value) = Real::new(*state.qn())
                 .sample_region(state.quality().for_isosurface() * 3 / 2)
                 .into_components();

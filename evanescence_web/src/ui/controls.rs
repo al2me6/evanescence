@@ -4,7 +4,7 @@ use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::{self, Qn};
 use evanescence_web::components::{Button, CheckBox, Dropdown, Tooltip};
 use evanescence_web::presets::{HybridPreset, QnPreset};
-use evanescence_web::state::{StateDispatch, Mode, State, Visualization};
+use evanescence_web::state::{Mode, State, StateDispatch, Visualization};
 use evanescence_web::utils;
 use itertools::Itertools;
 use strum::IntoEnumIterator;
@@ -34,7 +34,7 @@ impl Component for Controls {
         let state = dispatch.state();
 
         let selectors = match state.mode() {
-            Mode::RealSimple | Mode::Real => self.real_modes_controls(dispatch),
+            Mode::RealSimple | Mode::RealFull => self.real_modes_controls(dispatch),
             Mode::Complex => self.qn_pickers(dispatch),
             Mode::Hybrid => self.hybrid_picker(dispatch),
             // Mode::Mo => self.mo_picker(dispatch),
@@ -264,7 +264,8 @@ impl Component for QnPickers {
         };
 
         let format_m = |m: &i32| match ctx.props().mode {
-            Mode::Real => match RealSphericalHarmonic::expression(Lm::new(qn.l(), *m).unwrap()) {
+            Mode::RealFull => match RealSphericalHarmonic::expression(Lm::new(qn.l(), *m).unwrap())
+            {
                 Some(expression) if !expression.is_empty() => {
                     format!("{} [ {expression} ]", utils::fmt_replace_minus(m))
                 }
