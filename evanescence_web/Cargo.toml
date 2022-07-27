@@ -13,7 +13,7 @@ derivative = "2"
 evanescence_core = { path = "../evanescence_core", features = ["serde"] }
 getrandom = { version = "*", features = ["js"] }
 getset = "0.1"
-gloo = "0.6"
+gloo = "0.8"
 instant = { version = "0.1", features = ["wasm-bindgen"] }
 itertools = "0.10"
 log = "0.4"
