@@ -64,3 +64,19 @@ impl<O: Orbital> EvaluateBounded for ProbabilityDensity<O> {
         self.0.bound()
     }
 }
+
+impl<T: Copy> Evaluate for ProbabilityDensity<Box<dyn Orbital<Output = T>>> {
+    type Output = f32;
+
+    #[inline]
+    fn evaluate(&self, point: &Point) -> Self::Output {
+        self.0.probability_density_of(self.0.evaluate(point))
+    }
+}
+
+impl<T: Copy> EvaluateBounded for ProbabilityDensity<Box<dyn Orbital<Output = T>>> {
+    #[inline]
+    fn bound(&self) -> f32 {
+        self.0.bound()
+    }
+}
