@@ -242,9 +242,9 @@ impl<T> GridValues<T> {
     /// This function will return an `[Err]` if the `Vec`s passed in do not have the correct shape:
     ///
     /// ```
-    /// # use evanescence_core::geometry::{GridValues, InvalidGridValuesError, Plane};
+    /// # use evanescence_core::geometry::{CoordinatePlane, GridValues, InvalidGridValuesError};
     /// let wrong_rows = GridValues::<f32>::new(
-    ///     Plane::XY,
+    ///     CoordinatePlane::XY,
     ///     vec![0.0, 1.0],      // There are two columns.
     ///     vec![0.0, 1.0, 2.0], // There are three rows.
     ///     vec![

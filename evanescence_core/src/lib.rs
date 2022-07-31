@@ -16,12 +16,11 @@
 //!
 //! To run a [Monte Carlo simulation](orbital::monte_carlo) on an orbital:
 //! ```
-//! use evanescence_core::orbital::monte_carlo::{MonteCarlo, Quality};
+//! use evanescence_core::orbital::monte_carlo::MonteCarlo;
 //! use evanescence_core::orbital::{Qn, Real};
 //!
 //! let qn = Qn::new(4, 2, 0).unwrap();
-//! let quality = Quality::Low; // Quality controls the number of points sampled.
-//! let results = Real::new(qn).monte_carlo_simulate(quality, false);
+//! let results = Real::new(qn).monte_carlo_simulate(10_000, false);
 //! ```
 
 #![feature(array_windows, type_alias_impl_trait)]

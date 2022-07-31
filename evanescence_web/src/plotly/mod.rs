@@ -77,7 +77,7 @@ pub mod Plotly {
 ///
 /// Example:
 ///
-/// ```
+/// ```ignore
 /// def_plotly_ty! {
 ///     #[derive(Clone)] // Additional derives are possible.
 ///     Config<'a> // Lifetimes can be specified.
@@ -91,7 +91,7 @@ pub mod Plotly {
 ///
 /// is transformed into:
 ///
-/// ```
+/// ```ignore
 /// #[derive(serde::Serialize, Clone)]
 /// pub struct Config<'a> {
 ///     pub required_config: f32,
