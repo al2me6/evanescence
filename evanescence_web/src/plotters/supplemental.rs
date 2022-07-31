@@ -154,7 +154,7 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
 
     let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) = Complex::new(*state.qn())
-            .sample_plane(plane, state.quality().for_grid())
+            .sample_plane(plane, state.quality().grid_2d())
             .into_components();
         let (moduli, arguments) = values
             .iter()
@@ -268,7 +268,7 @@ pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     let trace = match state.mode() {
         Mode::RealSimple | Mode::RealFull => {
             let (x, y, z, value) = Real::new(*state.qn())
-                .sample_region(state.quality().for_isosurface() * 3 / 2)
+                .sample_region(state.quality().grid_3d() * 3 / 2)
                 .into_components();
             let cutoff = super::isosurface_cutoff_heuristic_real(state.qn());
             Isosurface {

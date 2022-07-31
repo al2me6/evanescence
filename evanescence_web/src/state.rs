@@ -6,7 +6,7 @@ use evanescence_core::geometry::{ComponentForm, CoordinatePlane, GridValues};
 use evanescence_core::numerics::EvaluateBounded;
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::hybrid::Kind;
-use evanescence_core::orbital::monte_carlo::{MonteCarlo, Quality};
+use evanescence_core::orbital::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{self, ProbabilityDensity, Qn};
 use getset::CopyGetters;
 use serde::{Deserialize, Serialize};
@@ -14,6 +14,7 @@ use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yewdux::prelude::*;
 
 use crate::plotters;
+use crate::plotters::Quality;
 use crate::presets::{HybridPreset, QnPreset};
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
@@ -605,11 +606,10 @@ impl State {
 
     pub fn monte_carlo_simulate_real(&self) -> ComponentForm<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::RealFull => {
-                orbital::Real::new(*self.qn()).monte_carlo_simulate(self.quality(), true)
-            }
+            Mode::RealSimple | Mode::RealFull => orbital::Real::new(*self.qn())
+                .monte_carlo_simulate(self.quality().point_cloud(), true),
             Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
-                .monte_carlo_simulate(self.quality(), true),
+                .monte_carlo_simulate(self.quality().point_cloud(), true),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
             // Mode::Mo => orbital::molecular::Molecular::monte_carlo_simulate(
             //     &self.lcao(),
@@ -622,10 +622,10 @@ impl State {
     pub fn sample_plane_real(&self, plane: CoordinatePlane) -> GridValues<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull => {
-                orbital::Real::new(*self.qn()).sample_plane(plane, self.quality().for_grid())
+                orbital::Real::new(*self.qn()).sample_plane(plane, self.quality().grid_2d())
             }
             Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
-                .sample_plane(plane, self.quality().for_grid()),
+                .sample_plane(plane, self.quality().grid_2d()),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
             // Mode::Mo => orbital::molecular::Molecular::sample_plane(
             //     &self.lcao(),
@@ -639,14 +639,14 @@ impl State {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull => {
                 ProbabilityDensity::new(orbital::Real::new(*self.qn()))
-                    .sample_plane(plane, self.quality().for_grid())
+                    .sample_plane(plane, self.quality().grid_2d())
             }
             Mode::Complex => ProbabilityDensity::new(orbital::Complex::new(*self.qn()))
-                .sample_plane(plane, self.quality().for_grid()),
+                .sample_plane(plane, self.quality().grid_2d()),
             Mode::Hybrid => ProbabilityDensity::new(orbital::hybrid::Hybrid::new(
                 self.hybrid_kind().archetype().clone(),
             ))
-            .sample_plane(plane, self.quality().for_grid()),
+            .sample_plane(plane, self.quality().grid_2d()),
             // Mode::Mo => ProbabilityDensity::<orbital::molecular::Molecular>::sample_plane(
             //     &self.lcao(),
             //     plane,

@@ -3,8 +3,9 @@ pub mod supplemental;
 
 use evanescence_core::numerics::{Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::{Hybrid, Kind};
-use evanescence_core::orbital::monte_carlo::Quality;
 use evanescence_core::orbital::{Qn, Real};
+use serde::{Deserialize, Serialize};
+use strum::{Display, EnumIter, EnumString};
 
 use crate::plotly::color::color_scales;
 use crate::plotly::isosurface::{self, Isosurface};
@@ -47,7 +48,7 @@ fn compute_isosurface_hybrid(kind: &Kind, idx: usize, quality: Quality) -> Isosu
         .evaluate_in_region(
             // Manually shrink the extent sampled for higher quality.
             hybrid.bound() * 0.82,
-            quality.for_isosurface(),
+            quality.grid_3d(),
         )
         .into_components();
     let cutoff = isosurface_cutoff_heuristic_hybrid(kind);
@@ -62,5 +63,59 @@ fn compute_isosurface_hybrid(kind: &Kind, idx: usize, quality: Quality) -> Isosu
         surface: isosurface::Surface { count: 2 },
         color_scale: color_scales::RD_BU_R,
         ..Default::default()
+    }
+}
+
+#[derive(
+    Clone, Copy, PartialEq, Eq, Debug, Display, EnumString, EnumIter, Serialize, Deserialize,
+)]
+pub enum Quality {
+    Minimum,
+    Low,
+    Medium,
+    High,
+    VeryHigh,
+    Extreme,
+}
+
+impl Default for Quality {
+    fn default() -> Self {
+        Self::Low
+    }
+}
+
+impl Quality {
+    pub fn to_text(self) -> String {
+        match self {
+            Self::VeryHigh => "Very high".into(),
+            quality => quality.to_string(),
+        }
+    }
+}
+
+#[allow(
+    clippy::cast_possible_truncation, // Discriminants are small enough.
+    clippy::cast_sign_loss, // Roots of positive numbers are positive.
+    clippy::integer_division, // Intentional.
+)]
+impl Quality {
+    pub fn grid_2d(self) -> usize {
+        ((self.point_cloud() as f32).sqrt() * 0.75) as usize | 0b1 // Force the number to be odd.
+    }
+
+    pub fn grid_3d(self) -> usize {
+        (self.point_cloud() as f32 * 4.0).cbrt() as usize | 0b1 // Force the number to be odd.
+    }
+
+    pub fn point_cloud(self) -> usize {
+        // These values have been empirically observed to produce reasonable results.
+        match self {
+            Self::Minimum => 1 << 12,
+            Self::Low => 1 << 13,
+            Self::Medium => 1 << 14,
+            Self::High => 1 << 15,
+            Self::VeryHigh => 1 << 16,
+            Self::Extreme => 1 << 17,
+        }
     }
 }

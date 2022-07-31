@@ -1,8 +1,8 @@
 use evanescence_core::numerics::spherical_harmonics::RealSphericalHarmonic;
-use evanescence_core::orbital::monte_carlo::Quality;
 use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::{self, Qn};
 use evanescence_web::components::{Button, CheckBox, Dropdown, Tooltip};
+use evanescence_web::plotters::Quality;
 use evanescence_web::presets::{HybridPreset, QnPreset};
 use evanescence_web::state::{Mode, State, StateDispatch, Visualization};
 use evanescence_web::utils;

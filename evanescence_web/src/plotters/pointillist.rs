@@ -55,7 +55,8 @@ pub fn real(state: &State) -> JsValue {
 pub fn complex(state: &State) -> JsValue {
     assert!(state.mode().is_complex());
 
-    let simulation = Complex::new(*state.qn()).monte_carlo_simulate(state.quality(), true);
+    let simulation =
+        Complex::new(*state.qn()).monte_carlo_simulate(state.quality().point_cloud(), true);
     let (x, y, z, values) = simulation.into_components();
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
@@ -267,7 +268,7 @@ pub fn nodes_combined(state: &State) -> JsValue {
     assert!(state.mode().is_hybrid());
 
     let (x, y, z, value) = Hybrid::new(state.hybrid_kind().archetype().clone())
-        .sample_region(state.quality().for_isosurface())
+        .sample_region(state.quality().grid_3d())
         .into_components();
 
     Isosurface {

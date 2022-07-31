@@ -151,7 +151,7 @@ impl Component for InfoPanel {
                 <p>
                 { format!(
                     "Visualized using {} points.",
-                    utils::fmt_thousands_separated(state.quality() as usize)
+                    utils::fmt_thousands_separated(state.quality().point_cloud())
                 ) }
                 </p>
             </div>

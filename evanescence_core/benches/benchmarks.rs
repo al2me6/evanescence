@@ -5,7 +5,7 @@ use evanescence_core::numerics::double_factorial::DoubleFactorial;
 use evanescence_core::numerics::orthogonal_polynomials::{
     associated_laguerre, associated_legendre,
 };
-use evanescence_core::orbital::monte_carlo::{MonteCarlo, Quality};
+use evanescence_core::orbital::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{Qn, Real};
 
 pub fn bench_numerics(c: &mut Criterion) {
@@ -40,7 +40,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
         .sample_size(10)
         .warm_up_time(Duration::from_secs(10))
         .measurement_time(Duration::from_secs(30));
-    group.throughput(Throughput::Elements(Quality::Extreme as _));
+    group.throughput(Throughput::Elements(131_072));
     for qn in Qn::enumerate_up_to_n(5).unwrap() {
         let orbital = Real::new(qn);
         group.bench_function(
@@ -53,7 +53,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
                     qn.m().to_string().replace('-', "n")
                 ),
             ),
-            |b| b.iter(|| orbital.monte_carlo_simulate(Quality::Extreme, true)),
+            |b| b.iter(|| orbital.monte_carlo_simulate(131_072, true)),
         );
     }
 }

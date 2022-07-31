@@ -1,60 +1,10 @@
 //! An implementation of a Monte Carlo simulation to produce point cloud visualizations of orbitals.
 
 use nanorand::{Rng, WyRand};
-use strum::{Display, EnumIter, EnumString};
 
 use super::hybrid::Hybrid;
 use super::{Complex, Orbital, Qn, Real};
 use crate::geometry::{ComponentForm, Point, PointValue};
-
-/// A set of predefined qualities (i.e., number of points computed) for sampling orbitals, either
-/// for Monte Carlo simulations or plotting.
-///
-/// These values have been empirically observed to produce reasonable results.
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Display, EnumString, EnumIter)]
-pub enum Quality {
-    Minimum = 1 << 12,
-    Low = 1 << 13,
-    Medium = 1 << 14,
-    High = 1 << 15,
-    VeryHigh = 1 << 16,
-    Extreme = 1 << 17,
-}
-
-impl Default for Quality {
-    fn default() -> Self {
-        Self::Low
-    }
-}
-
-impl Quality {
-    pub fn to_text(self) -> String {
-        match self {
-            Self::VeryHigh => "Very high".into(),
-            quality => quality.to_string(),
-        }
-    }
-}
-
-#[allow(
-    clippy::cast_possible_truncation, // Discriminants are small enough.
-    clippy::cast_sign_loss, // Roots of positive numbers are positive.
-    clippy::integer_division, // Intentional.
-)]
-impl Quality {
-    /// Get the number of points that should be sampled for a plane/cross-section plot.
-    #[inline]
-    pub fn for_grid(self) -> usize {
-        ((self as usize as f32).sqrt() * 0.75) as usize | 0b1 // Force the number to be odd.
-    }
-
-    /// Get the number of points that should be sampled for an isosurface plot.
-    #[inline]
-    pub fn for_isosurface(self) -> usize {
-        (self as usize as f32 * 4.0).cbrt() as usize | 0b1 // Force the number to be odd.
-    }
-}
 
 /// Perform a Monte Carlo simulation of an orbital, generating a collection of points whose
 /// distribution corresponds to one obtained by repeatedly measuring an electron in that orbital.
@@ -124,9 +74,8 @@ pub trait MonteCarlo: Orbital {
         (max_prob_density, evaluated_points)
     }
 
-    /// Run a Monte Carlo simulation for the orbital of the given parameters, at the requested
-    /// quality, where quality controls both the total number of points generated and the number
-    /// of points sampled in the maximum value estimation.
+    /// Run a Monte Carlo simulation for the orbital of the given parameters at the requested point
+    /// count, which also controls the number of points sampled for the maximum value estimation.
     ///
     /// Tne `use_fast_approximation` argument optionally enables an approximation: If enabled,
     /// the maximum probability density computed will be reduced by an (optional)
@@ -141,11 +90,13 @@ pub trait MonteCarlo: Orbital {
     /// may obstruct details while significantly degrading user experience.
     fn monte_carlo_simulate(
         &self,
-        quality: Quality,
+        count: usize,
         use_fast_approximation: bool,
     ) -> ComponentForm<Self::Output> {
-        let num_estimation_samples = (quality as usize * self.estimation_sample_factor())
-            .max(self.minimum_estimation_samples());
+        let num_estimation_samples = usize::max(
+            count * self.estimation_sample_factor(),
+            self.minimum_estimation_samples(),
+        );
 
         let mut point_rng = WyRand::new();
         let mut value_rng = WyRand::new();
@@ -169,7 +120,7 @@ pub trait MonteCarlo: Orbital {
             .filter(|PointValue(_, val)| {
                 self.probability_density_of(*val) / max_value > value_rng.generate()
             })
-            .take(quality as usize)
+            .take(count)
             .collect()
     }
 }
