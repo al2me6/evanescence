@@ -1,7 +1,7 @@
 use std::default::default;
 use std::f32::consts::{PI, TAU};
 
-use evanescence_core::geometry::{Linspace, Plane, Point};
+use evanescence_core::geometry::{CoordinatePlane, Linspace, Point};
 use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::monte_carlo::MonteCarlo;
@@ -183,7 +183,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
             .into_iter()
             .map(|theta| {
                 VerticalCone::new(theta)
-                    .evaluate_on_plane(Plane::XY, bound, NUM_POINTS)
+                    .evaluate_on_plane(CoordinatePlane::XY, bound, NUM_POINTS)
                     .into_components()
             })
             .map(|(x, y, z)| Surface {
@@ -221,10 +221,8 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
 }
 
 pub fn cross_section_indicator(state: &State) -> JsValue {
-    let plane: Plane = state.supplement().try_into().unwrap();
-    let (x, y, z) = plane
-        .four_points_as_xy_value(state.bound())
-        .into_components();
+    let plane: CoordinatePlane = state.supplement().try_into().unwrap();
+    let (x, y, z) = plane.square_wrt_xy_plane(state.bound()).into_components();
     Surface {
         x: Some(x),
         y: Some(y),

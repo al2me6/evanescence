@@ -1,7 +1,7 @@
 //! Implementations of the the associated Legendre functions and the associated Laguerre
 //! polynomials.
 
-use super::DoubleFactorial;
+use crate::numerics::double_factorial::DoubleFactorial;
 
 /// The associated Laguerre polynomials, `L_{q}^{p}(x)`.
 ///

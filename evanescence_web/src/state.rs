@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::default::default;
 use std::fmt;
 
-use evanescence_core::geometry::{ComponentForm, GridValues, Plane};
+use evanescence_core::geometry::{ComponentForm, CoordinatePlane, GridValues};
 use evanescence_core::numerics::EvaluateBounded;
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::hybrid::Kind;
@@ -71,14 +71,20 @@ impl Default for Visualization {
     }
 }
 
-impl TryFrom<Visualization> for Plane {
+impl TryFrom<Visualization> for CoordinatePlane {
     type Error = String;
 
     fn try_from(value: Visualization) -> Result<Self, Self::Error> {
         match value {
-            Visualization::WavefunctionXY | Visualization::ProbabilityDensityXY => Ok(Plane::XY),
-            Visualization::WavefunctionYZ | Visualization::ProbabilityDensityYZ => Ok(Plane::YZ),
-            Visualization::WavefunctionZX | Visualization::ProbabilityDensityZX => Ok(Plane::ZX),
+            Visualization::WavefunctionXY | Visualization::ProbabilityDensityXY => {
+                Ok(CoordinatePlane::XY)
+            }
+            Visualization::WavefunctionYZ | Visualization::ProbabilityDensityYZ => {
+                Ok(CoordinatePlane::YZ)
+            }
+            Visualization::WavefunctionZX | Visualization::ProbabilityDensityZX => {
+                Ok(CoordinatePlane::ZX)
+            }
             _ => Err(format!("{value:?} does not have an associated plane")),
         }
     }
@@ -613,7 +619,7 @@ impl State {
         }
     }
 
-    pub fn sample_plane_real(&self, plane: Plane) -> GridValues<f32> {
+    pub fn sample_plane_real(&self, plane: CoordinatePlane) -> GridValues<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull => {
                 orbital::Real::new(*self.qn()).sample_plane(plane, self.quality().for_grid())
@@ -629,7 +635,7 @@ impl State {
         }
     }
 
-    pub fn sample_plane_prob_density(&self, plane: Plane) -> GridValues<f32> {
+    pub fn sample_plane_prob_density(&self, plane: CoordinatePlane) -> GridValues<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull => {
                 ProbabilityDensity::new(orbital::Real::new(*self.qn()))

@@ -129,7 +129,12 @@ fn bound(qn: Qn) -> f32 {
     let psi_sq = RadialProbabilityDistribution::new(qn.into());
 
     while probability < PROBABILITY_WITHIN_BOUND {
-        numerics::integrate_rk4_step(|r| psi_sq.evaluate_r(r), &mut r, &mut probability, STEP);
+        numerics::integrators::integrate_rk4_step(
+            |r| psi_sq.evaluate_r(r),
+            &mut r,
+            &mut probability,
+            STEP,
+        );
     }
     r
 }
@@ -235,7 +240,7 @@ mod tests {
             .for_each(|(xs, ys)| {
                 approx::assert_abs_diff_eq!(
                     PROBABILITY_WITHIN_BOUND,
-                    numerics::integrate_trapezoidal(&xs, &ys),
+                    numerics::integrators::integrate_trapezoidal(&xs, &ys),
                     epsilon = 5E-4
                 );
             });

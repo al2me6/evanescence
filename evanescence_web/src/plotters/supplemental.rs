@@ -1,7 +1,7 @@
 use std::default::default;
 use std::f32::consts::PI;
 
-use evanescence_core::geometry::Plane;
+use evanescence_core::geometry::CoordinatePlane;
 use evanescence_core::numerics::{self, EvaluateBounded};
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::{Complex, Real};
@@ -45,7 +45,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
         log::info!(
             "[{}][{NUM_POINTS} pts] Integrated total probability density: {}",
             state.qn().to_string_as_wavefunction(),
-            numerics::integrate_trapezoidal(&x, &y),
+            numerics::integrators::integrate_trapezoidal(&x, &y),
         );
     }
 
@@ -93,7 +93,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
     (trace.into(), layout.into())
 }
 
-fn cross_section_layout(plane: Plane, z_axis_title: &str) -> Layout<'_> {
+fn cross_section_layout(plane: CoordinatePlane, z_axis_title: &str) -> Layout<'_> {
     let (x_label, y_label) = plane.axes_names();
     Layout {
         ui_revision: Some(plane.to_string()),
@@ -150,7 +150,7 @@ fn cross_section_z_contour(max_abs: f32) -> Contour<'static> {
 
 pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     let is_complex = state.mode().is_complex();
-    let plane: Plane = state.supplement().try_into().unwrap();
+    let plane: CoordinatePlane = state.supplement().try_into().unwrap();
 
     let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) = Complex::new(*state.qn())
@@ -213,9 +213,12 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     };
 
     let z_axis_title = if is_complex {
-        format!("Wavefunction Modulus [ |ψ{}| ]", plane.ordered_triple())
+        format!(
+            "Wavefunction Modulus [ |ψ{}| ]",
+            plane.ordered_triple_form()
+        )
     } else {
-        format!("Wavefunction [ ψ{} ]", plane.ordered_triple())
+        format!("Wavefunction [ ψ{} ]", plane.ordered_triple_form())
     };
     let layout = cross_section_layout(plane, &z_axis_title);
 
@@ -223,7 +226,7 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
 }
 
 pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
-    let plane: Plane = state.supplement().try_into().unwrap();
+    let plane: CoordinatePlane = state.supplement().try_into().unwrap();
     let (x, y, mut z) = state.sample_plane_prob_density(plane).into_components();
     let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
     assert!(
@@ -255,7 +258,7 @@ pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
         ..default()
     };
 
-    let z_axis_title = format!("Prob. Density [ |ψ{}|² ]", plane.ordered_triple());
+    let z_axis_title = format!("Prob. Density [ |ψ{}|² ]", plane.ordered_triple_form());
     let layout = cross_section_layout(plane, &z_axis_title);
 
     (trace.into(), layout.into())

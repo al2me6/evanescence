@@ -184,10 +184,7 @@ mod tests {
             #[test]
             fn $fn_name() {
                 let evaluator = <$target>::new($target_params);
-                let calculated: Vec<_> = POINTS
-                    .iter()
-                    .map(|pt| evaluator.evaluate(pt))
-                    .collect();
+                let calculated: Vec<_> = POINTS.iter().map(|pt| evaluator.evaluate(pt)).collect();
                 assert_iterable_relative_eq!($expected, &calculated, max_relative = 1E-4_f32);
             }
         };
