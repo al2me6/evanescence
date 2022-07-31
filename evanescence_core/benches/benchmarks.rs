@@ -28,7 +28,10 @@ pub fn bench_numerics(c: &mut Criterion) {
         poly_group.bench_with_input(
             BenchmarkId::new("associated_laguerre", format!("{}_{}", params.0, params.1)),
             &params,
-            |b, lm| b.iter(|| associated_laguerre(*lm, 27.1828)),
+            |b, lm| {
+                let evaluator = associated_laguerre(lm.0, lm.1);
+                b.iter(|| evaluator.evaluate_horner(27.1828));
+            },
         );
     }
     poly_group.finish();

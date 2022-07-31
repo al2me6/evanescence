@@ -3,8 +3,8 @@
 //! for the radial wavefunction.
 
 use crate::geometry::{Linspace, Point};
-use crate::numerics::orthogonal_polynomials::associated_laguerre;
-use crate::numerics::{self, Evaluate};
+use crate::numerics::polynomials::Polynomial;
+use crate::numerics::{self, orthogonal_polynomials, Evaluate};
 use crate::orbital::quantum_numbers::{Nl, Qn};
 
 pub mod complex;
@@ -14,13 +14,16 @@ pub mod real;
 pub struct Radial {
     nl: Nl,
     normalization: f32,
+    associated_laguerre: Polynomial,
 }
 
 impl Radial {
     pub fn new(nl: Nl) -> Self {
+        let (n, l) = (nl.n(), nl.l());
         Self {
             nl,
-            normalization: Self::normalization_factor(nl.n(), nl.l()),
+            normalization: Self::normalization_factor(n, l),
+            associated_laguerre: orthogonal_polynomials::associated_laguerre(n - l - 1, 2 * l + 1),
         }
     }
 
@@ -37,12 +40,11 @@ impl Radial {
     /// Give the value of the radial wavefunction at `r` for a given `Nl`.
     #[inline]
     pub fn evaluate_r(&self, r: f32) -> f32 {
-        let (n, l) = (self.nl.n(), self.nl.l());
-        let rho = 2.0 * r / (n as f32);
+        let rho = 2.0 * r / (self.nl.n() as f32);
         self.normalization
             * (-rho / 2.0).exp()
-            * rho.powi(l as i32)
-            * associated_laguerre((n - l - 1, 2 * l + 1), rho)
+            * rho.powi(self.nl.l() as i32)
+            * self.associated_laguerre.evaluate_horner(rho)
     }
 }
 

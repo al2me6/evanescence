@@ -1,32 +1,19 @@
 //! Implementations of the the associated Legendre functions and the associated Laguerre
 //! polynomials.
 
+use super::polynomials::Polynomial;
 use crate::numerics::double_factorial::DoubleFactorial;
 
 /// The associated Laguerre polynomials, `L_{q}^{p}(x)`.
-///
-/// Implemented via recurrence relation:
-/// <https://en.wikipedia.org/wiki/Laguerre_polynomials#Generalized_Laguerre_polynomials>.
-#[inline]
-pub fn associated_laguerre((q, p): (u32, u32), x: f32) -> f32 {
-    if q == 0 {
-        return 1.0;
-    }
-
-    #[allow(non_snake_case)]
-    let mut L = 1.0 + p as f32 - x;
-    if q == 1 {
-        return L;
-    }
-
-    let mut prev = 1.0;
-    for q in 1..q {
-        (prev, L) = (
-            L,
-            (((2 * q + 1 + p) as f32 - x) * L - (q + p) as f32 * prev) / (q + 1) as f32,
-        );
-    }
-    L
+pub fn associated_laguerre(q: u32, p: u32) -> Polynomial {
+    (0..=q)
+        .map(|i| {
+            let mut a_i =
+                (-1_f32).powi(i as i32) * super::binomial_coefficient(q + p, q - i) as f32;
+            (1..=i).for_each(|j| a_i /= j as f32);
+            a_i
+        })
+        .collect()
 }
 
 /// The associated Legendre functions, `P_{l}^{m}(x)`, implemented for nonnegative
@@ -79,7 +66,11 @@ pub fn associated_legendre((l, m): (u32, u32), x: f32) -> f32 {
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
-    use super::{associated_laguerre, associated_legendre};
+    use super::associated_legendre;
+
+    fn associated_laguerre((q, p): (u32, u32), x: f32) -> f32 {
+        super::associated_laguerre(q, p).evaluate_horner(x)
+    }
 
     macro_rules! test {
         ($fn_name:ident, $target_fn:ident, $target_params:expr, $expected:expr) => {
