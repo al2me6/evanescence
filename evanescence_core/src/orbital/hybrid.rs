@@ -237,7 +237,7 @@ pub struct Kind {
 }
 
 /// Error type describing invalid values passed to [`Kind`]'s constructor.
-#[derive(PartialEq, Debug, Error)]
+#[derive(PartialEq, Eq, Debug, Error)]
 pub enum InvalidKindError {
     /// Kind is empty.
     #[error("kind cannot be empty")]

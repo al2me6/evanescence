@@ -6,7 +6,7 @@ pub struct Window {
     node_ref: NodeRef,
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum OpenButton {
     /// (character on button, optional hover info).
     Text(char, Option<&'static str>),

@@ -133,6 +133,7 @@ impl Point {
 }
 
 /// A point and the value of a function evaluated at that point.
+#[allow(clippy::module_name_repetitions)] // It's 'Point-and-Value', not 'Value of a Point'.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PointValue<T>(pub Point, pub T);

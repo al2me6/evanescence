@@ -61,7 +61,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
             ),
             ..default()
         },
-        fill: (variant == RadialPlot::ProbabilityDistribution).then(|| "tozeroy"),
+        fill: (variant == RadialPlot::ProbabilityDistribution).then_some("tozeroy"),
         ..default()
     };
 
@@ -198,9 +198,9 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
         } else {
             color_scales::RD_BU_R
         },
-        c_min: is_complex.then(|| -PI),
+        c_min: is_complex.then_some(-PI),
         c_mid: 0.0,
-        c_max: is_complex.then(|| PI),
+        c_max: is_complex.then_some(PI),
         contours: Some(Contours {
             z: Contour {
                 color: is_complex.then(|| b16_colors::BASE[0x03]), // Use default otherwise.

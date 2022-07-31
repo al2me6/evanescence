@@ -164,7 +164,7 @@ impl PointillistVisualization {
                 self.rendered_kinds // Get all indices of matching traces.
                     .iter()
                     .enumerate()
-                    .filter_map(|(idx, &t)| (t == kind).then(|| idx as isize)),
+                    .filter_map(|(idx, &t)| (t == kind).then_some(idx as isize)),
             );
             // And also remove them from the record.
             let removed = self.rendered_kinds.drain_filter(|&mut t| t == kind);
@@ -229,7 +229,7 @@ impl Component for PointillistVisualization {
                 (new.nodes() != old.nodes(), Trace::Nodes),
             ]
             .into_iter()
-            .filter_map(|(changed, kind)| changed.then(|| kind));
+            .filter_map(|(changed, kind)| changed.then_some(kind));
 
             let directive = possible_changes
                 .next()

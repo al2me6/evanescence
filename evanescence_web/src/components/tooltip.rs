@@ -3,7 +3,7 @@ use yew::prelude::*;
 
 use super::raw::RawSpan;
 
-#[derive(PartialEq, Properties)]
+#[derive(PartialEq, Eq, Properties)]
 pub struct TooltipProps {
     pub text: String,
     pub tooltip: String,
