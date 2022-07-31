@@ -10,10 +10,10 @@ use crate::geometry::Linspace;
 #[cfg(test)]
 macro_rules! assert_iterable_relative_eq {
     ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)* $(,)?) => {{
-        assert_eq!($lhs.len(), $rhs.len());
+        use itertools::Itertools;
         assert!(
             $lhs.iter()
-                .zip($rhs.iter())
+                .zip_eq($rhs.iter())
                 .all(|(l, r)| approx::relative_eq!(l, r $(, $opt = $val)*)),
             "assertion failed: `(left ≈ right)`\n\
                 left: `{:?}`\n\
@@ -26,6 +26,8 @@ macro_rules! assert_iterable_relative_eq {
 
 #[macro_use]
 pub mod integrators;
+#[macro_use]
+pub mod polynomials;
 
 pub mod double_factorial;
 pub mod evaluation;

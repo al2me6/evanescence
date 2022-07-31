@@ -23,6 +23,7 @@ roots = "0.0"
 serde = { version = "1", features = [
     "derive",
 ], optional = true, default-features = false }
+smallvec = "1"
 strum = { version = "0.24", features = ["derive"] }
 thiserror = "1"
 
