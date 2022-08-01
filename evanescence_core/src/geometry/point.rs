@@ -140,7 +140,7 @@ pub struct PointValue<T>(pub Point, pub T);
 
 #[cfg(test)]
 mod tests {
-    use approx::assert_relative_eq;
+    use approx::assert_ulps_eq;
     use nanorand::WyRand;
 
     use crate::geometry::Point;
@@ -160,13 +160,13 @@ mod tests {
     #[test]
     fn spherical_coordinates() {
         let point = Point::new(1.0, 2.0, -3.0);
-        assert_relative_eq!(point.r, 3.7416573867739413856);
-        assert_relative_eq!(point.cos_theta.acos(), 2.5010703409103686643);
-        assert_relative_eq!(point.phi, 1.1071487177940905030);
+        assert_ulps_eq!(point.r, 3.7416573867739413856, max_ulps = 1);
+        assert_ulps_eq!(point.cos_theta.acos(), 2.5010703409103686643, max_ulps = 1);
+        assert_ulps_eq!(point.phi, 1.1071487177940905030, max_ulps = 1);
         let recomputed_point = Point::new_spherical(point.r, point.cos_theta.acos(), point.phi);
-        assert_relative_eq!(point.x, recomputed_point.x);
-        assert_relative_eq!(point.y, recomputed_point.y);
-        assert_relative_eq!(point.z, recomputed_point.z);
+        assert_ulps_eq!(point.x, recomputed_point.x, max_ulps = 1);
+        assert_ulps_eq!(point.y, recomputed_point.y, max_ulps = 1);
+        assert_ulps_eq!(point.z, recomputed_point.z, max_ulps = 1);
     }
 
     #[test]
@@ -174,9 +174,13 @@ mod tests {
         let mut rng = WyRand::new();
         let rng_point = Point::sample_from_ball_iter(2.0, &mut rng).next().unwrap();
         let recomputed_point = Point::new(rng_point.x, rng_point.y, rng_point.z);
-        assert_relative_eq!(rng_point.r, recomputed_point.r);
-        assert_relative_eq!(rng_point.cos_theta, recomputed_point.cos_theta);
-        assert_relative_eq!(rng_point.phi, recomputed_point.phi);
+        assert_ulps_eq!(rng_point.r, recomputed_point.r, max_ulps = 1);
+        assert_ulps_eq!(
+            rng_point.cos_theta,
+            recomputed_point.cos_theta,
+            max_ulps = 1
+        );
+        assert_ulps_eq!(rng_point.phi, recomputed_point.phi, max_ulps = 1);
     }
 
     // #[test]

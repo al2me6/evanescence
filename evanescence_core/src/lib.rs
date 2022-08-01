@@ -11,7 +11,7 @@
 //! // The 4d_{z^2} orbital.
 //! let qn = Qn::new(4, 2, 0).unwrap(); // The constructor validates the parameters.
 //! let value = Real::new(qn).evaluate(&Point::new(1.0, 3.2, 4.7));
-//! approx::assert_relative_eq!(value, 0.008895547);
+//! approx::assert_ulps_eq!(value, 0.008895547);
 //! ```
 //!
 //! To run a [Monte Carlo simulation](orbital::monte_carlo) on an orbital:

@@ -1,0 +1,111 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      3594,        101]
+NotebookOptionsPosition[      2967,         84]
+NotebookOutlinePosition[      3366,        100]
+CellTagsIndexPosition[      3323,         97]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{"na", "=", 
+  RowBox[{"Flatten", "[", 
+   RowBox[{
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"n", "-", "l", "-", "1"}], ",", 
+        RowBox[{
+         RowBox[{"2", "*", "l"}], "+", "1"}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"n", ",", "1", ",", "16"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"l", ",", "0", ",", 
+        RowBox[{"n", "-", "1"}]}], "}"}]}], "]"}], ",", "1"}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.8683082457627325`*^9, 3.868308261113737*^9}, {
+  3.868308492442129*^9, 3.86830851695094*^9}, {3.8683085499763994`*^9, 
+  3.8683085752213616`*^9}, {3.8683086229836507`*^9, 3.8683086274539723`*^9}, {
+  3.8683101554210606`*^9, 3.868310155608287*^9}},
+ CellLabel->"In[9]:=",ExpressionUUID->"915e0fd6-ebab-4836-8ad8-44a84968ba4f"],
+
+Cell[BoxData[
+ RowBox[{"laguerreJson", "=", 
+  RowBox[{"Map", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{"<|", 
+       RowBox[{
+        RowBox[{"\"\<n\>\"", "\[Rule]", " ", 
+         RowBox[{"#", "[", 
+          RowBox[{"[", "1", "]"}], "]"}]}], ",", 
+        RowBox[{"\"\<a\>\"", "\[Rule]", " ", 
+         RowBox[{"#", "[", 
+          RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+        RowBox[{"\"\<coeffs\>\"", "\[Rule]", " ", 
+         RowBox[{"CoefficientList", "[", 
+          RowBox[{
+           RowBox[{"LaguerreL", "@@", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"Splice", "[", "#", "]"}], ",", "x"}], "}"}]}], ",", 
+           "x"}], "]"}]}]}], "|>"}], " ", ")"}], "&"}], ",", "na"}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.8683092564901967`*^9, 3.868309306959543*^9}, {
+  3.8683093612396655`*^9, 3.8683094624121933`*^9}},
+ CellLabel->"In[10]:=",ExpressionUUID->"bf68c4dd-cbf3-4ba1-9399-d367b138ac18"],
+
+Cell[BoxData[
+ RowBox[{"SetDirectory", "[", 
+  RowBox[{"NotebookDirectory", "[", "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.8683097372631445`*^9, 3.868309741780328*^9}},
+ CellLabel->"In[11]:=",ExpressionUUID->"47fdec8a-5189-4096-8110-70956f4a087e"],
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{"\"\<laguerre.json\>\"", ",", "laguerreJson", ",", "\"\<JSON\>\""}],
+   "]"}]], "Input",
+ CellChangeTimes->{{3.8683091403078284`*^9, 3.8683091797840824`*^9}, {
+  3.8683094758544087`*^9, 3.8683094773543777`*^9}},
+ CellLabel->"In[12]:=",ExpressionUUID->"38913a72-b5ce-4fd2-9d6c-a76bedc7e8e7"]
+},
+WindowSize->{759, 813},
+WindowMargins->{{399, Automatic}, {45, Automatic}},
+FrontEndVersion->"12.1 for Microsoft Windows (64-bit) (June 19, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"4149a169-bd10-4675-aaa6-b604f9d4c23a"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 843, 21, 28, "Input",ExpressionUUID->"915e0fd6-ebab-4836-8ad8-44a84968ba4f"],
+Cell[1404, 43, 963, 25, 86, "Input",ExpressionUUID->"bf68c4dd-cbf3-4ba1-9399-d367b138ac18"],
+Cell[2370, 70, 251, 4, 28, "Input",ExpressionUUID->"47fdec8a-5189-4096-8110-70956f4a087e"],
+Cell[2624, 76, 339, 6, 28, "Input",ExpressionUUID->"38913a72-b5ce-4fd2-9d6c-a76bedc7e8e7"]
+}
+]
+*)
+
+(* End of internal cache information *)
+

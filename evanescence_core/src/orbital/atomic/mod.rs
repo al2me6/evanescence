@@ -29,7 +29,6 @@ impl Radial {
 
     /// Calculate the radial wavefunction normalization factor,
     /// `√( (2Z/n)^3 * (n-l-1)! / (2n * (n+l)!) )`.
-    #[inline]
     fn normalization_factor(n: u32, l: u32) -> f32 {
         // (n-l-1)! / (n+l)! = 1 / [(n-l) * (n-l+1) * ... * (n+l-1) * (n+l)].
         let factorial_factor = ((n - l)..=(n + l)).map(|k| k as f32).product::<f32>();
@@ -191,7 +190,7 @@ mod tests {
                     .iter()
                     .map(|pt| evaluator.evaluate(pt))
                     .collect();
-                assert_iterable_relative_eq!($expected, &calculated, max_relative = 1E-4_f32);
+                assert_iterable_approx_eq!($expected, &calculated, max_relative = 5E-6);
             }
         };
     }
@@ -235,7 +234,7 @@ mod tests {
 
     #[test]
     fn radial_probability_density_unity() {
-        Qn::enumerate_up_to_n(17)
+        Qn::enumerate_up_to_n(15)
             .unwrap()
             .filter(|qn| qn.m() == 0) // The radial component depends only on n and l.
             .map(|qn| RadialPlot::ProbabilityDistribution.sample(qn, 1_000))
@@ -243,7 +242,7 @@ mod tests {
                 approx::assert_abs_diff_eq!(
                     PROBABILITY_WITHIN_BOUND,
                     numerics::integrators::integrate_trapezoidal(&xs, &ys),
-                    epsilon = 5E-4
+                    epsilon = 0.000_75,
                 );
             });
     }

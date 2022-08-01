@@ -37,9 +37,8 @@ impl Polynomial {
     }
 
     fn last_nonzero_coefficient_index(&self) -> Option<usize> {
-        self.0
-            .iter()
-            .rposition(|a_i| approx::abs_diff_ne!(a_i, &0.))
+        #[allow(clippy::float_cmp)]
+        self.0.iter().rposition(|a_i| a_i != &0.)
     }
 
     fn is_canonical(&self) -> bool {
@@ -87,7 +86,7 @@ impl Polynomial {
     }
 
     pub fn set(&mut self, i: usize, a_i: f32) {
-        if i > self.degree() && approx::abs_diff_eq!(a_i, 0.) {
+        if i > self.degree() && a_i == 0. {
             return;
         }
         *self.get_mut(i) = a_i;
@@ -275,51 +274,53 @@ impl_mul_div_assign!(&f32);
 
 #[cfg(test)]
 mod tests {
-    use approx::assert_relative_eq;
+    use approx::assert_ulps_eq;
 
     #[test]
     fn construction() {
         let a = polynomial![1., 0., 2., 3., 0., 0.];
         assert_eq!(a.degree(), 3);
-        assert_iterable_relative_eq!(&a, &[1., 0., 2., 3.]);
+        assert_iterable_approx_eq!(&a, &[1., 0., 2., 3.]);
     }
 
     #[test]
     fn ops() {
         let mut a = polynomial![0., 1., 2.];
         assert_eq!(a.degree(), 2);
-        assert_iterable_relative_eq!(&a, &[0., 1., 2.]);
+        assert_iterable_approx_eq!(&a, &[0., 1., 2.]);
         a.set(1, -3.);
-        assert_iterable_relative_eq!(&a, &[0., -3., 2.]);
+        assert_iterable_approx_eq!(&a, &[0., -3., 2.]);
         a.set(5, 5.);
         assert_eq!(a.degree(), 5);
-        assert_iterable_relative_eq!(&a, &[0., -3., 2., 0., 0., 5.]);
+        assert_iterable_approx_eq!(&a, &[0., -3., 2., 0., 0., 5.]);
         a.set(3, 0.5);
         a.set(5, 0.);
         assert_eq!(a.degree(), 3);
-        assert_iterable_relative_eq!(&a, &[0., -3., 2., 0.5]);
+        assert_iterable_approx_eq!(&a, &[0., -3., 2., 0.5]);
 
         let mut b = polynomial![1.];
         b += polynomial![0., 0., 2.];
-        assert_iterable_relative_eq!(&b, &[1., 0., 2.]);
+        assert_iterable_approx_eq!(&b, &[1., 0., 2.]);
         b /= 2.;
-        assert_iterable_relative_eq!(&b, &[0.5, 0., 1.]);
-        assert_iterable_relative_eq!(&b - polynomial![0., 1.], &[0.5, -1., 1.]);
-        assert_iterable_relative_eq!(&b * 2., &[1., 0., 2.]);
+        assert_iterable_approx_eq!(&b, &[0.5, 0., 1.]);
+        assert_iterable_approx_eq!(&b - polynomial![0., 1.], &[0.5, -1., 1.]);
+        assert_iterable_approx_eq!(&b * 2., &[1., 0., 2.]);
         b -= polynomial![0., 0., 1.];
         assert_eq!(b.degree(), 0);
-        assert_iterable_relative_eq!(&b, &[0.5]);
+        assert_iterable_approx_eq!(&b, &[0.5]);
     }
 
     #[test]
     fn horner() {
-        assert_relative_eq!(
+        assert_ulps_eq!(
             polynomial![1.0, -3.5, 4.2, -0.3].evaluate_horner(-5.5),
-            197.212_5
+            197.212_5,
+            max_ulps = 1,
         );
-        assert_relative_eq!(
+        assert_ulps_eq!(
             polynomial![5.0, -4.6, 2.7, -18., -3.].evaluate_horner(9.3),
-            -36_724.243_3
+            -36_724.243_3,
+            max_ulps = 1,
         );
     }
 }

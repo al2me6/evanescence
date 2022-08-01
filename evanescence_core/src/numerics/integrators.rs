@@ -84,7 +84,7 @@ macro_rules! integrate_rk4_multiple {
 
 #[cfg(test)]
 mod tests {
-    use approx::assert_relative_eq;
+    use approx::{assert_abs_diff_eq, assert_relative_eq};
 
     use super::{integrate_rk4, integrate_trapezoidal};
     use crate::geometry::Linspace;
@@ -93,7 +93,7 @@ mod tests {
     fn trapezoidal() {
         let xs = (-2_f32..=4.0).linspace(100).collect::<Vec<_>>();
 
-        assert_relative_eq!(
+        assert_abs_diff_eq!(
             integrate_trapezoidal(
                 &xs,
                 &xs.iter()
@@ -101,7 +101,7 @@ mod tests {
                     .collect::<Vec<_>>()
             ),
             0.0,
-            epsilon = 1E-4,
+            epsilon = 5E-5,
         );
 
         assert_relative_eq!(

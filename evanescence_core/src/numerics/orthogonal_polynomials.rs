@@ -4,12 +4,12 @@
 use super::polynomials::Polynomial;
 use crate::numerics::double_factorial::DoubleFactorial;
 
-/// The associated Laguerre polynomials, `L_{q}^{p}(x)`.
-pub fn associated_laguerre(q: u32, p: u32) -> Polynomial {
-    (0..=q)
+/// The associated Laguerre polynomials, `L_{n}^{a}(x)`.
+pub fn associated_laguerre(n: u32, a: u32) -> Polynomial {
+    (0..=n)
         .map(|i| {
             let mut a_i =
-                (-1_f32).powi(i as i32) * super::binomial_coefficient(q + p, q - i) as f32;
+                (-1_f32).powi(i as i32) * super::binomial_coefficient(n + a, n - i) as f32;
             (1..=i).for_each(|j| a_i /= j as f32);
             a_i
         })
@@ -68,8 +68,29 @@ pub fn associated_legendre((l, m): (u32, u32), x: f32) -> f32 {
 mod tests {
     use super::associated_legendre;
 
-    fn associated_laguerre((q, p): (u32, u32), x: f32) -> f32 {
-        super::associated_laguerre(q, p).evaluate_horner(x)
+    #[test]
+    fn associated_laguerre() {
+        #[derive(serde::Deserialize)]
+        struct AssociatedLaguerre {
+            n: u32,
+            a: u32,
+            coeffs: Vec<f64>,
+        }
+
+        let json = std::fs::read_to_string(
+            [env!("CARGO_MANIFEST_DIR"), "mathematica", "laguerre.json"]
+                .iter()
+                .collect::<std::path::PathBuf>(),
+        )
+        .unwrap();
+        let data: Vec<AssociatedLaguerre> = serde_json::from_str(&json).unwrap();
+
+        for AssociatedLaguerre { n, a, coeffs } in data {
+            #[allow(clippy::cast_possible_truncation)] // Intentional.
+            let expected = coeffs.into_iter().map(|a_i| a_i as f32).collect::<Vec<_>>();
+            let computed = super::associated_laguerre(n, a);
+            assert_iterable_approx_eq!(ulps_eq, expected, computed, max_ulps = 1);
+        }
     }
 
     macro_rules! test {
@@ -79,58 +100,10 @@ mod tests {
                 let calculated: Vec<f32> = (-2..=2)
                     .map(|x| $target_fn($target_params, x as f32 / 2.0))
                     .collect();
-                assert_iterable_relative_eq!($expected, &calculated, max_relative = 1E-6_f32);
+                assert_iterable_approx_eq!(ulps_eq, $expected, &calculated, max_ulps = 1);
             }
         };
     }
-    test!(
-        laguerre_1_0,
-        associated_laguerre,
-        (1, 0),
-        &[
-            2.00000000000000,
-            1.50000000000000,
-            1.00000000000000,
-            0.500000000000000,
-            0.0
-        ]
-    );
-    test!(
-        laguerre_3_2,
-        associated_laguerre,
-        (3, 2),
-        &[
-            22.6666666666667,
-            15.6458333333333,
-            10.0000000000000,
-            5.60416666666667,
-            2.33333333333333
-        ]
-    );
-    test!(
-        laguerre_4_5,
-        associated_laguerre,
-        (4, 5),
-        &[
-            229.541666666667,
-            172.690104166667,
-            126.000000000000,
-            88.3151041666667,
-            58.5416666666667
-        ]
-    );
-    test!(
-        laguerre_7_3,
-        associated_laguerre,
-        (7, 3),
-        &[
-            496.389087301587,
-            261.199437313988,
-            120.000000000000,
-            42.4259967137897,
-            5.63869047619048
-        ]
-    );
 
     test!(
         legendre_1_0,

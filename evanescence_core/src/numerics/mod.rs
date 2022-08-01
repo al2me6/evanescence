@@ -8,16 +8,20 @@ use crate::geometry::Linspace;
 
 /// Verify that two iterables containing float values are approximately equal.
 #[cfg(test)]
-macro_rules! assert_iterable_relative_eq {
-    ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)* $(,)?) => {{
+macro_rules! assert_iterable_approx_eq {
+    ($lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)* $(,)?) => {
+        assert_iterable_approx_eq!(relative_eq, $lhs, $rhs $(, $opt = $val)*)
+    };
+    ($method:ident, $lhs:expr, $rhs: expr $(, $opt:ident = $val:expr)* $(,)?) => {{
         use itertools::Itertools;
         assert!(
             $lhs.iter()
                 .zip_eq($rhs.iter())
-                .all(|(l, r)| approx::relative_eq!(l, r $(, $opt = $val)*)),
-            "assertion failed: `(left ≈ right)`\n\
+                .all(|(l, r)| approx::$method!(l, r $(, $opt = $val)*)),
+            "assertion failed: `(left ≈ right)` via {}\n\
                 left: `{:?}`\n\
                 right: `{:?}`",
+            stringify!($method),
             $lhs,
             $rhs
         );

@@ -71,7 +71,7 @@ impl LinearCombination {
         let expr = EXACT_VALUES
             .iter()
             .find_map(|&(val, expr)| {
-                approx::relative_eq!(val, weight.abs(), epsilon = 1E-4).then(|| {
+                approx::relative_eq!(val, weight.abs(), max_relative = 1E-6).then(|| {
                     if weight > 0.0 {
                         expr.to_owned()
                     } else {
