@@ -71,7 +71,7 @@ mod tests {
     #[test]
     fn associated_laguerre() {
         #[derive(serde::Deserialize)]
-        struct AssociatedLaguerre {
+        struct TestCase {
             n: u32,
             a: u32,
             coeffs: Vec<f64>,
@@ -83,9 +83,9 @@ mod tests {
                 .collect::<std::path::PathBuf>(),
         )
         .unwrap();
-        let data: Vec<AssociatedLaguerre> = serde_json::from_str(&json).unwrap();
+        let data: Vec<TestCase> = serde_json::from_str(&json).unwrap();
 
-        for AssociatedLaguerre { n, a, coeffs } in data {
+        for TestCase { n, a, coeffs } in data {
             #[allow(clippy::cast_possible_truncation)] // Intentional.
             let expected = coeffs.into_iter().map(|a_i| a_i as f32).collect::<Vec<_>>();
             let computed = super::associated_laguerre(n, a);
