@@ -31,7 +31,7 @@ macro_rules! assert_iterable_approx_eq {
 #[macro_use]
 pub mod integrators;
 #[macro_use]
-pub mod polynomials;
+pub mod polynomial;
 
 pub mod double_factorial;
 pub mod evaluation;

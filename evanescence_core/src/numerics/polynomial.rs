@@ -4,13 +4,13 @@ use itertools::{EitherOrBoth, Itertools};
 pub use smallvec::smallvec;
 use smallvec::SmallVec;
 
-pub type PolynomialStorage = SmallVec<[f32; 5]>; // Up to degree 4 inline.
+pub type Storage = SmallVec<[f32; 5]>; // Up to degree 4 inline.
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct Polynomial(PolynomialStorage);
+pub struct Polynomial(Storage);
 
 impl Polynomial {
-    pub fn new(coefficients: PolynomialStorage) -> Self {
+    pub fn new(coefficients: Storage) -> Self {
         let mut ret = Self(coefficients);
         ret.canonicalize();
         ret
@@ -57,8 +57,8 @@ impl Polynomial {
 #[macro_export]
 macro_rules! polynomial {
     ($($a_i:expr),+ $(,)?) => {
-        $crate::numerics::polynomials::Polynomial::new(
-            $crate::numerics::polynomials::smallvec![$($a_i),+])
+        $crate::numerics::polynomial::Polynomial::new(
+            $crate::numerics::polynomial::smallvec![$($a_i),+])
     }
 }
 
@@ -101,7 +101,7 @@ impl Polynomial {
 }
 
 impl IntoIterator for Polynomial {
-    type IntoIter = <PolynomialStorage as IntoIterator>::IntoIter;
+    type IntoIter = <Storage as IntoIterator>::IntoIter;
     type Item = f32;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -111,7 +111,7 @@ impl IntoIterator for Polynomial {
 }
 
 impl<'a> IntoIterator for &'a Polynomial {
-    type IntoIter = <&'a PolynomialStorage as IntoIterator>::IntoIter;
+    type IntoIter = <&'a Storage as IntoIterator>::IntoIter;
     type Item = &'a f32;
 
     fn into_iter(self) -> Self::IntoIter {
