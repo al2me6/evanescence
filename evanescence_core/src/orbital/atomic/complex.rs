@@ -1,4 +1,4 @@
-use num_complex::Complex32;
+use num::complex::Complex32;
 
 use super::Radial;
 use crate::geometry::Point;

@@ -18,7 +18,7 @@ nanorand = { version = "0.7", default-features = false, features = [
     "std",
     "getrandom",
 ] }
-num-complex = "0.4"
+num = "0.4"
 roots = "0.0"
 serde = { version = "1", features = [
     "derive",

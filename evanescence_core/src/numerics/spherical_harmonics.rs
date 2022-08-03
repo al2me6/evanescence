@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::f32::consts::{PI, SQRT_2};
 
-use num_complex::Complex32;
+use num::complex::Complex32;
 
 use super::orthogonal_polynomials::associated_legendre;
 use super::Evaluate;

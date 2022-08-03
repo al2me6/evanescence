@@ -4,7 +4,7 @@ use gloo::utils::window;
 use instant::Instant;
 use itertools::Itertools;
 use log::{Level, Record};
-use num_complex::Complex32;
+use num::complex::Complex32;
 
 pub mod consts {
     pub const FRAC_1_SQRT_3: f32 = 0.577_350_3;
