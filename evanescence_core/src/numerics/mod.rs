@@ -33,8 +33,8 @@ pub mod integrators;
 #[macro_use]
 pub mod polynomial;
 
-pub mod double_factorial;
 pub mod evaluation;
+pub mod factorial;
 pub mod orthogonal_polynomials;
 pub mod spherical_harmonics;
 

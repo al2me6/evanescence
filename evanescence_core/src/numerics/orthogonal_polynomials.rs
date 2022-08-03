@@ -1,7 +1,7 @@
 //! Implementations of the the associated Legendre functions and the associated Laguerre
 //! polynomials.
 
-use super::double_factorial::DoubleFactorial;
+use super::factorial::DoubleFactorial;
 use super::polynomial::Polynomial;
 
 /// The associated Laguerre polynomials, `L_{n}^{a}(x)`.

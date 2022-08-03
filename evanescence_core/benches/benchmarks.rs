@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use evanescence_core::numerics::double_factorial::DoubleFactorial;
+use evanescence_core::numerics::factorial::DoubleFactorial;
 use evanescence_core::numerics::orthogonal_polynomials::{
     associated_laguerre, associated_legendre,
 };
