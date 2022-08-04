@@ -112,13 +112,13 @@ mod tests {
                     .collect::<Vec<_>>()
             ),
             7.523_235,
-            epsilon = 5E-3,
+            max_relative = 5E-4,
         );
     }
 
     #[test]
     fn rk4() {
-        assert_relative_eq!(integrate_rk4(|x| x, 0.0, 5.0, 1.0), 12.5, epsilon = 1E-6);
+        assert_relative_eq!(integrate_rk4(|x| x, 0.0, 5.0, 1.0), 12.5);
 
         assert_relative_eq!(
             integrate_rk4(
@@ -128,7 +128,7 @@ mod tests {
                 0.1,
             ),
             46.121_16,
-            epsilon = 1E-4,
+            max_relative = 1E-6,
         );
     }
 
@@ -143,7 +143,6 @@ mod tests {
                 z: (-1., 1.),
             ),
             0.682_942,
-            epsilon = 1E-6,
         );
     }
 }
