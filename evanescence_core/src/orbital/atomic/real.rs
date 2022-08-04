@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 
 use super::Radial;
 use crate::geometry::Point;
-use crate::numerics::orthogonal_polynomials::associated_legendre;
+use crate::numerics::special::orthogonal_polynomials::associated_legendre;
 use crate::numerics::spherical_harmonics::RealSphericalHarmonic;
 use crate::numerics::{self, Evaluate, EvaluateBounded};
 use crate::orbital::quantum_numbers::{Lm, Qn};

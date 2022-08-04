@@ -55,16 +55,13 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::Factorial;
-    use super::DoubleFactorial;
+    use super::{DoubleFactorial, Factorial};
 
     #[test]
     fn factorial() {
         assert_eq!(
             &[1, 1, 2, 6, 24, 120, 720, 5_040, 40_320, 362_880, 3_628_800],
-            &(0_u32..=10)
-                .map(Factorial::factorial)
-                .collect::<Vec<_>>()[..]
+            &(0_u32..=10).map(Factorial::factorial).collect::<Vec<_>>()[..]
         );
     }
 

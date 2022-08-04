@@ -1,15 +1,15 @@
 //! Implementations of the the associated Legendre functions and the associated Laguerre
 //! polynomials.
 
-use super::factorial::DoubleFactorial;
-use super::polynomial::Polynomial;
+use super::binomial_coefficient;
+use crate::numerics::polynomial::Polynomial;
+use crate::numerics::special::factorial::DoubleFactorial;
 
 /// The associated Laguerre polynomials, `L_{n}^{a}(x)`.
 pub fn associated_laguerre(n: u32, a: u32) -> Polynomial {
     (0..=n)
         .map(|i| {
-            let mut a_i =
-                (-1_f32).powi(i as i32) * super::binomial_coefficient(n + a, n - i) as f32;
+            let mut a_i = (-1_f32).powi(i as i32) * binomial_coefficient(n + a, n - i) as f32;
             (1..=i).for_each(|j| a_i /= j as f32);
             a_i
         })

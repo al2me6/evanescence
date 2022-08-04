@@ -4,7 +4,8 @@
 
 use crate::geometry::{Linspace, Point};
 use crate::numerics::polynomial::Polynomial;
-use crate::numerics::{self, orthogonal_polynomials, Evaluate};
+use crate::numerics::special::orthogonal_polynomials;
+use crate::numerics::{self, Evaluate};
 use crate::orbital::quantum_numbers::{Nl, Qn};
 
 pub mod complex;

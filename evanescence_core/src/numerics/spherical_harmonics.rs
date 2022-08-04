@@ -3,7 +3,7 @@ use std::f32::consts::{PI, SQRT_2};
 
 use num::complex::Complex32;
 
-use super::orthogonal_polynomials::associated_legendre;
+use super::special::orthogonal_polynomials::associated_legendre;
 use super::Evaluate;
 use crate::geometry::Point;
 use crate::orbital::quantum_numbers::Lm;
