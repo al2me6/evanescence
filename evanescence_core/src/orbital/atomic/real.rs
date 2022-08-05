@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 
 use super::Radial;
 use crate::geometry::Point;
-use crate::numerics::special::orthogonal_polynomials::associated_legendre;
+use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::spherical_harmonics::RealSphericalHarmonic;
 use crate::numerics::{self, Evaluate, EvaluateBounded};
 use crate::orbital::quantum_numbers::{Lm, Qn};
@@ -109,7 +109,7 @@ impl Real {
     #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
     pub fn conical_node_angles(lm: Lm) -> Vec<f32> {
         let roots = numerics::find_roots_in_interval(0.0..=PI, 90, |theta| {
-            associated_legendre((lm.l(), lm.m().unsigned_abs()), theta.cos())
+            renormalized_associated_legendre((lm.l(), lm.m().unsigned_abs()), theta.cos())
         })
         .collect::<Vec<_>>();
         assert_eq!(

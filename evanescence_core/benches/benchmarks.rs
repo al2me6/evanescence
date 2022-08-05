@@ -3,7 +3,7 @@ use std::time::Duration;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use evanescence_core::numerics::special::factorial::DoubleFactorial;
 use evanescence_core::numerics::special::orthogonal_polynomials::{
-    associated_laguerre, associated_legendre,
+    associated_laguerre, renormalized_associated_legendre,
 };
 use evanescence_core::orbital::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{Qn, Real};
@@ -22,7 +22,7 @@ pub fn bench_numerics(c: &mut Criterion) {
         poly_group.bench_with_input(
             BenchmarkId::new("associated_legendre", format!("{}_{}", params.0, params.1)),
             &params,
-            |b, lm| b.iter(|| associated_legendre(*lm, 27.1828)),
+            |b, lm| b.iter(|| renormalized_associated_legendre(*lm, 27.1828)),
         );
 
         poly_group.bench_with_input(

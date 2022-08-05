@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
-use std::f32::consts::{PI, SQRT_2};
+use std::f32::consts::SQRT_2;
 
 use num::complex::Complex32;
 
-use super::special::orthogonal_polynomials::associated_legendre;
+use super::special::orthogonal_polynomials::renormalized_associated_legendre;
 use super::Evaluate;
 use crate::geometry::Point;
 use crate::orbital::quantum_numbers::Lm;
@@ -11,26 +11,11 @@ use crate::orbital::quantum_numbers::Lm;
 /// Implementation of the spherical harmonics, `Y_l^m(θ,φ)`, including the Condon-Shortley phase.
 pub struct SphericalHarmonic {
     lm: Lm,
-    normalization: f32,
 }
 
 impl SphericalHarmonic {
     pub fn new(lm: Lm) -> Self {
-        Self {
-            lm,
-            normalization: Self::normalization_factor(lm.l(), lm.m().unsigned_abs()),
-        }
-    }
-
-    /// Compute the normalization factor of a spherical harmonic, excluding the Condon-Shortley phase:
-    /// `√( (2l + 1)/4pi * (l-|m|)!/(l+|m|)! )`.
-    #[inline]
-    fn normalization_factor(l: u32, m_abs: u32) -> f32 {
-        // (l-|m|)!/(l+|m|)! = 1 / [(l-|m|+1) * (l-|m|+2) * ... * (l+|m|-1) * (l+|m|)].
-        let factorial_factor = ((l - m_abs + 1)..=(l + m_abs))
-            .map(|k| k as f32)
-            .product::<f32>();
-        ((2 * l + 1) as f32 / (4.00 * PI * factorial_factor)).sqrt()
+        Self { lm }
     }
 }
 
@@ -40,9 +25,14 @@ impl Evaluate for SphericalHarmonic {
     #[inline]
     fn evaluate(&self, point: &Point) -> Self::Output {
         let (l, m) = (self.lm.l(), self.lm.m());
-        self.normalization
-            * associated_legendre((l, m.unsigned_abs()), point.cos_theta()) // Condon-Shortley phase is included here.
-            * (Complex32::i() * m as f32 * point.phi()).exp()
+        let y = renormalized_associated_legendre((l, m.unsigned_abs()), point.cos_theta())
+            * (Complex32::i() * m as f32 * point.phi()).exp();
+        // Condon-Shortley phase.
+        if m & 0x1 == 0 {
+            y
+        } else {
+            -y
+        }
     }
 }
 
@@ -51,15 +41,11 @@ impl Evaluate for SphericalHarmonic {
 /// See [Blanco et al. 1997](https://doi.org/10.1016/S0166-1280(97)00185-1) for more information.
 pub struct RealSphericalHarmonic {
     lm: Lm,
-    normalization: f32,
 }
 
 impl RealSphericalHarmonic {
     pub fn new(lm: Lm) -> Self {
-        Self {
-            lm,
-            normalization: SphericalHarmonic::normalization_factor(lm.l(), lm.m().unsigned_abs()),
-        }
+        Self { lm }
     }
 }
 
@@ -70,9 +56,7 @@ impl Evaluate for RealSphericalHarmonic {
     fn evaluate(&self, point: &Point) -> Self::Output {
         let (l, m) = (self.lm.l(), self.lm.m());
         let m_abs = m.unsigned_abs();
-        self.normalization
-            * if m_abs % 2 == 0 { 1.0 } else { -1.0 } // (-1)^(-m), to cancel out the Condon-Shortley phase from `associated_legendre`.
-            * associated_legendre((l, m_abs), point.cos_theta())
+        renormalized_associated_legendre((l, m_abs), point.cos_theta())
             * match m.cmp(&0) {
                 Ordering::Greater => SQRT_2 * (m as f32 * point.phi()).cos(),
                 Ordering::Equal => 1.0,

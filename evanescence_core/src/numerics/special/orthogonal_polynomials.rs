@@ -1,9 +1,10 @@
 //! Implementations of the the associated Legendre functions and the associated Laguerre
 //! polynomials.
 
+use std::f32::consts::PI;
+
 use super::binomial_coefficient;
 use crate::numerics::polynomial::Polynomial;
-use crate::numerics::special::factorial::DoubleFactorial;
 
 /// The associated Laguerre polynomials, `L_{n}^{a}(x)`.
 pub fn associated_laguerre(n: u32, a: u32) -> Polynomial {
@@ -16,58 +17,58 @@ pub fn associated_laguerre(n: u32, a: u32) -> Polynomial {
         .collect()
 }
 
-/// The associated Legendre functions, `P_{l}^{m}(x)`, implemented for nonnegative
-/// values of `l` and `m` only.
+/// The associated Legendre polynomials `P_{l}^{m}(x)`, renormalized by the spherical harmonics
+/// normalization factor `√( (2l + 1)/4pi * (l-m)!/(l+m)! )`.
 ///
-/// Note that the Condon-Shortley phase is **included**.
+/// Note that the Condon-Shortley phase is _not_ included!
 ///
-/// Implemented via recurrence relation:
-/// <https://en.wikipedia.org/wiki/Associated_Legendre_polynomials#Recurrence_formula>.
-#[inline]
-pub fn associated_legendre((l, m): (u32, u32), x: f32) -> f32 {
-    // Check for special cases.
+/// Ref. _Numerical Recipes_ 3rd ed., section 6.7.
+pub fn renormalized_associated_legendre((l, m): (u32, u32), x: f32) -> f32 {
     if m > l {
-        return 0.0;
+        return 0.;
     };
 
-    // Compute P_m^m.
-    #[allow(non_snake_case)]
-    let mut P = if m == 0 {
-        1.0 // Since m <= l, this is P_0^0(x) = 1.
-    } else {
-        // P_m^m(x) = (-1)^l (2m - 1)!! (1 - x^2)^(m/2).
-        (if m % 2 == 0 { 1.0 } else { -1.0 })  // (-1)^l
-            * (2 * m - 1).double_factorial() as f32
-            * (1.0 - x * x).powi(m as i32).sqrt()
-    };
+    let m_f32 = m as f32;
+
+    let mut p_mm = 1.;
+
+    if m != 0 {
+        let one_minus_x_sq = (1. - x) * (1. + x);
+        let mut double_factorial_factor = 1.;
+        for _ in 0..m {
+            p_mm *= one_minus_x_sq * double_factorial_factor / (double_factorial_factor + 1.);
+            double_factorial_factor += 2.;
+        }
+    }
+
+    p_mm = ((2. * m_f32 + 1.) * p_mm / (4. * PI)).sqrt();
+
     if l == m {
-        return P;
+        return p_mm;
     }
 
-    let mut prev = P;
+    let sqrt_2mp3 = (2. * m_f32 + 3.).sqrt();
 
-    // Compute P_{m+1}^m(x) = x (2m + 1) P_m^m(x).
-    P *= x * (2 * m + 1) as f32;
-    if l - m == 1 {
-        return P;
+    let mut p_m_mp1 = x * sqrt_2mp3 * p_mm;
+    if l == m + 1 {
+        return p_m_mp1;
     }
 
-    // Iteratively compute P_{m+2}^m, P_{m+3}^m, ..., P_l^m.
-    // (k - m + 1) P_{k+1}^m(x) = (2k + 1) x P_k^m(x) - (k + m) P_{k-1}^m(x).
-    for k in (m + 1)..l {
-        (prev, P) = (
-            P,
-            ((2 * k + 1) as f32 * x * P - (k + m) as f32 * prev) / (k - m + 1) as f32,
-        );
+    let mut p_ll = p_m_mp1;
+    let mut old_factor = sqrt_2mp3;
+    for l_step in (m + 2)..=l {
+        let l_step = l_step as f32;
+        let factor = ((4. * l_step * l_step - 1.) / (l_step * l_step - m_f32 * m_f32)).sqrt();
+        p_ll = (x * p_m_mp1 - p_mm / old_factor) * factor;
+        old_factor = factor;
+        (p_mm, p_m_mp1) = (p_m_mp1, p_ll);
     }
-    P
+    p_ll
 }
 
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
-    use super::associated_legendre;
-
     #[test]
     fn associated_laguerre() {
         #[derive(serde::Deserialize)]
@@ -92,77 +93,4 @@ mod tests {
             assert_iterable_approx_eq!(ulps_eq, expected, computed, max_ulps = 1);
         }
     }
-
-    macro_rules! test {
-        ($fn_name:ident, $target_fn:ident, $target_params:expr, $expected:expr) => {
-            #[test]
-            fn $fn_name() {
-                let calculated: Vec<f32> = (-2..=2)
-                    .map(|x| $target_fn($target_params, x as f32 / 2.0))
-                    .collect();
-                assert_iterable_approx_eq!(ulps_eq, $expected, &calculated, max_ulps = 1);
-            }
-        };
-    }
-
-    test!(
-        legendre_1_0,
-        associated_legendre,
-        (1, 0),
-        &[
-            -1.00000000000000,
-            -0.500000000000000,
-            0.0,
-            0.500000000000000,
-            1.00000000000000
-        ]
-    );
-    test!(
-        legendre_3_1,
-        associated_legendre,
-        (3, 1),
-        &[
-            0.0,
-            -0.324759526419164,
-            1.50000000000000,
-            -0.324759526419164,
-            0.0
-        ]
-    );
-    test!(
-        legendre_4_3,
-        associated_legendre,
-        (4, 3),
-        &[0.0, 34.0997502740123, 0.0, -34.0997502740123, 0.0]
-    );
-    test!(
-        legendre_4_4,
-        associated_legendre,
-        (4, 4),
-        &[
-            0.0,
-            59.0625000000000,
-            105.000000000000,
-            59.0625000000000,
-            0.0
-        ]
-    );
-    test!(
-        legendre_5_4,
-        associated_legendre,
-        (5, 4),
-        &[0.0, -265.781250000000, 0.0, 265.781250000000, 0.0]
-    );
-    test!(
-        legendre_6_0,
-        associated_legendre,
-        (6, 0),
-        &[
-            1.00000000000000,
-            0.323242187500000,
-            -0.312500000000000,
-            0.323242187500000,
-            1.00000000000000
-        ]
-    );
 }
