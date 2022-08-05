@@ -36,6 +36,7 @@ pub mod polynomial;
 pub mod evaluation;
 pub mod special;
 pub mod spherical_harmonics;
+pub mod statistics;
 
 pub use evaluation::{Evaluate, EvaluateBounded};
 

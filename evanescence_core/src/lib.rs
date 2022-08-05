@@ -23,7 +23,7 @@
 //! let results = Real::new(qn).monte_carlo_simulate(10_000, false);
 //! ```
 
-#![feature(array_windows, type_alias_impl_trait)]
+#![feature(array_windows, is_sorted, type_alias_impl_trait)]
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
     clippy::manual_assert, // Triggered by approx.
