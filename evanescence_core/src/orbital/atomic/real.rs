@@ -205,7 +205,7 @@ mod tests {
         qns.into_par_iter().for_each(|qn| {
             let psi_sq = ProbabilityDensity::new(Real::new(qn));
             let bound = psi_sq.bound();
-            let prob = integrate_rk4_multiple!(
+            let prob = integrate_simpson_multiple!(
                 psi_sq.evaluate(&Point::new(x, y, z)),
                 step: bound / 40_f32,
                 x: (-bound, bound),

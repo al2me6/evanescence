@@ -7,11 +7,11 @@ pub fn integrate_trapezoidal(xs: &[f32], ys: &[f32]) -> f32 {
         .sum()
 }
 
-/// Perform a single step of RK4 integration at step size `h`, accumulating into `t` and `y`.
+/// Perform a single step of Simpson's method at step size `h`, accumulating into `t` and `y`.
 ///
 /// # Panics
 /// Panics if the step size `h` is not positive.
-pub fn integrate_rk4_step(dfdt: impl Fn(f32) -> f32, t: &mut f32, y: &mut f32, h: f32) {
+pub fn integrate_simpson_step(dfdt: impl Fn(f32) -> f32, t: &mut f32, y: &mut f32, h: f32) {
     const FRAC_1_6: f32 = 0.166_666_67;
 
     assert!(h > 0_f32);
@@ -23,11 +23,11 @@ pub fn integrate_rk4_step(dfdt: impl Fn(f32) -> f32, t: &mut f32, y: &mut f32, h
     *t += h;
 }
 
-/// Integrate `df(t)/dt` on `[t_0, t_f]` with step size `h` using the RK4 method.
+/// Integrate `df(t)/dt` on `[t_0, t_f]` with step size `h` using Simpson's method.
 ///
 /// # Panics
 /// Panics if the step size `h` is not positive, or if the interval of integration is backwards.
-pub fn integrate_rk4(dfdt: impl Fn(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) -> f32 {
+pub fn integrate_simpson(dfdt: impl Fn(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) -> f32 {
     assert!(t_0 < t_f);
     assert!(h > 0_f32);
 
@@ -35,7 +35,7 @@ pub fn integrate_rk4(dfdt: impl Fn(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) 
     let mut y = 0_f32;
     while t < t_f {
         h = h.min(t_f - t);
-        integrate_rk4_step(&dfdt, &mut t, &mut y, h);
+        integrate_simpson_step(&dfdt, &mut t, &mut y, h);
     }
     y
 }
@@ -45,7 +45,7 @@ pub fn integrate_rk4(dfdt: impl Fn(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) 
 ///
 /// Syntax:
 /// ```ignore
-/// integrate_rk4_multiple!(
+/// integrate_simpson_multiple!(
 ///     <expression in several variables>,
 ///     step: <step size>,
 ///     <first variable>: (<lower bound>, <upper bound>),
@@ -53,14 +53,14 @@ pub fn integrate_rk4(dfdt: impl Fn(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) 
 /// )
 /// ```
 #[macro_export]
-macro_rules! integrate_rk4_multiple {
+macro_rules! integrate_simpson_multiple {
     (
         $f:expr,
         step : $h:expr,
         $var:ident : ($t_0:expr , $t_f:expr)
         $(,)?
     ) => {
-        $crate::numerics::integrators::integrate_rk4(|$var| $f, $t_0, $t_f, $h)
+        $crate::numerics::integrators::integrate_simpson(|$var| $f, $t_0, $t_f, $h)
     };
     (
         $f:expr,
@@ -69,8 +69,8 @@ macro_rules! integrate_rk4_multiple {
         $($var_tail:ident : $range_tail:tt),+
         $(,)?
     ) => {
-        $crate::numerics::integrators::integrate_rk4(
-            |$var| integrate_rk4_multiple!(
+        $crate::numerics::integrators::integrate_simpson(
+            |$var| integrate_simpson_multiple!(
                 $f,
                 step : $h,
                 $($var_tail : $range_tail),+
@@ -86,7 +86,7 @@ macro_rules! integrate_rk4_multiple {
 mod tests {
     use approx::{assert_abs_diff_eq, assert_relative_eq};
 
-    use super::{integrate_rk4, integrate_trapezoidal};
+    use super::{integrate_simpson, integrate_trapezoidal};
     use crate::geometry::Linspace;
 
     #[test]
@@ -118,10 +118,10 @@ mod tests {
 
     #[test]
     fn rk4() {
-        assert_relative_eq!(integrate_rk4(|x| x, 0.0, 5.0, 1.0), 12.5);
+        assert_relative_eq!(integrate_simpson(|x| x, 0.0, 5.0, 1.0), 12.5);
 
         assert_relative_eq!(
-            integrate_rk4(
+            integrate_simpson(
                 |x| x.powi(3) / 3.0 - 2.0 * x + 0.5_f32.powf(x),
                 -5.0,
                 5.0,
@@ -135,7 +135,7 @@ mod tests {
     #[test]
     fn rk4_triple() {
         assert_relative_eq!(
-            integrate_rk4_multiple!(
+            integrate_simpson_multiple!(
                 x * x * y + z.cos(),
                 step: 0.1,
                 x: (0., 1.),
