@@ -142,3 +142,108 @@ impl MonteCarlo for Complex {
 }
 
 impl MonteCarlo for Hybrid {}
+
+#[cfg(test)]
+mod tests {
+    use std::fs::{self, File};
+    use std::io::BufWriter;
+    use std::path::PathBuf;
+
+    use itertools::Itertools;
+    use rayon::prelude::*;
+
+    use super::MonteCarlo;
+    use crate::numerics::integrators::integrate_simpson;
+    use crate::numerics::statistics::kolmogorov_smirnov_test;
+    use crate::orbital::atomic::RadialProbabilityDistribution;
+    use crate::orbital::{Qn, Real};
+
+    #[test]
+    fn real_monte_carlo_radial_distribution() {
+        #[derive(serde::Serialize)]
+        struct Output {
+            name: String,
+            ks: f32,
+            p: f32,
+            cdf: Vec<f32>,
+            rho: Vec<f32>,
+        }
+
+        const SAMPLES: usize = 10_000;
+
+        // Circumvent garbled output due to threads writing concurrently.
+        #[allow(clippy::format_in_format_args)]
+        Qn::enumerate_up_to_n(5)
+            .unwrap()
+            .par_bridge()
+            .map(|qn| {
+                let orbital = Real::new(qn);
+                let radial_probability_distribution = RadialProbabilityDistribution::new(qn.into());
+
+                let (xs, ys, zs, _) = orbital
+                    .monte_carlo_simulate(SAMPLES, true)
+                    .into_components();
+                let rho = {
+                    // TODO: Refactor MonteCarlo to remove reconstitution tap-dance.
+                    let mut rho = itertools::izip!(&xs, &ys, &zs)
+                        .map(|(x, y, z)| (x * x + y * y + z * z).sqrt())
+                        .collect_vec();
+                    rho.sort_by(f32::total_cmp);
+                    rho
+                };
+
+                let cdf = |r| {
+                    integrate_simpson(
+                        |s| radial_probability_distribution.evaluate_r(s),
+                        0.,
+                        r,
+                        r / 40.,
+                    )
+                };
+                let (ks_statistic, p) = kolmogorov_smirnov_test(&rho, cdf);
+
+                println!("{}", format!("{qn} \tks = {ks_statistic} \tp = {p}"));
+
+                if ks_statistic > 0.15 || p < 0.05 {
+                    let mut out_path: PathBuf =
+                        [env!("CARGO_MANIFEST_DIR"), "test_output"].iter().collect();
+                    fs::create_dir_all(&out_path).unwrap();
+                    out_path.push(format!(
+                        "{}_test-real-monte-carlo_{}{}{}.json",
+                        chrono::offset::Utc::now()
+                            .to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+                            .replace(':', ""),
+                        qn.n(),
+                        qn.l(),
+                        qn.m().to_string().replace('-', "n"),
+                    ));
+                    let out_file = File::create(&out_path).unwrap();
+
+                    serde_json::to_writer(
+                        BufWriter::new(out_file),
+                        &Output {
+                            name: qn.to_string(),
+                            ks: ks_statistic,
+                            p,
+                            cdf: rho.iter().copied().map(cdf).collect(),
+                            rho,
+                        },
+                    )
+                    .unwrap();
+
+                    eprintln!(
+                        "{}",
+                        format!(
+                            "{qn}: K-S test failed; data exported to {}.",
+                            out_path.to_string_lossy()
+                        )
+                    );
+                    return Err(());
+                }
+
+                Ok(())
+            })
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+    }
+}
