@@ -204,7 +204,7 @@ mod tests {
 
                 println!("{}", format!("{qn} \tks = {ks_statistic} \tp = {p}"));
 
-                if ks_statistic > 0.15 || p < 0.05 {
+                if ks_statistic > 0.015 || p < 0.05 {
                     let mut out_path: PathBuf =
                         [env!("CARGO_MANIFEST_DIR"), "test_output"].iter().collect();
                     fs::create_dir_all(&out_path).unwrap();
