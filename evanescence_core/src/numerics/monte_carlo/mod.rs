@@ -1,6 +1,6 @@
 use super::statistics::Distribution;
 use super::Evaluate;
-use crate::geometry::ComponentForm;
+use crate::geometry::PointValue;
 
 pub mod accept_reject;
 
@@ -10,5 +10,5 @@ pub trait MonteCarlo {
     fn simulate(
         &self,
         count: usize,
-    ) -> ComponentForm<<Self::SourceDistribution as Evaluate>::Output>;
+    ) -> Vec<PointValue<<Self::SourceDistribution as Evaluate>::Output>>;
 }

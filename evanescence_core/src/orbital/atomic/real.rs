@@ -170,7 +170,7 @@ mod tests {
 
     use super::Real;
     use crate::geometry::region::BoundingRegion;
-    use crate::geometry::Point;
+    use crate::geometry::{Point, PointValue};
     use crate::numerics::integrators::integrate_simpson;
     use crate::numerics::monte_carlo::accept_reject::AcceptReject;
     use crate::numerics::monte_carlo::MonteCarlo;
@@ -261,16 +261,12 @@ mod tests {
             .map(|qn| {
                 let sampler = AcceptReject::new(Real::new(qn));
                 let radial_probability_distribution = RadialProbabilityDistribution::new(qn.into());
-
-                let (xs, ys, zs, _) = sampler.simulate(SAMPLES).into_components();
-                let rho = {
-                    // TODO: Refactor MonteCarlo to remove reconstitution tap-dance.
-                    let mut rho = itertools::izip!(&xs, &ys, &zs)
-                        .map(|(x, y, z)| (x * x + y * y + z * z).sqrt())
-                        .collect_vec();
-                    rho.sort_by(f32::total_cmp);
-                    rho
-                };
+                let rho = sampler
+                    .simulate(SAMPLES)
+                    .into_iter()
+                    .map(|PointValue(pt, _)| pt.r())
+                    .sorted_by(f32::total_cmp)
+                    .collect_vec();
 
                 let cdf = |r| {
                     integrate_simpson(

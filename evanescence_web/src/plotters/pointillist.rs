@@ -1,7 +1,7 @@
 use std::default::default;
 use std::f32::consts::{PI, TAU};
 
-use evanescence_core::geometry::{CoordinatePlane, Linspace, Point};
+use evanescence_core::geometry::{self, CoordinatePlane, Linspace, Point};
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::{self, Evaluate, EvaluateInOriginCenteredRegionExt};
@@ -58,7 +58,7 @@ pub fn complex(state: &State) -> JsValue {
 
     let simulation =
         AcceptReject::new(Complex::new(*state.qn())).simulate(state.quality().point_cloud());
-    let (x, y, z, values) = simulation.into_components();
+    let (x, y, z, values) = geometry::decompose_point_values(simulation);
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
 

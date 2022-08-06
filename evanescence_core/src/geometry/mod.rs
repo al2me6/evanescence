@@ -167,6 +167,10 @@ impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
     }
 }
 
+pub fn decompose_point_values<T>(v: Vec<PointValue<T>>) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<T>) {
+    ComponentForm::from(v).into_components()
+}
+
 /// A grid of points on a specified plane and a value associated with each point in the grid.
 ///
 /// This type represents values in the manner expected by Plotly's "Surface" plot. That is,

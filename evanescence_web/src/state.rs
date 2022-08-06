@@ -624,6 +624,7 @@ impl State {
             //     true,
             // ),
         }
+        .into()
     }
 
     pub fn sample_plane_real(&self, plane: CoordinatePlane) -> GridValues<f32> {

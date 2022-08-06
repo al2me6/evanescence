@@ -13,6 +13,7 @@ pub trait BoundingRegion {
     fn bounding_region(&self) -> Self::Geometry;
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct BallCenteredAtOrigin {
     pub radius: f32,
 }
