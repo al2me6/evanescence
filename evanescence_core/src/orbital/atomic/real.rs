@@ -1,5 +1,4 @@
-use std::cmp::Ordering;
-use std::f32::consts::PI;
+use std::f32::consts::{FRAC_PI_2, PI};
 
 use super::Radial;
 use crate::geometry::Point;
@@ -121,27 +120,23 @@ impl Real {
     }
 
     /// Give the phi angles of all planar nodes of a given `l` and `m` pair.
-    #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
     pub fn planar_node_angles(lm: Lm) -> Vec<f32> {
+        // Construct roots of the phi part of the corresponding real spherical harmonic:
+        // `cos(m * phi)`    if m > 0
+        // 1                 if m = 0
+        // `sin(|m| * phi)`  if m < 0
         let m = lm.m();
         let m_abs = m.unsigned_abs();
-        // Offset the search interval clockwise by ~0.9 degrees to ensure that planes at 0 degs are
-        // correctly sampled, and that they aren't double-counted at 180 degs.
-        let roots =
-            numerics::find_roots_in_interval((0.0 - 0.015)..=(PI - 0.015), 90, |phi| {
-                match m.cmp(&0) {
-                    Ordering::Greater => (m as f32 * phi).cos(),
-                    Ordering::Equal => 1.0,
-                    Ordering::Less => (m_abs as f32 * phi).sin(),
-                }
-            })
-            .collect::<Vec<_>>();
-        assert_eq!(
-            roots.len(),
-            Self::num_planar_nodes(lm) as usize,
-            "not all planar node angles were found"
-        );
-        roots
+        if m == 0 {
+            return vec![];
+        }
+        #[allow(clippy::maybe_infinite_iter)] // Arithmetic sequence; will terminate.
+        (0..)
+            .map(|n| n as f32 * PI)
+            .map(|root| if m > 0 { root + FRAC_PI_2 } else { root })
+            .map(|root| root / m_abs as f32)
+            .take_while(|&root| root < PI)
+            .collect()
     }
 }
 
@@ -192,6 +187,7 @@ mod tests {
             .unique()
             .map(|lm| (lm, Real::planar_node_angles(lm)))
             .for_each(|(lm, pts)| {
+                assert_eq!(pts.len(), Real::num_planar_nodes(lm) as usize);
                 println!(
                     "[{lm:?}]: {}",
                     pts.iter().map(|phi| phi.to_degrees()).join(", ")
