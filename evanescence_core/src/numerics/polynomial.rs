@@ -82,7 +82,7 @@ impl Polynomial {
         if i >= self.0.len() {
             self.0.extend(itertools::repeat_n(0., i - self.0.len() + 1));
         }
-        &mut self[i]
+        &mut self.0[i]
     }
 
     pub fn set(&mut self, i: usize, a_i: f32) {
@@ -136,13 +136,8 @@ impl ops::Index<usize> for Polynomial {
     type Output = f32;
 
     fn index(&self, index: usize) -> &Self::Output {
+        assert!(self.is_canonical());
         self.0.index(index)
-    }
-}
-
-impl ops::IndexMut<usize> for Polynomial {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        self.0.index_mut(index)
     }
 }
 
