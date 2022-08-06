@@ -243,7 +243,8 @@ mod tests {
 
                 Ok(())
             })
-            .collect::<Result<Vec<_>, _>>()
-            .unwrap();
+            .collect::<Vec<_>>()
+            .into_iter()
+            .for_each(Result::unwrap);
     }
 }
