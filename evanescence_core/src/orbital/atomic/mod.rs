@@ -141,6 +141,10 @@ fn bound(qn: Qn) -> f32 {
     r
 }
 
+fn accept_threshold_modifier(qn: Qn) -> f32 {
+    1.0 / (0.05 * (real::Real::num_radial_nodes(qn) as f32).powi(3) + 1.0)
+}
+
 /// Get the conventional subshell name (s, p, d, f, etc.) for common (i.e., small) values of `l`;
 /// will otherwise return `None`.
 pub fn subshell_name(l: u32) -> Option<&'static str> {

@@ -7,6 +7,7 @@ use strum::Display;
 use thiserror::Error;
 
 pub mod point;
+pub mod region;
 pub mod vec3;
 
 pub use point::{Point, PointValue};

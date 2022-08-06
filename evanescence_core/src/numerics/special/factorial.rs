@@ -23,7 +23,6 @@ where
 }
 
 /// Compute the [double factorial](https://en.wikipedia.org/wiki/Double_factorial).
-#[allow(clippy::module_name_repetitions)]
 pub trait DoubleFactorial {
     /// `x!!`
     #[must_use]

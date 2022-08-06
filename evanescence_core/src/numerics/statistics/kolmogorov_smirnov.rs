@@ -1,5 +1,3 @@
-#![allow(clippy::module_name_repetitions)]
-
 use crate::numerics::normalize;
 
 /// The Kolmogorov-Smirnov distribution.

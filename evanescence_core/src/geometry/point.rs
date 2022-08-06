@@ -17,17 +17,17 @@ use nanorand::{Rng, WyRand};
 #[getset(get_copy = "pub")]
 pub struct Point {
     /// Cartesian x.
-    x: f32,
+    pub(super) x: f32,
     /// Cartesian y.
-    y: f32,
+    pub(super) y: f32,
     /// Cartesian z.
-    z: f32,
+    pub(super) z: f32,
     /// Spherical radius.
-    r: f32,
+    pub(super) r: f32,
     /// Cosine of spherical longitude.
-    cos_theta: f32,
+    pub(super) cos_theta: f32,
     /// Spherical azimuth.
-    phi: f32,
+    pub(super) phi: f32,
 }
 
 impl fmt::Display for Point {
@@ -133,7 +133,6 @@ impl Point {
 }
 
 /// A point and the value of a function evaluated at that point.
-#[allow(clippy::module_name_repetitions)] // It's 'Point-and-Value', not 'Value of a Point'.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PointValue<T>(pub Point, pub T);

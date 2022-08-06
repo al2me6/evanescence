@@ -2,7 +2,7 @@ use std::default::default;
 use std::f32::consts::PI;
 
 use evanescence_core::geometry::CoordinatePlane;
-use evanescence_core::numerics::{self, EvaluateBounded};
+use evanescence_core::numerics::{self, EvaluateInOriginCenteredRegionExt};
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::{Complex, Real};
 use wasm_bindgen::JsValue;

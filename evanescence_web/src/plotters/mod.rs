@@ -1,7 +1,8 @@
 pub mod pointillist;
 pub mod supplemental;
 
-use evanescence_core::numerics::{Evaluate, EvaluateBounded};
+use evanescence_core::geometry::region::BoundingRegion;
+use evanescence_core::numerics::Evaluate;
 use evanescence_core::orbital::hybrid::{Hybrid, Kind};
 use evanescence_core::orbital::{Qn, Real};
 use serde::{Deserialize, Serialize};
@@ -47,7 +48,7 @@ fn compute_isosurface_hybrid(kind: &Kind, idx: usize, quality: Quality) -> Isosu
     let (x, y, z, value) = hybrid
         .evaluate_in_region(
             // Manually shrink the extent sampled for higher quality.
-            hybrid.bound() * 0.82,
+            hybrid.bounding_region().radius * 0.82,
             quality.grid_3d(),
         )
         .into_components();

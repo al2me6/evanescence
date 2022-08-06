@@ -1,5 +1,6 @@
 use std::ops::RangeInclusive;
 
+use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::vec3::Vec3;
 use crate::geometry::{ComponentForm, CoordinatePlane, GridValues, Linspace, Point, PointValue};
 
@@ -99,30 +100,34 @@ pub trait Evaluate {
     }
 }
 
-/// Trait representing a function for which a spherical "bound" centered at the origin can be
-/// reasonably defined.
-pub trait EvaluateBounded: Evaluate {
-    /// Give an approximate bound for the function, in the sense that the function is "sufficiently
-    /// close to zero" everywhere outside a sphere whose radius is the returned value and whose
-    /// center is the origin.
-    fn bound(&self) -> f32;
-
+/// Helper methods for evaluating functions that can be reasonably 'bounded' in a region symmetric
+/// about the origin.
+pub trait EvaluateInOriginCenteredRegionExt: Evaluate {
     /// Compute a plot of the cross section of the function along a given `plane`.
     ///
     /// `num_points` points will be evaluated in a grid centered at the origin, extending to the
     /// bound of the function.
     ///
     /// For more information, see the documentation on [`GridValues`].
-    fn sample_plane(&self, plane: CoordinatePlane, num_points: usize) -> GridValues<Self::Output> {
-        self.evaluate_on_plane(plane, self.bound(), num_points)
-    }
+    fn sample_plane(&self, plane: CoordinatePlane, num_points: usize) -> GridValues<Self::Output>;
 
     /// Compute a plot of the function in a cube centered at the origin. `num_points` are sampled
     /// in each dimension, producing an evenly-spaced lattice of values the size of the
     /// function's bound.
     ///
     /// For more information, see [`Evaluate::evaluate_in_region`].
+    fn sample_region(&self, num_points: usize) -> ComponentForm<Self::Output>;
+}
+
+impl<E> EvaluateInOriginCenteredRegionExt for E
+where
+    E: Evaluate + BoundingRegion<Geometry = BallCenteredAtOrigin>,
+{
+    fn sample_plane(&self, plane: CoordinatePlane, num_points: usize) -> GridValues<Self::Output> {
+        self.evaluate_on_plane(plane, self.bounding_region().radius, num_points)
+    }
+
     fn sample_region(&self, num_points: usize) -> ComponentForm<Self::Output> {
-        self.evaluate_in_region(self.bound(), num_points)
+        self.evaluate_in_region(self.bounding_region().radius, num_points)
     }
 }

@@ -1,10 +1,13 @@
 use std::f32::consts::{FRAC_PI_2, PI};
 
 use super::Radial;
+use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::Point;
+use crate::numerics::monte_carlo::accept_reject::{AcceptRejectFudge, MaximumInBoundingRegion};
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::spherical_harmonics::RealSphericalHarmonic;
-use crate::numerics::{self, Evaluate, EvaluateBounded};
+use crate::numerics::statistics::Distribution;
+use crate::numerics::{self, Evaluate};
 use crate::orbital::quantum_numbers::{Lm, Qn};
 use crate::orbital::Orbital;
 
@@ -45,25 +48,38 @@ impl Evaluate for Real {
     }
 }
 
-impl EvaluateBounded for Real {
-    /// Return the radius of the sphere within which the probability of the electron being found is
-    /// [`Self::PROBABILITY_WITHIN_BOUND`].
-    #[inline]
-    fn bound(&self) -> f32 {
-        super::bound(self.qn)
+impl BoundingRegion for Real {
+    type Geometry = BallCenteredAtOrigin;
+
+    fn bounding_region(&self) -> Self::Geometry {
+        BallCenteredAtOrigin {
+            radius: super::bound(self.qn),
+        }
     }
 }
 
-impl Orbital for Real {
+impl Distribution for Real {
     #[inline]
-    fn probability_density_of(&self, value: f32) -> f32 {
+    fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value
     }
+}
 
+impl MaximumInBoundingRegion for Real {
+    // TODO: custom impl.
+}
+
+impl Orbital for Real {
     /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
     /// the quantum numbers only (ex. `ψ_{420}`).
     fn name(&self) -> String {
         Self::name_qn(self.qn)
+    }
+}
+
+impl AcceptRejectFudge for Real {
+    fn accept_threshold_modifier(&self) -> Option<f32> {
+        Some(super::accept_threshold_modifier(self.qn))
     }
 }
 
@@ -96,7 +112,8 @@ impl Real {
             0.05..=super::bound(qn),
             100,
             |r| radial.evaluate_r(r),
-        ).expect("root finder did not converge");
+        )
+        .expect("root finder did not converge");
         assert_eq!(
             roots.len(),
             Self::num_radial_nodes(qn) as usize,
@@ -110,7 +127,8 @@ impl Real {
     pub fn conical_node_angles(lm: Lm) -> Vec<f32> {
         let roots = numerics::root_finding::find_roots_in_interval_brent(0.0..=PI, 90, |theta| {
             renormalized_associated_legendre((lm.l(), lm.m().unsigned_abs()), theta.cos())
-        }).expect("root finder did not converge");
+        })
+        .expect("root finder did not converge");
         assert_eq!(
             roots.len(),
             Self::num_conical_nodes(lm) as usize,
@@ -143,15 +161,24 @@ impl Real {
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
+    use std::fs::{self, File};
+    use std::io::BufWriter;
+    use std::path::PathBuf;
+
     use itertools::Itertools;
     use rayon::prelude::*;
 
     use super::Real;
+    use crate::geometry::region::BoundingRegion;
     use crate::geometry::Point;
-    use crate::numerics::{Evaluate, EvaluateBounded};
-    use crate::orbital::atomic::PROBABILITY_WITHIN_BOUND;
+    use crate::numerics::integrators::integrate_simpson;
+    use crate::numerics::monte_carlo::accept_reject::AcceptReject;
+    use crate::numerics::monte_carlo::MonteCarlo;
+    use crate::numerics::statistics::kolmogorov_smirnov::kolmogorov_smirnov_test;
+    use crate::numerics::statistics::ProbabilityDensityEvaluator;
+    use crate::numerics::Evaluate;
+    use crate::orbital::atomic::{RadialProbabilityDistribution, PROBABILITY_WITHIN_BOUND};
     use crate::orbital::quantum_numbers::{Lm, Qn};
-    use crate::orbital::ProbabilityDensity;
 
     #[test]
     fn real_radial_nodes() {
@@ -199,8 +226,8 @@ mod tests {
     fn real_probability_unity() {
         let qns = Qn::enumerate_up_to_n(7).unwrap().step_by(3).collect_vec();
         qns.into_par_iter().for_each(|qn| {
-            let psi_sq = ProbabilityDensity::new(Real::new(qn));
-            let bound = psi_sq.bound();
+            let psi_sq = ProbabilityDensityEvaluator::new(Real::new(qn));
+            let bound = psi_sq.bounding_region().radius;
             let prob = integrate_simpson_multiple!(
                 psi_sq.evaluate(&Point::new(x, y, z)),
                 step: bound / 40_f32,
@@ -211,5 +238,93 @@ mod tests {
             println!("{qn}: {prob}");
             assert!(PROBABILITY_WITHIN_BOUND < prob && prob < 1_f32 + 5E-5);
         });
+    }
+
+    #[test]
+    fn real_monte_carlo_radial_distribution() {
+        #[derive(serde::Serialize)]
+        struct Output {
+            name: String,
+            ks: f32,
+            p: f32,
+            cdf: Vec<f32>,
+            rho: Vec<f32>,
+        }
+
+        const SAMPLES: usize = 10_000;
+
+        // Circumvent garbled output due to threads writing concurrently.
+        #[allow(clippy::format_in_format_args)]
+        Qn::enumerate_up_to_n(5)
+            .unwrap()
+            .par_bridge()
+            .map(|qn| {
+                let sampler = AcceptReject::new(Real::new(qn));
+                let radial_probability_distribution = RadialProbabilityDistribution::new(qn.into());
+
+                let (xs, ys, zs, _) = sampler.simulate(SAMPLES).into_components();
+                let rho = {
+                    // TODO: Refactor MonteCarlo to remove reconstitution tap-dance.
+                    let mut rho = itertools::izip!(&xs, &ys, &zs)
+                        .map(|(x, y, z)| (x * x + y * y + z * z).sqrt())
+                        .collect_vec();
+                    rho.sort_by(f32::total_cmp);
+                    rho
+                };
+
+                let cdf = |r| {
+                    integrate_simpson(
+                        |s| radial_probability_distribution.evaluate_r(s),
+                        0.,
+                        r,
+                        r / 40.,
+                    )
+                };
+                let (ks_statistic, p) = kolmogorov_smirnov_test(&rho, cdf);
+
+                println!("{}", format!("{qn} \tks = {ks_statistic} \tp = {p}"));
+
+                if ks_statistic > 0.015 || p < 0.05 {
+                    let mut out_path: PathBuf =
+                        [env!("CARGO_MANIFEST_DIR"), "test_output"].iter().collect();
+                    fs::create_dir_all(&out_path).unwrap();
+                    out_path.push(format!(
+                        "{}_test-real-monte-carlo_{}{}{}.json",
+                        chrono::offset::Utc::now()
+                            .to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
+                            .replace(':', ""),
+                        qn.n(),
+                        qn.l(),
+                        qn.m().to_string().replace('-', "n"),
+                    ));
+                    let out_file = File::create(&out_path).unwrap();
+
+                    serde_json::to_writer(
+                        BufWriter::new(out_file),
+                        &Output {
+                            name: qn.to_string(),
+                            ks: ks_statistic,
+                            p,
+                            cdf: rho.iter().copied().map(cdf).collect(),
+                            rho,
+                        },
+                    )
+                    .unwrap();
+
+                    eprintln!(
+                        "{}",
+                        format!(
+                            "{qn}: K-S test failed; data exported to {}.",
+                            out_path.to_string_lossy()
+                        )
+                    );
+                    return Err(());
+                }
+
+                Ok(())
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .for_each(Result::unwrap);
     }
 }

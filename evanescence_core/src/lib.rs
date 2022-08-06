@@ -27,6 +27,7 @@
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
     clippy::manual_assert, // Triggered by approx.
+    clippy::module_name_repetitions, // Can be necessary for disambiguation.
     clippy::must_use_candidate, // Annoying.
     clippy::non_ascii_literal, // Unicode support is expected.
 )]

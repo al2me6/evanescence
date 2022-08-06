@@ -30,12 +30,13 @@ pub mod integrators;
 pub mod polynomial;
 
 pub mod evaluation;
+pub mod monte_carlo;
 pub mod root_finding;
 pub mod special;
 pub mod spherical_harmonics;
 pub mod statistics;
 
-pub use evaluation::{Evaluate, EvaluateBounded};
+pub use evaluation::{Evaluate, EvaluateInOriginCenteredRegionExt};
 
 /// Map `val`, which has a value within `source_range`, to `target_range`.
 pub fn normalize(

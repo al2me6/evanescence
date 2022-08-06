@@ -1,11 +1,12 @@
 use std::time::Duration;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
+use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::special::factorial::DoubleFactorial;
 use evanescence_core::numerics::special::orthogonal_polynomials::{
     associated_laguerre, renormalized_associated_legendre,
 };
-use evanescence_core::orbital::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{Qn, Real};
 
 pub fn bench_numerics(c: &mut Criterion) {
@@ -45,7 +46,6 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
         .measurement_time(Duration::from_secs(30));
     group.throughput(Throughput::Elements(131_072));
     for qn in Qn::enumerate_up_to_n(5).unwrap() {
-        let orbital = Real::new(qn);
         group.bench_function(
             BenchmarkId::new(
                 "real",
@@ -56,7 +56,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
                     qn.m().to_string().replace('-', "n")
                 ),
             ),
-            |b| b.iter(|| orbital.monte_carlo_simulate(131_072, true)),
+            |b| b.iter(|| AcceptReject::new(Real::new(qn)).simulate(131_072)),
         );
     }
 }

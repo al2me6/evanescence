@@ -8,8 +8,11 @@ use getset::{CopyGetters, Getters};
 use itertools::Itertools;
 use thiserror::Error;
 
-use super::{EvaluateBounded, Orbital, Qn, Real};
+use super::{Orbital, Qn, Real};
+use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::Point;
+use crate::numerics::monte_carlo::accept_reject::{AcceptRejectFudge, MaximumInBoundingRegion};
+use crate::numerics::statistics::Distribution;
 use crate::numerics::Evaluate;
 
 /// Structure representing a [`Qn`] and an associated weight.
@@ -179,27 +182,38 @@ impl Evaluate for Hybrid {
     }
 }
 
-impl EvaluateBounded for Hybrid {
-    fn bound(&self) -> f32 {
-        self.reals
-            .iter()
-            .map(EvaluateBounded::bound)
-            .reduce(f32::max)
-            .expect("linear combination must contain at least one orbital")
-            * 0.9
+impl BoundingRegion for Hybrid {
+    type Geometry = BallCenteredAtOrigin;
+
+    fn bounding_region(&self) -> Self::Geometry {
+        BallCenteredAtOrigin {
+            radius: self
+                .reals
+                .iter()
+                .map(|real| real.bounding_region().radius)
+                .reduce(f32::max)
+                .expect("linear combination must contain at least one orbital")
+                * 0.9,
+        }
     }
 }
 
-impl Orbital for Hybrid {
+impl Distribution for Hybrid {
     #[inline]
     fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value
     }
+}
 
+impl MaximumInBoundingRegion for Hybrid {}
+
+impl Orbital for Hybrid {
     fn name(&self) -> String {
         self.lc.to_string()
     }
 }
+
+impl AcceptRejectFudge for Hybrid {}
 
 /// Mapping describing how many orbitals of each azimuthal quantum number `l` is contained in a
 /// [`Kind`].

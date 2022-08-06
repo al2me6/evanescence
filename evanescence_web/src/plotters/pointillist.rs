@@ -2,9 +2,10 @@ use std::default::default;
 use std::f32::consts::{PI, TAU};
 
 use evanescence_core::geometry::{CoordinatePlane, Linspace, Point};
-use evanescence_core::numerics::{self, Evaluate, EvaluateBounded};
+use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
+use evanescence_core::numerics::monte_carlo::MonteCarlo;
+use evanescence_core::numerics::{self, Evaluate, EvaluateInOriginCenteredRegionExt};
 use evanescence_core::orbital::hybrid::Hybrid;
-use evanescence_core::orbital::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{Complex, Real};
 use wasm_bindgen::JsValue;
 
@@ -56,7 +57,7 @@ pub fn complex(state: &State) -> JsValue {
     assert!(state.mode().is_complex());
 
     let simulation =
-        Complex::new(*state.qn()).monte_carlo_simulate(state.quality().point_cloud(), true);
+        AcceptReject::new(Complex::new(*state.qn())).simulate(state.quality().point_cloud());
     let (x, y, z, values) = simulation.into_components();
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
