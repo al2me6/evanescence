@@ -154,7 +154,7 @@ mod tests {
 
     use super::MonteCarlo;
     use crate::numerics::integrators::integrate_simpson;
-    use crate::numerics::statistics::kolmogorov_smirnov_test;
+    use crate::numerics::statistics::kolmogorov_smirnov::kolmogorov_smirnov_test;
     use crate::orbital::atomic::RadialProbabilityDistribution;
     use crate::orbital::{Qn, Real};
 

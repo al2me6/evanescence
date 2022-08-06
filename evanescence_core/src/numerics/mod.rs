@@ -2,10 +2,6 @@
 
 use std::ops::RangeInclusive;
 
-use itertools::Itertools;
-
-use crate::geometry::Linspace;
-
 /// Verify that two iterables containing float values are approximately equal.
 #[cfg(test)]
 macro_rules! assert_iterable_approx_eq {
