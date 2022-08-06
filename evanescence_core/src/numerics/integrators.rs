@@ -28,8 +28,13 @@ pub fn integrate_simpson_step(dfdt: impl Fn(f32) -> f32, t: &mut f32, y: &mut f3
 /// # Panics
 /// Panics if the step size `h` is not positive, or if the interval of integration is backwards.
 pub fn integrate_simpson(dfdt: impl Fn(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) -> f32 {
-    assert!(t_0 < t_f);
+    assert!(t_0 <= t_f);
     assert!(h > 0_f32);
+
+    #[allow(clippy::float_cmp)]
+    if t_0 == t_f {
+        return 0.;
+    }
 
     let mut t = t_0;
     let mut y = 0_f32;
