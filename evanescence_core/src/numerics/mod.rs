@@ -34,6 +34,7 @@ pub mod integrators;
 pub mod polynomial;
 
 pub mod evaluation;
+pub mod root_finding;
 pub mod special;
 pub mod spherical_harmonics;
 pub mod statistics;
@@ -59,26 +60,4 @@ pub fn normalize_collection<'a>(
 ) {
     vals.into_iter()
         .for_each(|v| *v = normalize(source_range.clone(), target_range.clone(), *v));
-}
-
-/// Try to find roots of a continuous function in a given `interval`. `num_initial_test` evenly
-/// spaced points are used to test for sign changes (thus, zeros, by the intermediate value
-/// theorem), which are then refined using Brent's method.
-///
-/// # Panics
-/// This function will panic if the root finder does not converge.
-pub fn find_roots_in_interval<'a>(
-    interval: RangeInclusive<f32>,
-    num_initial_tests: usize,
-    f: impl Fn(f32) -> f32 + Copy + 'a,
-) -> impl Iterator<Item = f32> + 'a {
-    interval
-        .linspace(num_initial_tests)
-        .map(move |a| (a, f(a)))
-        .tuple_windows()
-        .filter(|((_, f_a), (_, f_b))| f_a * f_b < 0.0) // ab < 0 iff a < 0 xor b < 0.
-        .map(move |((a, _), (b, _))| {
-            roots::find_root_brent(a, b, f, &mut 1E-4_f32)
-                .unwrap_or_else(|err| panic!("root finder encountered an error: {err}"))
-        })
 }
