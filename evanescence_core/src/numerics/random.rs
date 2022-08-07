@@ -50,8 +50,8 @@ impl WyRand {
 
     #[inline]
     pub fn gen_f32(&mut self) -> f32 {
-        // SAFETY: `u64` -> `[u32; 2]` is safe, as they are pure data types of the same size.
-        let mut rand_u32 = unsafe { mem::transmute::<u64, [u32; 2]>(self.gen_u64()) }[0];
+        #[allow(clippy::cast_possible_truncation)]
+        let mut rand_u32 = self.gen_u64() as u32;
         Self::random_f32_bits_from_u32(&mut rand_u32);
         let ret = f32::from_bits(rand_u32);
         ret - 1.
@@ -72,11 +72,12 @@ mod tests {
         let mut p_fails = 0;
         for _ in 0..20 {
             let rng = &mut WyRand::new();
-            let samples = iter::repeat_with(|| rng.gen_f32x2())
-                .take(50_000)
+            let mut samples = iter::repeat_with(|| rng.gen_f32x2())
+                .take(25_000)
                 .flatten()
-                .sorted_by(f32::total_cmp)
                 .collect_vec();
+            samples.extend(iter::repeat_with(|| rng.gen_f32()).take(50_000));
+            samples.sort_by(f32::total_cmp);
             assert!(samples[0] >= 0.0 && *samples.last().unwrap() <= 1.0);
             let (ks, p) = test_uniformly_distributed_on(&samples, 0.0..=1.0);
             println!("ks = {ks}, p = {p}");
