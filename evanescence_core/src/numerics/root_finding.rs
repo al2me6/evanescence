@@ -20,7 +20,7 @@ pub enum RootError {
 #[allow(clippy::many_single_char_names)] // Convention.
 pub fn find_root_brent(
     interval: RangeInclusive<f32>,
-    f: impl Fn(f32) -> f32,
+    mut f: impl FnMut(f32) -> f32,
     tolerance: f32,
     max_iters: Option<usize>,
 ) -> Result<f32, RootError> {

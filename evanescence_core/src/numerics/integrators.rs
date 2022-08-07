@@ -11,7 +11,7 @@ pub fn integrate_trapezoidal(xs: &[f32], ys: &[f32]) -> f32 {
 ///
 /// # Panics
 /// Panics if the step size `h` is not positive.
-pub fn integrate_simpson_step(dfdt: impl Fn(f32) -> f32, t: &mut f32, y: &mut f32, h: f32) {
+pub fn integrate_simpson_step(mut dfdt: impl FnMut(f32) -> f32, t: &mut f32, y: &mut f32, h: f32) {
     const FRAC_1_6: f32 = 0.166_666_67;
 
     assert!(h > 0_f32);
@@ -27,7 +27,7 @@ pub fn integrate_simpson_step(dfdt: impl Fn(f32) -> f32, t: &mut f32, y: &mut f3
 ///
 /// # Panics
 /// Panics if the step size `h` is not positive, or if the interval of integration is backwards.
-pub fn integrate_simpson(dfdt: impl Fn(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) -> f32 {
+pub fn integrate_simpson(mut dfdt: impl FnMut(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) -> f32 {
     assert!(t_0 <= t_f);
     assert!(h > 0_f32);
 
@@ -40,7 +40,7 @@ pub fn integrate_simpson(dfdt: impl Fn(f32) -> f32, t_0: f32, t_f: f32, mut h: f
     let mut y = 0_f32;
     while t < t_f {
         h = h.min(t_f - t);
-        integrate_simpson_step(&dfdt, &mut t, &mut y, h);
+        integrate_simpson_step(&mut dfdt, &mut t, &mut y, h);
     }
     y
 }

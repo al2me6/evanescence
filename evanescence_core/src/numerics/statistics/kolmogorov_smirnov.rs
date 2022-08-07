@@ -33,7 +33,7 @@ pub fn kolmogorov_smirnov_q(z: f32) -> f32 {
 ///
 /// # Panics
 /// Panics if `data` is not sorted, `data` is empty, or `cdf` returns a value not in `[0, 1]`.
-pub fn kolmogorov_smirnov_test(data: &[f32], cdf: impl Fn(f32) -> f32) -> (f32, f32) {
+pub fn kolmogorov_smirnov_test(data: &[f32], mut cdf: impl FnMut(f32) -> f32) -> (f32, f32) {
     assert!(data.is_sorted());
 
     let min_expected_cdf = cdf(data[0]);
