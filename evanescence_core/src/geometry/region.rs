@@ -18,6 +18,10 @@ pub struct BallCenteredAtOrigin {
 }
 
 impl Region for BallCenteredAtOrigin {
+    /// Produce random points uniformly distributed within `self`.
+    ///
+    /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
+    /// specifically method 16.
     #[inline]
     fn sample(&self, rng: &mut WyRand) -> Point {
         // For an explanation of taking the cube root of the random value, see
@@ -36,5 +40,44 @@ impl Region for BallCenteredAtOrigin {
             cos_theta,
             phi,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::iter;
+
+    use approx::assert_ulps_eq;
+
+    use super::{BallCenteredAtOrigin, Region};
+    use crate::geometry::Point;
+    use crate::numerics::random::WyRand;
+
+    /// This is very crude and only ensures that all pointsare at least inside
+    /// the expected radius. It makes no attempt to verify the uniformity of
+    /// the distribution produced.
+    #[test]
+    fn point_rng_max_radius() {
+        let radius = 2_f32;
+        let mut rng = WyRand::new();
+        let ball = BallCenteredAtOrigin { radius };
+        iter::repeat_with(|| ball.sample(&mut rng))
+            .take(10_000)
+            .for_each(|pt| assert!(pt.r < radius));
+    }
+
+    #[test]
+    fn rng_spherical_coordinates() {
+        let ball = BallCenteredAtOrigin { radius: 2. };
+        let mut rng = WyRand::new();
+        let rng_point = ball.sample(&mut rng);
+        let recomputed_point = Point::new(rng_point.x, rng_point.y, rng_point.z);
+        assert_ulps_eq!(rng_point.r, recomputed_point.r, max_ulps = 1);
+        assert_ulps_eq!(
+            rng_point.cos_theta,
+            recomputed_point.cos_theta,
+            max_ulps = 1
+        );
+        assert_ulps_eq!(rng_point.phi, recomputed_point.phi, max_ulps = 1);
     }
 }

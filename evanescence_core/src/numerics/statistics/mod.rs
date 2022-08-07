@@ -37,14 +37,15 @@ pub trait Distribution: Evaluate {
 /// ```
 /// use approx::assert_relative_eq;
 /// use evanescence_core::geometry::Point;
+/// use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
 /// use evanescence_core::numerics::Evaluate;
-/// use evanescence_core::orbital::{ProbabilityDensity, Qn, Real};
+/// use evanescence_core::orbital::{Qn, Real};
 ///
 /// let qn = Qn::new(3, 2, 1).unwrap();
 ///
 /// assert_relative_eq!(
 ///     2.446E-4,
-///     ProbabilityDensity::new(Real::new(qn)).evaluate(&Point::new(6.0, -0.3, 8.5))
+///     ProbabilityDensityEvaluator::new(Real::new(qn)).evaluate(&Point::new(6.0, -0.3, 8.5))
 /// );
 /// ```
 pub struct ProbabilityDensityEvaluator<D>(D);

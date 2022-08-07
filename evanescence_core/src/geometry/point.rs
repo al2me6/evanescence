@@ -1,9 +1,7 @@
 use std::f32::consts::PI;
-use std::{fmt, iter};
+use std::fmt;
 
 use getset::CopyGetters;
-
-use crate::numerics::random::WyRand;
 
 /// A point in `R^3`.
 ///
@@ -90,48 +88,6 @@ impl Point {
             phi,
         }
     }
-
-    /// Produce random points uniformly distributed within a ball of the given radius.
-    ///
-    /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
-    /// specifically method 16.
-    pub fn sample_from_ball_iter(radius: f32, rng: &mut WyRand) -> impl Iterator<Item = Self> + '_ {
-        iter::repeat_with(move || {
-            // For an explanation of taking the cube root of the random value, see
-            // https://stackoverflow.com/a/50746409.
-            let [r, cos_theta] = rng.gen_f32x2();
-            let r /* [0, radius] */ = r.cbrt() * radius;
-            let cos_theta /* [-1, 1] */ = cos_theta * 2.0 - 1.0;
-            // Pythagorean identity: sin^2(x) + cos^2(x) = 1.
-            let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
-            let phi /* [0, 2pi) */ = rng.gen_f32() * 2.0 * PI;
-            Self {
-                x: r * sin_theta * phi.cos(),
-                y: r * sin_theta * phi.sin(),
-                z: r * cos_theta,
-                r,
-                cos_theta,
-                phi,
-            }
-        })
-    }
-
-    /// Same as [`Point::sample_from_ball_iter`], but with [`Point::ORIGIN_EPSILON`] guaranteed as
-    /// the first point sampled:
-    /// ```
-    /// use evanescence_core::geometry::Point;
-    /// let mut rng = nanorand::WyRand::new();
-    /// assert_eq!(
-    ///     Some(Point::ORIGIN_EPSILON),
-    ///     Point::sample_from_ball_with_origin_iter(1.0, &mut rng).next()
-    /// );
-    /// ```
-    pub fn sample_from_ball_with_origin_iter(
-        radius: f32,
-        rng: &mut WyRand,
-    ) -> impl Iterator<Item = Self> + '_ {
-        iter::once(Self::ORIGIN_EPSILON).chain(Self::sample_from_ball_iter(radius, rng))
-    }
 }
 
 /// A point and the value of a function evaluated at that point.
@@ -144,19 +100,6 @@ mod tests {
     use approx::assert_ulps_eq;
 
     use crate::geometry::Point;
-    use crate::numerics::random::WyRand;
-
-    /// This is very crude and only ensures that all pointsare at least inside
-    /// the expected radius. It makes no attempt to verify the uniformity of
-    /// the distribution produced.
-    #[test]
-    fn point_rng_max_radius() {
-        let sampling_radius = 2_f32;
-        let mut rng = WyRand::new();
-        Point::sample_from_ball_iter(sampling_radius, &mut rng)
-            .take(10_000)
-            .for_each(|pt| assert!(pt.r < sampling_radius));
-    }
 
     #[test]
     fn spherical_coordinates() {
@@ -169,25 +112,4 @@ mod tests {
         assert_ulps_eq!(point.y, recomputed_point.y, max_ulps = 1);
         assert_ulps_eq!(point.z, recomputed_point.z, max_ulps = 1);
     }
-
-    #[test]
-    fn rng_spherical_coordinates() {
-        let mut rng = WyRand::new();
-        let rng_point = Point::sample_from_ball_iter(2.0, &mut rng).next().unwrap();
-        let recomputed_point = Point::new(rng_point.x, rng_point.y, rng_point.z);
-        assert_ulps_eq!(rng_point.r, recomputed_point.r, max_ulps = 1);
-        assert_ulps_eq!(
-            rng_point.cos_theta,
-            recomputed_point.cos_theta,
-            max_ulps = 1
-        );
-        assert_ulps_eq!(rng_point.phi, recomputed_point.phi, max_ulps = 1);
-    }
-
-    // #[test]
-    // fn print_random_points() {
-    //     Point::random_in_ball_iter(10.0)
-    //         .take(10)
-    //         .for_each(|pt| println!("Point::new({}, {}, {}),", pt.x, pt.y, pt.z));
-    // }
 }

@@ -14,13 +14,14 @@
 //! approx::assert_ulps_eq!(value, 0.008895547);
 //! ```
 //!
-//! To run a [Monte Carlo simulation](orbital::monte_carlo) on an orbital:
+//! To run a Monte Carlo simulation on an orbital:
 //! ```
-//! use evanescence_core::orbital::monte_carlo::MonteCarlo;
+//! use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
+//! use evanescence_core::numerics::monte_carlo::MonteCarlo;
 //! use evanescence_core::orbital::{Qn, Real};
 //!
 //! let qn = Qn::new(4, 2, 0).unwrap();
-//! let results = Real::new(qn).monte_carlo_simulate(10_000, false);
+//! let results = AcceptReject::new(Real::new(qn)).simulate(10_000);
 //! ```
 
 #![feature(array_windows, is_sorted, type_alias_impl_trait)]
