@@ -1,3 +1,5 @@
+use std::ops::RangeInclusive;
+
 use crate::numerics::normalize;
 
 /// The Kolmogorov-Smirnov distribution.
@@ -64,4 +66,10 @@ pub fn kolmogorov_smirnov_test(data: &[f32], mut cdf: impl FnMut(f32) -> f32) ->
     let p = kolmogorov_smirnov_q((sqrt_n_e + 0.12 + 0.11 / sqrt_n_e) * ks_statistic);
 
     (ks_statistic, p)
+}
+
+/// Test whether `data` is uniformly distributed within `interval`.
+pub fn test_uniformly_distributed_on(data: &[f32], interval: RangeInclusive<f32>) -> (f32, f32) {
+    let cdf = |x| normalize(interval.clone(), 0.0..=1.0, x);
+    kolmogorov_smirnov_test(data, cdf)
 }

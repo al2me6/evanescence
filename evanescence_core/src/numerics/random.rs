@@ -57,3 +57,35 @@ impl WyRand {
         ret - 1.
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::iter;
+
+    use itertools::Itertools;
+
+    use super::WyRand;
+    use crate::numerics::statistics::kolmogorov_smirnov::test_uniformly_distributed_on;
+
+    #[test]
+    fn wyrand_f32_uniformity() {
+        let mut p_fails = 0;
+        for _ in 0..20 {
+            let rng = &mut WyRand::new();
+            let samples = iter::repeat_with(|| rng.gen_f32x2())
+                .take(50_000)
+                .flatten()
+                .sorted_by(f32::total_cmp)
+                .collect_vec();
+            assert!(samples[0] >= 0.0 && *samples.last().unwrap() <= 1.0);
+            let (ks, p) = test_uniformly_distributed_on(&samples, 0.0..=1.0);
+            println!("ks = {ks}, p = {p}");
+            assert!(ks < 0.0075);
+            if p < 0.05 {
+                p_fails += 1;
+            }
+        }
+        println!("p failed count: {p_fails}");
+        assert!(p_fails <= 4);
+    }
+}
