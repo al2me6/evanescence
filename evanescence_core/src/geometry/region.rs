@@ -1,8 +1,7 @@
 use std::f32::consts::PI;
 
-use nanorand::{Rng, WyRand};
-
 use super::Point;
+use crate::numerics::random::WyRand;
 
 pub trait Region {
     fn sample(&self, rng: &mut WyRand) -> Point;
@@ -23,11 +22,12 @@ impl Region for BallCenteredAtOrigin {
     fn sample(&self, rng: &mut WyRand) -> Point {
         // For an explanation of taking the cube root of the random value, see
         // https://stackoverflow.com/a/50746409.
-        let r /* [0, radius] */ = rng.generate::<f32>().cbrt() * self.radius;
-        let cos_theta /* [-1, 1] */ = rng.generate::<f32>() * 2.0 - 1.0;
+        let [r, cos_theta] = rng.gen_f32x2();
+        let r /* [0, radius] */ = r.cbrt() * self.radius;
+        let cos_theta /* [-1, 1] */ = cos_theta * 2.0 - 1.0;
         // Pythagorean identity: sin^2(x) + cos^2(x) = 1.
         let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
-        let phi /* [0, 2pi) */ = rng.generate::<f32>() * 2.0 * PI;
+        let phi /* [0, 2pi) */ = rng.gen_f32() * 2.0 * PI;
         Point {
             x: r * sin_theta * phi.cos(),
             y: r * sin_theta * phi.sin(),

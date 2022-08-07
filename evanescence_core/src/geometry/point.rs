@@ -2,7 +2,8 @@ use std::f32::consts::PI;
 use std::{fmt, iter};
 
 use getset::CopyGetters;
-use nanorand::{Rng, WyRand};
+
+use crate::numerics::random::WyRand;
 
 /// A point in `R^3`.
 ///
@@ -98,11 +99,12 @@ impl Point {
         iter::repeat_with(move || {
             // For an explanation of taking the cube root of the random value, see
             // https://stackoverflow.com/a/50746409.
-            let r /* [0, radius] */ = rng.generate::<f32>().cbrt() * radius;
-            let cos_theta /* [-1, 1] */ = rng.generate::<f32>() * 2.0 - 1.0;
+            let [r, cos_theta] = rng.gen_f32x2();
+            let r /* [0, radius] */ = r.cbrt() * radius;
+            let cos_theta /* [-1, 1] */ = cos_theta * 2.0 - 1.0;
             // Pythagorean identity: sin^2(x) + cos^2(x) = 1.
             let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
-            let phi /* [0, 2pi) */ = rng.generate::<f32>() * 2.0 * PI;
+            let phi /* [0, 2pi) */ = rng.gen_f32() * 2.0 * PI;
             Self {
                 x: r * sin_theta * phi.cos(),
                 y: r * sin_theta * phi.sin(),
@@ -140,9 +142,9 @@ pub struct PointValue<T>(pub Point, pub T);
 #[cfg(test)]
 mod tests {
     use approx::assert_ulps_eq;
-    use nanorand::WyRand;
 
     use crate::geometry::Point;
+    use crate::numerics::random::WyRand;
 
     /// This is very crude and only ensures that all pointsare at least inside
     /// the expected radius. It makes no attempt to verify the uniformity of

@@ -1,10 +1,9 @@
 use std::iter;
 
-use nanorand::{Rng, WyRand};
-
 use super::MonteCarlo;
 use crate::geometry::region::{BoundingRegion, Region};
 use crate::geometry::{Point, PointValue};
+use crate::numerics::random::WyRand;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Evaluate;
 
@@ -67,8 +66,7 @@ where
         iter::repeat_with(|| region.sample(&mut point_rng))
             .map(|pt| self.distribution.evaluate_at_with_probability_density(&pt))
             .filter_map(|(point_value, probability_density)| {
-                (probability_density > self.maximum * value_rng.generate::<f32>())
-                    .then_some(point_value)
+                (probability_density > self.maximum * value_rng.gen_f32()).then_some(point_value)
             })
             .take(count)
             .collect()

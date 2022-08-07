@@ -31,6 +31,7 @@ pub mod polynomial;
 
 pub mod evaluation;
 pub mod monte_carlo;
+pub mod random;
 pub mod root_finding;
 pub mod special;
 pub mod spherical_harmonics;
