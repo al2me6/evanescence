@@ -164,6 +164,7 @@ mod tests {
     use std::fs::{self, File};
     use std::io::BufWriter;
     use std::path::PathBuf;
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
     use itertools::Itertools;
     use rayon::prelude::*;
@@ -257,12 +258,14 @@ mod tests {
         const P_THRESHOLD: f32 = 0.05;
         const MAX_FAILS: usize = 2;
 
+        let failed_count = AtomicUsize::new(0);
+
         // Circumvent garbled output due to threads writing concurrently.
         #[allow(clippy::format_in_format_args)]
         Qn::enumerate_up_to_n(5)
             .unwrap()
             .par_bridge()
-            .map(|qn| {
+            .for_each(|qn| {
                 let radial_probability_distribution = RadialProbabilityDistribution::new(qn.into());
                 let cdf = |r| {
                     integrate_simpson(
@@ -334,13 +337,13 @@ mod tests {
                             out_path.to_string_lossy()
                         )
                     );
-                    return Err(());
+                    failed_count.fetch_add(1, Ordering::Relaxed);
                 }
+            });
 
-                Ok(())
-            })
-            .collect::<Vec<_>>()
-            .into_iter()
-            .for_each(Result::unwrap);
+        let failed_count = failed_count.into_inner();
+        if failed_count > 0 {
+            panic!("{failed_count} K-S tests failed!")
+        }
     }
 }
