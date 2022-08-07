@@ -248,10 +248,14 @@ mod tests {
             ks: f32,
             p: f32,
             cdf: Vec<f32>,
-            rho: Vec<f32>,
+            rhos: Vec<Vec<f32>>,
         }
 
         const SAMPLES: usize = 10_000;
+        const TRIALS: usize = 6;
+        const KS_THRESHOLD: f32 = 0.02;
+        const P_THRESHOLD: f32 = 0.05;
+        const MAX_FAILS: usize = 2;
 
         // Circumvent garbled output due to threads writing concurrently.
         #[allow(clippy::format_in_format_args)]
@@ -259,28 +263,44 @@ mod tests {
             .unwrap()
             .par_bridge()
             .map(|qn| {
-                let sampler = AcceptReject::new(Real::new(qn));
                 let radial_probability_distribution = RadialProbabilityDistribution::new(qn.into());
-                let rho = sampler
-                    .simulate(SAMPLES)
-                    .into_iter()
-                    .map(|PointValue(pt, _)| pt.r())
-                    .sorted_by(f32::total_cmp)
-                    .collect_vec();
-
                 let cdf = |r| {
                     integrate_simpson(
                         |s| radial_probability_distribution.evaluate_r(s),
                         0.,
                         r,
-                        r / 40.,
+                        (r / 40.).max(0.005),
                     )
                 };
-                let (ks_statistic, p) = kolmogorov_smirnov_test(&rho, cdf);
 
-                println!("{}", format!("{qn} \tks = {ks_statistic} \tp = {p}"));
+                let (rhos, (ks_statistics, ps)): (Vec<_>, (Vec<_>, Vec<_>)) =
+                    std::iter::repeat_with(|| {
+                        let sampler = AcceptReject::new(Real::new(qn));
+                        let rho = sampler
+                            .simulate(SAMPLES)
+                            .into_iter()
+                            .map(|PointValue(pt, _)| pt.r())
+                            .sorted_by(f32::total_cmp)
+                            .collect_vec();
 
-                if ks_statistic > 0.015 || p < 0.05 {
+                        let ks_result = kolmogorov_smirnov_test(&rho, cdf);
+                        (rho, ks_result)
+                    })
+                    .take(TRIALS)
+                    .unzip();
+
+                print!(
+                    "{}",
+                    format!("{qn}\n\tks = {ks_statistics:?}\n\tp  = {ps:?}\n")
+                );
+
+                let ks_failed_count = ks_statistics
+                    .iter()
+                    .filter(|&&ks| ks > KS_THRESHOLD)
+                    .count();
+                let p_failed_count = ps.iter().filter(|&&p| p < P_THRESHOLD).count();
+
+                if ks_failed_count > MAX_FAILS || p_failed_count > MAX_FAILS {
                     let mut out_path: PathBuf =
                         [env!("CARGO_MANIFEST_DIR"), "test_output"].iter().collect();
                     fs::create_dir_all(&out_path).unwrap();
@@ -299,18 +319,18 @@ mod tests {
                         BufWriter::new(out_file),
                         &Output {
                             name: qn.to_string(),
-                            ks: ks_statistic,
-                            p,
-                            cdf: rho.iter().copied().map(cdf).collect(),
-                            rho,
+                            ks: *ks_statistics.iter().max_by(|a, b| a.total_cmp(b)).unwrap(),
+                            p: *ps.iter().min_by(|a, b| a.total_cmp(b)).unwrap(),
+                            cdf: rhos[0].iter().copied().map(cdf).collect(),
+                            rhos,
                         },
                     )
                     .unwrap();
 
-                    eprintln!(
+                    eprint!(
                         "{}",
                         format!(
-                            "{qn}: K-S test failed; data exported to {}.",
+                            "{qn}: K-S test failed; data exported to {}.\n",
                             out_path.to_string_lossy()
                         )
                     );
