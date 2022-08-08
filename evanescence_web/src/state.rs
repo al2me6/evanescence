@@ -179,10 +179,6 @@ impl Mode {
     pub fn is_hybrid(self) -> bool {
         self == Self::Hybrid
     }
-
-    // pub fn is_mo(self) -> bool {
-    //     self == Self::Mo
-    // }
 }
 
 impl fmt::Display for Mode {
@@ -192,7 +188,6 @@ impl fmt::Display for Mode {
             Self::RealFull => write!(f, "Real (Full)"),
             Self::Complex => write!(f, "Complex"),
             Self::Hybrid => write!(f, "Hybrid"),
-            // Self::Mo => write!(f, "MO"),
         }
     }
 }
@@ -230,7 +225,6 @@ impl StateInner {
                     ..default()
                 });
             }
-            // (Mo(_), Mode::RealSimple) => *self = RealSimple(default()),
 
             // To `Real`:
             (RealSimple(state), Mode::RealFull) => {
@@ -255,7 +249,6 @@ impl StateInner {
                     ..default()
                 });
             }
-            // (Mo(_), Mode::Real) => *self = Real(default()),
 
             // To `Complex`:
             (RealSimple(state), Mode::Complex) => {
@@ -286,11 +279,6 @@ impl StateInner {
                 });
             }
             (Complex(_), Mode::Hybrid) => *self = Hybrid(default()),
-
-            // To `Mo`:
-            // (RealSimple(_) | Real(_) | Complex(_) | Hybrid(_), Mode::Mo) => {
-            //     *self = Mo(default());
-            // }
 
             // Same state, do nothing:
             (state, mode) if Mode::from(state as &_) == mode => {}
@@ -340,22 +328,12 @@ impl State {
                 Visualization::ProbabilityDensityZX,
                 Visualization::Isosurface3D,
             ],
-            // Mode::Mo => vec![
-            //     Visualization::None,
-            //     Visualization::WavefunctionXY,
-            //     Visualization::WavefunctionYZ,
-            //     Visualization::WavefunctionZX,
-            //     Visualization::ProbabilityDensityXY,
-            //     Visualization::ProbabilityDensityYZ,
-            //     Visualization::ProbabilityDensityZX,
-            // ],
         }
     }
 
     pub fn is_new_orbital(&self, other: &Self) -> bool {
         match (self.mode(), other.mode()) {
             (Mode::Hybrid, Mode::Hybrid) => self.hybrid_preset() != other.hybrid_preset(),
-            // (Mode::Mo, Mode::Mo) => self.lcao() != other.lcao(),
             (Mode::RealSimple | Mode::RealFull, Mode::RealSimple | Mode::RealFull)
             | (Mode::Complex, Mode::Complex) => self.qn() != other.qn(),
             // Different modes:
@@ -375,7 +353,6 @@ impl State {
         match &self.state {
             RealSimple(_) | RealFull(_) | Complex(_) => self.qn().to_string_as_wavefunction(),
             Hybrid(_) => self.hybrid_kind().to_string(),
-            // Mo(_) => orbital::molecular::Molecular::name(&self.lcao()),
         }
     }
 
@@ -450,30 +427,6 @@ impl State {
         }
     }
 
-    // pub fn lcao(&self) -> Lcao {
-    //     match &self.state {
-    //         Mo(state) => state.preset.item().with_separation(self.separation()),
-    //         _ => panic!("{:?} does not have an `lcao`", self.mode()),
-    //     }
-    // }
-
-    // pub fn mo_preset(&self) -> MoPreset {
-    //     match &self.state {
-    //         Mo(state) => state.preset,
-    //         _ => panic!("{:?} does not have a `mo` preset", self.mode()),
-    //     }
-    // }
-
-    // pub fn separation(&self) -> f32 {
-    //     match &self.state {
-    //         Mo(state) => state.separation,
-    //         _ => panic!(
-    //             "{:?} does not have an interatomic `separation`",
-    //             self.mode()
-    //         ),
-    //     }
-    // }
-
     pub fn isosurface_cutoff(&self) -> f32 {
         match self.mode() {
             Mode::RealFull | Mode::RealSimple => {
@@ -481,7 +434,6 @@ impl State {
             }
             Mode::Hybrid => plotters::isosurface_cutoff_heuristic_hybrid(self.hybrid_kind()),
             Mode::Complex => panic!("isosurface not available in `Complex` mode"),
-            // Mode::Mo => todo!("isosurface not available in `Mo` mode"),
         }
     }
 }
@@ -576,24 +528,6 @@ impl State {
             _ => panic!("nodes cannot be set for {:?}", self.mode()),
         }
     }
-
-    // pub fn set_mo_preset(&mut self, preset: MoPreset) {
-    //     match &mut self.state {
-    //         Mo(state) => {
-    //             state.preset = preset;
-    //         }
-    //         _ => panic!("{:?} does not have an `mo` preset", self.mode()),
-    //     }
-    // }
-
-    // pub fn set_separation(&mut self, separation: f32) {
-    //     match &mut self.state {
-    //         Mo(state) => {
-    //             state.separation = separation;
-    //         }
-    //         _ => panic!("cannot set separation for {:?}", self.mode()),
-    //     }
-    // }
 }
 
 /// Plotting function wrappers.
@@ -607,7 +541,7 @@ impl State {
                 orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
                     .bounding_region()
                     .radius
-            } // Mode::Mo => orbital::molecular::Molecular::bound(&self.lcao()),
+            }
         }
     }
 
@@ -620,11 +554,6 @@ impl State {
             ))
             .simulate(self.quality().point_cloud()),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
-            // Mode::Mo => orbital::molecular::Molecular::monte_carlo_simulate(
-            //     &self.lcao(),
-            //     self.quality(),
-            //     true,
-            // ),
         }
         .into()
     }
@@ -637,11 +566,6 @@ impl State {
             Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
                 .sample_plane(plane, self.quality().grid_2d()),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
-            // Mode::Mo => orbital::molecular::Molecular::sample_plane(
-            //     &self.lcao(),
-            //     plane,
-            //     self.quality().for_grid(),
-            // ),
         }
     }
 
@@ -657,11 +581,6 @@ impl State {
                 self.hybrid_kind().archetype().clone(),
             ))
             .sample_plane(plane, self.quality().grid_2d()),
-            // Mode::Mo => ProbabilityDensity::<orbital::molecular::Molecular>::sample_plane(
-            //     &self.lcao(),
-            //     plane,
-            //     self.quality().for_grid(),
-            // ),
         }
     }
 }
