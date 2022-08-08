@@ -11,7 +11,7 @@ use thiserror::Error;
 use super::{Orbital, Qn, Real};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::Point;
-use crate::numerics::monte_carlo::accept_reject::{AcceptRejectFudge, MaximumInBoundingRegion};
+use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Evaluate;
 
@@ -205,15 +205,13 @@ impl Distribution for Hybrid {
     }
 }
 
-impl MaximumInBoundingRegion for Hybrid {}
-
 impl Orbital for Hybrid {
     fn name(&self) -> String {
         self.lc.to_string()
     }
 }
 
-impl AcceptRejectFudge for Hybrid {}
+impl AcceptRejectParameters for Hybrid {}
 
 /// Mapping describing how many orbitals of each azimuthal quantum number `l` is contained in a
 /// [`Kind`].

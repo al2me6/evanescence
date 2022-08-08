@@ -8,7 +8,7 @@ pub trait MonteCarlo {
     type SourceDistribution: Distribution;
 
     fn simulate(
-        &self,
+        &mut self,
         count: usize,
     ) -> Vec<PointValue<<Self::SourceDistribution as Evaluate>::Output>>;
 }

@@ -3,7 +3,7 @@ use num::complex::Complex32;
 use super::Radial;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::Point;
-use crate::numerics::monte_carlo::accept_reject::{AcceptRejectFudge, MaximumInBoundingRegion};
+use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::spherical_harmonics::SphericalHarmonic;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Evaluate;
@@ -57,10 +57,6 @@ impl Distribution for Complex {
     }
 }
 
-impl MaximumInBoundingRegion for Complex {
-    // TODO: custom impl.
-}
-
 impl Orbital for Complex {
     /// Give the name of the wavefunction (ex. `ψ_{420}`).
     fn name(&self) -> String {
@@ -68,8 +64,10 @@ impl Orbital for Complex {
     }
 }
 
-impl AcceptRejectFudge for Complex {
-    fn accept_threshold_modifier(&self) -> Option<f32> {
+impl AcceptRejectParameters for Complex {
+    // TODO: custom maximum impl.
+
+    fn accept_threshold_fudge(&self) -> Option<f32> {
         Some(super::accept_threshold_modifier(self.qn))
     }
 }

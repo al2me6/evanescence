@@ -3,7 +3,7 @@ use std::f32::consts::{FRAC_PI_2, PI};
 use super::Radial;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::Point;
-use crate::numerics::monte_carlo::accept_reject::{AcceptRejectFudge, MaximumInBoundingRegion};
+use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::spherical_harmonics::RealSphericalHarmonic;
 use crate::numerics::statistics::Distribution;
@@ -65,10 +65,6 @@ impl Distribution for Real {
     }
 }
 
-impl MaximumInBoundingRegion for Real {
-    // TODO: custom impl.
-}
-
 impl Orbital for Real {
     /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
     /// the quantum numbers only (ex. `ψ_{420}`).
@@ -77,8 +73,9 @@ impl Orbital for Real {
     }
 }
 
-impl AcceptRejectFudge for Real {
-    fn accept_threshold_modifier(&self) -> Option<f32> {
+impl AcceptRejectParameters for Real {
+    // TODO: custom maximum impl.
+    fn accept_threshold_fudge(&self) -> Option<f32> {
         Some(super::accept_threshold_modifier(self.qn))
     }
 }
@@ -278,7 +275,7 @@ mod tests {
 
                 let (rhos, (ks_statistics, ps)): (Vec<_>, (Vec<_>, Vec<_>)) =
                     std::iter::repeat_with(|| {
-                        let sampler = AcceptReject::new(Real::new(qn));
+                        let mut sampler = AcceptReject::new(Real::new(qn));
                         let rho = sampler
                             .simulate(SAMPLES)
                             .into_iter()
