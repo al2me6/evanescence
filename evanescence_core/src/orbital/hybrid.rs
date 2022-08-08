@@ -6,6 +6,7 @@ use std::{fmt, ops};
 use approx::relative_eq;
 use getset::{CopyGetters, Getters};
 use itertools::Itertools;
+pub use maplit::hashmap;
 use thiserror::Error;
 
 use super::{Orbital, Qn, Real};
@@ -358,11 +359,6 @@ impl fmt::Display for Kind {
     }
 }
 
-#[doc(hidden)]
-pub mod __private {
-    pub use maplit::hashmap;
-}
-
 /// Construct a new [`Kind`].
 ///
 /// # Panics
@@ -380,7 +376,7 @@ macro_rules! kind {
     ) => {
         $crate::orbital::hybrid::Kind::new(
             $n,
-            $crate::orbital::hybrid::__private::hashmap! {
+            $crate::orbital::hybrid::hashmap! {
                 $($l => $count),+
             },
             $symmetry.to_owned(),

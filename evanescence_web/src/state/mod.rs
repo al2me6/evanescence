@@ -4,8 +4,8 @@ use std::fmt;
 
 use evanescence_core::geometry::region::BoundingRegion;
 use evanescence_core::geometry::{ComponentForm, CoordinatePlane, GridValues};
+use evanescence_core::numerics::evaluation::EvaluateInOriginCenteredRegionExt;
 use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
-use evanescence_core::numerics::EvaluateInOriginCenteredRegionExt;
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::orbital::{self, Qn};

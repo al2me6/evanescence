@@ -2,7 +2,8 @@ use std::default::default;
 use std::f32::consts::{PI, TAU};
 
 use evanescence_core::geometry::{self, CoordinatePlane, Linspace, Point};
-use evanescence_core::numerics::{self, Evaluate, EvaluateInOriginCenteredRegionExt};
+use evanescence_core::numerics::evaluation::EvaluateInOriginCenteredRegionExt;
+use evanescence_core::numerics::{self, Evaluate};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::Real;
 use wasm_bindgen::JsValue;

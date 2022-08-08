@@ -35,7 +35,7 @@ pub mod special;
 pub mod spherical_harmonics;
 pub mod statistics;
 
-pub use evaluation::{Evaluate, EvaluateInOriginCenteredRegionExt};
+pub use evaluation::Evaluate;
 
 /// Map `val`, which has a value within `source_range`, to `target_range`.
 pub fn normalize(
