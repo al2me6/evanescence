@@ -4,8 +4,6 @@ use std::fmt;
 
 use evanescence_core::geometry::region::BoundingRegion;
 use evanescence_core::geometry::{ComponentForm, CoordinatePlane, GridValues};
-use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
-use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
 use evanescence_core::numerics::EvaluateInOriginCenteredRegionExt;
 use evanescence_core::orbital::atomic::RadialPlot;
@@ -18,6 +16,8 @@ use yewdux::prelude::*;
 use crate::plotters;
 use crate::plotters::Quality;
 use crate::presets::{HybridPreset, QnPreset};
+
+pub mod cache;
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display, Serialize, Deserialize)]
@@ -194,6 +194,8 @@ impl fmt::Display for Mode {
 
 #[allow(clippy::enum_glob_use)] // Convenience.
 use StateInner::*;
+
+use self::cache::MONTE_CARLO_CACHE;
 
 impl Default for StateInner {
     fn default() -> Self {
@@ -547,12 +549,12 @@ impl State {
 
     pub fn monte_carlo_simulate_real(&self) -> ComponentForm<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::RealFull => AcceptReject::new(orbital::Real::new(*self.qn()))
+            Mode::RealSimple | Mode::RealFull | Mode::Hybrid => MONTE_CARLO_CACHE
+                .lock()
+                .unwrap()
+                .get_or_create_f32(self)
+                .unwrap()
                 .simulate(self.quality().point_cloud()),
-            Mode::Hybrid => AcceptReject::new(orbital::hybrid::Hybrid::new(
-                self.hybrid_kind().archetype().clone(),
-            ))
-            .simulate(self.quality().point_cloud()),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }
         .into()
