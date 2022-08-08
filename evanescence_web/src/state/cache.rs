@@ -1,11 +1,10 @@
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::{LazyLock, Mutex};
 
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{self, Qn};
 use num::complex::Complex32;
-use once_cell::sync::Lazy;
 
 use super::{Mode, State};
 
@@ -86,5 +85,5 @@ impl MonteCarloCache {
     }
 }
 
-pub static MONTE_CARLO_CACHE: Lazy<Mutex<MonteCarloCache>> =
-    Lazy::new(|| Mutex::new(Default::default()));
+pub static MONTE_CARLO_CACHE: LazyLock<Mutex<MonteCarloCache>> =
+    LazyLock::new(|| Mutex::new(Default::default()));

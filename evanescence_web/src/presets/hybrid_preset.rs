@@ -1,15 +1,15 @@
 use std::f32::consts::{FRAC_1_SQRT_2, SQRT_2};
 use std::fmt;
+use std::sync::LazyLock;
 
 use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::{kind, lc};
-use once_cell::sync::Lazy;
 
 use super::{Preset, PresetLibrary};
 use crate::utils::consts::{FRAC_1_SQRT_3, FRAC_1_SQRT_6, SQRT_3};
 
 #[allow(clippy::too_many_lines)] // Data.
-static HYBRID_PRESETS: Lazy<Vec<Kind>> = Lazy::new(|| {
+static HYBRID_PRESETS: LazyLock<Vec<Kind>> = LazyLock::new(|| {
     vec![
         kind! {
             mixture: {

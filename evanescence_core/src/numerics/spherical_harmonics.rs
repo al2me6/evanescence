@@ -143,14 +143,15 @@ impl RealSphericalHarmonic {
 
 #[cfg(test)]
 mod tests {
-    use once_cell::sync::Lazy;
+
+    use std::sync::LazyLock;
 
     use super::RealSphericalHarmonic;
     use crate::geometry::Point;
     use crate::numerics::Evaluate;
     use crate::orbital::quantum_numbers::Lm;
 
-    static POINTS: Lazy<Vec<Point>> = Lazy::new(|| {
+    static POINTS: LazyLock<Vec<Point>> = LazyLock::new(|| {
         vec![
             Point::new(0.4817551668747674, -0.0804650251296536, -5.6874218288168015),
             Point::new(2.0333187824258494, -5.438747021019332, -0.6049420414492214),

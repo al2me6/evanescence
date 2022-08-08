@@ -1,12 +1,13 @@
 use std::fmt;
+use std::sync::LazyLock;
 
 use evanescence_core::numerics::spherical_harmonics::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
-use once_cell::sync::Lazy;
 
 use super::{Preset, PresetLibrary};
 
-static QN_PRESETS: Lazy<Vec<Qn>> = Lazy::new(|| Qn::enumerate_up_to_n(3).unwrap().collect());
+static QN_PRESETS: LazyLock<Vec<Qn>> =
+    LazyLock::new(|| Qn::enumerate_up_to_n(3).unwrap().collect());
 
 impl PresetLibrary for Preset<Qn> {
     type Item = Qn;
