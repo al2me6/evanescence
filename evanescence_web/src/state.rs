@@ -11,7 +11,6 @@ use evanescence_core::numerics::EvaluateInOriginCenteredRegionExt;
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::orbital::{self, Qn};
-use getset::CopyGetters;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumDiscriminants, EnumIter, IntoEnumIterator};
 use yewdux::prelude::*;
@@ -300,10 +299,9 @@ impl StateInner {
     }
 }
 
-#[derive(Clone, PartialEq, Debug, CopyGetters, Default, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize)]
 pub struct State {
     state: StateInner,
-    #[getset(get_copy = "pub")]
     quality: Quality,
     supplement: Visualization,
 }
@@ -312,6 +310,10 @@ pub struct State {
 impl State {
     pub fn mode(&self) -> Mode {
         (&self.state).into()
+    }
+
+    pub fn quality(&self) -> Quality {
+        self.quality
     }
 
     pub fn available_supplements(&self) -> Vec<Visualization> {

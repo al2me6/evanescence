@@ -11,7 +11,6 @@ edition = "2021"
 console_error_panic_hook = "0.1"
 derivative = "2"
 evanescence_core = { path = "../evanescence_core", features = ["serde"] }
-getset = "0.1"
 gloo = "0.8"
 instant = { version = "0.1", features = ["wasm-bindgen"] }
 itertools = "0.10"

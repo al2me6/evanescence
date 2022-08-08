@@ -4,7 +4,9 @@ use crate::geometry::{Point, PointValue};
 
 pub mod kolmogorov_smirnov;
 
+/// An [`Evaluate`]-able type that can also be interpreted as a probability density function.
 pub trait Distribution: Evaluate {
+    /// Give the probability density corresponding to a `value` of the underlying function.
     fn probability_density_of(&self, value: Self::Output) -> f32;
 
     #[inline]
@@ -30,7 +32,7 @@ pub trait Distribution: Evaluate {
     }
 }
 
-/// Type that evaluates the probability density of an [`Orbital`].
+/// Type that evaluates the probability density of a [`Distribution`].
 ///
 /// Example:
 ///

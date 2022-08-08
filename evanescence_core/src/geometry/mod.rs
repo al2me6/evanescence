@@ -1,5 +1,3 @@
-//! Types for working with and storing points.
-
 use std::ops::{AddAssign, Div, RangeInclusive, Sub};
 
 use getset::Getters;

@@ -7,46 +7,46 @@ pub fn integrate_trapezoidal(xs: &[f32], ys: &[f32]) -> f32 {
         .sum()
 }
 
-/// Perform a single step of Simpson's method at step size `h`, accumulating into `t` and `y`.
+/// Perform a single step of Simpson's method at step size `h`, accumulating into `x` and `y`.
 ///
 /// # Panics
 /// Panics if the step size `h` is not positive.
-pub fn integrate_simpson_step(mut dfdt: impl FnMut(f32) -> f32, t: &mut f32, y: &mut f32, h: f32) {
+pub fn integrate_simpson_step(mut dfdx: impl FnMut(f32) -> f32, x: &mut f32, y: &mut f32, h: f32) {
     const FRAC_1_6: f32 = 0.166_666_67;
 
     assert!(h > 0_f32);
 
-    let k_1 = dfdt(*t);
-    let k_2 = dfdt(*t + 0.5 * h);
-    let k_4 = dfdt(*t + h);
+    let k_1 = dfdx(*x);
+    let k_2 = dfdx(*x + 0.5 * h);
+    let k_4 = dfdx(*x + h);
     *y += FRAC_1_6 * h * (k_1 + 4_f32 * k_2 + k_4);
-    *t += h;
+    *x += h;
 }
 
-/// Integrate `df(t)/dt` on `[t_0, t_f]` with step size `h` using Simpson's method.
+/// Integrate `df(x)/dx` on `[x_0, x_f]` with step size `h` using Simpson's method.
 ///
 /// # Panics
 /// Panics if the step size `h` is not positive, or if the interval of integration is backwards.
-pub fn integrate_simpson(mut dfdt: impl FnMut(f32) -> f32, t_0: f32, t_f: f32, mut h: f32) -> f32 {
-    assert!(t_0 <= t_f);
+pub fn integrate_simpson(mut dfdx: impl FnMut(f32) -> f32, x_0: f32, x_f: f32, mut h: f32) -> f32 {
+    assert!(x_0 <= x_f);
     assert!(h > 0_f32);
 
     #[allow(clippy::float_cmp)]
-    if t_0 == t_f {
+    if x_0 == x_f {
         return 0.;
     }
 
-    let mut t = t_0;
+    let mut x = x_0;
     let mut y = 0_f32;
-    while t < t_f {
-        h = h.min(t_f - t);
-        integrate_simpson_step(&mut dfdt, &mut t, &mut y, h);
+    while x < x_f {
+        h = h.min(x_f - x);
+        integrate_simpson_step(&mut dfdx, &mut x, &mut y, h);
     }
     y
 }
 
-/// Evaluate a multiple integral as an iterated integral using [`integrate_rk4`]. The integrals are
-/// evaluated in the order that the bounds for the variables are listed.
+/// Evaluate a multiple integral as an iterated integral using [`integrate_simpson`]. The integrals
+/// are evaluated in the order that the bounds for the variables are listed.
 ///
 /// Syntax:
 /// ```ignore
@@ -62,15 +62,15 @@ macro_rules! integrate_simpson_multiple {
     (
         $f:expr,
         step : $h:expr,
-        $var:ident : ($t_0:expr , $t_f:expr)
+        $var:ident : ($x_0:expr , $x_f:expr)
         $(,)?
     ) => {
-        $crate::numerics::integrators::integrate_simpson(|$var| $f, $t_0, $t_f, $h)
+        $crate::numerics::integrators::integrate_simpson(|$var| $f, $x_0, $x_f, $h)
     };
     (
         $f:expr,
         step : $h:expr,
-        $var:ident : ($t_0:expr , $t_f:expr) ,
+        $var:ident : ($x_0:expr , $x_f:expr) ,
         $($var_tail:ident : $range_tail:tt),+
         $(,)?
     ) => {
@@ -80,8 +80,8 @@ macro_rules! integrate_simpson_multiple {
                 step : $h,
                 $($var_tail : $range_tail),+
             ),
-            $t_0,
-            $t_f,
+            $x_0,
+            $x_f,
             $h,
         )
     }
@@ -122,7 +122,7 @@ mod tests {
     }
 
     #[test]
-    fn rk4() {
+    fn simpson() {
         assert_relative_eq!(integrate_simpson(|x| x, 0.0, 5.0, 1.0), 12.5);
 
         assert_relative_eq!(
@@ -138,7 +138,7 @@ mod tests {
     }
 
     #[test]
-    fn rk4_triple() {
+    fn simpson_triple() {
         assert_relative_eq!(
             integrate_simpson_multiple!(
                 x * x * y + z.cos(),

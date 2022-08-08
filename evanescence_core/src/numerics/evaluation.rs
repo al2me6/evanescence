@@ -34,9 +34,9 @@ pub trait Evaluate {
             .collect()
     }
 
-    /// Evaluate `Self` on a [`Plane`], producing a [grid](crate::geometry::GridValues) of evenly
-    /// spaced values. Specifically, the grid is a square centered at the origin with side
-    /// length of 2 × `extent`, and `num_points` are sampled *in each dimension*.
+    /// Evaluate `Self` on a [`CoordinatePlane`], producing a [grid](crate::geometry::GridValues)
+    /// of evenly spaced values. Specifically, the grid is a square centered at the origin with
+    /// side length of 2 × `extent`, and `num_points` are sampled *in each dimension*.
     fn evaluate_on_plane(
         &self,
         plane: CoordinatePlane,
@@ -103,19 +103,14 @@ pub trait Evaluate {
 /// Helper methods for evaluating functions that can be reasonably 'bounded' in a region symmetric
 /// about the origin.
 pub trait EvaluateInOriginCenteredRegionExt: Evaluate {
-    /// Compute a plot of the cross section of the function along a given `plane`.
+    /// Sample the cross section of the function along a given `plane`.
     ///
     /// `num_points` points will be evaluated in a grid centered at the origin, extending to the
     /// bound of the function.
-    ///
-    /// For more information, see the documentation on [`GridValues`].
     fn sample_plane(&self, plane: CoordinatePlane, num_points: usize) -> GridValues<Self::Output>;
 
-    /// Compute a plot of the function in a cube centered at the origin. `num_points` are sampled
-    /// in each dimension, producing an evenly-spaced lattice of values the size of the
-    /// function's bound.
-    ///
-    /// For more information, see [`Evaluate::evaluate_in_region`].
+    /// Sample the function in a cube centered at the origin. `num_points` are sampled in each
+    /// dimension, producing an evenly-spaced lattice of values the size of the function's bound.
     fn sample_region(&self, num_points: usize) -> ComponentForm<Self::Output>;
 }
 

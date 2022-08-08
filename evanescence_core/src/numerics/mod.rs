@@ -1,5 +1,3 @@
-//! Functions and traits relating to numerical evaluation.
-
 use std::ops::RangeInclusive;
 
 /// Verify that two iterables containing float values are approximately equal.
