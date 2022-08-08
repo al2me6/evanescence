@@ -3,9 +3,9 @@ use std::iter;
 use super::MonteCarlo;
 use crate::geometry::region::{BoundingRegion, Region};
 use crate::geometry::{Point, PointValue};
+use crate::numerics::Evaluate;
 use crate::numerics::random::WyRand;
 use crate::numerics::statistics::Distribution;
-use crate::numerics::Evaluate;
 
 pub trait AcceptRejectParameters: BoundingRegion + Distribution {
     fn maximum(&self) -> f32 {
@@ -53,12 +53,9 @@ impl<D: AcceptRejectParameters> AcceptReject<D> {
 }
 
 impl<D: AcceptRejectParameters> MonteCarlo for AcceptReject<D> {
-    type SourceDistribution = D;
+    type Output = <D as Evaluate>::Output;
 
-    fn simulate(
-        &mut self,
-        count: usize,
-    ) -> Vec<PointValue<<Self::SourceDistribution as Evaluate>::Output>> {
+    fn simulate(&mut self, count: usize) -> Vec<PointValue<Self::Output>> {
         iter::repeat_with(|| self.region.sample(&mut self.point_rng))
             .map(|pt| self.distribution.evaluate_at_with_probability_density(&pt))
             .filter_map(|(point_value, probability_density)| {
