@@ -3,9 +3,9 @@ use std::iter;
 use super::MonteCarlo;
 use crate::geometry::region::{BoundingRegion, Region};
 use crate::geometry::{Point, PointValue};
-use crate::numerics::Evaluate;
 use crate::numerics::random::WyRand;
 use crate::numerics::statistics::Distribution;
+use crate::numerics::Evaluate;
 
 pub trait AcceptRejectParameters: BoundingRegion + Distribution {
     fn maximum(&self) -> f32 {
@@ -27,6 +27,7 @@ pub trait AcceptRejectParameters: BoundingRegion + Distribution {
     }
 }
 
+#[derive(Clone)]
 pub struct AcceptReject<D: AcceptRejectParameters> {
     distribution: D,
     region: <D as BoundingRegion>::Geometry,

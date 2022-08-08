@@ -2,6 +2,7 @@ use std::mem;
 
 /// RNG based on the wyrand algorithm; see
 /// <https://github.com/lemire/testingRNG/blob/bfd776ba13b837bc1680de08e5de389a7f44f10d/source/wyrand.h>.
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct WyRand(u64);
 
 impl WyRand {

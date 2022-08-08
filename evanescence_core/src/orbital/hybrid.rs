@@ -158,6 +158,7 @@ macro_rules! lc {
 }
 
 /// Implementation of hybrid orbitals.
+#[derive(Clone, PartialEq, Debug)]
 pub struct Hybrid {
     lc: LinearCombination,
     reals: Vec<Real>,

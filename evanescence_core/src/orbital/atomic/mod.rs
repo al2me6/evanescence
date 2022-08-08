@@ -12,11 +12,20 @@ pub mod complex;
 pub mod real;
 
 /// Implementation of the radial component of the hydrogenic wavefunction.
+#[derive(Clone, Debug)]
 pub struct Radial {
     nl: Nl,
     normalization: f32,
     associated_laguerre: Polynomial,
 }
+
+impl PartialEq for Radial {
+    fn eq(&self, other: &Self) -> bool {
+        self.nl == other.nl
+    }
+}
+
+impl Eq for Radial {}
 
 impl Radial {
     pub fn new(nl: Nl) -> Self {

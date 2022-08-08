@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use super::Point;
 use crate::numerics::random::WyRand;
 
-pub trait Region {
+pub trait Region: PartialEq + Clone {
     fn sample(&self, rng: &mut WyRand) -> Point;
 }
 

@@ -12,8 +12,9 @@ use crate::orbital::quantum_numbers::{Lm, Qn};
 use crate::orbital::Orbital;
 
 /// Implementation of the real hydrogenic orbitals.
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Real {
-    pub(in crate::orbital) qn: Qn,
+    qn: Qn,
     radial: Radial,
     sph: RealSphericalHarmonic,
 }

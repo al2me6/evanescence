@@ -9,6 +9,7 @@ use crate::geometry::Point;
 use crate::orbital::quantum_numbers::Lm;
 
 /// Implementation of the spherical harmonics, `Y_l^m(θ,φ)`, including the Condon-Shortley phase.
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct SphericalHarmonic {
     lm: Lm,
 }
@@ -39,6 +40,7 @@ impl Evaluate for SphericalHarmonic {
 /// Implementation of the real spherical harmonics, `S_lm(θ,φ)`.
 ///
 /// See [Blanco et al. 1997](https://doi.org/10.1016/S0166-1280(97)00185-1) for more information.
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct RealSphericalHarmonic {
     lm: Lm,
 }

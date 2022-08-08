@@ -10,8 +10,9 @@ use crate::numerics::Evaluate;
 use crate::orbital::{Orbital, Qn};
 
 /// Implementation of the complex hydrogenic orbitals.
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Complex {
-    pub(in crate::orbital) qn: Qn,
+    qn: Qn,
     radial: Radial,
     sph: SphericalHarmonic,
 }
