@@ -2,7 +2,7 @@ use std::f32::consts::{FRAC_PI_2, PI};
 
 use super::Radial;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
-use crate::geometry::Point;
+use crate::geometry::SphericalPoint3;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::spherical_harmonics::RealSphericalHarmonic;
@@ -44,7 +44,7 @@ impl Evaluate for Real {
     type Output = f32;
 
     #[inline]
-    fn evaluate(&self, point: &Point) -> f32 {
+    fn evaluate(&self, point: &SphericalPoint3) -> f32 {
         self.radial.evaluate(point) * self.sph.evaluate(point)
     }
 }
@@ -169,7 +169,7 @@ mod tests {
 
     use super::Real;
     use crate::geometry::region::BoundingRegion;
-    use crate::geometry::{Point, PointValue};
+    use crate::geometry::{PointValue, SphericalPoint3};
     use crate::numerics::integrators::integrate_simpson;
     use crate::numerics::monte_carlo::accept_reject::AcceptReject;
     use crate::numerics::monte_carlo::MonteCarlo;
@@ -228,7 +228,7 @@ mod tests {
             let psi_sq = ProbabilityDensityEvaluator::new(Real::new(qn));
             let bound = psi_sq.bounding_region().radius;
             let prob = integrate_simpson_multiple!(
-                psi_sq.evaluate(&Point::new(x, y, z)),
+                psi_sq.evaluate(&SphericalPoint3::new(x, y, z)),
                 step: bound / 40_f32,
                 x: (-bound, bound),
                 y: (-bound, bound),

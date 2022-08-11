@@ -2,7 +2,7 @@ use num::complex::Complex32;
 
 use super::Radial;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
-use crate::geometry::Point;
+use crate::geometry::SphericalPoint3;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::spherical_harmonics::SphericalHarmonic;
 use crate::numerics::statistics::Distribution;
@@ -35,7 +35,7 @@ impl Evaluate for Complex {
     type Output = Complex32;
 
     #[inline]
-    fn evaluate(&self, point: &Point) -> Complex32 {
+    fn evaluate(&self, point: &SphericalPoint3) -> Complex32 {
         self.radial.evaluate(point) * self.sph.evaluate(point)
     }
 }

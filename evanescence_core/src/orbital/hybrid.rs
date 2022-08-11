@@ -11,7 +11,7 @@ use thiserror::Error;
 
 use super::{Orbital, Qn, Real};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
-use crate::geometry::Point;
+use crate::geometry::SphericalPoint3;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Evaluate;
@@ -175,7 +175,7 @@ impl Hybrid {
 impl Evaluate for Hybrid {
     type Output = f32;
 
-    fn evaluate(&self, point: &Point) -> Self::Output {
+    fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
         self.lc
             .iter()
             .enumerate()

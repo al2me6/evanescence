@@ -2,7 +2,9 @@ use std::ops::RangeInclusive;
 
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::vec3::Vec3;
-use crate::geometry::{ComponentForm, CoordinatePlane, GridValues, Linspace, Point, PointValue};
+use crate::geometry::{
+    ComponentForm, CoordinatePlane, GridValues, Linspace, PointValue, SphericalPoint3,
+};
 
 /// Trait for mathematical functions that can be evaluated at a point in `R^3`.
 ///
@@ -11,13 +13,13 @@ pub trait Evaluate {
     type Output: Copy;
 
     /// Evaluate `Self` at a certain point, returning the value only.
-    fn evaluate(&self, point: &Point) -> Self::Output;
+    fn evaluate(&self, point: &SphericalPoint3) -> Self::Output;
 
     /// Evaluate `Self` at a certain point, returning the point *and* the value in the form of a
     /// [`PointValue`], or a `(Point, Self::Output)`.
     #[allow(clippy::inline_always)]
     #[inline(always)]
-    fn evaluate_at(&self, point: &Point) -> PointValue<Self::Output> {
+    fn evaluate_at(&self, point: &SphericalPoint3) -> PointValue<Self::Output> {
         PointValue(*point, self.evaluate(point))
     }
 

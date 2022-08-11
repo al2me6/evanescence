@@ -2,7 +2,7 @@ use std::iter;
 
 use super::MonteCarlo;
 use crate::geometry::region::{BoundingRegion, Region};
-use crate::geometry::{Point, PointValue};
+use crate::geometry::{PointValue, SphericalPoint3};
 use crate::numerics::random::WyRand;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Evaluate;
@@ -13,7 +13,7 @@ pub trait AcceptRejectParameters: BoundingRegion + Distribution {
         let region = self.bounding_region();
         // TODO: samplea adaptively?
         Iterator::chain(
-            iter::once(Point::ORIGIN_EPSILON),
+            iter::once(SphericalPoint3::ORIGIN_EPSILON),
             iter::repeat_with(|| region.sample(&mut rng)),
         )
         .take(200_000)

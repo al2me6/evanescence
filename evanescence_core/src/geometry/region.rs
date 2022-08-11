@@ -1,10 +1,10 @@
 use std::f32::consts::PI;
 
-use super::Point;
+use super::SphericalPoint3;
 use crate::numerics::random::WyRand;
 
 pub trait Region: PartialEq + Clone {
-    fn sample(&self, rng: &mut WyRand) -> Point;
+    fn sample(&self, rng: &mut WyRand) -> SphericalPoint3;
 }
 
 pub trait BoundingRegion {
@@ -23,7 +23,7 @@ impl Region for BallCenteredAtOrigin {
     /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
     /// specifically method 16.
     #[inline]
-    fn sample(&self, rng: &mut WyRand) -> Point {
+    fn sample(&self, rng: &mut WyRand) -> SphericalPoint3 {
         // For an explanation of taking the cube root of the random value, see
         // https://stackoverflow.com/a/50746409.
         let [r, cos_theta] = rng.gen_f32x2();
@@ -32,7 +32,7 @@ impl Region for BallCenteredAtOrigin {
         // Pythagorean identity: sin^2(x) + cos^2(x) = 1.
         let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
         let phi /* [0, 2pi) */ = rng.gen_f32() * 2.0 * PI;
-        Point {
+        SphericalPoint3 {
             x: r * sin_theta * phi.cos(),
             y: r * sin_theta * phi.sin(),
             z: r * cos_theta,
@@ -50,7 +50,7 @@ mod tests {
     use approx::assert_ulps_eq;
 
     use super::{BallCenteredAtOrigin, Region};
-    use crate::geometry::Point;
+    use crate::geometry::SphericalPoint3;
     use crate::numerics::random::WyRand;
 
     /// This is very crude and only ensures that all pointsare at least inside
@@ -71,7 +71,7 @@ mod tests {
         let ball = BallCenteredAtOrigin { radius: 2. };
         let mut rng = WyRand::new();
         let rng_point = ball.sample(&mut rng);
-        let recomputed_point = Point::new(rng_point.x, rng_point.y, rng_point.z);
+        let recomputed_point = SphericalPoint3::new(rng_point.x, rng_point.y, rng_point.z);
         assert_ulps_eq!(rng_point.r, recomputed_point.r, max_ulps = 1);
         assert_ulps_eq!(
             rng_point.cos_theta,

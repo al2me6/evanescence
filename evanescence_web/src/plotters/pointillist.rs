@@ -1,7 +1,7 @@
 use std::default::default;
 use std::f32::consts::{PI, TAU};
 
-use evanescence_core::geometry::{self, CoordinatePlane, Linspace, Point};
+use evanescence_core::geometry::{self, CoordinatePlane, Linspace, SphericalPoint3};
 use evanescence_core::numerics::evaluation::EvaluateInOriginCenteredRegionExt;
 use evanescence_core::numerics::{self, Evaluate};
 use evanescence_core::orbital::hybrid::Hybrid;
@@ -171,7 +171,7 @@ impl VerticalCone {
 impl Evaluate for VerticalCone {
     type Output = f32;
 
-    fn evaluate(&self, point: &Point) -> Self::Output {
+    fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
         // Note that the z values of passed points are ignored!
         (point.x() * point.x() + point.y() * point.y()).sqrt() / self.theta.tan()
     }

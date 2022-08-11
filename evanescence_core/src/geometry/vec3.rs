@@ -4,7 +4,7 @@ use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 use getset::CopyGetters;
 
 use super::Linspace;
-use crate::geometry::Point;
+use crate::geometry::SphericalPoint3;
 
 /// A vector (the mathematical kind) in `R^3`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -132,19 +132,19 @@ impl Display for Vec3 {
     }
 }
 
-impl From<&Point> for Vec3 {
-    fn from(point: &Point) -> Self {
+impl From<&SphericalPoint3> for Vec3 {
+    fn from(point: &SphericalPoint3) -> Self {
         Self::new(point.x(), point.y(), point.z())
     }
 }
 
-impl From<Vec3> for Point {
+impl From<Vec3> for SphericalPoint3 {
     fn from(vec: Vec3) -> Self {
         Self::new(vec.x, vec.y, vec.z)
     }
 }
 
-impl From<&Vec3> for Point {
+impl From<&Vec3> for SphericalPoint3 {
     fn from(vec: &Vec3) -> Self {
         Self::new(vec.x, vec.y, vec.z)
     }

@@ -1,6 +1,6 @@
 use super::Evaluate;
 use crate::geometry::region::BoundingRegion;
-use crate::geometry::{Point, PointValue};
+use crate::geometry::{PointValue, SphericalPoint3};
 
 pub mod kolmogorov_smirnov;
 
@@ -10,12 +10,12 @@ pub trait Distribution: Evaluate {
     fn probability_density_of(&self, value: Self::Output) -> f32;
 
     #[inline]
-    fn probability_density(&self, point: &Point) -> f32 {
+    fn probability_density(&self, point: &SphericalPoint3) -> f32 {
         self.probability_density_of(self.evaluate(point))
     }
 
     #[inline]
-    fn evaluate_with_probability_density(&self, point: &Point) -> (Self::Output, f32) {
+    fn evaluate_with_probability_density(&self, point: &SphericalPoint3) -> (Self::Output, f32) {
         let output = self.evaluate(point);
         let prob_density = self.probability_density_of(output);
         (output, prob_density)
@@ -24,7 +24,7 @@ pub trait Distribution: Evaluate {
     #[inline]
     fn evaluate_at_with_probability_density(
         &self,
-        point: &Point,
+        point: &SphericalPoint3,
     ) -> (PointValue<Self::Output>, f32) {
         let output = self.evaluate_at(point);
         let prob_density = self.probability_density_of(output.1);
@@ -62,7 +62,7 @@ impl<D: Distribution> Evaluate for ProbabilityDensityEvaluator<D> {
     type Output = f32;
 
     #[inline]
-    fn evaluate(&self, point: &Point) -> Self::Output {
+    fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
         self.0.probability_density_of(self.0.evaluate(point))
     }
 }

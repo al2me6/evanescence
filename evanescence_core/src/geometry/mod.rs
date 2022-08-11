@@ -8,7 +8,7 @@ pub mod point;
 pub mod region;
 pub mod vec3;
 
-pub use point::{Point, PointValue};
+pub use point::{PointValue, SphericalPoint3};
 pub use vec3::Vec3;
 
 pub trait Linspace<T> {
