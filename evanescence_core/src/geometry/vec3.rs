@@ -35,14 +35,6 @@ impl Vec3 {
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
     }
-
-    /// Produce `num_points` vectors evenly spaced across the interval `-extent` to `extent`.
-    pub fn symmetric_linspace(
-        extent: Self,
-        num_points: usize,
-    ) -> impl ExactSizeIterator<Item = Self> {
-        super::linspace(-extent..=extent, num_points)
-    }
 }
 
 impl Add for Vec3 {

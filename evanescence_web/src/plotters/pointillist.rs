@@ -1,7 +1,7 @@
 use std::default::default;
 use std::f32::consts::{PI, TAU};
 
-use evanescence_core::geometry::{self, ComponentForm, CoordinatePlane, SphericalPoint3};
+use evanescence_core::geometry::{ComponentForm, CoordinatePlane, SphericalPoint3};
 use evanescence_core::numerics::evaluation::EvaluateInOriginCenteredRegionExt;
 use evanescence_core::numerics::{self, Evaluate};
 use evanescence_core::orbital::hybrid::Hybrid;
@@ -108,8 +108,8 @@ fn parametric_sphere(r: f32, samples: usize) -> [Vec<Vec<f32>>; 3] {
         Vec::with_capacity(samples),
         Vec::with_capacity(samples),
     );
-    let theta_samples = geometry::linspace(0.0..=PI, samples);
-    let phi_samples = geometry::linspace(0.0..=TAU, samples);
+    let theta_samples = numerics::linspace(0.0..=PI, samples);
+    let phi_samples = numerics::linspace(0.0..=TAU, samples);
     for theta in theta_samples {
         let (mut x_row, mut y_row, mut z_row) = (
             Vec::with_capacity(samples),

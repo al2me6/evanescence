@@ -1,5 +1,3 @@
-use std::ops::{AddAssign, Div, RangeInclusive, Sub};
-
 use getset::Getters;
 use strum::Display;
 use thiserror::Error;
@@ -10,24 +8,6 @@ pub mod vec3;
 
 pub use point::{PointValue, SphericalPoint3};
 pub use vec3::Vec3;
-
-/// Produce `num_points` values evenly spaced across `interval`.
-
-pub fn linspace<T>(
-    interval: RangeInclusive<T>,
-    num_points: usize,
-) -> impl ExactSizeIterator<Item = T> + Clone
-where
-    for<'a> T: AddAssign<&'a T> + Sub<&'a T, Output = T> + Div<f32, Output = T> + Clone,
-{
-    let step = (interval.end().clone() - interval.start()) / (num_points as f32 - 1.0);
-    let mut acc = interval.start().clone();
-    (0..num_points).map(move |_| {
-        let next = acc.clone();
-        acc += &step;
-        next
-    })
-}
 
 /// Type representing a coordinate plane.
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.

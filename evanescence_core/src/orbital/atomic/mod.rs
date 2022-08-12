@@ -2,7 +2,7 @@
 //! angular components. Also included are probability and probability distribution functions
 //! for the radial wavefunction.
 
-use crate::geometry::{self, SphericalPoint3};
+use crate::geometry::SphericalPoint3;
 use crate::numerics::polynomial::Polynomial;
 use crate::numerics::special::orthogonal_polynomials;
 use crate::numerics::{self, Evaluate};
@@ -109,7 +109,7 @@ impl RadialPlot {
     /// and the second containing the values associated with the radial points.
     pub fn sample(self, qn: Qn, num_points: usize) -> (Vec<f32>, Vec<f32>) {
         let nl = Nl::from(qn);
-        let rs = geometry::linspace(0_f32..=bound(qn), num_points).collect::<Vec<_>>();
+        let rs = numerics::linspace(0_f32..=bound(qn), num_points).collect::<Vec<_>>();
 
         let vals = match self {
             Self::Wavefunction => {

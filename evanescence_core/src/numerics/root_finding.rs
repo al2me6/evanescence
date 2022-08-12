@@ -2,8 +2,6 @@ use std::ops::RangeInclusive;
 
 use itertools::Itertools;
 
-use crate::geometry;
-
 #[derive(Debug, PartialEq, Eq, thiserror::Error)]
 pub enum RootError {
     #[error("failed to converge to the desired tolerance within the step limit")]
@@ -108,7 +106,7 @@ pub fn find_roots_in_interval_brent(
     num_initial_tests: usize,
     f: impl Fn(f32) -> f32 + Copy,
 ) -> Result<Vec<f32>, RootError> {
-    geometry::linspace(interval, num_initial_tests)
+    super::linspace(interval, num_initial_tests)
         .map(|a| (a, f(a)))
         .tuple_windows()
         .filter(|((_, f_a), (_, f_b))| f_a * f_b < 0.0) // ab < 0 iff a < 0 xor b < 0.

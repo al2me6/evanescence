@@ -2,9 +2,7 @@ use std::ops::RangeInclusive;
 
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::vec3::Vec3;
-use crate::geometry::{
-    self, ComponentForm, CoordinatePlane, GridValues, PointValue, SphericalPoint3,
-};
+use crate::geometry::{ComponentForm, CoordinatePlane, GridValues, PointValue, SphericalPoint3};
 
 /// Trait for mathematical functions that can be evaluated at a point in `R^3`.
 ///
@@ -30,7 +28,7 @@ pub trait Evaluate {
         range: RangeInclusive<Vec3>,
         num_points: usize,
     ) -> Vec<PointValue<Self::Output>> {
-        geometry::linspace(range, num_points)
+        super::linspace(range, num_points)
             .map(|pt| self.evaluate_at(&pt.into()))
             .collect()
     }
@@ -59,9 +57,9 @@ pub trait Evaluate {
         };
 
         // Points linearly dependent on `e_0`, i.e., the center row.
-        let points_in_row: Vec<_> = Vec3::symmetric_linspace(midpoints.0, num_points).collect();
+        let points_in_row: Vec<_> = super::symmetric_linspace(midpoints.0, num_points).collect();
         // Points linearly dependent on `e_1`, i.e., the center column.
-        let points_in_col: Vec<_> = Vec3::symmetric_linspace(midpoints.1, num_points).collect();
+        let points_in_col: Vec<_> = super::symmetric_linspace(midpoints.1, num_points).collect();
 
         let mut vals = Vec::with_capacity(num_points);
 
@@ -89,10 +87,10 @@ pub trait Evaluate {
     /// That is, values are each of the form (x, y, z, val), sorted by increasing x, then y, and
     /// finally z.
     fn evaluate_in_region(&self, extent: f32, num_points: usize) -> ComponentForm<Self::Output> {
-        Vec3::symmetric_linspace(Vec3::I * extent, num_points)
+        super::symmetric_linspace(Vec3::I * extent, num_points)
             .flat_map(|x_pt| {
-                Vec3::symmetric_linspace(Vec3::J * extent, num_points).flat_map(move |y_pt| {
-                    Vec3::symmetric_linspace(Vec3::K * extent, num_points)
+                super::symmetric_linspace(Vec3::J * extent, num_points).flat_map(move |y_pt| {
+                    super::symmetric_linspace(Vec3::K * extent, num_points)
                         .map(move |z_pt| self.evaluate_at(&(x_pt + y_pt + z_pt).into()))
                 })
             })
