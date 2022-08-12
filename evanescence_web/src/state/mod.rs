@@ -552,12 +552,11 @@ impl State {
             Mode::RealSimple | Mode::RealFull | Mode::Hybrid => MONTE_CARLO_CACHE
                 .lock()
                 .unwrap()
-                .get_or_create_f32(self)
+                .request_f32(self)
                 .unwrap()
-                .simulate(self.quality().point_cloud()),
+                .collect(),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }
-        .into()
     }
 
     pub fn sample_plane_real(&self, plane: CoordinatePlane) -> GridValues<f32> {

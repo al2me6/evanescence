@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 
+use evanescence_core::geometry::PointValue;
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{self, Qn};
@@ -8,8 +9,7 @@ use num::complex::Complex32;
 
 use super::{Mode, State};
 
-type MonteCarloF32 = dyn MonteCarlo<Output = f32> + Send + Sync;
-type MonteCarloComplex32 = dyn MonteCarlo<Output = Complex32> + Send + Sync;
+type DynMonteCarlo<O> = dyn MonteCarlo<Output = O> + Send + Sync;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 enum CacheKey {
@@ -40,21 +40,44 @@ impl From<&State> for CacheKey {
     }
 }
 
+struct CacheEntry<O: Copy> {
+    evaluator: Box<DynMonteCarlo<O>>,
+    samples: Vec<PointValue<O>>,
+}
+
+impl<O: Copy> CacheEntry<O> {
+    fn new(evaluator: Box<DynMonteCarlo<O>>) -> Self {
+        Self {
+            evaluator,
+            samples: Vec::with_capacity(1 >> 14),
+        }
+    }
+
+    fn request_simulation(&mut self, count: usize) -> impl Iterator<Item = &PointValue<O>> {
+        if self.samples.len() < count {
+            self.samples
+                .extend(self.evaluator.simulate(count - self.samples.len()));
+        }
+        self.samples[..count].iter()
+    }
+}
+
 #[derive(Default)]
 pub struct MonteCarloCache {
-    cache_real: HashMap<CacheKey, Box<MonteCarloF32>>,
-    cache_complex: HashMap<CacheKey, Box<MonteCarloComplex32>>,
+    cache_real: HashMap<CacheKey, CacheEntry<f32>>,
+    cache_complex: HashMap<CacheKey, CacheEntry<Complex32>>,
 }
 
 impl MonteCarloCache {
-    pub fn get_or_create_f32(&mut self, state: &State) -> Option<&mut MonteCarloF32> {
+    pub fn request_f32(&mut self, state: &State) -> Option<impl Iterator<Item = &PointValue<f32>>> {
         if state.mode().is_complex() {
             return None;
         }
-        Some(
-            self.cache_real
-                .entry(CacheKey::from(state))
-                .or_insert_with(|| match state.mode() {
+        let entry = self
+            .cache_real
+            .entry(CacheKey::from(state))
+            .or_insert_with(|| {
+                CacheEntry::new(match state.mode() {
                     Mode::RealSimple | Mode::RealFull => {
                         Box::new(AcceptReject::new(orbital::Real::new(*state.qn())))
                     }
@@ -63,25 +86,27 @@ impl MonteCarloCache {
                     ))),
                     Mode::Complex => unreachable!(),
                 })
-                .as_mut(),
-        )
+            });
+        Some(entry.request_simulation(state.quality().point_cloud()))
     }
 
-    pub fn get_or_create_complex32(&mut self, state: &State) -> Option<&mut MonteCarloComplex32> {
+    pub fn request_complex32(
+        &mut self,
+        state: &State,
+    ) -> Option<impl Iterator<Item = &PointValue<Complex32>>> {
         if !state.mode().is_complex() {
             return None;
         }
-        Some(
-            self.cache_complex
-                .entry(CacheKey::from(state))
-                .or_insert_with(|| match state.mode() {
-                    Mode::Complex => {
-                        Box::new(AcceptReject::new(orbital::Complex::new(*state.qn())))
-                    }
-                    _ => unreachable!(),
-                })
-                .as_mut(),
-        )
+        let entry = self
+            .cache_complex
+            .entry(CacheKey::from(state))
+            .or_insert_with(|| match state.mode() {
+                Mode::Complex => CacheEntry::new(Box::new(AcceptReject::new(
+                    orbital::Complex::new(*state.qn()),
+                ))),
+                _ => unreachable!(),
+            });
+        Some(entry.request_simulation(state.quality().point_cloud()))
     }
 }
 

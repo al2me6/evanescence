@@ -131,8 +131,8 @@ impl<T> ComponentForm<T> {
     }
 }
 
-impl<T> FromIterator<PointValue<T>> for ComponentForm<T> {
-    fn from_iter<I: IntoIterator<Item = PointValue<T>>>(iter: I) -> Self {
+impl<'a, T: Clone> FromIterator<&'a PointValue<T>> for ComponentForm<T> {
+    fn from_iter<I: IntoIterator<Item = &'a PointValue<T>>>(iter: I) -> Self {
         let iter = iter.into_iter();
         let (lower, upper) = iter.size_hint();
         let len = upper.unwrap_or(lower);
@@ -146,20 +146,22 @@ impl<T> FromIterator<PointValue<T>> for ComponentForm<T> {
             xs.push(pt.x());
             ys.push(pt.y());
             zs.push(pt.z());
-            vals.push(val);
+            vals.push(val.clone());
         }
         // INVARIANT: The four vectors, by nature, have the same length.
         ComponentForm { xs, ys, zs, vals }
     }
 }
 
-impl<T> From<Vec<PointValue<T>>> for ComponentForm<T> {
+impl<T: Clone> From<Vec<PointValue<T>>> for ComponentForm<T> {
     fn from(v: Vec<PointValue<T>>) -> Self {
-        v.into_iter().collect()
+        v.iter().collect()
     }
 }
 
-pub fn decompose_point_values<T>(v: Vec<PointValue<T>>) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<T>) {
+pub fn decompose_point_values<T: Clone>(
+    v: Vec<PointValue<T>>,
+) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<T>) {
     ComponentForm::from(v).into_components()
 }
 

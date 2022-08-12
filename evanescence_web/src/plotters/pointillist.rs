@@ -1,7 +1,7 @@
 use std::default::default;
 use std::f32::consts::{PI, TAU};
 
-use evanescence_core::geometry::{self, CoordinatePlane, SphericalPoint3};
+use evanescence_core::geometry::{self, ComponentForm, CoordinatePlane, SphericalPoint3};
 use evanescence_core::numerics::evaluation::EvaluateInOriginCenteredRegionExt;
 use evanescence_core::numerics::{self, Evaluate};
 use evanescence_core::orbital::hybrid::Hybrid;
@@ -56,13 +56,13 @@ pub fn real(state: &State) -> JsValue {
 pub fn complex(state: &State) -> JsValue {
     assert!(state.mode().is_complex());
 
-    let simulation = MONTE_CARLO_CACHE
+    let (x, y, z, values) = MONTE_CARLO_CACHE
         .lock()
         .unwrap()
-        .get_or_create_complex32(state)
+        .request_complex32(state)
         .unwrap()
-        .simulate(state.quality().point_cloud());
-    let (x, y, z, values) = geometry::decompose_point_values(simulation);
+        .collect::<ComponentForm<_>>()
+        .into_components();
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
 
