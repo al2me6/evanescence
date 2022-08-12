@@ -3,7 +3,7 @@ use std::ops::RangeInclusive;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::vec3::Vec3;
 use crate::geometry::{
-    ComponentForm, CoordinatePlane, GridValues, Linspace, PointValue, SphericalPoint3,
+    self, ComponentForm, CoordinatePlane, GridValues, PointValue, SphericalPoint3,
 };
 
 /// Trait for mathematical functions that can be evaluated at a point in `R^3`.
@@ -30,8 +30,7 @@ pub trait Evaluate {
         range: RangeInclusive<Vec3>,
         num_points: usize,
     ) -> Vec<PointValue<Self::Output>> {
-        range
-            .linspace(num_points)
+        geometry::linspace(range, num_points)
             .map(|pt| self.evaluate_at(&pt.into()))
             .collect()
     }

@@ -24,7 +24,7 @@
 //! let results = AcceptReject::new(Real::new(qn)).simulate(10_000);
 //! ```
 
-#![feature(array_windows, is_sorted, once_cell, type_alias_impl_trait)]
+#![feature(array_windows, is_sorted, once_cell)]
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
     clippy::manual_assert, // Triggered by approx.

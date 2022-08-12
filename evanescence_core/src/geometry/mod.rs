@@ -11,28 +11,22 @@ pub mod vec3;
 pub use point::{PointValue, SphericalPoint3};
 pub use vec3::Vec3;
 
-pub trait Linspace<T> {
-    type Output: ExactSizeIterator<Item = T> + Clone;
+/// Produce `num_points` values evenly spaced across `interval`.
 
-    /// Produce `num_points` values evenly spaced across `self`.
-    fn linspace(&self, num_points: usize) -> Self::Output;
-}
-
-impl<T> Linspace<T> for RangeInclusive<T>
+pub fn linspace<T>(
+    interval: RangeInclusive<T>,
+    num_points: usize,
+) -> impl ExactSizeIterator<Item = T> + Clone
 where
-    T: AddAssign<T> + Sub<T, Output = T> + Div<f32, Output = T> + Copy,
+    for<'a> T: AddAssign<&'a T> + Sub<&'a T, Output = T> + Div<f32, Output = T> + Clone,
 {
-    type Output = impl ExactSizeIterator<Item = T> + Clone;
-
-    fn linspace(&self, num_points: usize) -> Self::Output {
-        let step = (*self.end() - *self.start()) / (num_points as f32 - 1.0);
-        let mut acc = *self.start();
-        (0..num_points).map(move |_| {
-            let next = acc;
-            acc += step;
-            next
-        })
-    }
+    let step = (interval.end().clone() - interval.start()) / (num_points as f32 - 1.0);
+    let mut acc = interval.start().clone();
+    (0..num_points).map(move |_| {
+        let next = acc.clone();
+        acc += &step;
+        next
+    })
 }
 
 /// Type representing a coordinate plane.

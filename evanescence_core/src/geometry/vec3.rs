@@ -3,7 +3,6 @@ use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 use getset::CopyGetters;
 
-use super::Linspace;
 use crate::geometry::SphericalPoint3;
 
 /// A vector (the mathematical kind) in `R^3`.
@@ -42,7 +41,7 @@ impl Vec3 {
         extent: Self,
         num_points: usize,
     ) -> impl ExactSizeIterator<Item = Self> {
-        (-extent..=extent).linspace(num_points)
+        super::linspace(-extent..=extent, num_points)
     }
 }
 
@@ -60,6 +59,14 @@ impl Add for Vec3 {
 
 impl AddAssign for Vec3 {
     fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
+
+impl AddAssign<&Self> for Vec3 {
+    fn add_assign(&mut self, rhs: &Self) {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;

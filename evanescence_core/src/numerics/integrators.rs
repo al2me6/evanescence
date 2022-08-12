@@ -92,11 +92,11 @@ mod tests {
     use approx::{assert_abs_diff_eq, assert_relative_eq};
 
     use super::{integrate_simpson, integrate_trapezoidal};
-    use crate::geometry::Linspace;
+    use crate::geometry;
 
     #[test]
     fn trapezoidal() {
-        let xs = (-2_f32..=4.0).linspace(100).collect::<Vec<_>>();
+        let xs = geometry::linspace(-2_f32..=4.0, 100).collect::<Vec<_>>();
 
         assert_abs_diff_eq!(
             integrate_trapezoidal(
