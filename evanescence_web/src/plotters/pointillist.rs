@@ -59,7 +59,7 @@ pub fn complex(state: &State) -> JsValue {
     let (x, y, z, values) = MONTE_CARLO_CACHE
         .lock()
         .unwrap()
-        .request_complex32(state)
+        .request_complex32(state.into(), state.quality().point_cloud())
         .unwrap()
         .collect::<ComponentForm<_>>()
         .into_components();

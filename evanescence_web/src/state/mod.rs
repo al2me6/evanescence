@@ -552,7 +552,7 @@ impl State {
             Mode::RealSimple | Mode::RealFull | Mode::Hybrid => MONTE_CARLO_CACHE
                 .lock()
                 .unwrap()
-                .request_f32(self)
+                .request_f32(self.into(), self.quality().point_cloud())
                 .unwrap()
                 .collect(),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
@@ -596,3 +596,19 @@ impl Persistent for State {
 pub type StateDispatch = DispatchProps<PersistentStore<State>>;
 #[cfg(not(feature = "persistent"))]
 pub type StateDispatch = DispatchProps<BasicStore<State>>;
+
+pub enum MonteCarloParameters {
+    AtomicReal(Qn),
+    AtomicComplex(Qn),
+    Hybrid(&'static Kind),
+}
+
+impl<'a> From<&'a State> for MonteCarloParameters {
+    fn from(state: &'a State) -> Self {
+        match state.mode() {
+            Mode::RealSimple | Mode::RealFull => MonteCarloParameters::AtomicReal(*state.qn()),
+            Mode::Complex => MonteCarloParameters::AtomicComplex(*state.qn()),
+            Mode::Hybrid => MonteCarloParameters::Hybrid(state.hybrid_kind()),
+        }
+    }
+}

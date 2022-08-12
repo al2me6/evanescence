@@ -7,7 +7,7 @@ use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{self, Qn};
 use num::complex::Complex32;
 
-use super::{Mode, State};
+use super::MonteCarloParameters;
 
 type DynMonteCarlo<O> = dyn MonteCarlo<Output = O> + Send + Sync;
 
@@ -23,32 +23,29 @@ enum CacheKey {
     },
 }
 
-impl From<&State> for CacheKey {
-    fn from(state: &State) -> Self {
-        match state.mode() {
-            Mode::RealSimple | Mode::RealFull => Self::Real(*state.qn()),
-            Mode::Hybrid => {
-                let kind = state.hybrid_kind();
-                Self::Hybrid {
-                    n: kind.n(),
-                    symmetry: kind.symmetry().clone(),
-                    description: kind.description().clone(),
-                }
-            }
-            Mode::Complex => Self::Complex(*state.qn()),
+impl From<&MonteCarloParameters> for CacheKey {
+    fn from(params: &MonteCarloParameters) -> Self {
+        match params {
+            MonteCarloParameters::AtomicReal(qn) => Self::Real(*qn),
+            MonteCarloParameters::AtomicComplex(qn) => Self::Complex(*qn),
+            MonteCarloParameters::Hybrid(kind) => Self::Hybrid {
+                n: kind.n(),
+                symmetry: kind.symmetry().clone(),
+                description: kind.description().clone(),
+            },
         }
     }
 }
 
 struct CacheEntry<O: Copy> {
-    evaluator: Box<DynMonteCarlo<O>>,
+    sampler: Box<DynMonteCarlo<O>>,
     samples: Vec<PointValue<O>>,
 }
 
 impl<O: Copy> CacheEntry<O> {
-    fn new(evaluator: Box<DynMonteCarlo<O>>) -> Self {
+    fn new(sampler: Box<DynMonteCarlo<O>>) -> Self {
         Self {
-            evaluator,
+            sampler,
             samples: Vec::with_capacity(1 >> 14),
         }
     }
@@ -56,7 +53,7 @@ impl<O: Copy> CacheEntry<O> {
     fn request_simulation(&mut self, count: usize) -> impl Iterator<Item = &PointValue<O>> {
         if self.samples.len() < count {
             self.samples
-                .extend(self.evaluator.simulate(count - self.samples.len()));
+                .extend(self.sampler.simulate(count - self.samples.len()));
         }
         self.samples[..count].iter()
     }
@@ -69,44 +66,49 @@ pub struct MonteCarloCache {
 }
 
 impl MonteCarloCache {
-    pub fn request_f32(&mut self, state: &State) -> Option<impl Iterator<Item = &PointValue<f32>>> {
-        if state.mode().is_complex() {
+    pub fn request_f32(
+        &mut self,
+        params: MonteCarloParameters,
+        count: usize,
+    ) -> Option<impl Iterator<Item = &PointValue<f32>>> {
+        if matches!(params, MonteCarloParameters::AtomicComplex(_)) {
             return None;
         }
         let entry = self
             .cache_real
-            .entry(CacheKey::from(state))
+            .entry(CacheKey::from(&params))
             .or_insert_with(|| {
-                CacheEntry::new(match state.mode() {
-                    Mode::RealSimple | Mode::RealFull => {
-                        Box::new(AcceptReject::new(orbital::Real::new(*state.qn())))
+                CacheEntry::new(match params {
+                    MonteCarloParameters::AtomicReal(qn) => {
+                        Box::new(AcceptReject::new(orbital::Real::new(qn)))
                     }
-                    Mode::Hybrid => Box::new(AcceptReject::new(orbital::hybrid::Hybrid::new(
-                        state.hybrid_kind().archetype().clone(),
-                    ))),
-                    Mode::Complex => unreachable!(),
+                    MonteCarloParameters::Hybrid(kind) => Box::new(AcceptReject::new(
+                        orbital::hybrid::Hybrid::new(kind.archetype().clone()),
+                    )),
+                    MonteCarloParameters::AtomicComplex(_) => unreachable!(),
                 })
             });
-        Some(entry.request_simulation(state.quality().point_cloud()))
+        Some(entry.request_simulation(count))
     }
 
     pub fn request_complex32(
         &mut self,
-        state: &State,
+        params: MonteCarloParameters,
+        count: usize,
     ) -> Option<impl Iterator<Item = &PointValue<Complex32>>> {
-        if !state.mode().is_complex() {
+        if !matches!(params, MonteCarloParameters::AtomicComplex(_)) {
             return None;
         }
         let entry = self
             .cache_complex
-            .entry(CacheKey::from(state))
-            .or_insert_with(|| match state.mode() {
-                Mode::Complex => CacheEntry::new(Box::new(AcceptReject::new(
-                    orbital::Complex::new(*state.qn()),
-                ))),
+            .entry(CacheKey::from(&params))
+            .or_insert_with(|| match params {
+                MonteCarloParameters::AtomicComplex(qn) => {
+                    CacheEntry::new(Box::new(AcceptReject::new(orbital::Complex::new(qn))))
+                }
                 _ => unreachable!(),
             });
-        Some(entry.request_simulation(state.quality().point_cloud()))
+        Some(entry.request_simulation(count))
     }
 }
 
