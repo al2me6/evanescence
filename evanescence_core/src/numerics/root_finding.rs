@@ -16,7 +16,7 @@ pub enum RootError {
 /// Errors if the `interval` does not actually contain a root, or if the algorithm fails to
 /// converge to `tolerance` within `max_iters` iterations (unlimited if `None`).
 #[allow(clippy::many_single_char_names)] // Convention.
-pub fn find_root_brent(
+pub fn brent(
     interval: RangeInclusive<f32>,
     mut f: impl FnMut(f32) -> f32,
     tolerance: f32,
@@ -110,7 +110,7 @@ pub fn find_roots_in_interval_brent(
         .map(|a| (a, f(a)))
         .tuple_windows()
         .filter(|((_, f_a), (_, f_b))| f_a * f_b < 0.0) // ab < 0 iff a < 0 xor b < 0.
-        .map(|((a, _), (b, _))| find_root_brent(a..=b, f, 1E-6, None))
+        .map(|((a, _), (b, _))| brent(a..=b, f, 1E-6, None))
         .inspect(|res| assert!(!matches!(res, &Err(RootError::NotBracketed))))
         .collect()
 }

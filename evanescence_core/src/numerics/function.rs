@@ -5,7 +5,7 @@ use na::{Const, SVector, ToTypenum, Vector3};
 
 use crate::geometry::point::IPoint;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
-use crate::geometry::storage::grid_values_3::CoordinatePlane3;
+use crate::geometry::storage::grid_values::CoordinatePlane3;
 use crate::geometry::storage::{GridValues3, PointValue, Soa};
 
 pub trait Function<const N: usize, P: IPoint<N> = na::Point<f32, N>> {
@@ -78,7 +78,7 @@ where
         num_points: usize,
     ) -> GridValues3<Self::Output> {
         // Indices cooresponding to the components of the `Vector3`.
-        let extract_component: (usize, usize) = match plane {
+        let component_idx: (usize, usize) = match plane {
             CoordinatePlane3::XY => (0, 1),
             CoordinatePlane3::YZ => (1, 2),
             CoordinatePlane3::ZX => (2, 0),
@@ -107,14 +107,8 @@ where
 
         GridValues3::new(
             plane,
-            points_in_row
-                .iter()
-                .map(|p| p[extract_component.0])
-                .collect(),
-            points_in_col
-                .iter()
-                .map(|p| p[extract_component.1])
-                .collect(),
+            points_in_row.iter().map(|p| p[component_idx.0]).collect(),
+            points_in_col.iter().map(|p| p[component_idx.1]).collect(),
             vals,
         )
         .expect("rows and columns are equal in length by construction")
