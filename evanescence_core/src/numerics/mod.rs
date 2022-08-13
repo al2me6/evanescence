@@ -27,7 +27,7 @@ pub mod integrators;
 #[macro_use]
 pub mod polynomial;
 
-pub mod evaluation;
+pub mod function;
 pub mod monte_carlo;
 pub mod random;
 pub mod root_finding;
@@ -35,7 +35,7 @@ pub mod special;
 pub mod spherical_harmonics;
 pub mod statistics;
 
-pub use evaluation::Evaluate;
+pub use function::Function;
 
 /// Produce `num_points` values evenly spaced across `interval`.
 pub fn linspace<T>(

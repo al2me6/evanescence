@@ -1,11 +1,13 @@
 use std::default::default;
 use std::f32::consts::{PI, TAU};
 
-use evanescence_core::geometry::{ComponentForm, CoordinatePlane, SphericalPoint3};
-use evanescence_core::numerics::evaluation::EvaluateInOriginCenteredRegionExt;
-use evanescence_core::numerics::{self, Evaluate};
+use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
+use evanescence_core::geometry::storage::ComponentForm3;
+use evanescence_core::numerics::function::{Function3Ext, Function3InOriginCenteredRegionExt};
+use evanescence_core::numerics::{self, Function};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::Real;
+use na::Point3;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -61,7 +63,7 @@ pub fn complex(state: &State) -> JsValue {
         .unwrap()
         .request_complex32(state.into(), state.quality().point_cloud())
         .unwrap()
-        .collect::<ComponentForm<_>>()
+        .collect::<ComponentForm3<_>>()
         .into_components();
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
@@ -168,12 +170,13 @@ impl VerticalCone {
     }
 }
 
-impl Evaluate for VerticalCone {
+impl Function<3, Point3<f32>> for VerticalCone {
     type Output = f32;
 
-    fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
+    fn evaluate(&self, point: &Point3<f32>) -> Self::Output {
         // Note that the z values of passed points are ignored!
-        (point.x() * point.x() + point.y() * point.y()).sqrt() / self.theta.tan()
+        (point.coords.x * point.coords.x + point.coords.y * point.coords.y).sqrt()
+            / self.theta.tan()
     }
 }
 
@@ -189,7 +192,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
             .into_iter()
             .map(|theta| {
                 VerticalCone::new(theta)
-                    .evaluate_on_plane(CoordinatePlane::XY, bound, NUM_POINTS)
+                    .evaluate_on_plane(CoordinatePlane3::XY, bound, NUM_POINTS)
                     .into_components()
             })
             .map(|(x, y, z)| Surface {
@@ -227,7 +230,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
 }
 
 pub fn cross_section_indicator(state: &State) -> JsValue {
-    let plane: CoordinatePlane = state.supplement().try_into().unwrap();
+    let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
     let (x, y, z) = plane.square_wrt_xy_plane(state.bound()).into_components();
     Surface {
         x: Some(x),

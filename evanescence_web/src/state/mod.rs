@@ -3,8 +3,9 @@ use std::default::default;
 use std::fmt;
 
 use evanescence_core::geometry::region::BoundingRegion;
-use evanescence_core::geometry::{ComponentForm, CoordinatePlane, GridValues};
-use evanescence_core::numerics::evaluation::EvaluateInOriginCenteredRegionExt;
+use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
+use evanescence_core::geometry::storage::{ComponentForm3, GridValues3};
+use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::hybrid::Kind;
@@ -74,19 +75,19 @@ impl Default for Visualization {
     }
 }
 
-impl TryFrom<Visualization> for CoordinatePlane {
+impl TryFrom<Visualization> for CoordinatePlane3 {
     type Error = String;
 
     fn try_from(value: Visualization) -> Result<Self, Self::Error> {
         match value {
             Visualization::WavefunctionXY | Visualization::ProbabilityDensityXY => {
-                Ok(CoordinatePlane::XY)
+                Ok(CoordinatePlane3::XY)
             }
             Visualization::WavefunctionYZ | Visualization::ProbabilityDensityYZ => {
-                Ok(CoordinatePlane::YZ)
+                Ok(CoordinatePlane3::YZ)
             }
             Visualization::WavefunctionZX | Visualization::ProbabilityDensityZX => {
-                Ok(CoordinatePlane::ZX)
+                Ok(CoordinatePlane3::ZX)
             }
             _ => Err(format!("{value:?} does not have an associated plane")),
         }
@@ -535,17 +536,15 @@ impl State {
     pub fn bound(&self) -> f32 {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull | Mode::Complex => {
-                orbital::Real::new(*self.qn()).bounding_region().radius
+                orbital::Real::new(*self.qn()).bounding_region()
             }
-            Mode::Hybrid => {
-                orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
-                    .bounding_region()
-                    .radius
-            }
+            Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
+                .bounding_region(),
         }
+        .radius
     }
 
-    pub fn monte_carlo_simulate_real(&self) -> ComponentForm<f32> {
+    pub fn monte_carlo_simulate_real(&self) -> ComponentForm3<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull | Mode::Hybrid => MONTE_CARLO_CACHE
                 .lock()
@@ -557,7 +556,7 @@ impl State {
         }
     }
 
-    pub fn sample_plane_real(&self, plane: CoordinatePlane) -> GridValues<f32> {
+    pub fn sample_plane_real(&self, plane: CoordinatePlane3) -> GridValues3<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull => {
                 orbital::Real::new(*self.qn()).sample_plane(plane, self.quality().grid_2d())
@@ -568,7 +567,7 @@ impl State {
         }
     }
 
-    pub fn sample_plane_prob_density(&self, plane: CoordinatePlane) -> GridValues<f32> {
+    pub fn sample_plane_prob_density(&self, plane: CoordinatePlane3) -> GridValues3<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull => {
                 ProbabilityDensityEvaluator::new(orbital::Real::new(*self.qn()))

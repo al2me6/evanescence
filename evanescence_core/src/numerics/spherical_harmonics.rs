@@ -4,8 +4,8 @@ use std::f32::consts::SQRT_2;
 use num::complex::Complex32;
 
 use super::special::orthogonal_polynomials::renormalized_associated_legendre;
-use super::Evaluate;
-use crate::geometry::SphericalPoint3;
+use super::Function;
+use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
 use crate::orbital::quantum_numbers::Lm;
 
 /// Implementation of the spherical harmonics, `Y_l^m(θ,φ)`, including the Condon-Shortley phase.
@@ -20,7 +20,7 @@ impl SphericalHarmonic {
     }
 }
 
-impl Evaluate for SphericalHarmonic {
+impl Function<3, SphericalPoint3> for SphericalHarmonic {
     type Output = Complex32;
 
     #[inline]
@@ -51,7 +51,7 @@ impl RealSphericalHarmonic {
     }
 }
 
-impl Evaluate for RealSphericalHarmonic {
+impl Function<3, SphericalPoint3> for RealSphericalHarmonic {
     type Output = f32;
 
     #[inline]
@@ -143,26 +143,67 @@ impl RealSphericalHarmonic {
 
 #[cfg(test)]
 mod tests {
-
     use std::sync::LazyLock;
 
+    use na::vector;
+
     use super::RealSphericalHarmonic;
-    use crate::geometry::SphericalPoint3;
-    use crate::numerics::Evaluate;
+    use crate::geometry::point::SphericalPoint3;
+    use crate::numerics::Function;
     use crate::orbital::quantum_numbers::Lm;
 
     static POINTS: LazyLock<Vec<SphericalPoint3>> = LazyLock::new(|| {
         vec![
-            SphericalPoint3::new(0.4817551668747674, -0.0804650251296536, -5.6874218288168015),
-            SphericalPoint3::new(2.0333187824258494, -5.438747021019332, -0.6049420414492214),
-            SphericalPoint3::new(-5.536298275253506, 4.6076805316895, -1.2262339330118561),
-            SphericalPoint3::new(-4.149645839500807, -1.2219161435660775, 6.136358860884453),
-            SphericalPoint3::new(0.16027731917592172, -1.03637296675495, 2.9708473002364815),
-            SphericalPoint3::new(0.9588954657662077, -5.518368529663465, -4.652089232680136),
-            SphericalPoint3::new(-5.511550802584331, 4.47433749034273, 2.7803369868007075),
-            SphericalPoint3::new(-4.867929449744333, 0.5252811429346673, -8.256693767935815),
-            SphericalPoint3::new(-0.15569673568314418, -7.415856784977347, 5.713181575221412),
-            SphericalPoint3::new(4.391483176478295, -6.632126843233279, 2.103909081619213),
+            SphericalPoint3::from(vector![
+                0.4817551668747674,
+                -0.0804650251296536,
+                -5.6874218288168015
+            ]),
+            SphericalPoint3::from(vector![
+                2.0333187824258494,
+                -5.438747021019332,
+                -0.6049420414492214
+            ]),
+            SphericalPoint3::from(vector![
+                -5.536298275253506,
+                4.6076805316895,
+                -1.2262339330118561
+            ]),
+            SphericalPoint3::from(vector![
+                -4.149645839500807,
+                -1.2219161435660775,
+                6.136358860884453
+            ]),
+            SphericalPoint3::from(vector![
+                0.16027731917592172,
+                -1.03637296675495,
+                2.9708473002364815
+            ]),
+            SphericalPoint3::from(vector![
+                0.9588954657662077,
+                -5.518368529663465,
+                -4.652089232680136
+            ]),
+            SphericalPoint3::from(vector![
+                -5.511550802584331,
+                4.47433749034273,
+                2.7803369868007075
+            ]),
+            SphericalPoint3::from(vector![
+                -4.867929449744333,
+                0.5252811429346673,
+                -8.256693767935815
+            ]),
+            SphericalPoint3::from(vector![
+                -0.15569673568314418,
+                -7.415856784977347,
+                5.713181575221412
+            ]),
+            SphericalPoint3::from(vector![
+                4.391483176478295,
+                -6.632126843233279,
+                2.103909081619213
+            ]),
         ]
     });
 

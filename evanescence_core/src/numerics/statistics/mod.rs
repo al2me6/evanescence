@@ -1,21 +1,24 @@
-use super::Evaluate;
+use std::marker::PhantomData;
+
+use super::Function;
+use crate::geometry::point::IPoint;
 use crate::geometry::region::BoundingRegion;
-use crate::geometry::{PointValue, SphericalPoint3};
+use crate::geometry::storage::PointValue;
 
 pub mod kolmogorov_smirnov;
 
-/// An [`Evaluate`]-able type that can also be interpreted as a probability density function.
-pub trait Distribution: Evaluate {
+/// A [`Function`] that can also be interpreted as a probability density function.
+pub trait Distribution<const N: usize, P: IPoint<N>>: Function<N, P> {
     /// Give the probability density corresponding to a `value` of the underlying function.
     fn probability_density_of(&self, value: Self::Output) -> f32;
 
     #[inline]
-    fn probability_density(&self, point: &SphericalPoint3) -> f32 {
+    fn probability_density(&self, point: &P) -> f32 {
         self.probability_density_of(self.evaluate(point))
     }
 
     #[inline]
-    fn evaluate_with_probability_density(&self, point: &SphericalPoint3) -> (Self::Output, f32) {
+    fn evaluate_with_probability_density(&self, point: &P) -> (Self::Output, f32) {
         let output = self.evaluate(point);
         let prob_density = self.probability_density_of(output);
         (output, prob_density)
@@ -24,8 +27,8 @@ pub trait Distribution: Evaluate {
     #[inline]
     fn evaluate_at_with_probability_density(
         &self,
-        point: &SphericalPoint3,
-    ) -> (PointValue<Self::Output>, f32) {
+        point: P,
+    ) -> (PointValue<N, P, Self::Output>, f32) {
         let output = self.evaluate_at(point);
         let prob_density = self.probability_density_of(output.1);
         (output, prob_density)
@@ -38,40 +41,56 @@ pub trait Distribution: Evaluate {
 ///
 /// ```
 /// use approx::assert_relative_eq;
-/// use evanescence_core::geometry::Point;
+/// use evanescence_core::geometry::point::SphericalPoint3;
 /// use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
-/// use evanescence_core::numerics::Evaluate;
+/// use evanescence_core::numerics::Function;
 /// use evanescence_core::orbital::{Qn, Real};
 ///
 /// let qn = Qn::new(3, 2, 1).unwrap();
 ///
 /// assert_relative_eq!(
 ///     2.446E-4,
-///     ProbabilityDensityEvaluator::new(Real::new(qn)).evaluate(&Point::new(6.0, -0.3, 8.5))
+///     ProbabilityDensityEvaluator::new(Real::new(qn))
+///         .evaluate(&SphericalPoint3::new(6.0, -0.3, 8.5))
 /// );
 /// ```
-pub struct ProbabilityDensityEvaluator<D>(D);
+pub struct ProbabilityDensityEvaluator<const N: usize, P, D> {
+    inner: D,
+    _phantom: PhantomData<P>,
+}
 
-impl<D> ProbabilityDensityEvaluator<D> {
+impl<const N: usize, P, D> ProbabilityDensityEvaluator<N, P, D> {
     pub fn new(inner: D) -> Self {
-        Self(inner)
+        Self {
+            inner,
+            _phantom: PhantomData,
+        }
     }
 }
 
-impl<D: Distribution> Evaluate for ProbabilityDensityEvaluator<D> {
+impl<const N: usize, P, D> Function<N, P> for ProbabilityDensityEvaluator<N, P, D>
+where
+    P: IPoint<N>,
+    D: Distribution<N, P>,
+{
     type Output = f32;
 
     #[inline]
-    fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
-        self.0.probability_density_of(self.0.evaluate(point))
+    fn evaluate(&self, point: &P) -> Self::Output {
+        self.inner
+            .probability_density_of(self.inner.evaluate(point))
     }
 }
 
-impl<D: Distribution + BoundingRegion> BoundingRegion for ProbabilityDensityEvaluator<D> {
+impl<const N: usize, P, D> BoundingRegion<N, P> for ProbabilityDensityEvaluator<N, P, D>
+where
+    P: IPoint<N>,
+    D: Distribution<N, P> + BoundingRegion<N, P>,
+{
     type Geometry = D::Geometry;
 
     #[inline]
     fn bounding_region(&self) -> Self::Geometry {
-        self.0.bounding_region()
+        self.inner.bounding_region()
     }
 }

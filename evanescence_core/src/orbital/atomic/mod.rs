@@ -2,10 +2,13 @@
 //! angular components. Also included are probability and probability distribution functions
 //! for the radial wavefunction.
 
-use crate::geometry::SphericalPoint3;
+use na::Point1;
+
+use crate::geometry::point::IPoint;
+use crate::numerics;
 use crate::numerics::polynomial::Polynomial;
 use crate::numerics::special::orthogonal_polynomials;
-use crate::numerics::{self, Evaluate};
+use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Nl, Qn};
 
 pub mod complex;
@@ -45,24 +48,19 @@ impl Radial {
         // Where we've taken `(2Z/n)^3 / 2n` out ouf the square root.
         2.0 / factorial_factor.sqrt() / ((n * n) as f32)
     }
+}
 
-    /// Give the value of the radial wavefunction at `r` for a given `Nl`.
+impl Function<1, Point1<f32>> for Radial {
+    type Output = f32;
+
     #[inline]
-    pub fn evaluate_r(&self, r: f32) -> f32 {
+    fn evaluate(&self, point: &Point1<f32>) -> Self::Output {
+        let r = point.coordinates().x;
         let rho = 2.0 * r / (self.nl.n() as f32);
         self.normalization
             * (-rho / 2.0).exp()
             * rho.powi(self.nl.l() as i32)
             * self.associated_laguerre.evaluate_horner(rho)
-    }
-}
-
-impl Evaluate for Radial {
-    type Output = f32;
-
-    #[inline]
-    fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
-        self.evaluate_r(point.r())
     }
 }
 
@@ -73,22 +71,17 @@ impl RadialProbabilityDistribution {
     pub fn new(nl: Nl) -> Self {
         Self(Radial::new(nl))
     }
-
-    /// Give the value of the radial probability distribution at `r` for a given `Nl`.
-    #[inline]
-    pub fn evaluate_r(&self, r: f32) -> f32 {
-        #[allow(non_snake_case)] // Mathematical convention.
-        let R = self.0.evaluate_r(r);
-        r * r * R * R
-    }
 }
 
-impl Evaluate for RadialProbabilityDistribution {
+impl Function<1, Point1<f32>> for RadialProbabilityDistribution {
     type Output = f32;
 
     #[inline]
-    fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
-        self.evaluate_r(point.r())
+    fn evaluate(&self, point: &Point1<f32>) -> Self::Output {
+        let r = point.coords.x;
+        #[allow(non_snake_case)] // Mathematical convention.
+        let R = self.0.evaluate(point);
+        r * r * R * R
     }
 }
 
@@ -114,11 +107,13 @@ impl RadialPlot {
         let vals = match self {
             Self::Wavefunction => {
                 let psi = Radial::new(nl);
-                rs.iter().map(|&r| psi.evaluate_r(r)).collect()
+                rs.iter().map(|&r| psi.evaluate(&Point1::new(r))).collect()
             }
             Self::ProbabilityDistribution => {
                 let psi_sq = RadialProbabilityDistribution::new(nl);
-                rs.iter().map(|&r| psi_sq.evaluate_r(r)).collect()
+                rs.iter()
+                    .map(|&r| psi_sq.evaluate(&Point1::new(r)))
+                    .collect()
             }
         };
         (rs, vals)
@@ -141,7 +136,7 @@ fn bound(qn: Qn) -> f32 {
 
     while probability < PROBABILITY_WITHIN_BOUND {
         numerics::integrators::integrate_simpson_step(
-            |r| psi_sq.evaluate_r(r),
+            |r| psi_sq.evaluate(&Point1::new(r)),
             &mut r,
             &mut probability,
             STEP,
@@ -173,8 +168,11 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
+    use na::Point1;
+
     use super::{Radial, RadialPlot, PROBABILITY_WITHIN_BOUND};
     use crate::numerics;
+    use crate::numerics::Function;
     use crate::orbital::quantum_numbers::{Nl, Qn};
 
     #[test]
@@ -206,7 +204,7 @@ mod tests {
             #[allow(clippy::cast_possible_truncation)]
             for Sample { pt, val: expected } in samples {
                 let expected = expected as f32;
-                let computed = radial.evaluate_r(pt as f32);
+                let computed = radial.evaluate(&Point1::new(pt as f32));
                 let tolerance = if n < 9 { 1E-7 } else { 2E-2 };
 
                 assert!(

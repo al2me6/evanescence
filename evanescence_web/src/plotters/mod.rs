@@ -2,8 +2,8 @@ pub mod pointillist;
 pub mod supplemental;
 
 use evanescence_core::geometry::region::BoundingRegion;
-use evanescence_core::geometry::PointValue;
-use evanescence_core::numerics::Evaluate;
+use evanescence_core::geometry::storage::PointValue;
+use evanescence_core::numerics::function::Function3Ext;
 use evanescence_core::orbital::hybrid::{Hybrid, Kind};
 use evanescence_core::orbital::Qn;
 use itertools::Itertools;
@@ -51,11 +51,7 @@ fn compute_isosurface_hybrid(
     let lc = &kind.combinations()[idx];
     let hybrid = Hybrid::new(lc.clone());
     let (x, y, z, value) = hybrid
-        .evaluate_in_region(
-            // Manually shrink the extent sampled for higher quality.
-            hybrid.bounding_region().radius * 0.85,
-            quality.grid_3d(),
-        )
+        .evaluate_in_region(hybrid.bounding_region().radius * 0.85, quality.grid_3d())
         .into_components();
     let cutoff = isosurface_cutoff_hybrid(kind);
 

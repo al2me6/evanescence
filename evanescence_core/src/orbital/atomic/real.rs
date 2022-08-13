@@ -1,13 +1,16 @@
 use std::f32::consts::{FRAC_PI_2, PI};
 
+use na::Point1;
+
 use super::Radial;
+use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
-use crate::geometry::SphericalPoint3;
+use crate::numerics;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::spherical_harmonics::RealSphericalHarmonic;
 use crate::numerics::statistics::Distribution;
-use crate::numerics::{self, Evaluate};
+use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Lm, Qn};
 use crate::orbital::Orbital;
 
@@ -40,16 +43,16 @@ impl Real {
     }
 }
 
-impl Evaluate for Real {
+impl Function<3, SphericalPoint3> for Real {
     type Output = f32;
 
     #[inline]
     fn evaluate(&self, point: &SphericalPoint3) -> f32 {
-        self.radial.evaluate(point) * self.sph.evaluate(point)
+        self.radial.evaluate(&[point.r()].into()) * self.sph.evaluate(point)
     }
 }
 
-impl BoundingRegion for Real {
+impl BoundingRegion<3, SphericalPoint3> for Real {
     type Geometry = BallCenteredAtOrigin;
 
     fn bounding_region(&self) -> Self::Geometry {
@@ -59,14 +62,14 @@ impl BoundingRegion for Real {
     }
 }
 
-impl Distribution for Real {
+impl Distribution<3, SphericalPoint3> for Real {
     #[inline]
     fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value
     }
 }
 
-impl Orbital for Real {
+impl Orbital<SphericalPoint3> for Real {
     /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
     /// the quantum numbers only (ex. `ψ_{420}`).
     fn name(&self) -> String {
@@ -74,7 +77,7 @@ impl Orbital for Real {
     }
 }
 
-impl AcceptRejectParameters for Real {
+impl AcceptRejectParameters<3, SphericalPoint3> for Real {
     // TODO: custom maximum impl.
     fn accept_threshold_fudge(&self) -> Option<f32> {
         Some(super::accept_threshold_modifier(self.qn))
@@ -109,7 +112,7 @@ impl Real {
         let roots = numerics::root_finding::find_roots_in_interval_brent(
             0.05..=super::bound(qn),
             100,
-            |r| radial.evaluate_r(r),
+            |r| radial.evaluate(&Point1::new(r)),
         )
         .expect("root finder did not converge");
         assert_eq!(
@@ -165,17 +168,19 @@ mod tests {
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     use itertools::Itertools;
+    use na::{vector, Point1};
     use rayon::prelude::*;
 
     use super::Real;
+    use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
     use crate::geometry::region::BoundingRegion;
-    use crate::geometry::{PointValue, SphericalPoint3};
+    use crate::geometry::storage::PointValue;
     use crate::numerics::integrators::integrate_simpson;
     use crate::numerics::monte_carlo::accept_reject::AcceptReject;
     use crate::numerics::monte_carlo::MonteCarlo;
     use crate::numerics::statistics::kolmogorov_smirnov::kolmogorov_smirnov_test;
     use crate::numerics::statistics::ProbabilityDensityEvaluator;
-    use crate::numerics::Evaluate;
+    use crate::numerics::Function;
     use crate::orbital::atomic::{RadialProbabilityDistribution, PROBABILITY_WITHIN_BOUND};
     use crate::orbital::quantum_numbers::{Lm, Qn};
 
@@ -228,7 +233,7 @@ mod tests {
             let psi_sq = ProbabilityDensityEvaluator::new(Real::new(qn));
             let bound = psi_sq.bounding_region().radius;
             let prob = integrate_simpson_multiple!(
-                psi_sq.evaluate(&SphericalPoint3::new(x, y, z)),
+                psi_sq.evaluate(&SphericalPoint3::from(vector![x, y, z])),
                 step: bound / 40_f32,
                 x: (-bound, bound),
                 y: (-bound, bound),
@@ -267,7 +272,7 @@ mod tests {
                 let radial_probability_distribution = RadialProbabilityDistribution::new(qn.into());
                 let cdf = |r| {
                     integrate_simpson(
-                        |s| radial_probability_distribution.evaluate_r(s),
+                        |s| radial_probability_distribution.evaluate(&Point1::new(s)),
                         0.,
                         r,
                         (r / 40.).max(0.005),

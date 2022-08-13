@@ -4,13 +4,13 @@
 //!
 //! To evaluate a wavefunction at a particular point:
 //! ```
-//! use evanescence_core::geometry::Point;
-//! use evanescence_core::numerics::Evaluate;
+//! use evanescence_core::geometry::point::SphericalPoint3;
+//! use evanescence_core::numerics::Function;
 //! use evanescence_core::orbital::{Qn, Real};
 //!
 //! // The 4d_{z^2} orbital.
 //! let qn = Qn::new(4, 2, 0).unwrap(); // The constructor validates the parameters.
-//! let value = Real::new(qn).evaluate(&Point::new(1.0, 3.2, 4.7));
+//! let value = Real::new(qn).evaluate(&SphericalPoint3::new(1.0, 3.2, 4.7));
 //! approx::assert_ulps_eq!(value, 0.008895547);
 //! ```
 //!
@@ -38,6 +38,8 @@
 #![cfg_attr(test, allow(clippy::excessive_precision, clippy::unreadable_literal))]
 // Proper error handling.
 #![cfg_attr(not(test), deny(clippy::unwrap_used))]
+
+extern crate nalgebra as na;
 
 #[macro_use]
 pub mod numerics;

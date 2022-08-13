@@ -1,9 +1,9 @@
 use std::default::default;
 use std::f32::consts::PI;
 
-use evanescence_core::geometry::CoordinatePlane;
+use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
 use evanescence_core::numerics;
-use evanescence_core::numerics::evaluation::EvaluateInOriginCenteredRegionExt;
+use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::{Complex, Real};
 use wasm_bindgen::JsValue;
@@ -94,7 +94,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
     (trace.into(), layout.into())
 }
 
-fn cross_section_layout(plane: CoordinatePlane, z_axis_title: &str) -> Layout<'_> {
+fn cross_section_layout(plane: CoordinatePlane3, z_axis_title: &str) -> Layout<'_> {
     let (x_label, y_label) = plane.axes_names();
     Layout {
         ui_revision: Some(plane.to_string()),
@@ -151,7 +151,7 @@ fn cross_section_z_contour(max_abs: f32) -> Contour<'static> {
 
 pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     let is_complex = state.mode().is_complex();
-    let plane: CoordinatePlane = state.supplement().try_into().unwrap();
+    let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
 
     let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) = Complex::new(*state.qn())
@@ -227,7 +227,7 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
 }
 
 pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
-    let plane: CoordinatePlane = state.supplement().try_into().unwrap();
+    let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
     let (x, y, mut z) = state.sample_plane_prob_density(plane).into_components();
     let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
     assert!(

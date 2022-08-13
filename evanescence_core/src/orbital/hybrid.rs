@@ -10,11 +10,11 @@ pub use maplit::hashmap;
 use thiserror::Error;
 
 use super::{Orbital, Qn, Real};
+use crate::geometry::point::SphericalPoint3;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
-use crate::geometry::SphericalPoint3;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::statistics::Distribution;
-use crate::numerics::Evaluate;
+use crate::numerics::Function;
 
 /// Structure representing a [`Qn`] and an associated weight.
 #[derive(Clone, PartialEq, Debug)]
@@ -172,9 +172,10 @@ impl Hybrid {
     }
 }
 
-impl Evaluate for Hybrid {
+impl Function<3, SphericalPoint3> for Hybrid {
     type Output = f32;
 
+    #[inline]
     fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
         self.lc
             .iter()
@@ -184,7 +185,7 @@ impl Evaluate for Hybrid {
     }
 }
 
-impl BoundingRegion for Hybrid {
+impl BoundingRegion<3, SphericalPoint3> for Hybrid {
     type Geometry = BallCenteredAtOrigin;
 
     fn bounding_region(&self) -> Self::Geometry {
@@ -200,20 +201,20 @@ impl BoundingRegion for Hybrid {
     }
 }
 
-impl Distribution for Hybrid {
+impl Distribution<3, SphericalPoint3> for Hybrid {
     #[inline]
     fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value
     }
 }
 
-impl Orbital for Hybrid {
+impl Orbital<SphericalPoint3> for Hybrid {
     fn name(&self) -> String {
         self.lc.to_string()
     }
 }
 
-impl AcceptRejectParameters for Hybrid {}
+impl AcceptRejectParameters<3, SphericalPoint3> for Hybrid {}
 
 /// Mapping describing how many orbitals of each azimuthal quantum number `l` is contained in a
 /// [`Kind`].

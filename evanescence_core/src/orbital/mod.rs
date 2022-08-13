@@ -8,10 +8,11 @@ pub mod quantum_numbers;
 pub use self::atomic::complex::Complex;
 pub use self::atomic::real::Real;
 pub use self::quantum_numbers::Qn;
+use crate::geometry::point::IPoint;
 use crate::numerics::statistics::Distribution;
 
 /// Trait representing a type of wavefunction.
-pub trait Orbital: Distribution {
+pub trait Orbital<P: IPoint<3>>: Distribution<3, P> {
     /// Give the conventional name of an orbital.
     ///
     /// Superscripts are represented using Unicode superscript symbols and subscripts are

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use evanescence_core::geometry;
+use evanescence_core::geometry::storage::ComponentForm3;
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::special::factorial::DoubleFactorial;
@@ -59,9 +59,10 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
             ),
             |b| {
                 b.iter(|| {
-                    geometry::decompose_point_values(
-                        AcceptReject::new(Real::new(qn)).simulate(131_072),
-                    )
+                    AcceptReject::new(Real::new(qn))
+                        .simulate(131_072)
+                        .into_iter()
+                        .collect::<ComponentForm3<_>>()
                 })
             },
         );

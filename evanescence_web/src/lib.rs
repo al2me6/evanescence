@@ -13,6 +13,8 @@
     clippy::non_ascii_literal, // Unicode support is expected.
 )]
 
+extern crate nalgebra as na;
+
 #[macro_use]
 pub mod utils;
 

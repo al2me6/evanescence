@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 
-use evanescence_core::geometry::PointValue;
+use evanescence_core::geometry::point::SphericalPoint3;
+use evanescence_core::geometry::storage::PointValue;
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{self, Qn};
@@ -9,7 +10,7 @@ use num::complex::Complex32;
 
 use super::MonteCarloParameters;
 
-type DynMonteCarlo<O> = dyn MonteCarlo<Output = O> + Send + Sync;
+type DynMonteCarlo<O> = dyn MonteCarlo<3, SphericalPoint3, Output = O> + Send + Sync;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 enum CacheKey {
@@ -39,7 +40,7 @@ impl From<&MonteCarloParameters> for CacheKey {
 
 struct CacheEntry<O: Copy> {
     sampler: Box<DynMonteCarlo<O>>,
-    samples: Vec<PointValue<O>>,
+    samples: Vec<PointValue<3, SphericalPoint3, O>>,
 }
 
 impl<O: Copy> CacheEntry<O> {
@@ -50,7 +51,10 @@ impl<O: Copy> CacheEntry<O> {
         }
     }
 
-    fn request_simulation(&mut self, count: usize) -> impl Iterator<Item = &PointValue<O>> {
+    fn request_simulation(
+        &mut self,
+        count: usize,
+    ) -> impl Iterator<Item = &PointValue<3, SphericalPoint3, O>> {
         if self.samples.len() < count {
             let count = count - self.samples.len();
             log::debug!("[MonteCarlo cache] simulating {count} samples.");
@@ -71,7 +75,7 @@ impl MonteCarloCache {
         &mut self,
         params: MonteCarloParameters,
         count: usize,
-    ) -> Option<impl Iterator<Item = &PointValue<f32>>> {
+    ) -> Option<impl Iterator<Item = &PointValue<3, SphericalPoint3, f32>>> {
         if matches!(params, MonteCarloParameters::AtomicComplex(_)) {
             return None;
         }
@@ -83,9 +87,11 @@ impl MonteCarloCache {
                     MonteCarloParameters::AtomicReal(qn) => {
                         Box::new(AcceptReject::new(orbital::Real::new(qn)))
                     }
-                    MonteCarloParameters::Hybrid(kind) => Box::new(AcceptReject::new(
-                        orbital::hybrid::Hybrid::new(kind.archetype().clone()),
-                    )),
+                    MonteCarloParameters::Hybrid(kind) => {
+                        Box::new(AcceptReject::<3, SphericalPoint3, _>::new(
+                            orbital::hybrid::Hybrid::new(kind.archetype().clone()),
+                        ))
+                    }
                     MonteCarloParameters::AtomicComplex(_) => unreachable!(),
                 })
             });
@@ -96,7 +102,7 @@ impl MonteCarloCache {
         &mut self,
         params: MonteCarloParameters,
         count: usize,
-    ) -> Option<impl Iterator<Item = &PointValue<Complex32>>> {
+    ) -> Option<impl Iterator<Item = &PointValue<3, SphericalPoint3, Complex32>>> {
         if !matches!(params, MonteCarloParameters::AtomicComplex(_)) {
             return None;
         }
