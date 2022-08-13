@@ -65,3 +65,32 @@ macro_rules! impl_iter_traits {
 
 impl_iter_traits!();
 impl_iter_traits!('a);
+
+/// Conversion into a struct-of-arrays.
+pub trait ToSoa<const N: usize> {
+    type Value: Clone;
+
+    /// Convert a collection of [`PointValue`]s to a `Soa`.
+    fn to_soa(self) -> Soa<N, Self::Value>;
+
+    /// Convert to a `Soa` and then immediately into its components.
+    fn to_soa_components(self) -> ([Vec<f32>; N], Vec<Self::Value>)
+    where
+        Self: Sized,
+    {
+        self.to_soa().decompose()
+    }
+}
+
+impl<const N: usize, P, V, I> ToSoa<N> for I
+where
+    P: IPoint<N>,
+    V: Clone,
+    I: IntoIterator<Item = PointValue<N, P, V>>,
+{
+    type Value = V;
+
+    fn to_soa(self) -> Soa<N, Self::Value> {
+        self.into_iter().collect()
+    }
+}
