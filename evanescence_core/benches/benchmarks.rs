@@ -3,7 +3,6 @@ use std::time::Duration;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use evanescence_core::geometry::storage::Soa;
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
-use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::numerics::special::factorial::DoubleFactorial;
 use evanescence_core::numerics::special::orthogonal_polynomials::{
     associated_laguerre, renormalized_associated_legendre,
@@ -60,8 +59,7 @@ pub fn bench_monte_carlo(c: &mut Criterion) {
             |b| {
                 b.iter(|| {
                     AcceptReject::new(Real::new(qn))
-                        .simulate(131_072)
-                        .into_iter()
+                        .take(131_072)
                         .collect::<Soa<3, _>>()
                 })
             },

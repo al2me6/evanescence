@@ -3,14 +3,14 @@ use std::sync::{LazyLock, Mutex};
 
 use evanescence_core::geometry::point::SphericalPoint3;
 use evanescence_core::geometry::storage::PointValue;
+use evanescence_core::numerics::monte_carlo;
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
-use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::{self, Qn};
 use num::complex::Complex32;
 
 use super::MonteCarloParameters;
 
-type DynMonteCarlo<O> = dyn MonteCarlo<3, SphericalPoint3, Output = O> + Send + Sync;
+type DynMonteCarlo<O> = monte_carlo::DynMonteCarlo<3, SphericalPoint3, O>;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 enum CacheKey {
@@ -58,7 +58,7 @@ impl<O: Copy> CacheEntry<O> {
         if self.samples.len() < count {
             let count = count - self.samples.len();
             log::debug!("[MonteCarlo cache] simulating {count} samples.");
-            self.samples.extend(self.sampler.simulate(count));
+            self.samples.extend((&mut self.sampler).take(count));
         }
         self.samples[..count].iter()
     }

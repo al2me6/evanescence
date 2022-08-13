@@ -1,5 +1,4 @@
 use std::iter;
-use std::marker::PhantomData;
 
 use super::MonteCarlo;
 use crate::geometry::point::IPoint;
@@ -39,9 +38,7 @@ where
     distribution: D,
     region: <D as BoundingRegion<N, P>>::Geometry,
     maximum: f32,
-    point_rng: WyRand,
-    value_rng: WyRand,
-    _phantom: PhantomData<P>,
+    rng: WyRand,
 }
 
 impl<const N: usize, P, D> AcceptReject<N, P, D>
@@ -59,10 +56,33 @@ where
             distribution,
             region,
             maximum,
-            point_rng: WyRand::new(),
-            value_rng: WyRand::new(),
-            _phantom: PhantomData,
+            rng: WyRand::new(),
         }
+    }
+}
+
+impl<const N: usize, P, D> Iterator for AcceptReject<N, P, D>
+where
+    P: IPoint<N>,
+    D: AcceptRejectParameters<N, P>,
+{
+    type Item = PointValue<N, P, D::Output>;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            let point = self.region.sample(&mut self.rng);
+            let (point_value, probability_density) = self
+                .distribution
+                .evaluate_at_with_probability_density(point);
+            if probability_density > self.maximum * self.rng.gen_f32() {
+                return Some(point_value);
+            }
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        (usize::MAX, None)
     }
 }
 
@@ -72,15 +92,4 @@ where
     D: AcceptRejectParameters<N, P>,
 {
     type Output = D::Output;
-
-    fn simulate(&mut self, count: usize) -> Vec<PointValue<N, P, Self::Output>> {
-        iter::repeat_with(|| self.region.sample(&mut self.point_rng))
-            .map(|pt| self.distribution.evaluate_at_with_probability_density(pt))
-            .filter_map(|(point_value, probability_density)| {
-                (probability_density > self.maximum * self.value_rng.gen_f32())
-                    .then_some(point_value)
-            })
-            .take(count)
-            .collect()
-    }
 }

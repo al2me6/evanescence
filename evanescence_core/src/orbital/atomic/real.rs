@@ -177,7 +177,6 @@ mod tests {
     use crate::geometry::storage::PointValue;
     use crate::numerics::integrators::integrate_simpson;
     use crate::numerics::monte_carlo::accept_reject::AcceptReject;
-    use crate::numerics::monte_carlo::MonteCarlo;
     use crate::numerics::statistics::kolmogorov_smirnov::kolmogorov_smirnov_test;
     use crate::numerics::statistics::ProbabilityDensityEvaluator;
     use crate::numerics::Function;
@@ -281,10 +280,9 @@ mod tests {
 
                 let (rhos, (ks_statistics, ps)): (Vec<_>, (Vec<_>, Vec<_>)) =
                     std::iter::repeat_with(|| {
-                        let mut sampler = AcceptReject::new(Real::new(qn));
+                        let sampler = &mut AcceptReject::new(Real::new(qn));
                         let rho = sampler
-                            .simulate(SAMPLES)
-                            .into_iter()
+                            .take(SAMPLES)
                             .map(|PointValue(pt, _)| pt.r())
                             .sorted_by(f32::total_cmp)
                             .collect_vec();
