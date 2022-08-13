@@ -52,8 +52,9 @@ impl<O: Copy> CacheEntry<O> {
 
     fn request_simulation(&mut self, count: usize) -> impl Iterator<Item = &PointValue<O>> {
         if self.samples.len() < count {
-            self.samples
-                .extend(self.sampler.simulate(count - self.samples.len()));
+            let count = count - self.samples.len();
+            log::debug!("[MonteCarlo cache] simulating {count} samples.");
+            self.samples.extend(self.sampler.simulate(count));
         }
         self.samples[..count].iter()
     }

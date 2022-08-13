@@ -6,7 +6,7 @@ use evanescence_web::components::window::OpenButton;
 use evanescence_web::components::Window;
 use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::{Config, Plotly};
-use evanescence_web::plotters::supplemental as plot;
+use evanescence_web::plotters::{supplemental as plot, ISOSURFACE_CUTOFF};
 use evanescence_web::state::{State, StateDispatch, Visualization};
 use evanescence_web::{time_scope, utils};
 use gloo::utils::document;
@@ -157,11 +157,11 @@ impl Component for SupplementalVisualization {
         let isosurface_cutoff_text = html! {
             if supplement == Visualization::Isosurface3D {
                 <p>
-                    { "Specifically, the cutoff value used is " }
+                    { "The surfaces drawn (|ψ|² = " }
                     <RawSpan inner_html = {
-                        utils::fmt_scientific_notation(state.isosurface_cutoff().powi(2), 3)
+                        utils::fmt_scientific_notation(state.isosurface_cutoff().powi(2), 2)
                     } />
-                    { "." }
+                    { format!(") enclose ~{:.0}% of all probability density.", ISOSURFACE_CUTOFF * 100.) }
                 </p>
             }
         };

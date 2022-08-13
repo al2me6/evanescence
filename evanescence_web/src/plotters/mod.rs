@@ -2,57 +2,62 @@ pub mod pointillist;
 pub mod supplemental;
 
 use evanescence_core::geometry::region::BoundingRegion;
+use evanescence_core::geometry::PointValue;
 use evanescence_core::numerics::Evaluate;
 use evanescence_core::orbital::hybrid::{Hybrid, Kind};
-use evanescence_core::orbital::{Qn, Real};
+use evanescence_core::orbital::Qn;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumIter, EnumString};
 
 use crate::plotly::color::color_scales;
 use crate::plotly::isosurface::{self, Isosurface};
+use crate::state::cache::MONTE_CARLO_CACHE;
+use crate::state::MonteCarloParameters;
 
-/// Yet another heuristic for scaling the cutoff value appropriately. As the number of lobes
-/// increases, they attain increasingly small values, which require a lower cutoff to achieve
-/// an adequate appearance (i.e., not showing too small of a portion).
-///
+pub const ISOSURFACE_CUTOFF: f32 = 0.9;
+const ISOSURFACE_SAMPLES: usize = Quality::High.point_cloud();
+
+/// Note that this gives the psi cutoff, not psi squared.
+fn compute_isosurface_cutoff_real(params: MonteCarloParameters) -> f32 {
+    #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    const CUTOFF_IDX: usize = ((1. - ISOSURFACE_CUTOFF) * ISOSURFACE_SAMPLES as f32) as usize;
+
+    let mut psi_abs = MONTE_CARLO_CACHE
+        .lock()
+        .unwrap()
+        .request_f32(params, ISOSURFACE_SAMPLES)
+        .unwrap()
+        .map(|PointValue(_, psi)| psi.abs())
+        .collect_vec();
+    psi_abs.sort_by(f32::total_cmp);
+    psi_abs[CUTOFF_IDX]
+}
+
 /// Note that this cutoff value is for the wavefunction, not the probability density.
-pub fn isosurface_cutoff_heuristic_real(qn: &Qn) -> f32 {
-    let num_radial_nodes = Real::num_radial_nodes(*qn);
-    let num_angular_nodes = Real::num_angular_nodes(*qn);
-    let num_lobes = (num_radial_nodes + 1) * (num_angular_nodes + 1);
-    let damping_factor = if num_radial_nodes == 0 {
-        0.3 + 0.02 * num_angular_nodes as f32
-    } else if num_angular_nodes == 0 {
-        0.4 + 0.08 * num_radial_nodes as f32
-    } else {
-        0.085
-    };
-    0.006 / ((num_lobes as f32 - 1.0).powi(2) * damping_factor + 1.0)
+pub fn isosurface_cutoff_atomic_real(qn: &Qn) -> f32 {
+    compute_isosurface_cutoff_real(MonteCarloParameters::AtomicReal(*qn))
 }
 
-pub fn isosurface_cutoff_heuristic_hybrid(kind: &Kind) -> f32 {
-    let mixture = kind.mixture();
-    mixture
-        .iter()
-        .flat_map(|(&l, &count)| itertools::repeat_n(l, count as usize))
-        .map(|l| Qn::new(kind.n(), l, 0).unwrap())
-        .map(|qn| isosurface_cutoff_heuristic_real(&qn))
-        .sum::<f32>()
-        / mixture.values().sum::<u32>() as f32
-        * 1.8
+pub fn isosurface_cutoff_hybrid(kind: &'static Kind) -> f32 {
+    compute_isosurface_cutoff_real(MonteCarloParameters::Hybrid(kind))
 }
 
-fn compute_isosurface_hybrid(kind: &Kind, idx: usize, quality: Quality) -> Isosurface<'static> {
+fn compute_isosurface_hybrid(
+    kind: &'static Kind,
+    idx: usize,
+    quality: Quality,
+) -> Isosurface<'static> {
     let lc = &kind.combinations()[idx];
     let hybrid = Hybrid::new(lc.clone());
     let (x, y, z, value) = hybrid
         .evaluate_in_region(
             // Manually shrink the extent sampled for higher quality.
-            hybrid.bounding_region().radius * 0.82,
+            hybrid.bounding_region().radius * 0.85,
             quality.grid_3d(),
         )
         .into_components();
-    let cutoff = isosurface_cutoff_heuristic_hybrid(kind);
+    let cutoff = isosurface_cutoff_hybrid(kind);
 
     Isosurface {
         x,
@@ -108,7 +113,7 @@ impl Quality {
         (self.point_cloud() as f32 * 4.0).cbrt() as usize | 0b1 // Force the number to be odd.
     }
 
-    pub fn point_cloud(self) -> usize {
+    pub const fn point_cloud(self) -> usize {
         // These values have been empirically observed to produce reasonable results.
         match self {
             Self::Minimum => 1 << 12,

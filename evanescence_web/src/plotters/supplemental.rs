@@ -271,7 +271,7 @@ pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
             let (x, y, z, value) = Real::new(*state.qn())
                 .sample_region(state.quality().grid_3d() * 3 / 2)
                 .into_components();
-            let cutoff = super::isosurface_cutoff_heuristic_real(state.qn());
+            let cutoff = super::isosurface_cutoff_atomic_real(state.qn());
             Isosurface {
                 x,
                 y,

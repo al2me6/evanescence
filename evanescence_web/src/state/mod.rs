@@ -431,10 +431,8 @@ impl State {
 
     pub fn isosurface_cutoff(&self) -> f32 {
         match self.mode() {
-            Mode::RealFull | Mode::RealSimple => {
-                plotters::isosurface_cutoff_heuristic_real(self.qn())
-            }
-            Mode::Hybrid => plotters::isosurface_cutoff_heuristic_hybrid(self.hybrid_kind()),
+            Mode::RealFull | Mode::RealSimple => plotters::isosurface_cutoff_atomic_real(self.qn()),
+            Mode::Hybrid => plotters::isosurface_cutoff_hybrid(self.hybrid_kind()),
             Mode::Complex => panic!("isosurface not available in `Complex` mode"),
         }
     }
