@@ -2,7 +2,7 @@ use std::default::default;
 use std::f32::consts::{PI, TAU};
 
 use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
-use evanescence_core::geometry::storage::ComponentForm3;
+use evanescence_core::geometry::storage::Soa;
 use evanescence_core::numerics::function::{Function3Ext, Function3InOriginCenteredRegionExt};
 use evanescence_core::numerics::{self, Function};
 use evanescence_core::orbital::hybrid::Hybrid;
@@ -21,7 +21,7 @@ use crate::utils;
 pub fn real(state: &State) -> JsValue {
     assert!([Mode::RealSimple, Mode::RealFull, Mode::Hybrid].contains(&state.mode()));
 
-    let (x, y, z, values) = state.monte_carlo_simulate_real().into_components();
+    let ([x, y, z], values) = state.monte_carlo_simulate_real().decompose();
 
     // Special handling for s orbitals.
     let min_point_size = if state.mode().is_real_or_simple() && state.qn().l() == 0 {
@@ -58,13 +58,13 @@ pub fn real(state: &State) -> JsValue {
 pub fn complex(state: &State) -> JsValue {
     assert!(state.mode().is_complex());
 
-    let (x, y, z, values) = MONTE_CARLO_CACHE
+    let ([x, y, z], values) = MONTE_CARLO_CACHE
         .lock()
         .unwrap()
         .request_complex32(state.into(), state.quality().point_cloud())
         .unwrap()
-        .collect::<ComponentForm3<_>>()
-        .into_components();
+        .collect::<Soa<3, _>>()
+        .decompose();
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
 
@@ -275,9 +275,9 @@ pub fn silhouettes(state: &State) -> Vec<JsValue> {
 pub fn nodes_combined(state: &State) -> JsValue {
     assert!(state.mode().is_hybrid());
 
-    let (x, y, z, value) = Hybrid::new(state.hybrid_kind().archetype().clone())
+    let ([x, y, z], value) = Hybrid::new(state.hybrid_kind().archetype().clone())
         .sample_region(state.quality().grid_3d())
-        .into_components();
+        .decompose();
 
     Isosurface {
         x,

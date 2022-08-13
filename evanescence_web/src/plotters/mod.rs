@@ -50,9 +50,9 @@ fn compute_isosurface_hybrid(
 ) -> Isosurface<'static> {
     let lc = &kind.combinations()[idx];
     let hybrid = Hybrid::new(lc.clone());
-    let (x, y, z, value) = hybrid
+    let ([x, y, z], value) = hybrid
         .evaluate_in_region(hybrid.bounding_region().radius * 0.85, quality.grid_3d())
-        .into_components();
+        .decompose();
     let cutoff = isosurface_cutoff_hybrid(kind);
 
     Isosurface {

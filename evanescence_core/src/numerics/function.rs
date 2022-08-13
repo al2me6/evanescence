@@ -6,7 +6,7 @@ use na::{Const, SVector, ToTypenum, Vector3};
 use crate::geometry::point::IPoint;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::storage::grid_values_3::CoordinatePlane3;
-use crate::geometry::storage::{ComponentForm3, GridValues3, PointValue};
+use crate::geometry::storage::{GridValues3, PointValue, Soa};
 
 pub trait Function<const N: usize, P: IPoint<N> = na::Point<f32, N>> {
     type Output: Copy;
@@ -64,7 +64,7 @@ pub trait Function3Ext<P: IPoint<3> = na::Point3<f32>>: Function<3, P> {
     ///
     /// That is, values are each of the form (x, y, z, val), sorted by increasing x, then y, and
     /// finally z.
-    fn evaluate_in_region(&self, extent: f32, num_points: usize) -> ComponentForm3<Self::Output>;
+    fn evaluate_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output>;
 }
 
 impl<P: IPoint<3>, F> Function3Ext<P> for F
@@ -120,7 +120,7 @@ where
         .expect("rows and columns are equal in length by construction")
     }
 
-    fn evaluate_in_region(&self, extent: f32, num_points: usize) -> ComponentForm3<Self::Output> {
+    fn evaluate_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output> {
         super::symmetric_linspace(Vector3::x() * extent, num_points)
             .flat_map(|x_pt| {
                 super::symmetric_linspace(Vector3::y() * extent, num_points).flat_map(move |y_pt| {
@@ -144,7 +144,7 @@ pub trait Function3InOriginCenteredRegionExt<P: IPoint<3>>: Function3Ext<P> {
 
     /// Sample the function in a cube centered at the origin. `num_points` are sampled in each
     /// dimension, producing an evenly-spaced lattice of values the size of the function's bound.
-    fn sample_region(&self, num_points: usize) -> ComponentForm3<Self::Output>;
+    fn sample_region(&self, num_points: usize) -> Soa<3, Self::Output>;
 }
 
 impl<P, F> Function3InOriginCenteredRegionExt<P> for F
@@ -160,7 +160,7 @@ where
         self.evaluate_on_plane(plane, self.bounding_region().radius, num_points)
     }
 
-    fn sample_region(&self, num_points: usize) -> ComponentForm3<Self::Output> {
+    fn sample_region(&self, num_points: usize) -> Soa<3, Self::Output> {
         self.evaluate_in_region(self.bounding_region().radius, num_points)
     }
 }

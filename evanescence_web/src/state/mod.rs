@@ -4,7 +4,7 @@ use std::fmt;
 
 use evanescence_core::geometry::region::BoundingRegion;
 use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
-use evanescence_core::geometry::storage::{ComponentForm3, GridValues3};
+use evanescence_core::geometry::storage::{GridValues3, Soa};
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
 use evanescence_core::orbital::atomic::RadialPlot;
@@ -544,7 +544,7 @@ impl State {
         .radius
     }
 
-    pub fn monte_carlo_simulate_real(&self) -> ComponentForm3<f32> {
+    pub fn monte_carlo_simulate_real(&self) -> Soa<3, f32> {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull | Mode::Hybrid => MONTE_CARLO_CACHE
                 .lock()
