@@ -3,8 +3,8 @@ use std::default::default;
 use std::fmt;
 
 use evanescence_core::geometry::region::BoundingRegion;
-use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
-use evanescence_core::geometry::storage::{GridValues3, Soa};
+use evanescence_core::geometry::storage::grid_values::{CoordinatePlane3, GridValues3};
+use evanescence_core::geometry::storage::Soa;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
 use evanescence_core::orbital::hybrid::Kind;

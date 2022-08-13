@@ -1,9 +1,8 @@
 use super::point::IPoint;
 
-pub mod grid_values_3;
+pub mod grid_values;
 pub mod struct_of_arrays;
 
-pub use grid_values_3::GridValues3;
 pub use struct_of_arrays::Soa;
 
 /// A point and the value of a function evaluated at that point.

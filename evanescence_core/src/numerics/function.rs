@@ -5,8 +5,8 @@ use na::{Const, SVector, ToTypenum, Vector3};
 
 use crate::geometry::point::IPoint;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
-use crate::geometry::storage::grid_values::CoordinatePlane3;
-use crate::geometry::storage::{GridValues3, PointValue, Soa};
+use crate::geometry::storage::grid_values::{CoordinatePlane3, GridValues, GridValues3};
+use crate::geometry::storage::{PointValue, Soa};
 
 pub trait Function<const N: usize, P: IPoint<N> = na::Point<f32, N>> {
     type Output: Copy;
@@ -105,13 +105,15 @@ where
             vals.push(row);
         }
 
-        GridValues3::new(
-            plane,
-            points_in_row.iter().map(|p| p[component_idx.0]).collect(),
-            points_in_col.iter().map(|p| p[component_idx.1]).collect(),
-            vals,
-        )
-        .expect("rows and columns are equal in length by construction")
+        GridValues3 {
+            reference_plane: plane,
+            grid_values: GridValues::new(
+                points_in_row.iter().map(|p| p[component_idx.0]).collect(),
+                points_in_col.iter().map(|p| p[component_idx.1]).collect(),
+                vals,
+            )
+            .expect("rows and columns are equal in length by construction"),
+        }
     }
 
     fn evaluate_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output> {

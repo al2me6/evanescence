@@ -1,7 +1,7 @@
 use std::default::default;
 use std::f32::consts::{PI, TAU};
 
-use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
+use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
 use evanescence_core::geometry::storage::Soa;
 use evanescence_core::numerics::function::{Function3Ext, Function3InOriginCenteredRegionExt};
 use evanescence_core::numerics::{self, Function};
@@ -193,6 +193,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
             .map(|theta| {
                 VerticalCone::new(theta)
                     .evaluate_on_plane(CoordinatePlane3::XY, bound, NUM_POINTS)
+                    .grid_values
                     .into_components()
             })
             .map(|(x, y, z)| Surface {

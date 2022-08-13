@@ -1,7 +1,7 @@
 use std::default::default;
 use std::f32::consts::PI;
 
-use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
+use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
 use evanescence_core::geometry::storage::struct_of_arrays::ToSoa;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::{self, Function};
@@ -182,6 +182,7 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) = Complex::new(*state.qn())
             .sample_plane(plane, state.quality().grid_2d())
+            .grid_values
             .into_components();
         let (moduli, arguments) = values
             .iter()
@@ -189,7 +190,7 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
             .unzip();
         (x, y, moduli, Some(arguments))
     } else {
-        let (x, y, z) = state.sample_plane_real(plane).into_components();
+        let (x, y, z) = state.sample_plane_real(plane).grid_values.into_components();
         (x, y, z, None)
     };
 
@@ -254,7 +255,10 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
 
 pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
     let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
-    let (x, y, mut z) = state.sample_plane_prob_density(plane).into_components();
+    let (x, y, mut z) = state
+        .sample_plane_prob_density(plane)
+        .grid_values
+        .into_components();
     let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
     assert!(
         max >= 0.0,
