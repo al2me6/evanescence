@@ -7,7 +7,6 @@ use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
 use evanescence_core::geometry::storage::{GridValues3, Soa};
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
-use evanescence_core::orbital::atomic::RadialPlot;
 use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::orbital::{self, Qn};
 use serde::{Deserialize, Serialize};
@@ -90,18 +89,6 @@ impl TryFrom<Visualization> for CoordinatePlane3 {
                 Ok(CoordinatePlane3::ZX)
             }
             _ => Err(format!("{value:?} does not have an associated plane")),
-        }
-    }
-}
-
-impl TryFrom<Visualization> for RadialPlot {
-    type Error = String;
-
-    fn try_from(value: Visualization) -> Result<Self, Self::Error> {
-        match value {
-            Visualization::RadialWavefunction => Ok(RadialPlot::Wavefunction),
-            Visualization::RadialProbabilityDistribution => Ok(RadialPlot::ProbabilityDistribution),
-            _ => Err(format!("{value:?} is not a radial plot")),
         }
     }
 }

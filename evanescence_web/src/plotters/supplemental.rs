@@ -2,10 +2,13 @@ use std::default::default;
 use std::f32::consts::PI;
 
 use evanescence_core::geometry::storage::grid_values_3::CoordinatePlane3;
-use evanescence_core::numerics;
+use evanescence_core::geometry::storage::struct_of_arrays::ToSoa;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
-use evanescence_core::orbital::atomic::RadialPlot;
+use evanescence_core::numerics::{self, Function};
+use evanescence_core::orbital::atomic::{Radial, RadialProbabilityDistribution};
+use evanescence_core::orbital::quantum_numbers::Nl;
 use evanescence_core::orbital::{Complex, Real};
+use na::vector;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -13,7 +16,7 @@ use crate::plotly::layout::{Axis, Font, Scene, Title};
 use crate::plotly::scatter::Line;
 use crate::plotly::surface::{Contour, Contours, Project};
 use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
-use crate::state::{Mode, State};
+use crate::state::{Mode, State, Visualization};
 use crate::utils::{self, b16_colors};
 
 const ZERO_THRESHOLD: f32 = 1E-7;
@@ -25,12 +28,35 @@ fn zero_values(grid: &mut Vec<Vec<f32>>) {
         .for_each(|v| *v = 0.0);
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum RadialPlot {
+    Wavefunction,
+    ProbabilityDistribution,
+}
+
+impl RadialPlot {
+    pub fn sample(self, nl: Nl, extent: f32, num_points: usize) -> (Vec<f32>, Vec<f32>) {
+        let evaluator: Box<dyn Function<1, _, Output = _>> = match self {
+            Self::Wavefunction => Box::new(Radial::new(nl)),
+            Self::ProbabilityDistribution => Box::new(RadialProbabilityDistribution::new(nl)),
+        };
+        let ([rs], vals) = evaluator
+            .evaluate_on_line_segment(vector![0.]..=vector![extent], num_points)
+            .to_soa_components();
+        (rs, vals)
+    }
+}
+
 pub fn radial(state: &State) -> (JsValue, JsValue) {
     const NUM_POINTS: usize = 600;
 
     assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
 
-    let variant: RadialPlot = state.supplement().try_into().unwrap();
+    let variant: RadialPlot = match state.supplement() {
+        Visualization::RadialWavefunction => RadialPlot::Wavefunction,
+        Visualization::RadialProbabilityDistribution => RadialPlot::ProbabilityDistribution,
+        _ => panic!("unexpected visualization type"),
+    };
     let function_expr = match variant {
         RadialPlot::Wavefunction => "R(r)",
         RadialPlot::ProbabilityDistribution => "r²R(r)²",
@@ -40,7 +66,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
         utils::capitalize_words(state.supplement().to_string())
     );
 
-    let (x, y) = variant.sample(*state.qn(), NUM_POINTS);
+    let (x, y) = variant.sample(state.qn().into(), state.bound(), NUM_POINTS);
 
     if variant == RadialPlot::ProbabilityDistribution {
         log::info!(

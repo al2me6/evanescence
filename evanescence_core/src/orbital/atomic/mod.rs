@@ -85,41 +85,6 @@ impl Function<1, Point1<f32>> for RadialProbabilityDistribution {
     }
 }
 
-/// A radially symmetrical property associated with an orbital.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum RadialPlot {
-    Wavefunction,
-    ProbabilityDistribution,
-}
-
-impl RadialPlot {
-    /// Compute a plot of a property of an orbital's radial wavefunction (see [`RadialPlot`]).
-    ///
-    /// The property will be evaluated at `num_points` points evenly spaced between the origin
-    /// and the maximum extent of the orbital, which is automatically estimated.
-    ///
-    /// The result is returned as a 2-tuple of `Vec`s, the first containing the radial points,
-    /// and the second containing the values associated with the radial points.
-    pub fn sample(self, qn: Qn, num_points: usize) -> (Vec<f32>, Vec<f32>) {
-        let nl = Nl::from(qn);
-        let rs = numerics::linspace(0_f32..=bound(qn), num_points).collect::<Vec<_>>();
-
-        let vals = match self {
-            Self::Wavefunction => {
-                let psi = Radial::new(nl);
-                rs.iter().map(|&r| psi.evaluate(&Point1::new(r))).collect()
-            }
-            Self::ProbabilityDistribution => {
-                let psi_sq = RadialProbabilityDistribution::new(nl);
-                rs.iter()
-                    .map(|&r| psi_sq.evaluate(&Point1::new(r)))
-                    .collect()
-            }
-        };
-        (rs, vals)
-    }
-}
-
 fn basic_name(qn: Qn) -> String {
     format!("ψ<sub>{}{}{}</sub>", qn.n(), qn.l(), qn.m())
 }
@@ -168,11 +133,13 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
-    use na::Point1;
+    use na::{vector, Point1};
 
-    use super::{Radial, RadialPlot, PROBABILITY_WITHIN_BOUND};
+    use super::{Radial, PROBABILITY_WITHIN_BOUND};
+    use crate::geometry::storage::struct_of_arrays::ToSoa;
     use crate::numerics;
     use crate::numerics::Function;
+    use crate::orbital::atomic::RadialProbabilityDistribution;
     use crate::orbital::quantum_numbers::{Nl, Qn};
 
     #[test]
@@ -217,16 +184,16 @@ mod tests {
 
     #[test]
     fn radial_probability_unity() {
-        Qn::enumerate_up_to_n(15)
-            .unwrap()
-            .filter(|qn| qn.m() == 0) // The radial component depends only on n and l.
-            .map(|qn| RadialPlot::ProbabilityDistribution.sample(qn, 1_000))
-            .for_each(|(xs, ys)| {
-                approx::assert_abs_diff_eq!(
-                    PROBABILITY_WITHIN_BOUND,
-                    numerics::integrators::integrate_trapezoidal(&xs, &ys),
-                    epsilon = 0.000_75,
-                );
-            });
+        // The radial component depends only on n and l.
+        for qn in Qn::enumerate_up_to_n(15).unwrap().filter(|qn| qn.m() == 0) {
+            let ([xs], ys) = RadialProbabilityDistribution::new(qn.into())
+                .evaluate_on_line_segment(vector![0.]..=vector![super::bound(qn)], 1_000)
+                .to_soa_components();
+            approx::assert_abs_diff_eq!(
+                PROBABILITY_WITHIN_BOUND,
+                numerics::integrators::integrate_trapezoidal(&xs, &ys),
+                epsilon = 0.000_75,
+            );
+        }
     }
 }
