@@ -145,7 +145,7 @@ fn main() {
             "<unknown error>"
         };
         gloo::dialogs::alert(&format!(
-            "Evanescence encountered a serious error:\n{payload}.\nPlease refresh the page.",
+            "Evanescence encountered a serious error:\n{payload}\nPlease refresh the page.",
         ));
     }));
 
