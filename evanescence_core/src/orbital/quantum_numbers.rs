@@ -173,7 +173,14 @@ impl Default for Qn {
 
 impl std::fmt::Display for Qn {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}, {}, {}", self.n, self.l, self.m)
+        write!(
+            f,
+            "{}{}{}{}",
+            self.n,
+            self.l,
+            if self.m < 0 { "n" } else { "" },
+            self.m.abs()
+        )
     }
 }
 
