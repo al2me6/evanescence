@@ -72,9 +72,9 @@ pub fn normalize(
     target_range: RangeInclusive<f32>,
     val: f32,
 ) -> f32 {
-    (val - source_range.start()) / (source_range.end() - source_range.start())
-        * (target_range.end() - target_range.start())
-        + target_range.start()
+    let (source_start, source_end) = source_range.into_inner();
+    let (target_start, target_end) = target_range.into_inner();
+    (val - source_start) / (source_end - source_start) * (target_end - target_start) + target_start
 }
 
 /// Apply [`normalize`] to an entire collection of values.

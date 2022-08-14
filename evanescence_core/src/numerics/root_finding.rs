@@ -26,8 +26,7 @@ pub fn brent(
         a > 0. && b > 0. || a < 0. && b < 0.
     }
 
-    let mut a = *interval.start();
-    let mut b = *interval.end();
+    let (mut a, mut b) = interval.into_inner();
     let mut c = b;
     let mut d = 0.;
     let mut e = 0.;
