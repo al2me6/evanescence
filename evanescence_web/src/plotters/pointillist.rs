@@ -194,7 +194,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
                 VerticalCone::new(theta)
                     .evaluate_on_plane(CoordinatePlane3::XY, bound, NUM_POINTS)
                     .grid_values
-                    .into_components()
+                    .decompose()
             })
             .map(|(x, y, z)| Surface {
                 x: Some(x),
@@ -232,7 +232,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
 
 pub fn cross_section_indicator(state: &State) -> JsValue {
     let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
-    let (x, y, z) = plane.square_wrt_xy_plane(state.bound()).into_components();
+    let (x, y, z) = plane.square_wrt_xy_plane(state.bound()).decompose();
     Surface {
         x: Some(x),
         y: Some(y),

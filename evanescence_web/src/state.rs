@@ -6,7 +6,7 @@ use evanescence_core::geometry::region::BoundingRegion;
 use evanescence_core::geometry::storage::grid_values::{CoordinatePlane3, GridValues3};
 use evanescence_core::geometry::storage::Soa;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
-use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
+use evanescence_core::numerics::statistics::Pdf;
 use evanescence_core::orbital::hybrid::Kind;
 use evanescence_core::orbital::{self, Qn};
 use serde::{Deserialize, Serialize};
@@ -556,13 +556,11 @@ impl State {
 
     pub fn sample_plane_prob_density(&self, plane: CoordinatePlane3) -> GridValues3<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::RealFull => {
-                ProbabilityDensityEvaluator::new(orbital::Real::new(*self.qn()))
-                    .sample_plane(plane, self.quality().grid_2d())
-            }
-            Mode::Complex => ProbabilityDensityEvaluator::new(orbital::Complex::new(*self.qn()))
+            Mode::RealSimple | Mode::RealFull => Pdf::new(orbital::Real::new(*self.qn()))
                 .sample_plane(plane, self.quality().grid_2d()),
-            Mode::Hybrid => ProbabilityDensityEvaluator::new(orbital::hybrid::Hybrid::new(
+            Mode::Complex => Pdf::new(orbital::Complex::new(*self.qn()))
+                .sample_plane(plane, self.quality().grid_2d()),
+            Mode::Hybrid => Pdf::new(orbital::hybrid::Hybrid::new(
                 self.hybrid_kind().archetype().clone(),
             ))
             .sample_plane(plane, self.quality().grid_2d()),

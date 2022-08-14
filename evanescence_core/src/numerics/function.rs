@@ -48,9 +48,10 @@ impl<const N: usize, P: IPoint<N>, O: Copy> Function<N, P> for Box<dyn Function<
 }
 
 pub trait Function3Ext<P: IPoint<3> = na::Point3<f32>>: Function<3, P> {
-    /// Evaluate `Self` on a [`CoordinatePlane3`], producing a [grid](crate::geometry::storage::GridValues3)
-    /// of evenly spaced values. Specifically, the grid is a square centered at the origin with
-    /// side length of 2 × `extent`, and `num_points` are sampled *in each dimension*.
+    /// Evaluate `Self` on a [`CoordinatePlane3`], producing a
+    /// [grid](crate::geometry::storage::grid_values::GridValues3) of evenly spaced values.
+    /// Specifically, the grid is a square centered at the origin with side length of 2 × `extent`,
+    /// and `num_points` are sampled *in each dimension*.
     fn evaluate_on_plane(
         &self,
         plane: CoordinatePlane3,

@@ -18,20 +18,12 @@ pub trait IPoint<const N: usize>:
 
 impl<const N: usize> IPoint<N> for na::Point<f32, N> {
     fn origin() -> Self {
-        na::Point::<f32, N>::origin()
+        na::Point::origin()
     }
 
     fn coordinates(&self) -> &SVector<f32, N> {
         &self.coords
     }
-}
-
-/// Note that we use the physics convention of (r, theta, phi): theta is the inclination
-/// and phi is the azimuth.
-pub trait SphericalPoint3Ext: IPoint<3> {
-    fn r(&self) -> f32;
-    fn cos_theta(&self) -> f32;
-    fn phi(&self) -> f32;
 }
 
 /// A [`na::Point3<f32>`] along with cached spherical coordinates.
@@ -109,6 +101,14 @@ impl IPoint<3> for SphericalPoint3 {
     fn coordinates(&self) -> &Vector3<f32> {
         &self.pt.coords
     }
+}
+
+/// Note that we use the physics convention of (r, theta, phi): theta is the inclination
+/// and phi is the azimuth.
+pub trait SphericalPoint3Ext: IPoint<3> {
+    fn r(&self) -> f32;
+    fn cos_theta(&self) -> f32;
+    fn phi(&self) -> f32;
 }
 
 impl SphericalPoint3Ext for SphericalPoint3 {

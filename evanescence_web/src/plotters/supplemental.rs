@@ -183,14 +183,14 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
         let (x, y, values) = Complex::new(*state.qn())
             .sample_plane(plane, state.quality().grid_2d())
             .grid_values
-            .into_components();
+            .decompose();
         let (moduli, arguments) = values
             .iter()
             .map(|row| utils::split_moduli_arguments(row))
             .unzip();
         (x, y, moduli, Some(arguments))
     } else {
-        let (x, y, z) = state.sample_plane_real(plane).grid_values.into_components();
+        let (x, y, z) = state.sample_plane_real(plane).grid_values.decompose();
         (x, y, z, None)
     };
 
@@ -258,7 +258,7 @@ pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
     let (x, y, mut z) = state
         .sample_plane_prob_density(plane)
         .grid_values
-        .into_components();
+        .decompose();
     let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
     assert!(
         max >= 0.0,

@@ -6,7 +6,7 @@ pub mod accept_reject;
 pub trait MonteCarlo<const N: usize, P: IPoint<N>>:
     Iterator<Item = PointValue<N, P, Self::Output>>
 {
-    type Output: Clone;
+    type Output: Copy;
 
     /// Convenience method for getting a collection of samples.
     fn simulate(&mut self, count: usize) -> Vec<PointValue<N, P, Self::Output>> {

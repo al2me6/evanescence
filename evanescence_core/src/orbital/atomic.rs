@@ -50,7 +50,7 @@ impl Radial {
     }
 }
 
-impl Function<1, Point1<f32>> for Radial {
+impl Function<1> for Radial {
     type Output = f32;
 
     #[inline]
@@ -73,7 +73,7 @@ impl RadialProbabilityDistribution {
     }
 }
 
-impl Function<1, Point1<f32>> for RadialProbabilityDistribution {
+impl Function<1> for RadialProbabilityDistribution {
     type Output = f32;
 
     #[inline]

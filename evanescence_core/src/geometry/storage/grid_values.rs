@@ -45,7 +45,7 @@ use thiserror::Error;
 ///  ```
 ///
 /// # Invariants
-/// `col_coords`, `row_coords`, and `vals` must have matching shapes (see [`Self::new`]).
+/// `col_coords`, `row_coords`, and `vals` must have matching shapes.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Getters, Debug, PartialEq)]
 #[getset(get = "pub")]
@@ -112,7 +112,7 @@ impl<V> GridValues<V> {
 
     /// Decompose `self` into a 3-tuple of column coordinates ("x coordinates"), row coordinates
     /// ("y coordinates"), and values, in that order.
-    pub fn into_components(self) -> (Vec<f32>, Vec<f32>, Vec<Vec<V>>) {
+    pub fn decompose(self) -> (Vec<f32>, Vec<f32>, Vec<Vec<V>>) {
         (self.col_coords, self.row_coords, self.vals)
     }
 }

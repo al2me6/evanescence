@@ -5,12 +5,11 @@ use na::Point1;
 use super::Radial;
 use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
-use crate::numerics;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::spherical_harmonics::RealSphericalHarmonic;
 use crate::numerics::statistics::Distribution;
-use crate::numerics::Function;
+use crate::numerics::{self, Function};
 use crate::orbital::quantum_numbers::{Lm, Qn};
 use crate::orbital::Orbital;
 
@@ -178,7 +177,7 @@ mod tests {
     use crate::numerics::integrators::integrate_simpson;
     use crate::numerics::monte_carlo::accept_reject::AcceptReject;
     use crate::numerics::statistics::kolmogorov_smirnov::kolmogorov_smirnov_test;
-    use crate::numerics::statistics::ProbabilityDensityEvaluator;
+    use crate::numerics::statistics::Pdf;
     use crate::numerics::Function;
     use crate::orbital::atomic::{RadialProbabilityDistribution, PROBABILITY_WITHIN_BOUND};
     use crate::orbital::quantum_numbers::{Lm, Qn};
@@ -229,7 +228,7 @@ mod tests {
     fn real_probability_unity() {
         let qns = Qn::enumerate_up_to_n(7).unwrap().step_by(3).collect_vec();
         qns.into_par_iter().for_each(|qn| {
-            let psi_sq = ProbabilityDensityEvaluator::new(Real::new(qn));
+            let psi_sq = Pdf::new(Real::new(qn));
             let bound = psi_sq.bounding_region().radius;
             let prob = integrate_simpson_multiple!(
                 psi_sq.evaluate(&SphericalPoint3::from(vector![x, y, z])),

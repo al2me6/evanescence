@@ -57,7 +57,7 @@ impl<O: Copy> CacheEntry<O> {
     ) -> impl Iterator<Item = &PointValue<3, SphericalPoint3, O>> {
         if self.samples.len() < count {
             let count = count - self.samples.len();
-            log::debug!("[MonteCarlo cache] simulating {count} samples.");
+            log::debug!("[MonteCarlo cache] simulating {count} samples");
             self.samples.extend((&mut self.sampler).take(count));
         }
         self.samples[..count].iter()

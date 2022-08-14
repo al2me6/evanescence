@@ -35,14 +35,14 @@ pub trait Distribution<const N: usize, P: IPoint<N>>: Function<N, P> {
     }
 }
 
-/// Type that evaluates the probability density of a [`Distribution`].
+/// The probability density function of a [`Distribution`].
 ///
 /// Example:
 ///
 /// ```
 /// use approx::assert_relative_eq;
 /// use evanescence_core::geometry::point::SphericalPoint3;
-/// use evanescence_core::numerics::statistics::ProbabilityDensityEvaluator;
+/// use evanescence_core::numerics::statistics::Pdf;
 /// use evanescence_core::numerics::Function;
 /// use evanescence_core::orbital::{Qn, Real};
 ///
@@ -50,16 +50,15 @@ pub trait Distribution<const N: usize, P: IPoint<N>>: Function<N, P> {
 ///
 /// assert_relative_eq!(
 ///     2.446E-4,
-///     ProbabilityDensityEvaluator::new(Real::new(qn))
-///         .evaluate(&SphericalPoint3::new(6.0, -0.3, 8.5))
+///     Pdf::new(Real::new(qn)).evaluate(&SphericalPoint3::new(6.0, -0.3, 8.5))
 /// );
 /// ```
-pub struct ProbabilityDensityEvaluator<const N: usize, P, D> {
+pub struct Pdf<const N: usize, P, D> {
     inner: D,
     _phantom: PhantomData<P>,
 }
 
-impl<const N: usize, P, D> ProbabilityDensityEvaluator<N, P, D> {
+impl<const N: usize, P, D> Pdf<N, P, D> {
     pub fn new(inner: D) -> Self {
         Self {
             inner,
@@ -68,7 +67,7 @@ impl<const N: usize, P, D> ProbabilityDensityEvaluator<N, P, D> {
     }
 }
 
-impl<const N: usize, P, D> Function<N, P> for ProbabilityDensityEvaluator<N, P, D>
+impl<const N: usize, P, D> Function<N, P> for Pdf<N, P, D>
 where
     P: IPoint<N>,
     D: Distribution<N, P>,
@@ -82,7 +81,7 @@ where
     }
 }
 
-impl<const N: usize, P, D> BoundingRegion<N, P> for ProbabilityDensityEvaluator<N, P, D>
+impl<const N: usize, P, D> BoundingRegion<N, P> for Pdf<N, P, D>
 where
     P: IPoint<N>,
     D: Distribution<N, P> + BoundingRegion<N, P>,
