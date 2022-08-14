@@ -2,7 +2,7 @@ name: evanescence_core benchmarks
 on:
   push:
     branches:
-      - master
+      - dev
 
 jobs:
   benchmark:
@@ -10,11 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: rustup toolchain update nightly && rustup default nightly
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: nightly
+            profile: minimal
+            override: true
       - name: Run benchmark
-        run: cd evanescence_core && cargo bench --bench benchmarks -- --noplot --output-format bencher '^[^f][^a]?[^c]?[^t]?[^o]?[^r]?[^i]?[^a]?[^l]?.*' | tee output.txt
+        run: cd evanescence_core && cargo bench --bench benchmarks -- --noplot --output-format bencher | tee output.txt
       - name: Store benchmark result
-        uses: rhysd/github-action-benchmark@v1
+        uses: benchmark-action/github-action-benchmark@v1
         with:
           name: evanescence_core benchmarks
           tool: 'cargo'

@@ -14,7 +14,7 @@ getset = "0.1"
 itertools = "0.10"
 log = "0.4"
 maplit = "1"
-nalgebra =  "0.31"
+nalgebra = "0.31"
 num = "0.4"
 serde = { version = "1", features = ["derive"], optional = true }
 smallvec = "1"
@@ -27,7 +27,7 @@ serde = ["dep:serde", "nalgebra/serde-serialize"]
 
 [dev-dependencies]
 chrono = "0.4"
-criterion = "0.3"
+criterion = { version = "0.3", features = ['real_blackbox', 'html_reports'] }
 rayon = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
