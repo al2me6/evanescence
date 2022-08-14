@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use na::vector;
+use na::{vector, Vector3};
 
 use super::point::{IPoint, SphericalPoint3};
 use crate::numerics::random::WyRand;
@@ -19,50 +19,42 @@ pub struct BallCenteredAtOrigin {
     pub radius: f32,
 }
 
-/// Produce random points uniformly distributed within `self`.
+/// Produce random points uniformly distributed within a ball of the given `radius`.
 ///
 /// Reference: <http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/>,
 /// specifically method 16.
 #[inline]
-fn rand_spherical_elements(radius: f32, rng: &mut WyRand) -> (f32, f32, f32, f32) {
+fn rand_in_3_ball(radius: f32, rng: &mut WyRand) -> (Vector3<f32>, f32, f32, f32) {
     // For an explanation of taking the cube root of the random value, see
     // https://stackoverflow.com/a/50746409.
     let [r, cos_theta] = rng.gen_f32x2();
     let r /* [0, radius] */ = r.cbrt() * radius;
     let cos_theta /* [-1, 1] */ = cos_theta * 2.0 - 1.0;
-    // Pythagorean identity: sin^2(x) + cos^2(x) = 1.
-    let sin_theta = (1.0 - cos_theta.powi(2)).sqrt();
+    let sin_theta = (1. - cos_theta * cos_theta).sqrt();
     let phi /* [0, 2pi) */ = rng.gen_f32() * 2.0 * PI;
-    (r, sin_theta, cos_theta, phi)
+    let cos_phi = phi.cos();
+    let sin_phi = (1. - cos_phi * cos_phi).sqrt();
+    let cartesian = vector![
+        r * sin_theta * cos_phi,
+        r * sin_theta * sin_phi,
+        r * cos_theta
+    ];
+    (cartesian, r, cos_theta, phi)
 }
 
 // Note: two manual impls and no blanket impl to avoid specialization.
 impl Region<3, na::Point3<f32>> for BallCenteredAtOrigin {
     #[inline]
     fn sample(&self, rng: &mut WyRand) -> na::Point3<f32> {
-        let (r, sin_theta, cos_theta, phi) = rand_spherical_elements(self.radius, rng);
-        vector![
-            r * sin_theta * phi.cos(),
-            r * sin_theta * phi.sin(),
-            r * cos_theta
-        ]
-        .into()
+        let (cartesian, ..) = rand_in_3_ball(self.radius, rng);
+        cartesian.into()
     }
 }
 impl Region<3, SphericalPoint3> for BallCenteredAtOrigin {
     #[inline]
     fn sample(&self, rng: &mut WyRand) -> SphericalPoint3 {
-        let (r, sin_theta, cos_theta, phi) = rand_spherical_elements(self.radius, rng);
-        SphericalPoint3::new_unvalidated(
-            vector![
-                r * sin_theta * phi.cos(),
-                r * sin_theta * phi.sin(),
-                r * cos_theta
-            ],
-            r,
-            cos_theta,
-            phi,
-        )
+        let (cartesian, r, cos_theta, phi) = rand_in_3_ball(self.radius, rng);
+        SphericalPoint3::new_unvalidated(cartesian, r, cos_theta, phi)
     }
 }
 
