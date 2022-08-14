@@ -299,7 +299,7 @@ pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     let trace = match state.mode() {
         Mode::RealSimple | Mode::RealFull => {
             let ([x, y, z], value) = Real::new(*state.qn())
-                .bounded_sample_in_region(state.quality().grid_3d() * 3 / 2)
+                .bounded_sample_in_cube(state.quality().grid_3d() * 3 / 2)
                 .decompose();
             let cutoff = super::isosurface_cutoff_atomic_real(state.qn());
             Isosurface {

@@ -277,7 +277,7 @@ pub fn nodes_combined(state: &State) -> JsValue {
     assert!(state.mode().is_hybrid());
 
     let ([x, y, z], value) = Hybrid::new(state.hybrid_kind().archetype().clone())
-        .bounded_sample_in_region(state.quality().grid_3d())
+        .bounded_sample_in_cube(state.quality().grid_3d())
         .decompose();
 
     Isosurface {

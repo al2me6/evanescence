@@ -1,7 +1,7 @@
 use std::ops::RangeInclusive;
 
 use itertools::Itertools;
-use na::{vector, Const, SVector, ToTypenum, Vector2, Vector3};
+use na::{vector, Const, SVector, ToTypenum, Vector2};
 
 use crate::geometry::point::IPoint;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
@@ -20,6 +20,22 @@ pub trait Function<const N: usize, P: IPoint<N> = na::Point<f32, N>> {
     fn evaluate_at(&self, point: P) -> PointValue<N, P, Self::Output> {
         let value = self.evaluate(&point);
         PointValue(point, value)
+    }
+
+    /// Sample `self` in an `N`-dimensional hypercube centered at the origin, giving an
+    /// evenly-spaced lattice.
+    fn sample_from_origin_centered_hypercube(
+        &self,
+        edge_length: f32,
+        num_points_per_dim: usize,
+    ) -> Soa<N, Self::Output> {
+        let coords = super::symmetric_linspace(edge_length / 2., num_points_per_dim).collect_vec();
+        itertools::repeat_n(&coords, N)
+            .multi_cartesian_product()
+            .map(|pt_coords| pt_coords.into_iter().copied())
+            .map(SVector::<_, N>::from_iterator)
+            .map(|v| self.evaluate_at(v.into()))
+            .collect()
     }
 
     /// Sample `self` on a line segment running across `interval` at a total of `num_points`
@@ -85,14 +101,6 @@ pub trait Function3Ext<P: IPoint<3> = na::Point3<f32>>: Function<3, P> {
         extent: f32,
         num_points: usize,
     ) -> GridValues3<Self::Output>;
-
-    /// Evaluate `Self` on a cube of side length 2 × `extent`, centered at the origin, producing
-    /// a list of evenly spaced points arranged as a flattened 3D array, with the first index
-    /// being x, second index being y, and third index being z.
-    ///
-    /// That is, values are each of the form (x, y, z, val), sorted by increasing x, then y, and
-    /// finally z.
-    fn sample_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output>;
 }
 
 impl<P: IPoint<3>, F> Function3Ext<P> for F
@@ -143,17 +151,6 @@ where
             .expect("rows and columns are equal in length by construction"),
         }
     }
-
-    fn sample_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output> {
-        super::symmetric_linspace(Vector3::x() * extent, num_points)
-            .flat_map(|x_pt| {
-                super::symmetric_linspace(Vector3::y() * extent, num_points).flat_map(move |y_pt| {
-                    super::symmetric_linspace(Vector3::z() * extent, num_points)
-                        .map(move |z_pt| self.evaluate_at((x_pt + y_pt + z_pt).into()))
-                })
-            })
-            .collect()
-    }
 }
 
 /// Helper methods for evaluating Function<3>s that can be reasonably 'bounded' in a region
@@ -171,7 +168,7 @@ pub trait Function3InOriginCenteredRegionExt<P: IPoint<3>>: Function3Ext<P> {
 
     /// Sample the function in a cube centered at the origin. `num_points` are sampled in each
     /// dimension, producing an evenly-spaced lattice of values the size of the function's bound.
-    fn bounded_sample_in_region(&self, num_points: usize) -> Soa<3, Self::Output>;
+    fn bounded_sample_in_cube(&self, num_points: usize) -> Soa<3, Self::Output>;
 }
 
 impl<P, F> Function3InOriginCenteredRegionExt<P> for F
@@ -187,7 +184,7 @@ where
         self.sample_in_plane(plane, self.bounding_region().radius, num_points)
     }
 
-    fn bounded_sample_in_region(&self, num_points: usize) -> Soa<3, Self::Output> {
-        self.sample_in_region(self.bounding_region().radius, num_points)
+    fn bounded_sample_in_cube(&self, num_points: usize) -> Soa<3, Self::Output> {
+        self.sample_from_origin_centered_hypercube(self.bounding_region().radius * 2., num_points)
     }
 }

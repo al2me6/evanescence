@@ -3,7 +3,7 @@ pub mod supplemental;
 
 use evanescence_core::geometry::region::BoundingRegion;
 use evanescence_core::geometry::storage::PointValue;
-use evanescence_core::numerics::function::Function3Ext;
+use evanescence_core::numerics::Function;
 use evanescence_core::orbital::hybrid::{Hybrid, Kind};
 use evanescence_core::orbital::Qn;
 use itertools::Itertools;
@@ -51,7 +51,10 @@ fn compute_isosurface_hybrid(
     let lc = &kind.combinations()[idx];
     let hybrid = Hybrid::new(lc.clone());
     let ([x, y, z], value) = hybrid
-        .sample_in_region(hybrid.bounding_region().radius * 0.85, quality.grid_3d())
+        .sample_from_origin_centered_hypercube(
+            hybrid.bounding_region().radius * 0.85 * 2.,
+            quality.grid_3d(),
+        )
         .decompose();
     let cutoff = isosurface_cutoff_hybrid(kind);
 
