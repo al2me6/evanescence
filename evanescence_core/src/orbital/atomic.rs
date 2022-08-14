@@ -187,7 +187,7 @@ mod tests {
         // The radial component depends only on n and l.
         for qn in Qn::enumerate_up_to_n(15).unwrap().filter(|qn| qn.m() == 0) {
             let ([xs], ys) = RadialProbabilityDistribution::new(qn.into())
-                .evaluate_on_line_segment(vector![0.]..=vector![super::bound(qn)], 1_000)
+                .sample_from_line_segment(vector![0.]..=vector![super::bound(qn)], 1_000)
                 .to_soa_components();
             approx::assert_abs_diff_eq!(
                 PROBABILITY_WITHIN_BOUND,

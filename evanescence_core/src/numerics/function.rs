@@ -1,7 +1,7 @@
 use std::ops::RangeInclusive;
 
 use itertools::Itertools;
-use na::{Const, SVector, ToTypenum, Vector3};
+use na::{vector, Const, SVector, ToTypenum, Vector2, Vector3};
 
 use crate::geometry::point::IPoint;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
@@ -11,31 +11,58 @@ use crate::geometry::storage::{PointValue, Soa};
 pub trait Function<const N: usize, P: IPoint<N> = na::Point<f32, N>> {
     type Output: Copy;
 
-    /// Evaluate `Self` at a certain point, returning the value only.
+    /// Evaluate `self` at a certain point, returning the value only.
     fn evaluate(&self, point: &P) -> Self::Output;
 
-    /// Evaluate `Self` at a certain point, returning the point *and* the value in the form of a
-    /// [`PointValue`], or a `(Point, Self::Output)`.
+    /// Evaluate `self` at a certain point, returning the point *and* the value in the form of a
+    /// [`PointValue`].
     #[inline]
     fn evaluate_at(&self, point: P) -> PointValue<N, P, Self::Output> {
         let value = self.evaluate(&point);
         PointValue(point, value)
     }
 
-    /// Evaluate `Self` on a line segment running across `range` at a total of `num_points`
-    /// different points, all evenly spaced (à la [`linspace`](super::linspace) operation).
-    fn evaluate_on_line_segment(
+    /// Sample `self` on a line segment running across `interval` at a total of `num_points`
+    /// evenly spaced points.
+    fn sample_from_line_segment(
         &self,
-        range: RangeInclusive<SVector<f32, N>>,
+        interval: RangeInclusive<SVector<f32, N>>,
         num_points: usize,
-    ) -> Vec<PointValue<N, P, Self::Output>>
-    where
-        Const<N>: ToTypenum,
-        <Const<N> as ToTypenum>::Typenum: typenum::Cmp<typenum::U0, Output = typenum::Greater>,
-    {
-        super::linspace(range, num_points)
+    ) -> Vec<PointValue<N, P, Self::Output>> {
+        super::linspace(interval, num_points)
             .map(|pt| self.evaluate_at(pt.into()))
             .collect()
+    }
+
+    /// For `Function<2>` only.
+    ///
+    /// Sample `self` in a rectangular lattice given by `extent`, where the 'lower bound' is the
+    /// 'lower left corner' and the 'upper bound' is the 'top right corner'.
+    fn sample_from_plane(
+        &self,
+        extent: RangeInclusive<Vector2<f32>>,
+        num_points: [usize; 2],
+    ) -> GridValues<Self::Output>
+    where
+        Const<N>: ToTypenum,
+        <Const<N> as ToTypenum>::Typenum: tn::Cmp<tn::U2, Output = tn::Equal>,
+        P: From<Vector2<f32>>, // rustc cannot prove this from above.
+    {
+        let (bottom_left, top_right) = extent.into_inner();
+
+        let xs = super::linspace(bottom_left.x..=top_right.x, num_points[0]).collect_vec();
+        let ys = super::linspace(bottom_left.y..=top_right.y, num_points[1]).collect_vec();
+        let mut vals = Vec::with_capacity(num_points[0]);
+
+        for &y in &ys {
+            let mut row = Vec::with_capacity(num_points[1]);
+            for &x in &xs {
+                row.push(self.evaluate(&vector![x, y].into()));
+            }
+            vals.push(row);
+        }
+
+        GridValues::new(xs, ys, vals).expect("rows and columns are equal in length by construction")
     }
 }
 
@@ -52,7 +79,7 @@ pub trait Function3Ext<P: IPoint<3> = na::Point3<f32>>: Function<3, P> {
     /// [grid](crate::geometry::storage::grid_values::GridValues3) of evenly spaced values.
     /// Specifically, the grid is a square centered at the origin with side length of 2 × `extent`,
     /// and `num_points` are sampled *in each dimension*.
-    fn evaluate_on_plane(
+    fn sample_in_plane(
         &self,
         plane: CoordinatePlane3,
         extent: f32,
@@ -65,14 +92,14 @@ pub trait Function3Ext<P: IPoint<3> = na::Point3<f32>>: Function<3, P> {
     ///
     /// That is, values are each of the form (x, y, z, val), sorted by increasing x, then y, and
     /// finally z.
-    fn evaluate_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output>;
+    fn sample_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output>;
 }
 
 impl<P: IPoint<3>, F> Function3Ext<P> for F
 where
     F: Function<3, P>,
 {
-    fn evaluate_on_plane(
+    fn sample_in_plane(
         &self,
         plane: CoordinatePlane3,
         extent: f32,
@@ -117,7 +144,7 @@ where
         }
     }
 
-    fn evaluate_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output> {
+    fn sample_in_region(&self, extent: f32, num_points: usize) -> Soa<3, Self::Output> {
         super::symmetric_linspace(Vector3::x() * extent, num_points)
             .flat_map(|x_pt| {
                 super::symmetric_linspace(Vector3::y() * extent, num_points).flat_map(move |y_pt| {
@@ -136,12 +163,15 @@ pub trait Function3InOriginCenteredRegionExt<P: IPoint<3>>: Function3Ext<P> {
     ///
     /// `num_points` points will be evaluated in a grid centered at the origin, extending to the
     /// bound of the function.
-    fn sample_plane(&self, plane: CoordinatePlane3, num_points: usize)
-        -> GridValues3<Self::Output>;
+    fn bounded_sample_in_plane(
+        &self,
+        plane: CoordinatePlane3,
+        num_points: usize,
+    ) -> GridValues3<Self::Output>;
 
     /// Sample the function in a cube centered at the origin. `num_points` are sampled in each
     /// dimension, producing an evenly-spaced lattice of values the size of the function's bound.
-    fn sample_region(&self, num_points: usize) -> Soa<3, Self::Output>;
+    fn bounded_sample_in_region(&self, num_points: usize) -> Soa<3, Self::Output>;
 }
 
 impl<P, F> Function3InOriginCenteredRegionExt<P> for F
@@ -149,15 +179,15 @@ where
     P: IPoint<3>,
     F: Function3Ext<P> + BoundingRegion<3, P, Geometry = BallCenteredAtOrigin>,
 {
-    fn sample_plane(
+    fn bounded_sample_in_plane(
         &self,
         plane: CoordinatePlane3,
         num_points: usize,
     ) -> GridValues3<Self::Output> {
-        self.evaluate_on_plane(plane, self.bounding_region().radius, num_points)
+        self.sample_in_plane(plane, self.bounding_region().radius, num_points)
     }
 
-    fn sample_region(&self, num_points: usize) -> Soa<3, Self::Output> {
-        self.evaluate_in_region(self.bounding_region().radius, num_points)
+    fn bounded_sample_in_region(&self, num_points: usize) -> Soa<3, Self::Output> {
+        self.sample_in_region(self.bounding_region().radius, num_points)
     }
 }

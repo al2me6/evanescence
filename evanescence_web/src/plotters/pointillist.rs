@@ -3,11 +3,11 @@ use std::f32::consts::{PI, TAU};
 
 use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
 use evanescence_core::geometry::storage::Soa;
-use evanescence_core::numerics::function::{Function3Ext, Function3InOriginCenteredRegionExt};
+use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::{self, Function};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::Real;
-use na::Point3;
+use na::{vector, Point2};
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
@@ -170,13 +170,11 @@ impl VerticalCone {
     }
 }
 
-impl Function<3, Point3<f32>> for VerticalCone {
+impl Function<2> for VerticalCone {
     type Output = f32;
 
-    fn evaluate(&self, point: &Point3<f32>) -> Self::Output {
-        // Note that the z values of passed points are ignored!
-        (point.coords.x * point.coords.x + point.coords.y * point.coords.y).sqrt()
-            / self.theta.tan()
+    fn evaluate(&self, point: &Point2<f32>) -> Self::Output {
+        point.coords.norm() / self.theta.tan()
     }
 }
 
@@ -192,8 +190,10 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
             .into_iter()
             .map(|theta| {
                 VerticalCone::new(theta)
-                    .evaluate_on_plane(CoordinatePlane3::XY, bound, NUM_POINTS)
-                    .grid_values
+                    .sample_from_plane(
+                        vector![-bound, -bound]..=vector![bound, bound],
+                        [NUM_POINTS; 2],
+                    )
                     .decompose()
             })
             .map(|(x, y, z)| Surface {
@@ -277,7 +277,7 @@ pub fn nodes_combined(state: &State) -> JsValue {
     assert!(state.mode().is_hybrid());
 
     let ([x, y, z], value) = Hybrid::new(state.hybrid_kind().archetype().clone())
-        .sample_region(state.quality().grid_3d())
+        .bounded_sample_in_region(state.quality().grid_3d())
         .decompose();
 
     Isosurface {

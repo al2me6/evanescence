@@ -545,11 +545,10 @@ impl State {
 
     pub fn sample_plane_real(&self, plane: CoordinatePlane3) -> GridValues3<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::RealFull => {
-                orbital::Real::new(*self.qn()).sample_plane(plane, self.quality().grid_2d())
-            }
+            Mode::RealSimple | Mode::RealFull => orbital::Real::new(*self.qn())
+                .bounded_sample_in_plane(plane, self.quality().grid_2d()),
             Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
-                .sample_plane(plane, self.quality().grid_2d()),
+                .bounded_sample_in_plane(plane, self.quality().grid_2d()),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }
     }
@@ -557,13 +556,13 @@ impl State {
     pub fn sample_plane_prob_density(&self, plane: CoordinatePlane3) -> GridValues3<f32> {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull => Pdf::new(orbital::Real::new(*self.qn()))
-                .sample_plane(plane, self.quality().grid_2d()),
+                .bounded_sample_in_plane(plane, self.quality().grid_2d()),
             Mode::Complex => Pdf::new(orbital::Complex::new(*self.qn()))
-                .sample_plane(plane, self.quality().grid_2d()),
+                .bounded_sample_in_plane(plane, self.quality().grid_2d()),
             Mode::Hybrid => Pdf::new(orbital::hybrid::Hybrid::new(
                 self.hybrid_kind().archetype().clone(),
             ))
-            .sample_plane(plane, self.quality().grid_2d()),
+            .bounded_sample_in_plane(plane, self.quality().grid_2d()),
         }
     }
 }

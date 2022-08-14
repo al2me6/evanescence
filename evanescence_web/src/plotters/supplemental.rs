@@ -41,7 +41,7 @@ impl RadialPlot {
             Self::ProbabilityDistribution => Box::new(RadialProbabilityDistribution::new(nl)),
         };
         let ([rs], vals) = evaluator
-            .evaluate_on_line_segment(vector![0.]..=vector![extent], num_points)
+            .sample_from_line_segment(vector![0.]..=vector![extent], num_points)
             .to_soa_components();
         (rs, vals)
     }
@@ -181,7 +181,7 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
 
     let (x, y, mut z, mut custom_color) = if is_complex {
         let (x, y, values) = Complex::new(*state.qn())
-            .sample_plane(plane, state.quality().grid_2d())
+            .bounded_sample_in_plane(plane, state.quality().grid_2d())
             .grid_values
             .decompose();
         let (moduli, arguments) = values
@@ -299,7 +299,7 @@ pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     let trace = match state.mode() {
         Mode::RealSimple | Mode::RealFull => {
             let ([x, y, z], value) = Real::new(*state.qn())
-                .sample_region(state.quality().grid_3d() * 3 / 2)
+                .bounded_sample_in_region(state.quality().grid_3d() * 3 / 2)
                 .decompose();
             let cutoff = super::isosurface_cutoff_atomic_real(state.qn());
             Isosurface {

@@ -40,6 +40,7 @@
 #![cfg_attr(not(test), deny(clippy::unwrap_used))]
 
 extern crate nalgebra as na;
+extern crate typenum as tn;
 
 #[macro_use]
 pub mod numerics;

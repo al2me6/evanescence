@@ -51,7 +51,7 @@ fn compute_isosurface_hybrid(
     let lc = &kind.combinations()[idx];
     let hybrid = Hybrid::new(lc.clone());
     let ([x, y, z], value) = hybrid
-        .evaluate_in_region(hybrid.bounding_region().radius * 0.85, quality.grid_3d())
+        .sample_in_region(hybrid.bounding_region().radius * 0.85, quality.grid_3d())
         .decompose();
     let cutoff = isosurface_cutoff_hybrid(kind);
 
