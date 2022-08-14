@@ -66,6 +66,25 @@ impl Region<3, SphericalPoint3> for BallCenteredAtOrigin {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct CubeCenteredAtOrigin {
+    pub side_length: f32,
+}
+
+impl<P: IPoint<3>> Region<3, P> for CubeCenteredAtOrigin {
+    fn sample(&self, rng: &mut WyRand) -> P {
+        let [x, y] = rng.gen_f32x2();
+        let z = rng.gen_f32();
+        let shift = self.side_length / 2.;
+        vector![
+            x * self.side_length - shift,
+            y * self.side_length - shift,
+            z * self.side_length - shift
+        ]
+        .into()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::iter;
