@@ -15,10 +15,10 @@ use crate::plotly::isosurface::{self, Isosurface};
 use crate::state::cache::MONTE_CARLO_CACHE;
 use crate::state::MonteCarloParameters;
 
-pub const ISOSURFACE_CUTOFF: f32 = 0.9;
+pub const ISOSURFACE_CUTOFF: f32 = 0.85;
 const ISOSURFACE_SAMPLES: usize = Quality::High.point_cloud();
 
-/// Note that this gives the psi cutoff, not psi squared.
+/// Note that this gives the |psi| cutoff, not psi squared.
 fn compute_isosurface_cutoff_real(params: MonteCarloParameters) -> f32 {
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     const CUTOFF_IDX: usize = ((1. - ISOSURFACE_CUTOFF) * ISOSURFACE_SAMPLES as f32) as usize;
