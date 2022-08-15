@@ -1,4 +1,4 @@
-name: evanescence_core benchmarks
+name: Run benchmarks
 on:
   push:
     branches:
@@ -6,7 +6,6 @@ on:
 
 jobs:
   benchmark:
-    name: Benchmark evanescence_core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,12 +14,11 @@ jobs:
             toolchain: nightly
             profile: minimal
             override: true
-      - name: Run benchmark
+      - name: Run benchmarks
         run: cd evanescence_core && cargo bench --bench benchmarks -- --noplot --output-format bencher | tee output.txt
-      - name: Store benchmark result
+      - name: Store benchmark results
         uses: benchmark-action/github-action-benchmark@v1
         with:
-          name: evanescence_core benchmarks
           tool: 'cargo'
           output-file-path: evanescence_core/output.txt
           github-token: ${{ secrets.GITHUB_TOKEN }}
