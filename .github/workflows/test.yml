@@ -2,9 +2,13 @@ name: Build and test
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches:
+      - master
+      - dev
   pull_request:
-    branches: [ $default-branch ]
+    branches:
+      - master
+      - dev
 
 env:
   CARGO_TERM_COLOR: always
