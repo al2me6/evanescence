@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1660533987825,
+  "lastUpdate": 1660538532227,
   "repoUrl": "https://github.com/al2me6/evanescence",
   "entries": {
     "Benchmark": [
@@ -1433,6 +1433,1440 @@ window.BENCHMARK_DATA = {
             "name": "hybrid_monte_carlo_sampling/sp3d2",
             "value": 17474,
             "range": "± 561",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "alvin.q.meng@gmail.com",
+            "name": "Alvin Meng",
+            "username": "al2me6"
+          },
+          "committer": {
+            "email": "alvin.q.meng@gmail.com",
+            "name": "Alvin Meng",
+            "username": "al2me6"
+          },
+          "distinct": true,
+          "id": "16ed3c3018127070682c0e2ab70d9814fa7b8aec",
+          "message": "ci: try to fix test workflow",
+          "timestamp": "2022-08-15T00:05:16-04:00",
+          "tree_id": "2811035b7b7d6ea29d9aca8279226c2137720616",
+          "url": "https://github.com/al2me6/evanescence/commit/16ed3c3018127070682c0e2ab70d9814fa7b8aec"
+        },
+        "date": 1660538530267,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "polynomial/horner_deg1",
+            "value": 1,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg2",
+            "value": 2,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg3",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg4",
+            "value": 5,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg5",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg6",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg7",
+            "value": 4,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg8",
+            "value": 5,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg9",
+            "value": 6,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "polynomial/horner_deg10",
+            "value": 6,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "sampling/ball/spherical_point_3",
+            "value": 47,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "sampling/ball/point_3",
+            "value": 45,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "sampling/cube/point_3",
+            "value": 3,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/00_100",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/01_200",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/02_21n1",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/03_210",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/04_211",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/05_300",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/06_31n1",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/07_310",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/08_311",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/09_32n2",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/10_32n1",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/11_320",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/12_321",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/13_322",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/14_400",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/15_41n1",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/16_410",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/17_411",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/18_42n2",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/19_42n1",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/20_420",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/21_421",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/22_422",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/23_43n3",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/24_43n2",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/25_43n1",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/26_430",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/27_431",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/28_432",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/29_433",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/30_500",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/31_51n1",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/32_510",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/33_511",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/34_52n2",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/35_52n1",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/36_520",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/37_521",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/38_522",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/39_53n3",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/40_53n2",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/41_53n1",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/42_530",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/43_531",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/44_532",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/45_533",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/46_54n4",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/47_54n3",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/48_54n2",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/49_54n1",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/50_540",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/51_541",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/52_542",
+            "value": 33,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/53_543",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_evaluation/54_544",
+            "value": 32,
+            "range": "± 0",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/00_100",
+            "value": 12237627,
+            "range": "± 9384",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/01_200",
+            "value": 12358990,
+            "range": "± 7637",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/02_21n1",
+            "value": 13651808,
+            "range": "± 15052",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/03_210",
+            "value": 12430135,
+            "range": "± 7942",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/04_211",
+            "value": 13657488,
+            "range": "± 11213",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/05_300",
+            "value": 12516951,
+            "range": "± 8157",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/06_31n1",
+            "value": 13812589,
+            "range": "± 42609",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/07_310",
+            "value": 12572524,
+            "range": "± 8106",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/08_311",
+            "value": 13784139,
+            "range": "± 17171",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/09_32n2",
+            "value": 15849673,
+            "range": "± 10310",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/10_32n1",
+            "value": 14013657,
+            "range": "± 12677",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/11_320",
+            "value": 13203447,
+            "range": "± 7769",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/12_321",
+            "value": 13939504,
+            "range": "± 12723",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/13_322",
+            "value": 15777011,
+            "range": "± 14640",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/14_400",
+            "value": 12683043,
+            "range": "± 10326",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/15_41n1",
+            "value": 13945051,
+            "range": "± 11132",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/16_410",
+            "value": 12765844,
+            "range": "± 9489",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/17_411",
+            "value": 13909465,
+            "range": "± 10354",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/18_42n2",
+            "value": 16015733,
+            "range": "± 13144",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/19_42n1",
+            "value": 14107293,
+            "range": "± 11283",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/20_420",
+            "value": 13324711,
+            "range": "± 9479",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/21_421",
+            "value": 14090246,
+            "range": "± 46271",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/22_422",
+            "value": 15938873,
+            "range": "± 10296",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/23_43n3",
+            "value": 15474868,
+            "range": "± 13192",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/24_43n2",
+            "value": 16023703,
+            "range": "± 11045",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/25_43n1",
+            "value": 14597554,
+            "range": "± 7458",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/26_430",
+            "value": 13704097,
+            "range": "± 17211",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/27_431",
+            "value": 14581996,
+            "range": "± 12436",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/28_432",
+            "value": 15940000,
+            "range": "± 13083",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/29_433",
+            "value": 15376231,
+            "range": "± 15883",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/30_500",
+            "value": 12879035,
+            "range": "± 10421",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/31_51n1",
+            "value": 14102731,
+            "range": "± 10004",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/32_510",
+            "value": 12931298,
+            "range": "± 15553",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/33_511",
+            "value": 14095230,
+            "range": "± 13242",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/34_52n2",
+            "value": 16129136,
+            "range": "± 14219",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/35_52n1",
+            "value": 14270196,
+            "range": "± 9307",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/36_520",
+            "value": 13481378,
+            "range": "± 12959",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/37_521",
+            "value": 14235247,
+            "range": "± 12895",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/38_522",
+            "value": 16061945,
+            "range": "± 12873",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/39_53n3",
+            "value": 15665627,
+            "range": "± 13432",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/40_53n2",
+            "value": 16164720,
+            "range": "± 86242",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/41_53n1",
+            "value": 14840161,
+            "range": "± 9972",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/42_530",
+            "value": 13836533,
+            "range": "± 14051",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/43_531",
+            "value": 14800494,
+            "range": "± 10898",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/44_532",
+            "value": 16091158,
+            "range": "± 14023",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/45_533",
+            "value": 15560281,
+            "range": "± 14033",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/46_54n4",
+            "value": 16515900,
+            "range": "± 11113",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/47_54n3",
+            "value": 15928183,
+            "range": "± 9734",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/48_54n2",
+            "value": 16983927,
+            "range": "± 17965",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/49_54n1",
+            "value": 15470264,
+            "range": "± 9649",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/50_540",
+            "value": 14430351,
+            "range": "± 12297",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/51_541",
+            "value": 15386690,
+            "range": "± 13218",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/52_542",
+            "value": 16903422,
+            "range": "± 10900",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/53_543",
+            "value": 15826717,
+            "range": "± 17133",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_startup/54_544",
+            "value": 16466900,
+            "range": "± 11847",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/00_100",
+            "value": 9175,
+            "range": "± 207",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/01_200",
+            "value": 26347,
+            "range": "± 1047",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/02_21n1",
+            "value": 3837,
+            "range": "± 56",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/03_210",
+            "value": 3047,
+            "range": "± 40",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/04_211",
+            "value": 3831,
+            "range": "± 63",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/05_300",
+            "value": 44292,
+            "range": "± 2508",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/06_31n1",
+            "value": 9137,
+            "range": "± 309",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/07_310",
+            "value": 7349,
+            "range": "± 267",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/08_311",
+            "value": 9086,
+            "range": "± 308",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/09_32n2",
+            "value": 2686,
+            "range": "± 39",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/10_32n1",
+            "value": 2639,
+            "range": "± 28",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/11_320",
+            "value": 2938,
+            "range": "± 38",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/12_321",
+            "value": 2637,
+            "range": "± 44",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/13_322",
+            "value": 2666,
+            "range": "± 32",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/14_400",
+            "value": 48689,
+            "range": "± 3036",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/15_41n1",
+            "value": 12513,
+            "range": "± 1031",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/16_410",
+            "value": 10017,
+            "range": "± 872",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/17_411",
+            "value": 12451,
+            "range": "± 988",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/18_42n2",
+            "value": 5722,
+            "range": "± 125",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/19_42n1",
+            "value": 5734,
+            "range": "± 136",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/20_420",
+            "value": 6166,
+            "range": "± 172",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/21_421",
+            "value": 5700,
+            "range": "± 114",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/22_422",
+            "value": 5714,
+            "range": "± 129",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/23_43n3",
+            "value": 2279,
+            "range": "± 28",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/24_43n2",
+            "value": 2042,
+            "range": "± 18",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/25_43n1",
+            "value": 2631,
+            "range": "± 34",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/26_430",
+            "value": 3026,
+            "range": "± 39",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/27_431",
+            "value": 2599,
+            "range": "± 31",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/28_432",
+            "value": 2022,
+            "range": "± 22",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/29_433",
+            "value": 2253,
+            "range": "± 26",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/30_500",
+            "value": 45873,
+            "range": "± 1830",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/31_51n1",
+            "value": 10801,
+            "range": "± 1950",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/32_510",
+            "value": 9488,
+            "range": "± 1612",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/33_511",
+            "value": 10973,
+            "range": "± 1989",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/34_52n2",
+            "value": 7736,
+            "range": "± 303",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/35_52n1",
+            "value": 7698,
+            "range": "± 346",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/36_520",
+            "value": 8064,
+            "range": "± 498",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/37_521",
+            "value": 7633,
+            "range": "± 337",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/38_522",
+            "value": 7677,
+            "range": "± 324",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/39_53n3",
+            "value": 4525,
+            "range": "± 114",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/40_53n2",
+            "value": 4064,
+            "range": "± 76",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/41_53n1",
+            "value": 5267,
+            "range": "± 138",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/42_530",
+            "value": 5914,
+            "range": "± 163",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/43_531",
+            "value": 5188,
+            "range": "± 127",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/44_532",
+            "value": 3994,
+            "range": "± 77",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/45_533",
+            "value": 4455,
+            "range": "± 70",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/46_54n4",
+            "value": 2190,
+            "range": "± 31",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/47_54n3",
+            "value": 1849,
+            "range": "± 28",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/48_54n2",
+            "value": 2119,
+            "range": "± 21",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/49_54n1",
+            "value": 2878,
+            "range": "± 38",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/50_540",
+            "value": 3307,
+            "range": "± 47",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/51_541",
+            "value": 2860,
+            "range": "± 33",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/52_542",
+            "value": 2109,
+            "range": "± 20",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/53_543",
+            "value": 1826,
+            "range": "± 19",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_real_monte_carlo_sampling/54_544",
+            "value": 2169,
+            "range": "± 23",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/00_100",
+            "value": 11871,
+            "range": "± 320",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/01_200",
+            "value": 34244,
+            "range": "± 1318",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/02_21n1",
+            "value": 2402,
+            "range": "± 29",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/03_210",
+            "value": 3883,
+            "range": "± 57",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/04_211",
+            "value": 2402,
+            "range": "± 22",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/05_300",
+            "value": 56584,
+            "range": "± 4933",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/06_31n1",
+            "value": 5842,
+            "range": "± 102",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/07_310",
+            "value": 9295,
+            "range": "± 373",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/08_311",
+            "value": 5843,
+            "range": "± 117",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/09_32n2",
+            "value": 1665,
+            "range": "± 13",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/10_32n1",
+            "value": 1652,
+            "range": "± 13",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/11_320",
+            "value": 3636,
+            "range": "± 51",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/12_321",
+            "value": 1651,
+            "range": "± 20",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/13_322",
+            "value": 1665,
+            "range": "± 17",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/14_400",
+            "value": 63803,
+            "range": "± 4522",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/15_41n1",
+            "value": 8424,
+            "range": "± 315",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/16_410",
+            "value": 12685,
+            "range": "± 1090",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/17_411",
+            "value": 8474,
+            "range": "± 235",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/18_42n2",
+            "value": 3618,
+            "range": "± 42",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/19_42n1",
+            "value": 3578,
+            "range": "± 47",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/20_420",
+            "value": 7814,
+            "range": "± 253",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/21_421",
+            "value": 3571,
+            "range": "± 50",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/22_422",
+            "value": 3604,
+            "range": "± 56",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/23_43n3",
+            "value": 1408,
+            "range": "± 11",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/24_43n2",
+            "value": 1261,
+            "range": "± 12",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/25_43n1",
+            "value": 1607,
+            "range": "± 15",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/26_430",
+            "value": 3805,
+            "range": "± 90",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/27_431",
+            "value": 1610,
+            "range": "± 15",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/28_432",
+            "value": 1262,
+            "range": "± 7",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/29_433",
+            "value": 1410,
+            "range": "± 13",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/30_500",
+            "value": 59553,
+            "range": "± 3003",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/31_51n1",
+            "value": 8265,
+            "range": "± 483",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/32_510",
+            "value": 11292,
+            "range": "± 1922",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/33_511",
+            "value": 8302,
+            "range": "± 589",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/34_52n2",
+            "value": 5008,
+            "range": "± 86",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/35_52n1",
+            "value": 4939,
+            "range": "± 926",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/36_520",
+            "value": 10289,
+            "range": "± 681",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/37_521",
+            "value": 4933,
+            "range": "± 81",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/38_522",
+            "value": 5000,
+            "range": "± 79",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/39_53n3",
+            "value": 2788,
+            "range": "± 29",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/40_53n2",
+            "value": 2497,
+            "range": "± 37",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/41_53n1",
+            "value": 3235,
+            "range": "± 38",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/42_530",
+            "value": 7469,
+            "range": "± 240",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/43_531",
+            "value": 3240,
+            "range": "± 46",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/44_532",
+            "value": 2501,
+            "range": "± 34",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/45_533",
+            "value": 2799,
+            "range": "± 41",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/46_54n4",
+            "value": 1328,
+            "range": "± 9",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/47_54n3",
+            "value": 1120,
+            "range": "± 8",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/48_54n2",
+            "value": 1283,
+            "range": "± 9",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/49_54n1",
+            "value": 1735,
+            "range": "± 17",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/50_540",
+            "value": 4178,
+            "range": "± 99",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/51_541",
+            "value": 1734,
+            "range": "± 20",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/52_542",
+            "value": 1283,
+            "range": "± 12",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/53_543",
+            "value": 1122,
+            "range": "± 10",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "atomic_complex_monte_carlo_sampling/54_544",
+            "value": 1329,
+            "range": "± 18",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "hybrid_monte_carlo_sampling/sp2",
+            "value": 14707,
+            "range": "± 432",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "hybrid_monte_carlo_sampling/sp3d2",
+            "value": 20485,
+            "range": "± 549",
             "unit": "ns/iter"
           }
         ]
