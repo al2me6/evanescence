@@ -32,11 +32,9 @@ fn rand_in_3_ball(radius: f32, rng: &mut WyRand) -> (Vector3<f32>, f32, f32, f32
     let cos_theta /* [-1, 1] */ = cos_theta * 2.0 - 1.0;
     let sin_theta = (1. - cos_theta * cos_theta).sqrt();
     let phi /* [0, 2pi) */ = rng.gen_f32() * 2.0 * PI;
-    let cos_phi = phi.cos();
-    let sin_phi = (1. - cos_phi * cos_phi).sqrt();
     let cartesian = vector![
-        r * sin_theta * cos_phi,
-        r * sin_theta * sin_phi,
+        r * sin_theta * phi.cos(),
+        r * sin_theta * phi.sin(),
         r * cos_theta
     ];
     (cartesian, r, cos_theta, phi)
@@ -103,15 +101,18 @@ mod tests {
     #[test]
     fn rng_spherical_coordinates() {
         let ball = BallCenteredAtOrigin { radius: 2. };
-        let mut rng = WyRand::new();
-        let rng_point: SphericalPoint3 = ball.sample(&mut rng);
-        let recomputed_point = SphericalPoint3::from(*rng_point.coordinates());
-        assert_ulps_eq!(rng_point.r(), recomputed_point.r(), max_ulps = 1);
-        assert_ulps_eq!(
-            rng_point.cos_theta(),
-            recomputed_point.cos_theta(),
-            max_ulps = 1
-        );
-        assert_ulps_eq!(rng_point.phi(), recomputed_point.phi(), max_ulps = 1);
+        let rng = &mut WyRand::new();
+        for _ in 0..200 {
+            let rng_point: SphericalPoint3 = ball.sample(rng);
+            let recomputed_point = SphericalPoint3::from(*rng_point.coordinates());
+            println!("rand point: {rng_point:?}");
+            assert_ulps_eq!(rng_point.r(), recomputed_point.r(), max_ulps = 2);
+            assert_ulps_eq!(
+                rng_point.cos_theta(),
+                recomputed_point.cos_theta(),
+                max_ulps = 2
+            );
+            assert_ulps_eq!(rng_point.phi(), recomputed_point.phi(), max_ulps = 2);
+        }
     }
 }
