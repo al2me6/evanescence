@@ -3,9 +3,9 @@ use std::f32::consts::SQRT_2;
 
 use num::complex::Complex32;
 
-use super::special::orthogonal_polynomials::renormalized_associated_legendre;
-use super::Function;
+use super::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
+use crate::numerics::Function;
 use crate::orbital::quantum_numbers::Lm;
 
 /// Implementation of the spherical harmonics, `Y_l^m(θ,φ)`, including the Condon-Shortley phase.

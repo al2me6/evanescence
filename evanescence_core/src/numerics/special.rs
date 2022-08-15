@@ -1,5 +1,6 @@
 pub mod factorial;
 pub mod orthogonal_polynomials;
+pub mod spherical_harmonics;
 
 /// See <https://stackoverflow.com/a/52795863>
 ///

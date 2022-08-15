@@ -4,7 +4,7 @@ use super::Radial;
 use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
-use crate::numerics::spherical_harmonics::SphericalHarmonic;
+use crate::numerics::special::spherical_harmonics::SphericalHarmonic;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Function;
 use crate::orbital::{Orbital, Qn};

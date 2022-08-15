@@ -1,4 +1,4 @@
-use evanescence_core::numerics::spherical_harmonics::RealSphericalHarmonic;
+use evanescence_core::numerics::special::spherical_harmonics::RealSphericalHarmonic;
 use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::{self, Qn};
 use evanescence_web::components::{Button, CheckBox, Dropdown, Tooltip};

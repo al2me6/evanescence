@@ -7,7 +7,7 @@ use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
-use crate::numerics::spherical_harmonics::RealSphericalHarmonic;
+use crate::numerics::special::spherical_harmonics::RealSphericalHarmonic;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::{self, Function};
 use crate::orbital::quantum_numbers::{Lm, Qn};

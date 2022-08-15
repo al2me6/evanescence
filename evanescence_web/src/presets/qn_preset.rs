@@ -1,7 +1,7 @@
 use std::fmt;
 use std::sync::LazyLock;
 
-use evanescence_core::numerics::spherical_harmonics::RealSphericalHarmonic;
+use evanescence_core::numerics::special::spherical_harmonics::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
 
 use super::{Preset, PresetLibrary};
