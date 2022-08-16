@@ -12,9 +12,9 @@ use serde::{Deserialize, Serialize};
 // `#[derive()]` gets confused by `PhantomData` and incorrectly enforces bounds on `T` itself.
 // See https://github.com/rust-lang/rust/issues/26925.
 #[derivative(Clone, Copy, PartialEq, Eq, Default, Debug)]
-pub struct Preset<T> {
+pub struct Preset<T: 'static> {
     idx: usize,
-    phantom: PhantomData<T>,
+    phantom: PhantomData<&'static T>,
 }
 
 /// Helper trait for linking a given [`Preset<T>`] to its list of presets.

@@ -308,13 +308,10 @@ mod tests {
                         [env!("CARGO_MANIFEST_DIR"), "test_output"].iter().collect();
                     fs::create_dir_all(&out_path).unwrap();
                     out_path.push(format!(
-                        "{}_test-real-monte-carlo_{}{}{}.json",
+                        "{}_test-real-monte-carlo_{qn}.json",
                         chrono::offset::Utc::now()
                             .to_rfc3339_opts(chrono::SecondsFormat::Secs, true)
                             .replace(':', ""),
-                        qn.n(),
-                        qn.l(),
-                        qn.m().to_string().replace('-', "n"),
                     ));
                     let out_file = File::create(&out_path).unwrap();
 

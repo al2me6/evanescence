@@ -22,11 +22,9 @@ fn compute_isosurface_cutoff_real(params: MonteCarloParameters) -> f32 {
     #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
     const CUTOFF_IDX: usize = ((1. - ISOSURFACE_CUTOFF) * ISOSURFACE_SAMPLES as f32) as usize;
 
-    let mut psi_abs = MONTE_CARLO_CACHE
-        .lock()
-        .unwrap()
-        .request_f32(params, ISOSURFACE_SAMPLES)
-        .unwrap()
+    let mut cache = MONTE_CARLO_CACHE.lock().unwrap();
+    let monte_carlo_samples = cache.request_f32(params, ISOSURFACE_SAMPLES).unwrap();
+    let mut psi_abs = monte_carlo_samples
         .values()
         .iter()
         .map(|psi| psi.abs())
