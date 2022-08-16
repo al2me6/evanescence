@@ -1,7 +1,7 @@
+pub mod accept_reject;
+
 use crate::geometry::point::{IPoint, SphericalPoint3};
 use crate::geometry::storage::PointValue;
-
-pub mod accept_reject;
 
 pub trait MonteCarlo<const N: usize, P: IPoint<N>>:
     Iterator<Item = PointValue<N, P, Self::Output>>

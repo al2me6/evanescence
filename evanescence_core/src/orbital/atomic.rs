@@ -2,6 +2,9 @@
 //! angular components. Also included are probability and probability distribution functions
 //! for the radial wavefunction.
 
+pub mod complex;
+pub mod real;
+
 use na::Point1;
 
 use crate::geometry::point::IPoint;
@@ -10,9 +13,6 @@ use crate::numerics::polynomial::Polynomial;
 use crate::numerics::special::orthogonal_polynomials;
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Nl, Qn};
-
-pub mod complex;
-pub mod real;
 
 /// Implementation of the radial component of the hydrogenic wavefunction.
 #[derive(Clone, Debug)]

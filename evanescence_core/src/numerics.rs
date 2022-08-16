@@ -1,5 +1,3 @@
-use std::ops::{AddAssign, Div, Neg, RangeInclusive, Sub};
-
 /// Verify that two iterables containing float values are approximately equal.
 #[cfg(test)]
 macro_rules! assert_iterable_approx_eq {
@@ -34,7 +32,9 @@ pub mod root_finding;
 pub mod special;
 pub mod statistics;
 
-pub use function::Function;
+use std::ops::{AddAssign, Div, Neg, RangeInclusive, Sub};
+
+pub use self::function::Function;
 
 /// Produce `num_points` values evenly spaced across `interval`.
 pub fn linspace<T>(

@@ -1,11 +1,11 @@
+pub mod kolmogorov_smirnov;
+
 use std::marker::PhantomData;
 
 use super::Function;
 use crate::geometry::point::IPoint;
 use crate::geometry::region::BoundingRegion;
 use crate::geometry::storage::PointValue;
-
-pub mod kolmogorov_smirnov;
 
 /// A [`Function`] that can also be interpreted as a probability density function.
 pub trait Distribution<const N: usize, P: IPoint<N>>: Function<N, P> {

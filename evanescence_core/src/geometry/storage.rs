@@ -1,9 +1,8 @@
-use super::point::IPoint;
-
 pub mod grid_values;
 pub mod struct_of_arrays;
 
-pub use struct_of_arrays::Soa;
+pub use self::struct_of_arrays::Soa;
+use super::point::IPoint;
 
 /// A point and the value of a function evaluated at that point.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

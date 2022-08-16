@@ -1,3 +1,5 @@
+pub mod cache;
+
 use std::convert::TryFrom;
 use std::default::default;
 use std::fmt;
@@ -16,8 +18,6 @@ use yewdux::prelude::*;
 use crate::plotters;
 use crate::plotters::Quality;
 use crate::presets::{HybridPreset, QnPreset};
-
-pub mod cache;
 
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, EnumIter, Display, Serialize, Deserialize)]

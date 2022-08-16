@@ -1,5 +1,7 @@
 #![feature(drain_filter)]
 
+pub mod ui;
+
 use evanescence_web::components::raw::RawDiv;
 use evanescence_web::components::window::OpenButton;
 use evanescence_web::components::Window;
@@ -9,8 +11,6 @@ use gloo::storage::{SessionStorage, Storage};
 use gloo::utils::{body, document, window};
 use yew::prelude::*;
 use yewdux::prelude::*;
-
-pub mod ui;
 
 use crate::ui::{
     Controls, InfoPanel, ModeBar, PointillistVisualization, SupplementalVisualization,
