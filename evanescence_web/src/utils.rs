@@ -6,12 +6,6 @@ use itertools::Itertools;
 use log::{Level, Record};
 use num::complex::Complex32;
 
-pub mod consts {
-    pub const FRAC_1_SQRT_3: f32 = 0.577_350_3;
-    pub const FRAC_1_SQRT_6: f32 = 0.408_248_3;
-    pub const SQRT_3: f32 = 1.732_050_8;
-}
-
 pub fn capitalize_words<T: AsRef<str>>(source: T) -> String {
     let mut prev_is_word_separator = true;
     source

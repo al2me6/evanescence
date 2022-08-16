@@ -32,6 +32,13 @@ pub mod root_finding;
 pub mod special;
 pub mod statistics;
 
+/// Additional `f32` constants.
+pub mod consts {
+    pub const FRAC_1_SQRT_3: f32 = 0.577_350_3;
+    pub const FRAC_1_SQRT_6: f32 = 0.408_248_3;
+    pub const SQRT_3: f32 = 1.732_050_8;
+}
+
 use std::ops::{AddAssign, Div, Neg, RangeInclusive, Sub};
 
 pub use self::function::Function;

@@ -12,6 +12,7 @@ use thiserror::Error;
 use super::{AtomicReal, Orbital, Qn};
 use crate::geometry::point::SphericalPoint3;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
+use crate::numerics::consts::{FRAC_1_SQRT_3, FRAC_1_SQRT_6};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Function;
@@ -66,9 +67,9 @@ impl LinearCombination {
         // FIXME: This is a rather ad-hoc and fragile way to do this.
         const EXACT_VALUES: [(f32, &str); 6] = [
             (0.288_675_1, "1/√12"),
-            (0.408_248_3, "1/√6"),
+            (FRAC_1_SQRT_6, "1/√6"),
             (0.5, "1/2"),
-            (0.577_350_3, "1/√3"),
+            (FRAC_1_SQRT_3, "1/√3"),
             (FRAC_1_SQRT_2, "1/√2"),
             (0.816_496_6, "√(2/3)"),
         ];
