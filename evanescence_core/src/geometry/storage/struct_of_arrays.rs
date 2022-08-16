@@ -109,11 +109,11 @@ impl<const N: usize, P: IPoint<N>, V> FromIterator<PointValue<N, P, V>> for Soa<
 }
 
 impl<'a, const N: usize, V> SoaSlice<'a, N, V> {
-    pub fn coords(&self) -> &'_ [&'a [f32]] {
-        &self.coords
+    pub fn coords(&self) -> [&'a [f32]; N] {
+        self.coords
     }
 
-    pub fn values(&self) -> &[V] {
+    pub fn values(&self) -> &'a [V] {
         self.values
     }
 }
