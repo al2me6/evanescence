@@ -538,7 +538,7 @@ impl State {
                 .unwrap()
                 .request_f32(self.into(), self.quality().point_cloud())
                 .unwrap()
-                .collect(),
+                .cloned(),
             Mode::Complex => panic!("Mode::Complex does not produce real values"),
         }
     }

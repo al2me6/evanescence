@@ -2,7 +2,6 @@ use std::default::default;
 use std::f32::consts::{PI, TAU};
 
 use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
-use evanescence_core::geometry::storage::Soa;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::{self, Function};
 use evanescence_core::orbital::hybrid::Hybrid;
@@ -63,7 +62,7 @@ pub fn complex(state: &State) -> JsValue {
         .unwrap()
         .request_complex32(state.into(), state.quality().point_cloud())
         .unwrap()
-        .collect::<Soa<3, _>>()
+        .cloned()
         .decompose();
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);

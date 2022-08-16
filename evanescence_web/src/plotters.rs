@@ -2,7 +2,6 @@ pub mod pointillist;
 pub mod supplemental;
 
 use evanescence_core::geometry::region::BoundingRegion;
-use evanescence_core::geometry::storage::PointValue;
 use evanescence_core::numerics::Function;
 use evanescence_core::orbital::hybrid::{Hybrid, Kind};
 use evanescence_core::orbital::Qn;
@@ -28,7 +27,9 @@ fn compute_isosurface_cutoff_real(params: MonteCarloParameters) -> f32 {
         .unwrap()
         .request_f32(params, ISOSURFACE_SAMPLES)
         .unwrap()
-        .map(|PointValue(_, psi)| psi.abs())
+        .values()
+        .iter()
+        .map(|psi| psi.abs())
         .collect_vec();
     psi_abs.sort_by(f32::total_cmp);
     psi_abs[CUTOFF_IDX]
