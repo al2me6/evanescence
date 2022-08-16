@@ -1,4 +1,7 @@
+use std::slice::SliceIndex;
+
 use getset::Getters;
+use na::SVector;
 
 use crate::geometry::storage::{IPoint, PointValue};
 
@@ -16,55 +19,116 @@ use crate::geometry::storage::{IPoint, PointValue};
 #[getset(get = "pub")]
 pub struct Soa<const N: usize, V> {
     coords: [Vec<f32>; N],
-    vals: Vec<V>,
+    values: Vec<V>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct SoaSlice<'a, const N: usize, V> {
+    coords: [&'a [f32]; N],
+    values: &'a [V],
 }
 
 impl<const N: usize, V> Soa<N, V> {
+    pub fn new() -> Self {
+        Self {
+            coords: std::array::from_fn(|_| Vec::new()),
+            values: Vec::new(),
+        }
+    }
+
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            coords: std::array::from_fn(|_| Vec::with_capacity(capacity)),
+            values: Vec::with_capacity(capacity),
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        debug_assert!(self.coords.iter().all(|c| c.len() == self.values.len()));
+        self.values.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn slice<I>(&self, idx: I) -> SoaSlice<'_, N, V>
+    where
+        I: SliceIndex<[f32], Output = [f32]> + SliceIndex<[V], Output = [V]> + Clone,
+    {
+        SoaSlice {
+            coords: std::array::from_fn(|i| &self.coords[i][idx.clone()]),
+            values: &self.values[idx],
+        }
+    }
+
     /// Return the inner vectors of `self`.
     pub fn decompose(self) -> ([Vec<f32>; N], Vec<V>) {
-        (self.coords, self.vals)
+        (self.coords, self.values)
     }
 }
 
-macro_rules! impl_iter_traits {
-    ($($a:lifetime)?) => {
-        impl<$($a,)? const N: usize, P, V> Extend<$(&$a)? PointValue<N, P, V>> for Soa<N, V>
-        where
-            P: IPoint<N>,
-            V: Clone,
-        {
-            fn extend<T: IntoIterator<Item = $(&$a)? PointValue<N, P, V>>>(&mut self, iter: T) {
-                for PointValue(pt, val) in iter {
-                    for (v, coord) in itertools::zip_eq(self.coords.iter_mut(), pt.coordinates()) {
-                        v.push(*coord);
-                    }
-                    self.vals.push(val.clone());
-                }
-            }
-        }
-
-        impl<$($a,)? const N: usize, P, V> FromIterator<$(&$a)? PointValue<N, P, V>> for Soa<N, V>
-        where
-            P: IPoint<N>,
-            V: Clone,
-        {
-            fn from_iter<I: IntoIterator<Item = $(&$a)? PointValue<N, P, V>>>(iter: I) -> Self {
-                let iter = iter.into_iter();
-                let (lower, upper) = iter.size_hint();
-                let len = upper.unwrap_or(lower);
-                let mut this = Self {
-                    coords: std::array::from_fn(|_| Vec::with_capacity(len)),
-                    vals: Vec::with_capacity(len),
-                };
-                this.extend(iter);
-                this
-            }
-        }
-    };
+impl<const N: usize, V> Default for Soa<N, V> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
-impl_iter_traits!();
-impl_iter_traits!('a);
+impl<const N: usize, V> Extend<(SVector<f32, N>, V)> for Soa<N, V> {
+    fn extend<T: IntoIterator<Item = (SVector<f32, N>, V)>>(&mut self, iter: T) {
+        for (coords, val) in iter {
+            for (self_coord, c) in itertools::zip_eq(self.coords.iter_mut(), &coords) {
+                self_coord.push(*c);
+            }
+            self.values.push(val);
+        }
+    }
+}
+
+impl<const N: usize, V> FromIterator<(SVector<f32, N>, V)> for Soa<N, V> {
+    fn from_iter<I: IntoIterator<Item = (SVector<f32, N>, V)>>(iter: I) -> Self {
+        let iter = iter.into_iter();
+        let (lower, upper) = iter.size_hint();
+        let len = upper.unwrap_or(lower);
+        let mut this = Self::with_capacity(len);
+        this.extend(iter);
+        this
+    }
+}
+
+impl<const N: usize, P: IPoint<N>, V> Extend<PointValue<N, P, V>> for Soa<N, V> {
+    fn extend<T: IntoIterator<Item = PointValue<N, P, V>>>(&mut self, iter: T) {
+        self.extend(iter.into_iter().map(PointValue::into_raw));
+    }
+}
+
+impl<const N: usize, P: IPoint<N>, V> FromIterator<PointValue<N, P, V>> for Soa<N, V> {
+    fn from_iter<I: IntoIterator<Item = PointValue<N, P, V>>>(iter: I) -> Self {
+        iter.into_iter().map(PointValue::into_raw).collect()
+    }
+}
+
+impl<'a, const N: usize, V> SoaSlice<'a, N, V> {
+    pub fn coords(&self) -> &'_ [&'a [f32]] {
+        &self.coords
+    }
+
+    pub fn values(&self) -> &[V] {
+        self.values
+    }
+}
+
+impl<'a, const N: usize, V> SoaSlice<'a, N, V>
+where
+    V: Clone,
+{
+    pub fn cloned(&self) -> Soa<N, V> {
+        Soa {
+            coords: self.coords.map(ToOwned::to_owned),
+            values: self.values.to_owned(),
+        }
+    }
+}
 
 /// Conversion into a struct-of-arrays.
 pub trait ToSoa<const N: usize> {

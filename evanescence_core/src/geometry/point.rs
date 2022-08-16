@@ -14,6 +14,9 @@ pub trait IPoint<const N: usize>:
 {
     fn origin() -> Self;
     fn coordinates(&self) -> &SVector<f32, N>;
+    fn into_vector(self) -> SVector<f32, N> {
+        *self.coordinates()
+    }
 }
 
 impl<const N: usize> IPoint<N> for na::Point<f32, N> {

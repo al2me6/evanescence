@@ -31,6 +31,7 @@
     clippy::module_name_repetitions, // Can be necessary for disambiguation.
     clippy::must_use_candidate, // Annoying.
     clippy::non_ascii_literal, // Unicode support is expected.
+    clippy::trait_duplication_in_bounds, // False positives.
 )]
 // FIXME: Treat numerical precision more rigorously.
 #![allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
