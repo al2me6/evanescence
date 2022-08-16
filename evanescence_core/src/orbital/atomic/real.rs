@@ -3,7 +3,7 @@ use std::f32::consts::{FRAC_PI_2, PI};
 use na::Point1;
 
 use super::Radial;
-use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
+use crate::geometry::point::{SphericalCoordinatesExt, SphericalPoint3};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
@@ -171,7 +171,7 @@ mod tests {
     use rayon::prelude::*;
 
     use super::Real;
-    use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
+    use crate::geometry::point::{SphericalCoordinatesExt, SphericalPoint3};
     use crate::geometry::region::BoundingRegion;
     use crate::geometry::storage::PointValue;
     use crate::numerics::integrators::integrate_simpson;

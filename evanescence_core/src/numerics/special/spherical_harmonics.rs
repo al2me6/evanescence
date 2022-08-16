@@ -4,7 +4,7 @@ use std::f32::consts::SQRT_2;
 use num::complex::Complex32;
 
 use super::orthogonal_polynomials::renormalized_associated_legendre;
-use crate::geometry::point::{SphericalPoint3, SphericalPoint3Ext};
+use crate::geometry::point::{SphericalCoordinatesExt, SphericalPoint3};
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::Lm;
 

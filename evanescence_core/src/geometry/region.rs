@@ -82,7 +82,7 @@ mod tests {
     use approx::assert_ulps_eq;
 
     use super::{BallCenteredAtOrigin, Region};
-    use crate::geometry::point::{IPoint, SphericalPoint3, SphericalPoint3Ext};
+    use crate::geometry::point::{IPoint, SphericalCoordinatesExt, SphericalPoint3};
     use crate::numerics::random::WyRand;
 
     /// This is very crude and only ensures that all pointsare at least inside
