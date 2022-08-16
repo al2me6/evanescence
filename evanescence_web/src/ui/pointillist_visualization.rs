@@ -1,7 +1,7 @@
 use std::mem;
 use std::rc::Rc;
 
-use evanescence_core::orbital::Real;
+use evanescence_core::orbital::AtomicReal;
 use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::layout::{LayoutRangeUpdate, Scene};
 use evanescence_web::plotly::{Config, Layout, Plotly};
@@ -36,12 +36,12 @@ impl Trace {
             Self::NodesRadial => {
                 state.mode().is_real_or_simple()
                     && state.nodes_rad()
-                    && Real::num_radial_nodes(*state.qn()) > 0
+                    && AtomicReal::num_radial_nodes(*state.qn()) > 0
             }
             Self::NodesAngular => {
                 state.mode().is_real_or_simple()
                     && state.nodes_ang()
-                    && Real::num_angular_nodes(*state.qn()) > 0
+                    && AtomicReal::num_angular_nodes(*state.qn()) > 0
             }
             Self::CrossSectionIndicator => state.supplement().is_cross_section(),
             Self::Silhouettes => state.mode().is_hybrid() && state.silhouettes(),

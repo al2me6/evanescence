@@ -16,7 +16,7 @@ use evanescence_core::numerics::polynomial::Polynomial;
 use evanescence_core::numerics::random::WyRand;
 use evanescence_core::numerics::{normalize, Function};
 use evanescence_core::orbital::hybrid::Hybrid;
-use evanescence_core::orbital::{Complex, Qn, Real};
+use evanescence_core::orbital::{AtomicComplex, AtomicReal, Qn};
 use nalgebra::Point3;
 
 fn polynomial(crit: &mut Criterion) {
@@ -79,7 +79,7 @@ fn atomic_real(crit: &mut Criterion) {
     group.throughput(Throughput::Elements(1));
     for (idx, qn) in QNS.iter() {
         group.bench_function(format!("{idx:02}_{qn}"), |b| {
-            let real = Real::new(*qn);
+            let real = AtomicReal::new(*qn);
             let pt = real.bounding_region().sample(&mut WyRand::new());
             b.iter(|| black_box(real.evaluate(&pt)));
         });
@@ -89,7 +89,7 @@ fn atomic_real(crit: &mut Criterion) {
     let mut group = crit.benchmark_group("atomic_real_monte_carlo_startup");
     for (idx, qn) in QNS.iter() {
         group.bench_function(format!("{idx:02}_{qn}"), |b| {
-            b.iter(|| black_box(AcceptReject::new(Real::new(*qn))));
+            b.iter(|| black_box(AcceptReject::new(AtomicReal::new(*qn))));
         });
     }
     group.finish();
@@ -98,7 +98,7 @@ fn atomic_real(crit: &mut Criterion) {
     group.throughput(Throughput::Elements(1));
     for (idx, qn) in QNS.iter() {
         group.bench_function(format!("{idx:02}_{qn}"), |b| {
-            let mut sampler = AcceptReject::new(Real::new(*qn));
+            let mut sampler = AcceptReject::new(AtomicReal::new(*qn));
             b.iter(|| black_box(sampler.next()));
         });
     }
@@ -110,7 +110,7 @@ fn atomic_complex(crit: &mut Criterion) {
     group.throughput(Throughput::Elements(1));
     for (idx, qn) in QNS.iter() {
         group.bench_function(format!("{idx:02}_{qn}"), |b| {
-            let mut sampler = AcceptReject::new(Complex::new(*qn));
+            let mut sampler = AcceptReject::new(AtomicComplex::new(*qn));
             b.iter(|| black_box(sampler.next()));
         });
     }

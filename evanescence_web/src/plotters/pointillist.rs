@@ -5,7 +5,7 @@ use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::{self, Function};
 use evanescence_core::orbital::hybrid::Hybrid;
-use evanescence_core::orbital::Real;
+use evanescence_core::orbital::AtomicReal;
 use na::{vector, Point2};
 use wasm_bindgen::JsValue;
 
@@ -134,7 +134,7 @@ pub fn nodes_radial(state: &State) -> Vec<JsValue> {
 
     assert!(state.mode().is_real_or_simple());
 
-    Real::radial_node_positions(*state.qn())
+    AtomicReal::radial_node_positions(*state.qn())
         .into_iter()
         .map(|r| parametric_sphere(r, NUM_POINTS))
         .map(|[x, y, z]| {
@@ -185,7 +185,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
     let qn = state.qn();
     let bound = state.bound();
     Iterator::chain(
-        Real::conical_node_angles(qn.into())
+        AtomicReal::conical_node_angles(qn.into())
             .into_iter()
             .map(|theta| {
                 VerticalCone::new(theta)
@@ -202,19 +202,21 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
                 surface_color: Some(vec![vec![0.0_f32; NUM_POINTS]; NUM_POINTS]),
                 ..default()
             }),
-        Real::planar_node_angles(qn.into()).into_iter().map(|phi| {
-            let r = bound;
-            let r_square = polar_square(phi);
-            let (x1, y1) = (r * phi.cos() * r_square, r * phi.sin() * r_square);
-            let (x2, y2) = (-x1, -y1);
-            Surface {
-                x_parametric: Some(vec![vec![x1, x2]; 2]),
-                y_parametric: Some(vec![vec![y1, y2]; 2]),
-                z: vec![vec![-r, -r], vec![r, r]],
-                surface_color: Some(vec![vec![0.0, 0.0]; 2]),
-                ..default()
-            }
-        }),
+        AtomicReal::planar_node_angles(qn.into())
+            .into_iter()
+            .map(|phi| {
+                let r = bound;
+                let r_square = polar_square(phi);
+                let (x1, y1) = (r * phi.cos() * r_square, r * phi.sin() * r_square);
+                let (x2, y2) = (-x1, -y1);
+                Surface {
+                    x_parametric: Some(vec![vec![x1, x2]; 2]),
+                    y_parametric: Some(vec![vec![y1, y2]; 2]),
+                    z: vec![vec![-r, -r], vec![r, r]],
+                    surface_color: Some(vec![vec![0.0, 0.0]; 2]),
+                    ..default()
+                }
+            }),
     )
     .map(|srf| {
         Surface {

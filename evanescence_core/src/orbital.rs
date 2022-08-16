@@ -5,8 +5,8 @@ pub mod atomic;
 pub mod hybrid;
 pub mod quantum_numbers;
 
-pub use self::atomic::complex::Complex;
-pub use self::atomic::real::Real;
+pub use self::atomic::complex::Complex as AtomicComplex;
+pub use self::atomic::real::Real as AtomicReal;
 pub use self::quantum_numbers::Qn;
 use crate::geometry::point::IPoint;
 use crate::numerics::statistics::Distribution;

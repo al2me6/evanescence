@@ -4,7 +4,7 @@ use std::sync::{LazyLock, Mutex};
 use evanescence_core::geometry::storage::{PointValue, Soa, SoaSlice};
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::orbital::hybrid::Hybrid;
-use evanescence_core::orbital::{Complex, Qn, Real};
+use evanescence_core::orbital::{AtomicComplex, AtomicReal, Qn};
 use na::SVector;
 use num::complex::Complex32;
 
@@ -88,7 +88,7 @@ impl MonteCarloCache {
             .cache_real
             .entry(CacheKey::from(&params))
             .or_insert_with(|| match params {
-                MonteCarloParameters::AtomicReal(qn) => cache_entry!(Real::new(qn)),
+                MonteCarloParameters::AtomicReal(qn) => cache_entry!(AtomicReal::new(qn)),
                 MonteCarloParameters::Hybrid(kind) => {
                     cache_entry!(Hybrid::new(kind.archetype().clone()))
                 }
@@ -109,7 +109,7 @@ impl MonteCarloCache {
             .cache_complex
             .entry(CacheKey::from(&params))
             .or_insert_with(|| match params {
-                MonteCarloParameters::AtomicComplex(qn) => cache_entry!(Complex::new(qn)),
+                MonteCarloParameters::AtomicComplex(qn) => cache_entry!(AtomicComplex::new(qn)),
                 _ => unreachable!(),
             });
         Some(entry.request_simulation(count))

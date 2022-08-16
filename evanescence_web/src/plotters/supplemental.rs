@@ -7,7 +7,7 @@ use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::{self, Function};
 use evanescence_core::orbital::atomic::{Radial, RadialProbabilityDistribution};
 use evanescence_core::orbital::quantum_numbers::Nl;
-use evanescence_core::orbital::{Complex, Real};
+use evanescence_core::orbital::{AtomicComplex, AtomicReal};
 use na::vector;
 use wasm_bindgen::JsValue;
 
@@ -180,7 +180,7 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
 
     let (x, y, mut z, mut custom_color) = if is_complex {
-        let (x, y, values) = Complex::new(*state.qn())
+        let (x, y, values) = AtomicComplex::new(*state.qn())
             .bounded_sample_in_plane(plane, state.quality().grid_2d())
             .grid_values
             .decompose();
@@ -298,7 +298,7 @@ pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
 pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
     let trace = match state.mode() {
         Mode::RealSimple | Mode::RealFull => {
-            let ([x, y, z], value) = Real::new(*state.qn())
+            let ([x, y, z], value) = AtomicReal::new(*state.qn())
                 .bounded_sample_in_cube(state.quality().grid_3d() * 3 / 2)
                 .decompose();
             let cutoff = super::isosurface_cutoff_atomic_real(state.qn());

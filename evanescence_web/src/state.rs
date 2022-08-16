@@ -523,7 +523,7 @@ impl State {
     pub fn bound(&self) -> f32 {
         match self.mode() {
             Mode::RealSimple | Mode::RealFull | Mode::Complex => {
-                orbital::Real::new(*self.qn()).bounding_region()
+                orbital::AtomicReal::new(*self.qn()).bounding_region()
             }
             Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
                 .bounding_region(),
@@ -545,7 +545,7 @@ impl State {
 
     pub fn sample_plane_real(&self, plane: CoordinatePlane3) -> GridValues3<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::RealFull => orbital::Real::new(*self.qn())
+            Mode::RealSimple | Mode::RealFull => orbital::AtomicReal::new(*self.qn())
                 .bounded_sample_in_plane(plane, self.quality().grid_2d()),
             Mode::Hybrid => orbital::hybrid::Hybrid::new(self.hybrid_kind().archetype().clone())
                 .bounded_sample_in_plane(plane, self.quality().grid_2d()),
@@ -555,9 +555,9 @@ impl State {
 
     pub fn sample_plane_prob_density(&self, plane: CoordinatePlane3) -> GridValues3<f32> {
         match self.mode() {
-            Mode::RealSimple | Mode::RealFull => Pdf::new(orbital::Real::new(*self.qn()))
+            Mode::RealSimple | Mode::RealFull => Pdf::new(orbital::AtomicReal::new(*self.qn()))
                 .bounded_sample_in_plane(plane, self.quality().grid_2d()),
-            Mode::Complex => Pdf::new(orbital::Complex::new(*self.qn()))
+            Mode::Complex => Pdf::new(orbital::AtomicComplex::new(*self.qn()))
                 .bounded_sample_in_plane(plane, self.quality().grid_2d()),
             Mode::Hybrid => Pdf::new(orbital::hybrid::Hybrid::new(
                 self.hybrid_kind().archetype().clone(),

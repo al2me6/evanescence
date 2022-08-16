@@ -1,4 +1,4 @@
-use evanescence_core::orbital::{self, Complex, Real};
+use evanescence_core::orbital::{self, AtomicComplex, AtomicReal};
 use evanescence_web::components::raw::RawSpan;
 use evanescence_web::state::{Mode, StateDispatch};
 use evanescence_web::utils;
@@ -31,11 +31,11 @@ impl Component for InfoPanel {
                 let qn = state.qn();
                 let subshell_name = orbital::atomic::subshell_name(qn.l());
 
-                let num_radial_nodes = Real::num_radial_nodes(*qn);
-                let num_angular_nodes = Real::num_angular_nodes(*qn);
+                let num_radial_nodes = AtomicReal::num_radial_nodes(*qn);
+                let num_angular_nodes = AtomicReal::num_angular_nodes(*qn);
                 let nodes_geometry = match (
-                    Real::num_conical_nodes(qn.into()),
-                    Real::num_planar_nodes(qn.into()),
+                    AtomicReal::num_conical_nodes(qn.into()),
+                    AtomicReal::num_planar_nodes(qn.into()),
                 ) {
                     // English is hard.
                     (0, 0) => "".to_owned(),
@@ -57,7 +57,7 @@ impl Component for InfoPanel {
                     <p>
                         { "Viewing orbital " }
                         <RawSpan
-                            inner_html = { utils::fmt_orbital_name_html(Real::name_qn(*qn)) }
+                            inner_html = { utils::fmt_orbital_name_html(AtomicReal::name_qn(*qn)) }
                         />
                         // Show quantum numbers here in Real (Simple) mode, since it's not shown
                         // in the picker.
@@ -87,7 +87,7 @@ impl Component for InfoPanel {
             Mode::Complex => html! {
                 <p>
                     { "Viewing orbital " }
-                    <RawSpan inner_html = { Complex::name_qn(*state.qn()) } />
+                    <RawSpan inner_html = { AtomicComplex::name_qn(*state.qn()) } />
                     { "." }
                 </p>
             },

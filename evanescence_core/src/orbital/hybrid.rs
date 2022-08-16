@@ -9,7 +9,7 @@ use itertools::Itertools;
 pub use maplit::hashmap;
 use thiserror::Error;
 
-use super::{Orbital, Qn, Real};
+use super::{AtomicReal, Orbital, Qn};
 use crate::geometry::point::SphericalPoint3;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
@@ -84,7 +84,7 @@ impl LinearCombination {
                 })
             })
             .unwrap_or_else(|| format!("{:.3}", weight).trim_end_matches('0').to_owned());
-        format!("{expr} {}", Real::name_qn(*qn))
+        format!("{expr} {}", AtomicReal::name_qn(*qn))
     }
 
     /// Give an expression describing the linear combination. (Ex. `0.707 2s + 0.707 2p_z`),
@@ -162,12 +162,12 @@ macro_rules! lc {
 #[derive(Clone, PartialEq, Debug)]
 pub struct Hybrid {
     lc: LinearCombination,
-    reals: Vec<Real>,
+    reals: Vec<AtomicReal>,
 }
 
 impl Hybrid {
     pub fn new(lc: LinearCombination) -> Self {
-        let reals = lc.iter().map(|comp| Real::new(comp.qn)).collect();
+        let reals = lc.iter().map(|comp| AtomicReal::new(comp.qn)).collect();
         Self { lc, reals }
     }
 }
