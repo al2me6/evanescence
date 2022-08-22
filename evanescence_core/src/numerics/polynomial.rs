@@ -136,8 +136,8 @@ impl ops::Index<usize> for Polynomial {
     type Output = f32;
 
     fn index(&self, index: usize) -> &Self::Output {
-        assert!(self.is_canonical());
-        self.0.index(index)
+        debug_assert!(self.is_canonical());
+        &self.0[index]
     }
 }
 
