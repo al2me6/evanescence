@@ -6,11 +6,11 @@
 //! ```
 //! use evanescence_core::geometry::point::SphericalPoint3;
 //! use evanescence_core::numerics::Function;
-//! use evanescence_core::orbital::{Qn, Real};
+//! use evanescence_core::orbital::{AtomicReal, Qn};
 //!
 //! // The 4d_{z^2} orbital.
 //! let qn = Qn::new(4, 2, 0).unwrap(); // The constructor validates the parameters.
-//! let value = Real::new(qn).evaluate(&SphericalPoint3::new(1.0, 3.2, 4.7));
+//! let value = AtomicReal::new(qn).evaluate(&SphericalPoint3::new(1.0, 3.2, 4.7));
 //! approx::assert_ulps_eq!(value, 0.008895547);
 //! ```
 //!
@@ -18,10 +18,10 @@
 //! ```
 //! use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 //! use evanescence_core::numerics::monte_carlo::MonteCarlo;
-//! use evanescence_core::orbital::{Qn, Real};
+//! use evanescence_core::orbital::{AtomicReal, Qn};
 //!
 //! let qn = Qn::new(4, 2, 0).unwrap();
-//! let results = AcceptReject::new(Real::new(qn)).simulate(10_000);
+//! let results = AcceptReject::new(AtomicReal::new(qn)).simulate(10_000);
 //! ```
 
 #![feature(array_windows, is_sorted, once_cell)]

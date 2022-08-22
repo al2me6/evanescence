@@ -44,13 +44,13 @@ pub trait Distribution<const N: usize, P: IPoint<N>>: Function<N, P> {
 /// use evanescence_core::geometry::point::SphericalPoint3;
 /// use evanescence_core::numerics::statistics::Pdf;
 /// use evanescence_core::numerics::Function;
-/// use evanescence_core::orbital::{Qn, Real};
+/// use evanescence_core::orbital::{AtomicReal, Qn};
 ///
 /// let qn = Qn::new(3, 2, 1).unwrap();
 ///
 /// assert_relative_eq!(
 ///     2.446E-4,
-///     Pdf::new(Real::new(qn)).evaluate(&SphericalPoint3::new(6.0, -0.3, 8.5))
+///     Pdf::new(AtomicReal::new(qn)).evaluate(&SphericalPoint3::new(6.0, -0.3, 8.5))
 /// );
 /// ```
 pub struct Pdf<const N: usize, P, D> {
