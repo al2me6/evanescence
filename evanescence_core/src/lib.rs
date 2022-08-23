@@ -44,6 +44,9 @@ extern crate nalgebra as na;
 extern crate typenum as tn;
 
 #[macro_use]
+pub mod utils;
+
+#[macro_use]
 pub mod numerics;
 
 pub mod geometry;
