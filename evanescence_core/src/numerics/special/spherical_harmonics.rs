@@ -69,14 +69,13 @@ impl Function<3, SphericalPoint3> for RealSphericalHarmonic {
 }
 
 impl RealSphericalHarmonic {
-    /// Give the (abbreviated) mathematical expression for the linear combination that corresponds
-    /// to a certain set of `l` and `m` quantum numbers, as a `&str`. Superscripts are represented
-    /// with Unicode superscript symbols.
+    /// Give the (abbreviated) Cartesian expression for the linear combination that corresponds
+    /// to a certain set of `l` and `m` quantum numbers.
     ///
     /// This is only implemented for `l` up to 4 and returns `None` for larger values.
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
-    pub fn expression(lm: Lm) -> Option<SupSubString> {
+    pub fn cartesian_expression(lm: Lm) -> Option<SupSubString> {
         use crate::sup_sub_string as s;
         let (l, m) = (lm.l(), lm.m());
         match l {

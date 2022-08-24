@@ -33,14 +33,14 @@ impl Preset<Qn> {
 impl fmt::Display for Preset<Qn> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let qn = self.item();
-        let subscript =
-            RealSphericalHarmonic::expression(qn.into()).expect("failed to get expression");
+        let cartesian_expr = RealSphericalHarmonic::cartesian_expression(qn.into())
+            .expect("failed to get expression");
         write!(
             f,
-            "{principal}{shell} {subscript}",
+            "{principal}{shell} {cartesian_expr}",
             principal = qn.n(),
             shell = orbital::atomic::subshell_name(qn.l()).expect("failed to get subshell name"),
-            subscript = subscript.format(SupSubFormat::Unicode).unwrap(),
+            cartesian_expr = cartesian_expr.format(SupSubFormat::Unicode).unwrap(),
         )
     }
 }

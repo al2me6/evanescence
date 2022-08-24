@@ -35,7 +35,7 @@ impl Real {
     pub fn name_qn(qn: Qn) -> SupSubString {
         if let (Some(subshell), Some(cartesian_expr)) = (
             super::subshell_name(qn.l()),
-            RealSphericalHarmonic::expression(qn.into()),
+            RealSphericalHarmonic::cartesian_expression(qn.into()),
         ) {
             sup_sub_string![
                 nrm(qn.n().to_string())

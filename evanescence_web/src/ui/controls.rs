@@ -265,17 +265,18 @@ impl Component for QnPickers {
         };
 
         let format_m = |m: &i32| match ctx.props().mode {
-            Mode::RealFull => match RealSphericalHarmonic::expression(Lm::new(qn.l(), *m).unwrap())
-            {
-                Some(expression) if !expression.is_empty() => {
-                    format!(
-                        "{} [ {} ]",
-                        utils::fmt_replace_minus(m),
-                        expression.format(SupSubFormat::Unicode).unwrap()
-                    )
+            Mode::RealFull => {
+                match RealSphericalHarmonic::cartesian_expression(Lm::new(qn.l(), *m).unwrap()) {
+                    Some(expression) if !expression.is_empty() => {
+                        format!(
+                            "{} [ {} ]",
+                            utils::fmt_replace_minus(m),
+                            expression.format(SupSubFormat::Unicode).unwrap()
+                        )
+                    }
+                    _ => utils::fmt_replace_minus(m),
                 }
-                _ => utils::fmt_replace_minus(m),
-            },
+            }
             Mode::Complex => utils::fmt_replace_minus(m),
             Mode::RealSimple | Mode::Hybrid => unreachable!(),
         };
