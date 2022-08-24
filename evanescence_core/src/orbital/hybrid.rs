@@ -16,6 +16,7 @@ use crate::numerics::consts::{FRAC_1_SQRT_3, FRAC_1_SQRT_6};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Function;
+use crate::utils::sup_sub_string::{SupSubFormat, SupSubString};
 
 /// Structure representing a [`Qn`] and an associated weight.
 #[derive(Clone, PartialEq, Debug)]
@@ -62,7 +63,7 @@ impl LinearCombination {
     }
 
     /// Pretty-print a single orbital and its weight.
-    fn format_orbital_weight(weight: f32, qn: &Qn) -> String {
+    fn format_orbital_weight(weight: f32, qn: Qn) -> SupSubString {
         // Try to express exact values as such.
         // FIXME: This is a rather ad-hoc and fragile way to do this.
         const EXACT_VALUES: [(f32, &str); 6] = [
@@ -73,37 +74,37 @@ impl LinearCombination {
             (FRAC_1_SQRT_2, "1/√2"),
             (0.816_496_6, "√(2/3)"),
         ];
-        let expr = EXACT_VALUES
+        let coefficient = EXACT_VALUES
             .iter()
             .find_map(|&(val, expr)| {
                 approx::relative_eq!(val, weight.abs(), max_relative = 1E-6).then(|| {
                     if weight > 0.0 {
                         expr.to_owned()
                     } else {
-                        format!("-{expr}")
+                        format!("−{expr}")
                     }
                 })
             })
             .unwrap_or_else(|| format!("{:.3}", weight).trim_end_matches('0').to_owned());
-        format!("{expr} {}", AtomicReal::name_qn(*qn))
+        let mut ret = sup_sub_string![nrm(coefficient) " "];
+        ret.extend(AtomicReal::name_qn(qn));
+        ret
     }
 
-    /// Give an expression describing the linear combination. (Ex. `0.707 2s + 0.707 2p_z`),
-    /// where subscripts are represented with the `<sub></sub>` HTML tag.
-    pub fn expression(&self) -> String {
+    /// Give an expression describing the linear combination. (Ex. `0.707 2s + 0.707 2p_z`).
+    pub fn expression(&self) -> SupSubString {
         self.iter()
             .enumerate()
-            .map(|(i, Component { qn, weight })| {
+            .map(|(i, &Component { qn, weight })| {
                 if i == 0 {
-                    Self::format_orbital_weight(*weight, qn)
+                    Self::format_orbital_weight(weight, qn)
                 } else {
-                    format!(
-                        "{sign}{weighted_orbital}",
-                        // Manually add signs to add padding.
-                        sign = if *weight < 0.0 { " − " } else { " + " },
-                        // Take the absolute value since the sign was added manually.
-                        weighted_orbital = Self::format_orbital_weight(weight.abs(), qn)
-                    )
+                    // Manually add signs to add padding.
+                    let mut component =
+                        sup_sub_string![nrm(if weight < 0.0 { " − " } else { " + " })];
+                    // Take the absolute value since the sign was added manually.
+                    component.extend(Self::format_orbital_weight(weight.abs(), qn));
+                    component
                 }
             })
             .collect()
@@ -112,7 +113,7 @@ impl LinearCombination {
 
 impl fmt::Display for LinearCombination {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.expression())
+        f.write_str(&self.expression().format(SupSubFormat::Unicode).unwrap())
     }
 }
 
@@ -210,8 +211,8 @@ impl Distribution<3, SphericalPoint3> for Hybrid {
 }
 
 impl Orbital<SphericalPoint3> for Hybrid {
-    fn name(&self) -> String {
-        self.lc.to_string()
+    fn name(&self) -> SupSubString {
+        self.lc.expression()
     }
 }
 
@@ -326,25 +327,13 @@ impl Kind {
         self.combinations.iter()
     }
 
-    /// Give the name of the mixture, ex. `sp³`, where superscripts are represented in Unicode.
-    pub fn mixture_name(&self) -> String {
-        let mut kind = String::with_capacity(10);
+    /// Give the name of the mixture, ex. `sp^3`.
+    pub fn mixture_name(&self) -> SupSubString {
+        let mut kind = sup_sub_string![];
         for (&l, &count) in self.mixture.iter().sorted_by_key(|(&l, _)| l) {
-            kind.push_str(super::atomic::subshell_name(l).unwrap_or("<?>"));
+            kind.push_nrm(super::atomic::subshell_name(l).unwrap_or("<?>"));
             if count != 1 {
-                kind.extend(count.to_string().chars().map(|c| match c {
-                    '0' => '⁰',
-                    '1' => '¹',
-                    '2' => '²',
-                    '3' => '³',
-                    '4' => '⁴',
-                    '5' => '⁵',
-                    '6' => '⁶',
-                    '7' => '⁷',
-                    '8' => '⁸',
-                    '9' => '⁹',
-                    _ => unreachable!("representation of a `u32` can only contain `[0-9]`"),
-                }));
+                kind.push_sup(count.to_string());
             }
         }
         kind
@@ -353,11 +342,11 @@ impl Kind {
 
 impl fmt::Display for Kind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.mixture_name().format(SupSubFormat::Unicode).unwrap())?;
         if let Some(ref desc) = self.description {
-            write!(f, "{} ({desc})", self.mixture_name())
-        } else {
-            write!(f, "{}", self.mixture_name())
+            write!(f, " ({desc})")?;
         }
+        Ok(())
     }
 }
 

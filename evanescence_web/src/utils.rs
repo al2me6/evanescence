@@ -1,5 +1,6 @@
 use std::fmt;
 
+use evanescence_core::utils::sup_sub_string::{SupSubFormat, SupSubSegment};
 use gloo::utils::window;
 use instant::Instant;
 use itertools::Itertools;
@@ -13,9 +14,9 @@ pub fn capitalize_words<T: AsRef<str>>(source: T) -> String {
         .chars()
         .map(|mut c| {
             if prev_is_word_separator {
-                c = c.to_ascii_uppercase();
+                c.make_ascii_uppercase();
             }
-            prev_is_word_separator = " -".contains(c);
+            prev_is_word_separator = [' ', '-'].contains(&c);
             c
         })
         .collect()
@@ -27,24 +28,19 @@ pub fn fmt_scientific_notation<T: fmt::LowerExp>(source: T, precision: usize) ->
         .replace('e', " × 10<sup>")
 }
 
-/// Italicize the parts of an orbital name that should be italicized (i.e., the alpha characters).
-/// It is probably wiser to outsource this kind of work to Latex...
-pub fn fmt_orbital_name_html<T: AsRef<str>>(source: T) -> String {
-    source
-        .as_ref()
-        .chars()
-        .group_by(char::is_ascii_alphabetic)
-        .into_iter()
-        .map(|(is_letter, chars)| {
-            let group = chars.collect::<String>();
-            // HACK: In this context "sub" is an HTML tag.
-            if is_letter && group != "sub" {
-                format!("<i>{group}</i>")
-            } else {
-                group
-            }
-        })
-        .collect()
+/// Format segments using HTML tags and italicize all ascii alphabetic characters.
+pub fn fmt_html_italicize_alphabetic(segment: &SupSubSegment) -> Option<String> {
+    let mut inner = String::with_capacity(segment.inner().len() * 2);
+    for (is_alpha, group) in &segment.inner().chars().group_by(char::is_ascii_alphabetic) {
+        if is_alpha {
+            inner.push_str("<i>");
+            inner.extend(group);
+            inner.push_str("</i>");
+        } else {
+            inner.extend(group);
+        }
+    }
+    SupSubSegment::with_case_of(segment, inner).format(SupSubFormat::Html)
 }
 
 pub fn fmt_thousands_separated(n: usize) -> String {

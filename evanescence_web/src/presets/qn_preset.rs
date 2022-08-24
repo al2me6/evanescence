@@ -3,6 +3,7 @@ use std::sync::LazyLock;
 
 use evanescence_core::numerics::special::spherical_harmonics::RealSphericalHarmonic;
 use evanescence_core::orbital::{self, Qn};
+use evanescence_core::utils::sup_sub_string::SupSubFormat;
 
 use super::{Preset, PresetLibrary};
 
@@ -39,7 +40,7 @@ impl fmt::Display for Preset<Qn> {
             "{principal}{shell} {subscript}",
             principal = qn.n(),
             shell = orbital::atomic::subshell_name(qn.l()).expect("failed to get subshell name"),
-            subscript = subscript,
+            subscript = subscript.format(SupSubFormat::Unicode).unwrap(),
         )
     }
 }

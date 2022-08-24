@@ -1,4 +1,5 @@
 use evanescence_core::orbital::{self, AtomicComplex, AtomicReal};
+use evanescence_core::utils::sup_sub_string::SupSubFormat;
 use evanescence_web::components::raw::RawSpan;
 use evanescence_web::state::{Mode, StateDispatch};
 use evanescence_web::utils;
@@ -56,8 +57,9 @@ impl Component for InfoPanel {
                 html! {
                     <p>
                         { "Viewing orbital " }
-                        <RawSpan
-                            inner_html = { utils::fmt_orbital_name_html(AtomicReal::name_qn(*qn)) }
+                        <RawSpan inner_html = { AtomicReal::name_qn(*qn)
+                            .format_with(utils::fmt_html_italicize_alphabetic)
+                            .unwrap() }
                         />
                         // Show quantum numbers here in Real (Simple) mode, since it's not shown
                         // in the picker.
@@ -87,14 +89,20 @@ impl Component for InfoPanel {
             Mode::Complex => html! {
                 <p>
                     { "Viewing orbital " }
-                    <RawSpan inner_html = { AtomicComplex::name_qn(*state.qn()) } />
+                    <RawSpan inner_html = { AtomicComplex::name_qn(*state.qn())
+                        .format(SupSubFormat::Html) // Font does not have Unicode subscripts.
+                        .unwrap() }
+                    />
                     { "." }
                 </p>
             },
             Mode::Hybrid => {
                 let kind = state.hybrid_kind();
                 let kind_name = html! {
-                    <RawSpan inner_html = { utils::fmt_orbital_name_html(kind.mixture_name()) } />
+                    <RawSpan inner_html = { kind.mixture_name()
+                        .format_with(utils::fmt_html_italicize_alphabetic)
+                        .unwrap() }
+                    />
                 };
                 html! {
                     <>
@@ -110,8 +118,9 @@ impl Component for InfoPanel {
                     <ul>
                         { for kind.iter().map(|lc| html! {
                             <li>
-                                <RawSpan
-                                    inner_html = { utils::fmt_orbital_name_html(lc.expression()) }
+                                <RawSpan inner_html = { lc.expression()
+                                    .format_with(utils::fmt_html_italicize_alphabetic)
+                                    .unwrap() }
                                 />
                                 { match (lc == kind.archetype(), state.silhouettes()) {
                                     (true, true) => " (displayed & outlined)",

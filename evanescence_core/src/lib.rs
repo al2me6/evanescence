@@ -28,6 +28,7 @@
 #![warn(clippy::pedantic, clippy::integer_division)]
 #![allow(
     clippy::manual_assert, // Triggered by approx.
+    clippy::missing_panics_doc, // Some are internal checks.
     clippy::module_name_repetitions, // Can be necessary for disambiguation.
     clippy::must_use_candidate, // Annoying.
     clippy::non_ascii_literal, // Unicode support is expected.
@@ -37,8 +38,6 @@
 #![allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
 // Machine-generated values.
 #![cfg_attr(test, allow(clippy::excessive_precision, clippy::unreadable_literal))]
-// Proper error handling.
-#![cfg_attr(not(test), deny(clippy::unwrap_used))]
 
 extern crate nalgebra as na;
 extern crate typenum as tn;

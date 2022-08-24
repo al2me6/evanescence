@@ -13,6 +13,7 @@ use crate::numerics::polynomial::Polynomial;
 use crate::numerics::special::orthogonal_polynomials;
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Nl, Qn};
+use crate::utils::sup_sub_string::SupSubString;
 
 /// Implementation of the radial component of the hydrogenic wavefunction.
 #[derive(Clone, Debug)]
@@ -85,8 +86,8 @@ impl Function<1> for RadialProbabilityDistribution {
     }
 }
 
-fn basic_name(qn: Qn) -> String {
-    format!("ψ<sub>{}{}{}</sub>", qn.n(), qn.l(), qn.m())
+fn basic_name(qn: Qn) -> SupSubString {
+    sup_sub_string!["ψ" sub(format!("{}{}{}", qn.n(), qn.l(), qn.m()))]
 }
 
 /// The minimum total probability enclosed within the bounding sphere of an atomic orbital.

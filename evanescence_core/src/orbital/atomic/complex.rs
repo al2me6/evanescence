@@ -8,6 +8,7 @@ use crate::numerics::special::spherical_harmonics::SphericalHarmonic;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Function;
 use crate::orbital::{Orbital, Qn};
+use crate::utils::sup_sub_string::SupSubString;
 
 /// Implementation of the complex hydrogenic orbitals.
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -26,7 +27,7 @@ impl Complex {
         }
     }
 
-    pub fn name_qn(qn: Qn) -> String {
+    pub fn name_qn(qn: Qn) -> SupSubString {
         super::basic_name(qn)
     }
 }
@@ -60,7 +61,7 @@ impl Distribution<3, SphericalPoint3> for Complex {
 
 impl Orbital<SphericalPoint3> for Complex {
     /// Give the name of the wavefunction (ex. `ψ_{420}`).
-    fn name(&self) -> String {
+    fn name(&self) -> SupSubString {
         Self::name_qn(self.qn)
     }
 }

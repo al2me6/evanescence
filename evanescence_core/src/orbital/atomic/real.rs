@@ -12,6 +12,7 @@ use crate::numerics::statistics::Distribution;
 use crate::numerics::{self, Function};
 use crate::orbital::quantum_numbers::{Lm, Qn};
 use crate::orbital::Orbital;
+use crate::utils::sup_sub_string::{SupSubFormat, SupSubString};
 
 /// Implementation of the real hydrogenic orbitals.
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -30,12 +31,18 @@ impl Real {
         }
     }
 
-    pub fn name_qn(qn: Qn) -> String {
-        if let (Some(subshell), Some(linear_combination)) = (
+    /// Note that the output cannot be Unicode-formatted!
+    pub fn name_qn(qn: Qn) -> SupSubString {
+        if let (Some(subshell), Some(cartesian_expr)) = (
             super::subshell_name(qn.l()),
             RealSphericalHarmonic::expression(qn.into()),
         ) {
-            format!("{}{subshell}<sub>{linear_combination}</sub>", qn.n())
+            sup_sub_string![
+                nrm(qn.n().to_string())
+                nrm(subshell)
+                // Subscript contains superscripts.
+                sub(cartesian_expr.format(SupSubFormat::Unicode).unwrap())
+            ]
         } else {
             super::basic_name(qn)
         }
@@ -71,7 +78,7 @@ impl Distribution<3, SphericalPoint3> for Real {
 impl Orbital<SphericalPoint3> for Real {
     /// Try to give the orbital's conventional name (ex. `4d_{z^2}`) before falling back to giving
     /// the quantum numbers only (ex. `ψ_{420}`).
-    fn name(&self) -> String {
+    fn name(&self) -> SupSubString {
         Self::name_qn(self.qn)
     }
 }

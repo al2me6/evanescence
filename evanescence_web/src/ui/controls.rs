@@ -1,6 +1,7 @@
 use evanescence_core::numerics::special::spherical_harmonics::RealSphericalHarmonic;
 use evanescence_core::orbital::quantum_numbers::Lm;
 use evanescence_core::orbital::{self, Qn};
+use evanescence_core::utils::sup_sub_string::SupSubFormat;
 use evanescence_web::components::{Button, CheckBox, Dropdown, Tooltip};
 use evanescence_web::plotters::Quality;
 use evanescence_web::presets::{HybridPreset, QnPreset};
@@ -267,7 +268,11 @@ impl Component for QnPickers {
             Mode::RealFull => match RealSphericalHarmonic::expression(Lm::new(qn.l(), *m).unwrap())
             {
                 Some(expression) if !expression.is_empty() => {
-                    format!("{} [ {expression} ]", utils::fmt_replace_minus(m))
+                    format!(
+                        "{} [ {} ]",
+                        utils::fmt_replace_minus(m),
+                        expression.format(SupSubFormat::Unicode).unwrap()
+                    )
                 }
                 _ => utils::fmt_replace_minus(m),
             },

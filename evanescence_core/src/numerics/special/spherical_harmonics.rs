@@ -7,6 +7,7 @@ use super::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::geometry::point::{SphericalCoordinatesExt, SphericalPoint3};
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::Lm;
+use crate::utils::sup_sub_string::SupSubString;
 
 /// Implementation of the spherical harmonics, `Y_l^m(θ,φ)`, including the Condon-Shortley phase.
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -75,65 +76,64 @@ impl RealSphericalHarmonic {
     /// This is only implemented for `l` up to 4 and returns `None` for larger values.
     ///
     /// See <https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics>.
-    #[allow(clippy::missing_panics_doc)] // `unreachable` is an implementation detail here.
-    #[allow(clippy::trivially_copy_pass_by_ref)] // We use `&Lm` for symmetry with `Evaluate`'s methods.
-    pub fn expression(lm: Lm) -> Option<&'static str> {
+    pub fn expression(lm: Lm) -> Option<SupSubString> {
+        use crate::sup_sub_string as s;
         let (l, m) = (lm.l(), lm.m());
         match l {
-            0 => Some(""), // s orbital.
+            0 => Some(s![""]), // s orbital.
             1 => Some(match m {
                 // p orbitals.
-                -1 => "y",
-                0 => "z",
-                1 => "x",
+                -1 => s!["y"],
+                0 => s!["z"],
+                1 => s!["x"],
                 _ => unreachable!(),
             }),
             2 => Some(match m {
                 // d orbitals.
-                -2 => "xy",
-                -1 => "yz",
-                0 => "z²",
-                1 => "xz",
-                2 => "x²−y²",
+                -2 => s!["xy"],
+                -1 => s!["yz"],
+                0 => s!["z" sup("2")],
+                1 => s!["xz"],
+                2 => s!["x" sup("2") "−y" sup("2")],
                 _ => unreachable!(),
             }),
             3 => Some(match m {
                 // f orbitals.
-                -3 => "y(3x²−y²)",
-                -2 => "xyz",
-                -1 => "yz²",
-                0 => "z³",
-                1 => "xz²",
-                2 => "z(x²−y²)",
-                3 => "x(x²−3y²)",
+                -3 => s!["y(3x" sup("2") "−y" sup("2") ")"],
+                -2 => s!["xyz"],
+                -1 => s!["yz" sup("2")],
+                0 => s!["z" sup("3")],
+                1 => s!["xz" sup("2")],
+                2 => s!["z(x" sup("2") "−y" sup("2") ")"],
+                3 => s!["x(x" sup("2") "−3y" sup("2") ")"],
                 _ => unreachable!(),
             }),
             4 => Some(match m {
                 // g orbitals.
-                -4 => "xy(x²−y²)",
-                -3 => "y³z",
-                -2 => "xyz²",
-                -1 => "yz³",
-                0 => "z⁴",
-                1 => "xz³",
-                2 => "z²(x²−y²)",
-                3 => "x³z",
-                4 => "x⁴+y⁴",
+                -4 => s!["xy(x" sup("2") "−y" sup("2") ")"],
+                -3 => s!["y" sup("3") "z"],
+                -2 => s!["xyz" sup("2")],
+                -1 => s!["yz" sup("3")],
+                0 => s!["z" sup("4")],
+                1 => s!["xz" sup("3")],
+                2 => s!["z" sup("2") "(x" sup("2") "−y" sup("2") ")"],
+                3 => s!["x" sup("3") "z"],
+                4 => s!["x" sup("4") "+y" sup("4")],
                 _ => unreachable!(),
             }),
             5 => Some(match m {
                 // h orbitals.
-                -5 => "x⁴y",
-                -4 => "z(4x³y−4xy³)",
-                -3 => "y³z²",
-                -2 => "xyz³",
-                -1 => "yz⁴",
-                0 => "z⁵",
-                1 => "xz⁴",
-                2 => "z³(x²−y²)",
-                3 => "x³z²",
-                4 => "z(x⁴−6x²y²+y⁴)",
-                5 => "xy⁴",
+                -5 => s!["x" sup("4") "y"],
+                -4 => s!["z(4x" sup("3") "y−4xy" sup("3") ")"],
+                -3 => s!["y" sup("3") "z" sup("2")],
+                -2 => s!["xyz" sup("3")],
+                -1 => s!["yz" sup("4")],
+                0 => s!["z" sup("5")],
+                1 => s!["xz" sup("4")],
+                2 => s!["z" sup("3") "(x" sup("2") "−y" sup("2") ")"],
+                3 => s!["x" sup("3") "z" sup("2")],
+                4 => s!["z(x" sup("4") "−6x" sup("2") "y" sup("2") "+y" sup("4") ")"],
+                5 => s!["xy" sup("4")],
                 _ => unreachable!(),
             }),
             _ => None,
