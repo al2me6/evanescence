@@ -1,7 +1,7 @@
-use phf::phf_map;
-
 #[macro_use]
 pub mod sup_sub_string;
+
+use phf::phf_map;
 
 pub const UNICODE_SUPERSCRIPTS: phf::Map<char, char> = phf_map! {
     '0' => '⁰',
