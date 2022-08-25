@@ -131,7 +131,7 @@ where
 }
 
 /// Conversion into a struct-of-arrays.
-pub trait ToSoa<const N: usize> {
+pub trait IntoSoa<const N: usize> {
     type Value: Clone;
 
     /// Convert a collection of [`PointValue`]s to a `Soa`.
@@ -146,7 +146,7 @@ pub trait ToSoa<const N: usize> {
     }
 }
 
-impl<const N: usize, P, V, I> ToSoa<N> for I
+impl<const N: usize, P, V, I> IntoSoa<N> for I
 where
     P: IPoint<N>,
     V: Clone,
