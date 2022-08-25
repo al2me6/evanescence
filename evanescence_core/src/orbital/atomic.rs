@@ -11,6 +11,7 @@ use crate::geometry::point::IPoint;
 use crate::numerics;
 use crate::numerics::polynomial::Polynomial;
 use crate::numerics::special::orthogonal_polynomials;
+use crate::numerics::statistics::Distribution;
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Nl, Qn};
 use crate::utils::sup_sub_string::SupSubString;
@@ -86,6 +87,12 @@ impl Function<1> for RadialProbabilityDistribution {
     }
 }
 
+impl Distribution<1> for RadialProbabilityDistribution {
+    fn probability_density_of(&self, value: Self::Output) -> f32 {
+        value
+    }
+}
+
 fn basic_name(qn: Qn) -> SupSubString {
     sup_sub_string!["ψ" sub(format!("{}{}{}", qn.n(), qn.l(), qn.m()))]
 }
@@ -134,11 +141,10 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
-    use na::{vector, Point1};
+    use na::Point1;
 
     use super::{Radial, PROBABILITY_WITHIN_BOUND};
-    use crate::geometry::storage::struct_of_arrays::ToSoa;
-    use crate::numerics;
+    use crate::numerics::statistics::Pdf;
     use crate::numerics::Function;
     use crate::orbital::atomic::RadialProbabilityDistribution;
     use crate::orbital::quantum_numbers::{Nl, Qn};
@@ -187,12 +193,12 @@ mod tests {
     fn radial_probability_unity() {
         // The radial component depends only on n and l.
         for qn in Qn::enumerate_up_to_n(15).unwrap().filter(|qn| qn.m() == 0) {
-            let ([xs], ys) = RadialProbabilityDistribution::new(qn.into())
-                .sample_from_line_segment(vector![0.]..=vector![super::bound(qn)], 1_000)
-                .to_soa_components();
+            let (_, ys) = Pdf::new(RadialProbabilityDistribution::new(qn.into()))
+                .sample_cdf(0.0..=super::bound(qn), 5_000)
+                .decompose();
             approx::assert_abs_diff_eq!(
                 PROBABILITY_WITHIN_BOUND,
-                numerics::integrators::integrate_trapezoidal(&xs, &ys),
+                ys.last().unwrap(),
                 epsilon = 0.000_75,
             );
         }

@@ -1,14 +1,18 @@
 pub mod kolmogorov_smirnov;
 
 use std::marker::PhantomData;
+use std::ops::RangeInclusive;
 
-use super::Function;
+use na::{vector, Point1};
+
+use super::integrators::integrate_simpson_step;
+use super::{linspace, Function};
 use crate::geometry::point::IPoint;
 use crate::geometry::region::BoundingRegion;
-use crate::geometry::storage::PointValue;
+use crate::geometry::storage::{PointValue, Soa};
 
 /// A [`Function`] that can also be interpreted as a probability density function.
-pub trait Distribution<const N: usize, P: IPoint<N>>: Function<N, P> {
+pub trait Distribution<const N: usize, P: IPoint<N> = na::Point<f32, N>>: Function<N, P> {
     /// Give the probability density corresponding to a `value` of the underlying function.
     fn probability_density_of(&self, value: Self::Output) -> f32;
 
@@ -78,6 +82,23 @@ where
     fn evaluate(&self, point: &P) -> Self::Output {
         self.inner
             .probability_density_of(self.inner.evaluate(point))
+    }
+}
+
+impl<D: Distribution<1>> Pdf<1, Point1<f32>, D> {
+    pub fn sample_cdf(
+        &self,
+        interval: RangeInclusive<f32>,
+        count: usize,
+    ) -> Soa<1, <Self as Function<1, Point1<f32>>>::Output> {
+        let step = (interval.end() - interval.start()) / (count as f32 - 1.);
+        let mut acc = 0.;
+        linspace(interval, count)
+            .map(|mut x| {
+                integrate_simpson_step(|xx| self.evaluate(&[xx].into()), &mut x, &mut acc, step);
+                (vector![x], acc)
+            })
+            .collect()
     }
 }
 
