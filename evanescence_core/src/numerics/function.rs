@@ -3,6 +3,7 @@ use std::ops::RangeInclusive;
 use itertools::Itertools;
 use na::{vector, Const, SVector, ToTypenum, Vector2};
 
+use super::linspace;
 use crate::geometry::point::IPoint;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::storage::grid_values::{CoordinatePlane3, GridValues, GridValues3};
@@ -45,7 +46,7 @@ pub trait Function<const N: usize, P: IPoint<N> = na::Point<f32, N>> {
         interval: RangeInclusive<SVector<f32, N>>,
         num_points: usize,
     ) -> Soa<N, Self::Output> {
-        super::linspace(interval, num_points)
+        linspace(interval, num_points)
             .map(|pt| self.evaluate_at(pt.into()))
             .collect()
     }
@@ -66,8 +67,8 @@ pub trait Function<const N: usize, P: IPoint<N> = na::Point<f32, N>> {
     {
         let (bottom_left, top_right) = extent.into_inner();
 
-        let xs = super::linspace(bottom_left.x..=top_right.x, num_points[0]).collect_vec();
-        let ys = super::linspace(bottom_left.y..=top_right.y, num_points[1]).collect_vec();
+        let xs = linspace(bottom_left.x..=top_right.x, num_points[0]).collect_vec();
+        let ys = linspace(bottom_left.y..=top_right.y, num_points[1]).collect_vec();
         let mut vals = Vec::with_capacity(num_points[0]);
 
         for &y in &ys {
