@@ -112,7 +112,6 @@ impl Real {
     }
 
     /// Give the `r` values of all radial nodes of a given `n` and `l` pair.
-    #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
     pub fn radial_node_positions(qn: Qn) -> Vec<f32> {
         let radial = Radial::new(qn.into());
         let roots = numerics::root_finding::find_roots_in_interval_brent(
@@ -130,7 +129,6 @@ impl Real {
     }
 
     /// Give the theta angles of all conical nodes of a given `l` and `m` pair.
-    #[allow(clippy::missing_panics_doc)] // The `assert_eq` is an internal sanity check.
     pub fn conical_node_angles(lm: Lm) -> Vec<f32> {
         let roots = numerics::root_finding::find_roots_in_interval_brent(0.0..=PI, 90, |theta| {
             renormalized_associated_legendre((lm.l(), lm.m().unsigned_abs()), theta.cos())

@@ -99,7 +99,6 @@ pub fn brent(
 ///
 /// # Errors
 /// This function will return an error if the root finder does not converge.
-#[allow(clippy::missing_panics_doc)] // Sanity check.
 pub fn find_roots_in_interval_brent(
     interval: RangeInclusive<f32>,
     num_initial_tests: usize,
