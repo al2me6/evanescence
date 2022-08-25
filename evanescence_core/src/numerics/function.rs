@@ -44,7 +44,7 @@ pub trait Function<const N: usize, P: IPoint<N> = na::Point<f32, N>> {
         &self,
         interval: RangeInclusive<SVector<f32, N>>,
         num_points: usize,
-    ) -> Vec<PointValue<N, P, Self::Output>> {
+    ) -> Soa<N, Self::Output> {
         super::linspace(interval, num_points)
             .map(|pt| self.evaluate_at(pt.into()))
             .collect()

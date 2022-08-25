@@ -2,10 +2,9 @@ use std::default::default;
 use std::f32::consts::PI;
 
 use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
-use evanescence_core::geometry::storage::struct_of_arrays::ToSoa;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
 use evanescence_core::numerics::statistics::Pdf;
-use evanescence_core::numerics::{self, Function};
+use evanescence_core::numerics::Function;
 use evanescence_core::orbital::atomic::{Radial, RadialProbabilityDistribution};
 use evanescence_core::orbital::quantum_numbers::Nl;
 use evanescence_core::orbital::{AtomicComplex, AtomicReal};
@@ -49,7 +48,7 @@ impl RadialPlot {
         };
         evaluator
             .sample_from_line_segment(vector![0.]..=vector![extent], num_points)
-            .to_soa_components()
+            .decompose()
     }
 }
 
