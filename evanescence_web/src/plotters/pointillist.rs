@@ -20,7 +20,7 @@ use crate::utils;
 pub fn real(state: &State) -> JsValue {
     assert!([Mode::RealSimple, Mode::RealFull, Mode::Hybrid].contains(&state.mode()));
 
-    let ([x, y, z], values) = state.monte_carlo_simulate_real().decompose();
+    let ([x, y, z], values) = state.monte_carlo_simulate_real().into_components();
 
     // Special handling for s orbitals.
     let min_point_size = if state.mode().is_real_or_simple() && state.qn().l() == 0 {
@@ -63,7 +63,7 @@ pub fn complex(state: &State) -> JsValue {
         .request_complex32(state.into(), state.quality().point_cloud())
         .unwrap()
         .cloned()
-        .decompose();
+        .into_components();
 
     let (mut moduli, arguments) = utils::split_moduli_arguments(&values);
 
@@ -193,7 +193,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
                         vector![-bound, -bound]..=vector![bound, bound],
                         [NUM_POINTS; 2],
                     )
-                    .decompose()
+                    .into_components()
             })
             .map(|(x, y, z)| Surface {
                 x: Some(x),
@@ -233,7 +233,7 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
 
 pub fn cross_section_indicator(state: &State) -> JsValue {
     let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
-    let (x, y, z) = plane.square_wrt_xy_plane(state.bound()).decompose();
+    let (x, y, z) = plane.square_wrt_xy_plane(state.bound()).into_components();
     Surface {
         x: Some(x),
         y: Some(y),
@@ -279,7 +279,7 @@ pub fn nodes_combined(state: &State) -> JsValue {
 
     let ([x, y, z], value) = Hybrid::new(state.hybrid_kind().archetype().clone())
         .bounded_sample_in_cube(state.quality().grid_3d())
-        .decompose();
+        .into_components();
 
     Isosurface {
         x,

@@ -194,7 +194,7 @@ mod tests {
         for qn in Qn::enumerate_up_to_n(15).unwrap().filter(|qn| qn.m() == 0) {
             let (_, ys) = Pdf::new(RadialProbabilityDistribution::new(qn.into()))
                 .sample_cdf(0.0..=super::bound(qn), 5_000)
-                .decompose();
+                .into_components();
             approx::assert_abs_diff_eq!(
                 PROBABILITY_WITHIN_BOUND,
                 ys.last().unwrap(),

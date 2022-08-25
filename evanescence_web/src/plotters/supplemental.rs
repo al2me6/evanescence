@@ -43,12 +43,12 @@ impl RadialPlot {
             Self::CumulativeDistribution => {
                 return Pdf::new(RadialProbabilityDistribution::new(nl))
                     .sample_cdf(0.0..=extent, num_points)
-                    .decompose();
+                    .into_components();
             }
         };
         evaluator
             .sample_from_line_segment(vector![0.]..=vector![extent], num_points)
-            .decompose()
+            .into_components()
     }
 }
 
@@ -184,14 +184,14 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
         let (x, y, values) = AtomicComplex::new(*state.qn())
             .bounded_sample_in_plane(plane, state.quality().grid_2d())
             .grid_values
-            .decompose();
+            .into_components();
         let (moduli, arguments) = values
             .iter()
             .map(|row| utils::split_moduli_arguments(row))
             .unzip();
         (x, y, moduli, Some(arguments))
     } else {
-        let (x, y, z) = state.sample_plane_real(plane).grid_values.decompose();
+        let (x, y, z) = state.sample_plane_real(plane).grid_values.into_components();
         (x, y, z, None)
     };
 
@@ -259,7 +259,7 @@ pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
     let (x, y, mut z) = state
         .sample_plane_prob_density(plane)
         .grid_values
-        .decompose();
+        .into_components();
     let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
     assert!(
         max >= 0.0,
@@ -301,7 +301,7 @@ pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         Mode::RealSimple | Mode::RealFull => {
             let ([x, y, z], value) = AtomicReal::new(*state.qn())
                 .bounded_sample_in_cube(state.quality().grid_3d() * 3 / 2)
-                .decompose();
+                .into_components();
             let cutoff = super::isosurface_cutoff_atomic_real(state.qn());
             Isosurface {
                 x,

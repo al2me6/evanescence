@@ -63,7 +63,7 @@ impl<const N: usize, V> Soa<N, V> {
     }
 
     /// Return the inner vectors of `self`.
-    pub fn decompose(self) -> ([Vec<f32>; N], Vec<V>) {
+    pub fn into_components(self) -> ([Vec<f32>; N], Vec<V>) {
         (self.coords, self.values)
     }
 }
@@ -135,14 +135,14 @@ pub trait ToSoa<const N: usize> {
     type Value: Clone;
 
     /// Convert a collection of [`PointValue`]s to a `Soa`.
-    fn to_soa(self) -> Soa<N, Self::Value>;
+    fn into_soa(self) -> Soa<N, Self::Value>;
 
     /// Convert to a `Soa` and then immediately into its components.
-    fn to_soa_components(self) -> ([Vec<f32>; N], Vec<Self::Value>)
+    fn into_soa_components(self) -> ([Vec<f32>; N], Vec<Self::Value>)
     where
         Self: Sized,
     {
-        self.to_soa().decompose()
+        self.into_soa().into_components()
     }
 }
 
@@ -154,7 +154,7 @@ where
 {
     type Value = V;
 
-    fn to_soa(self) -> Soa<N, Self::Value> {
+    fn into_soa(self) -> Soa<N, Self::Value> {
         self.into_iter().collect()
     }
 }

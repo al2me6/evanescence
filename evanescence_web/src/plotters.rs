@@ -54,7 +54,7 @@ fn compute_isosurface_hybrid(
             hybrid.bounding_region().radius * 0.85 * 2.,
             quality.grid_3d(),
         )
-        .decompose();
+        .into_components();
     let cutoff = isosurface_cutoff_hybrid(kind);
 
     Isosurface {
