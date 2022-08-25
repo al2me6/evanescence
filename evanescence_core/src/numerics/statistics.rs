@@ -86,17 +86,13 @@ where
 }
 
 impl<D: Distribution<1>> Pdf<1, Point1<f32>, D> {
-    pub fn sample_cdf(
-        &self,
-        interval: RangeInclusive<f32>,
-        count: usize,
-    ) -> Soa<1, <Self as Function<1, Point1<f32>>>::Output> {
+    pub fn sample_cdf(&self, interval: RangeInclusive<f32>, count: usize) -> Soa<1, f32> {
         let step = (interval.end() - interval.start()) / (count as f32 - 1.);
-        let mut acc = 0.;
+        let mut cdf = 0.;
         linspace(interval, count)
             .map(|mut x| {
-                integrate_simpson_step(|xx| self.evaluate(&[xx].into()), &mut x, &mut acc, step);
-                (vector![x], acc)
+                integrate_simpson_step(|xx| self.evaluate(&[xx].into()), &mut x, &mut cdf, step);
+                (vector![x], cdf)
             })
             .collect()
     }
