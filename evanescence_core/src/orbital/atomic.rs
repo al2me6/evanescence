@@ -8,7 +8,6 @@ pub mod real;
 use na::Point1;
 
 use crate::geometry::point::IPoint;
-use crate::numerics;
 use crate::numerics::polynomial::Polynomial;
 use crate::numerics::special::orthogonal_polynomials;
 use crate::numerics::statistics::Distribution;
@@ -108,7 +107,7 @@ fn bound(qn: Qn) -> f32 {
     let psi_sq = RadialProbabilityDistribution::new(qn.into());
 
     while probability < PROBABILITY_WITHIN_BOUND {
-        numerics::integrators::integrate_simpson_step(
+        crate::numerics::integrators::integrate_simpson_step(
             |r| psi_sq.evaluate(&Point1::new(r)),
             &mut r,
             &mut probability,

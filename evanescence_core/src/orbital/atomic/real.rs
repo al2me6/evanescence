@@ -6,10 +6,11 @@ use super::Radial;
 use crate::geometry::point::{SphericalCoordinatesExt, SphericalPoint3};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
+use crate::numerics::root_finding::find_roots_in_interval_brent;
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::special::spherical_harmonics::RealSphericalHarmonic;
 use crate::numerics::statistics::Distribution;
-use crate::numerics::{self, Function};
+use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Lm, Qn};
 use crate::orbital::Orbital;
 use crate::utils::sup_sub_string::{SupSubFormat, SupSubString};
@@ -114,11 +115,9 @@ impl Real {
     /// Give the `r` values of all radial nodes of a given `n` and `l` pair.
     pub fn radial_node_positions(qn: Qn) -> Vec<f32> {
         let radial = Radial::new(qn.into());
-        let roots = numerics::root_finding::find_roots_in_interval_brent(
-            0.05..=super::bound(qn),
-            100,
-            |r| radial.evaluate(&Point1::new(r)),
-        )
+        let roots = find_roots_in_interval_brent(0.05..=super::bound(qn), 100, |r| {
+            radial.evaluate(&Point1::new(r))
+        })
         .expect("root finder did not converge");
         assert_eq!(
             roots.len(),
@@ -130,7 +129,7 @@ impl Real {
 
     /// Give the theta angles of all conical nodes of a given `l` and `m` pair.
     pub fn conical_node_angles(lm: Lm) -> Vec<f32> {
-        let roots = numerics::root_finding::find_roots_in_interval_brent(0.0..=PI, 90, |theta| {
+        let roots = find_roots_in_interval_brent(0.0..=PI, 90, |theta| {
             renormalized_associated_legendre((lm.l(), lm.m().unsigned_abs()), theta.cos())
         })
         .expect("root finder did not converge");

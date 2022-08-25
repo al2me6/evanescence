@@ -3,7 +3,7 @@ use std::f32::consts::{PI, TAU};
 
 use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
-use evanescence_core::numerics::{self, Function};
+use evanescence_core::numerics::{linspace, normalize_collection, Function};
 use evanescence_core::orbital::hybrid::Hybrid;
 use evanescence_core::orbital::AtomicReal;
 use na::{vector, Point2};
@@ -31,7 +31,7 @@ pub fn real(state: &State) -> JsValue {
 
     let mut values_abs: Vec<_> = values.iter().map(|&v| v.abs()).collect();
     let max_abs = *utils::partial_max(&values_abs).unwrap();
-    numerics::normalize_collection(0.0..=max_abs, min_point_size..=4.0, &mut values_abs);
+    normalize_collection(0.0..=max_abs, min_point_size..=4.0, &mut values_abs);
 
     Scatter3D {
         x,
@@ -70,7 +70,7 @@ pub fn complex(state: &State) -> JsValue {
     // Special handling for s orbitals.
     let min_point_size = if state.qn().l() == 0 { 0.8 } else { 0.4 };
     let max_modulus = *utils::partial_max(&moduli).unwrap();
-    numerics::normalize_collection(0.0..=max_modulus, min_point_size..=4.0, &mut moduli);
+    normalize_collection(0.0..=max_modulus, min_point_size..=4.0, &mut moduli);
 
     Scatter3D {
         x,
@@ -109,8 +109,8 @@ fn parametric_sphere(r: f32, samples: usize) -> [Vec<Vec<f32>>; 3] {
         Vec::with_capacity(samples),
         Vec::with_capacity(samples),
     );
-    let theta_samples = numerics::linspace(0.0..=PI, samples);
-    let phi_samples = numerics::linspace(0.0..=TAU, samples);
+    let theta_samples = linspace(0.0..=PI, samples);
+    let phi_samples = linspace(0.0..=TAU, samples);
     for theta in theta_samples {
         let (mut x_row, mut y_row, mut z_row) = (
             Vec::with_capacity(samples),
