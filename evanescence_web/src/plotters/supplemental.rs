@@ -4,6 +4,7 @@ use std::f32::consts::PI;
 use evanescence_core::geometry::storage::grid_values::CoordinatePlane3;
 use evanescence_core::geometry::storage::struct_of_arrays::ToSoa;
 use evanescence_core::numerics::function::Function3InOriginCenteredRegionExt;
+use evanescence_core::numerics::statistics::Pdf;
 use evanescence_core::numerics::{self, Function};
 use evanescence_core::orbital::atomic::{Radial, RadialProbabilityDistribution};
 use evanescence_core::orbital::quantum_numbers::Nl;
@@ -32,18 +33,23 @@ fn zero_values(grid: &mut Vec<Vec<f32>>) {
 enum RadialPlot {
     Wavefunction,
     ProbabilityDistribution,
+    CumulativeDistribution,
 }
 
 impl RadialPlot {
-    pub fn sample(self, nl: Nl, extent: f32, num_points: usize) -> (Vec<f32>, Vec<f32>) {
+    pub fn sample(self, nl: Nl, extent: f32, num_points: usize) -> ([Vec<f32>; 1], Vec<f32>) {
         let evaluator: Box<dyn Function<1, _, Output = _>> = match self {
             Self::Wavefunction => Box::new(Radial::new(nl)),
             Self::ProbabilityDistribution => Box::new(RadialProbabilityDistribution::new(nl)),
+            Self::CumulativeDistribution => {
+                return Pdf::new(RadialProbabilityDistribution::new(nl))
+                    .sample_cdf(0.0..=extent, num_points)
+                    .decompose();
+            }
         };
-        let ([rs], vals) = evaluator
+        evaluator
             .sample_from_line_segment(vector![0.]..=vector![extent], num_points)
-            .to_soa_components();
-        (rs, vals)
+            .to_soa_components()
     }
 }
 
@@ -55,26 +61,21 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
     let variant: RadialPlot = match state.supplement() {
         Visualization::RadialWavefunction => RadialPlot::Wavefunction,
         Visualization::RadialProbabilityDistribution => RadialPlot::ProbabilityDistribution,
+        Visualization::CumulativeRadialDistribution => RadialPlot::CumulativeDistribution,
         _ => panic!("unexpected visualization type"),
     };
     let function_expr = match variant {
         RadialPlot::Wavefunction => "R(r)",
         RadialPlot::ProbabilityDistribution => "r²R(r)²",
+        // FIXME: Unicode scripts look terrible.
+        RadialPlot::CumulativeDistribution => "∫₀ʳ s²R(s)² ds",
     };
     let variant_label = format!(
         "{} [ {function_expr} ]",
         utils::capitalize_words(state.supplement().to_string())
     );
 
-    let (x, y) = variant.sample(state.qn().into(), state.bound(), NUM_POINTS);
-
-    if variant == RadialPlot::ProbabilityDistribution {
-        log::info!(
-            "[{}][{NUM_POINTS} pts] Integrated total probability density: {}",
-            state.qn().to_string_as_wavefunction(),
-            numerics::integrators::integrate_trapezoidal(&x, &y),
-        );
-    }
+    let ([x], y) = variant.sample(state.qn().into(), state.bound(), NUM_POINTS);
 
     let trace = Scatter {
         x,
@@ -84,6 +85,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
                 b16_colors::BASE[match variant {
                     RadialPlot::Wavefunction => 0x0c,
                     RadialPlot::ProbabilityDistribution => 0x0a,
+                    RadialPlot::CumulativeDistribution => 0x0b,
                 }],
             ),
             ..default()

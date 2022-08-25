@@ -30,9 +30,9 @@ impl SupplementalVisualization {
     fn rerender(&mut self, state: &State) {
         let renderer: fn(&State) -> (JsValue, JsValue) = match state.supplement() {
             Visualization::None => return, // No need to render.
-            Visualization::RadialWavefunction | Visualization::RadialProbabilityDistribution => {
-                plot::radial
-            }
+            Visualization::RadialWavefunction
+            | Visualization::RadialProbabilityDistribution
+            | Visualization::CumulativeRadialDistribution => plot::radial,
             Visualization::WavefunctionXY
             | Visualization::WavefunctionYZ
             | Visualization::WavefunctionZX => plot::cross_section,
@@ -145,6 +145,7 @@ impl Component for SupplementalVisualization {
             Visualization::None => unreachable!(),
             Visualization::RadialWavefunction => DESC.rad_wavefunction,
             Visualization::RadialProbabilityDistribution => DESC.rad_prob_distr,
+            Visualization::CumulativeRadialDistribution => DESC.rad_cumulative,
             Visualization::WavefunctionXY
             | Visualization::WavefunctionYZ
             | Visualization::WavefunctionZX => DESC.cross_section_wavefunction,

@@ -27,6 +27,8 @@ pub enum Visualization {
     RadialWavefunction,
     #[strum(serialize = "Radial probability distribution")]
     RadialProbabilityDistribution,
+    #[strum(serialize = "Cumulative radial distribution")]
+    CumulativeRadialDistribution,
     #[strum(serialize = "XY-plane wavefunction")]
     WavefunctionXY,
     #[strum(serialize = "YZ-plane wavefunction")]
@@ -59,7 +61,9 @@ impl Visualization {
     pub fn is_radial(self) -> bool {
         matches!(
             self,
-            Self::RadialWavefunction | Self::RadialProbabilityDistribution
+            Self::RadialWavefunction
+                | Self::RadialProbabilityDistribution
+                | Self::CumulativeRadialDistribution
         )
     }
 
@@ -301,6 +305,7 @@ impl State {
                 Visualization::None,
                 Visualization::RadialWavefunction,
                 Visualization::RadialProbabilityDistribution,
+                Visualization::CumulativeRadialDistribution,
                 Visualization::WavefunctionXY,
                 Visualization::WavefunctionYZ,
                 Visualization::WavefunctionZX,
