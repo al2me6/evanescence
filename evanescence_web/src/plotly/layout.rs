@@ -5,8 +5,12 @@ use crate::utils::b16_colors;
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Anchor {
-    Left,
+    Auto,
+    Top,
     Right,
+    Bottom,
+    Left,
+    Center,
 }
 
 def_plotly_ty! {
@@ -65,6 +69,15 @@ impl<'a> Axis<'a> {
 }
 
 def_plotly_ty! {
+    Legend
+
+    #optional x: f32,
+    #optional y: f32,
+    #optional x_anchor as "xanchor": Anchor,
+    #optional y_anchor as "yanchor": Anchor,
+}
+
+def_plotly_ty! {
     AspectRatio
 
     x: f32 = 1.0,
@@ -95,7 +108,7 @@ def_plotly_ty! {
 
     #optional drag_mode_str as "dragmode": &'a str,
     #optional drag_mode_bool as "dragmode": bool,
-    hover_mode as "hovermode": bool,
+    #optional legend: Legend,
     margin: Margin,
     /// For 3D plots only.
     #optional scene: Scene<'a>,

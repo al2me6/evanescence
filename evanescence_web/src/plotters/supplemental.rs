@@ -12,10 +12,9 @@ use na::vector;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
-use crate::plotly::layout::{Axis, Font, Scene, Title};
-use crate::plotly::scatter::Line;
+use crate::plotly::layout::{Axis, Font, Legend, Scene, Title, Anchor};
 use crate::plotly::surface::{Contour, Contours, Project};
-use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
+use crate::plotly::{isosurface, Isosurface, Layout, Marker, Outline, Scatter, Surface};
 use crate::state::{Mode, State, Visualization};
 use crate::utils::{self, b16_colors};
 
@@ -81,7 +80,7 @@ pub fn radial(state: &State) -> TraceLayout {
     let trace = Scatter {
         x,
         y,
-        line: Line {
+        line: Outline {
             color: Some(
                 b16_colors::BASE[match variant {
                     RadialPlot::Wavefunction => 0x0c,

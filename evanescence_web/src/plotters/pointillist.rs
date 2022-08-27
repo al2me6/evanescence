@@ -11,8 +11,7 @@ use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
 use crate::plotly::layout::{Anchor, Title};
-use crate::plotly::scatter_3d::Marker;
-use crate::plotly::{Isosurface, Scatter3D, Surface};
+use crate::plotly::{Isosurface, Marker, Scatter3D, Surface};
 use crate::state::cache::MONTE_CARLO_CACHE;
 use crate::state::{Mode, State};
 use crate::utils;
@@ -38,14 +37,14 @@ pub fn real(state: &State) -> Vec<JsValue> {
         y,
         z,
         marker: Marker {
-            size: values_abs,
-            color: values,
-            show_scale: true,
-            color_bar: ColorBar {
+            size: Some(values_abs),
+            color: Some(values),
+            show_scale: Some(true),
+            color_bar: Some(ColorBar {
                 x: -0.02,
                 x_anchor: Anchor::Right,
                 ..default()
-            },
+            }),
             ..default()
         },
         show_legend: false,
@@ -77,14 +76,14 @@ pub fn complex(state: &State) -> Vec<JsValue> {
         y,
         z,
         marker: Marker {
-            size: moduli,
-            color: arguments,
-            color_scale: color_scales::PHASE,
-            show_scale: true,
+            size: Some(moduli),
+            color: Some(arguments),
+            color_scale: Some(color_scales::PHASE),
+            show_scale: Some(true),
             c_min: Some(-PI),
             c_mid: 0.0,
             c_max: Some(PI),
-            color_bar: ColorBar {
+            color_bar: Some(ColorBar {
                 x: -0.02,
                 x_anchor: Anchor::Right,
                 tick_vals: Some(color::PHASE_BAR_TICKS),
@@ -94,7 +93,7 @@ pub fn complex(state: &State) -> Vec<JsValue> {
                     ..default()
                 }),
                 ..default()
-            },
+            }),
             ..default()
         },
         show_legend: false,

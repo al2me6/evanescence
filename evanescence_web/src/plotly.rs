@@ -1,23 +1,12 @@
-// Module declarations at end of file.
-
 use serde::Serialize;
 
+use self::color::{color_scales, ColorBar, ColorScale};
 pub use self::config::Config;
 pub use self::isosurface::Isosurface;
 pub use self::layout::{Layout, LayoutRangeUpdate};
 pub use self::scatter::Scatter;
 pub use self::scatter_3d::Scatter3D;
 pub use self::surface::Surface;
-
-#[derive(Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum PlotType {
-    Isosurface,
-    #[serde(rename = "scattergl")]
-    Scatter,
-    Scatter3D,
-    Surface,
-}
 
 #[allow(non_snake_case)] // This is semantically a class.
 pub mod Plotly {
@@ -170,8 +159,46 @@ macro_rules! def_plotly_ty {
 
 pub mod color;
 pub mod config;
+pub mod histogram;
 pub mod isosurface;
 pub mod layout;
 pub mod scatter;
 pub mod scatter_3d;
 pub mod surface;
+
+#[derive(Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum PlotType {
+    Histogram,
+    Isosurface,
+    #[serde(rename = "scattergl")]
+    Scatter,
+    Scatter3D,
+    Surface,
+}
+
+def_plotly_ty! {
+    Outline<'a>
+
+    #optional width: f32,
+    #optional color: &'a str,
+}
+
+def_plotly_ty! {
+    Marker<'a>
+
+    #optional color: Vec<f32>,
+    #optional color_explicit as "color": &'a str,
+    #optional c_min as "cmin": f32,
+    c_mid as "cmid": f32,
+    #optional c_max as "cmax": f32,
+    #optional color_bar as "colorbar": ColorBar<'a>,
+    #optional color_scale as "colorscale": ColorScale<'static> = Some(color_scales::RD_BU_R),
+    #optional line: Outline<'a> = Some(Outline {
+        width: Some(0.0),
+        ..Default::default()
+    }),
+    opacity: f32 = 1.0,
+    #optional show_scale as "showscale": bool,
+    #optional size: Vec<f32>
+}

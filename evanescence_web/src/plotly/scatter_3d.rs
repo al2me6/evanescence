@@ -1,5 +1,5 @@
-pub use super::scatter::{Marker, Mode};
-use super::PlotType;
+pub use super::scatter::Mode;
+use super::{Marker, PlotType};
 
 def_plotly_ty! {
     Scatter3D<'a>
