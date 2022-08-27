@@ -58,7 +58,7 @@ impl RadialPlot {
 #[allow(clippy::too_many_lines)]
 pub fn radial(state: &State) -> TraceLayout {
     const NUM_POINTS: usize = 600;
-    const HIST_BINS: usize = 75;
+    const HIST_BINS: usize = 100;
 
     assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
 
