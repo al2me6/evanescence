@@ -67,6 +67,10 @@ impl<V: Copy> CacheEntry<V> {
         }
         self.samples.slice(..count)
     }
+
+    fn get_existing_simulation(&self, count: usize) -> Option<SoaSlice<'_, 3, V>> {
+        self.samples.get(..count)
+    }
 }
 
 #[derive(Default)]
@@ -86,7 +90,7 @@ impl MonteCarloCache {
         }
         let entry = self
             .cache_real
-            .entry(CacheKey::from(&params))
+            .entry((&params).into())
             .or_insert_with(|| match params {
                 MonteCarloParameters::AtomicReal(qn) => cache_entry!(AtomicReal::new(qn)),
                 MonteCarloParameters::Hybrid(kind) => {
@@ -107,12 +111,38 @@ impl MonteCarloCache {
         }
         let entry = self
             .cache_complex
-            .entry(CacheKey::from(&params))
+            .entry((&params).into())
             .or_insert_with(|| match params {
                 MonteCarloParameters::AtomicComplex(qn) => cache_entry!(AtomicComplex::new(qn)),
                 _ => unreachable!(),
             });
         Some(entry.request_simulation(count))
+    }
+
+    pub fn get_existing_f32(
+        &self,
+        params: MonteCarloParameters,
+        count: usize,
+    ) -> Option<SoaSlice<'_, 3, f32>> {
+        if matches!(params, MonteCarloParameters::AtomicComplex(_)) {
+            return None;
+        }
+        self.cache_real
+            .get(&(&params).into())?
+            .get_existing_simulation(count)
+    }
+
+    pub fn get_existing_complex32(
+        &self,
+        params: MonteCarloParameters,
+        count: usize,
+    ) -> Option<SoaSlice<'_, 3, Complex32>> {
+        if !matches!(params, MonteCarloParameters::AtomicComplex(_)) {
+            return None;
+        }
+        self.cache_complex
+            .get(&(&params).into())?
+            .get_existing_simulation(count)
     }
 }
 
