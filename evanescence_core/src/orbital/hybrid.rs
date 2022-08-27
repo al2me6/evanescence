@@ -12,8 +12,10 @@ use thiserror::Error;
 use super::{AtomicReal, Orbital, Qn};
 use crate::geometry::point::SphericalPoint3;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
+use crate::geometry::storage::PointValue;
 use crate::numerics::consts::{FRAC_1_SQRT_3, FRAC_1_SQRT_6};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
+use crate::numerics::optimization::simple_x::{BoundingSimplex, Simple};
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Function;
 use crate::utils::sup_sub_string::{SupSubFormat, SupSubString};
@@ -216,7 +218,21 @@ impl Orbital<SphericalPoint3> for Hybrid {
     }
 }
 
-impl AcceptRejectParameters<3, SphericalPoint3> for Hybrid {}
+impl AcceptRejectParameters<3, SphericalPoint3> for Hybrid {
+    fn maximum(&self) -> f32 {
+        const ITERS: usize = 400;
+        const EXPLORATION_PREFERENCE: f32 = 0.3;
+
+        let PointValue(_, max) = Simple::new(
+            self.bounding_simplex(),
+            |pt| self.evaluate(pt).abs(),
+            EXPLORATION_PREFERENCE,
+        )
+        .maximize(ITERS);
+
+        self.probability_density_of(max)
+    }
+}
 
 /// Mapping describing how many orbitals of each azimuthal quantum number `l` is contained in a
 /// [`Kind`].
@@ -380,4 +396,47 @@ macro_rules! kind {
     };
     (@desc $some:literal) => { std::option::Option::Some($some.to_owned()) };
     (@desc) => { std::option::Option::None };
+}
+
+#[cfg(test)]
+mod tests {
+    use std::f32::consts::FRAC_1_SQRT_2;
+    use std::iter;
+
+    use super::Hybrid;
+    use crate::geometry::point::{IPoint, SphericalPoint3};
+    use crate::geometry::region::{BoundingRegion, Region};
+    use crate::numerics::consts::{FRAC_1_SQRT_6, SQRT_3};
+    use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
+    use crate::numerics::random::WyRand;
+    use crate::numerics::statistics::Distribution;
+
+    #[test]
+    fn max_prob_density_computation() {
+        const BRUTE_FORCE_SAMPLE_COUNT: usize = 2_000_000;
+
+        let sp3d2 = Hybrid::new(lc! {
+            overall: FRAC_1_SQRT_6,
+            (3, 0, 0) * 1.0,
+            (3, 1, 1) * SQRT_3,
+            (3, 2, 0) * -FRAC_1_SQRT_2,
+            (3, 2, 2) * SQRT_3 * FRAC_1_SQRT_2,
+        });
+
+        let rng = &mut WyRand::new();
+        let region = sp3d2.bounding_region();
+        let brute_force_max = Iterator::chain(
+            iter::once(SphericalPoint3::origin()),
+            iter::repeat_with(|| region.sample(rng)),
+        )
+        .take(BRUTE_FORCE_SAMPLE_COUNT)
+        .map(|pt| sp3d2.probability_density(&pt))
+        .reduce(f32::max)
+        .unwrap();
+
+        let explicit_max = <_ as AcceptRejectParameters<3, _>>::maximum(&sp3d2);
+
+        println!("brute-force: {brute_force_max}; explicit: {explicit_max}");
+        assert!(brute_force_max * (1.0 - 1E-6) <= explicit_max);
+    }
 }
