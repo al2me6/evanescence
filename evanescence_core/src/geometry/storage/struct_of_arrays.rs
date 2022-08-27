@@ -62,6 +62,18 @@ impl<const N: usize, V> Soa<N, V> {
         }
     }
 
+    #[allow(clippy::needless_pass_by_value)] // Symmetry w/ `slice`.
+    pub fn get<I>(&self, idx: I) -> Option<SoaSlice<'_, N, V>>
+    where
+        I: SliceIndex<[f32], Output = [f32]> + SliceIndex<[V], Output = [V]> + Clone,
+    {
+        let values = self.values.get(idx.clone())?;
+        Some(SoaSlice {
+            coords: std::array::from_fn(|i| &self.coords[i][idx.clone()]),
+            values,
+        })
+    }
+
     /// Return the inner vectors of `self`.
     pub fn into_components(self) -> ([Vec<f32>; N], Vec<V>) {
         (self.coords, self.values)
