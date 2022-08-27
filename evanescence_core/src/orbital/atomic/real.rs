@@ -85,7 +85,14 @@ impl Orbital<SphericalPoint3> for Real {
 }
 
 impl AcceptRejectParameters<3, SphericalPoint3> for Real {
-    // TODO: custom maximum impl.
+    fn maximum(&self) -> f32 {
+        let (l, m_abs) = (self.qn.l(), self.qn.m().unsigned_abs());
+        // Where `2` is `(sqrt(2))^2`, from the conversion to real spherical harmonics.
+        let sph_max =
+            super::max_complex_sph_harm_prob_density(l, m_abs) * if m_abs == 0 { 1.0 } else { 2.0 };
+        super::max_radial_probability_density(&self.radial) * sph_max
+    }
+
     fn accept_threshold_fudge(&self) -> Option<f32> {
         Some(super::accept_threshold_modifier(self.qn))
     }
@@ -258,8 +265,8 @@ mod tests {
         }
 
         const SAMPLES: usize = 10_000;
-        const TRIALS: usize = 6;
-        const KS_THRESHOLD: f32 = 0.02;
+        const TRIALS: usize = 8;
+        const KS_THRESHOLD: f32 = 0.015;
         const P_THRESHOLD: f32 = 0.05;
         const MAX_FAILS: usize = 2;
 

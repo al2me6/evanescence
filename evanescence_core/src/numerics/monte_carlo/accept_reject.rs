@@ -13,7 +13,6 @@ pub trait AcceptRejectParameters<const N: usize, P: IPoint<N>>:
     fn maximum(&self) -> f32 {
         let mut rng = WyRand::new();
         let region = self.bounding_region();
-        // TODO: sample adaptively?
         Iterator::chain(
             iter::once(P::origin()),
             iter::repeat_with(|| region.sample(&mut rng)),
@@ -21,7 +20,7 @@ pub trait AcceptRejectParameters<const N: usize, P: IPoint<N>>:
         .take(200_000)
         .map(|pt| self.probability_density(&pt))
         .reduce(f32::max)
-        .expect("there should be at least one sample")
+        .unwrap()
     }
 
     fn accept_threshold_fudge(&self) -> Option<f32> {

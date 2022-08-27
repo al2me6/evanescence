@@ -5,11 +5,14 @@
 pub mod complex;
 pub mod real;
 
-use na::Point1;
+use na::{vector, Point1};
 
 use crate::geometry::point::IPoint;
+use crate::geometry::storage::PointValue;
+use crate::numerics::optimization::simple_x::Simple;
 use crate::numerics::polynomial::Polynomial;
 use crate::numerics::special::orthogonal_polynomials;
+use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Nl, Qn};
@@ -65,6 +68,12 @@ impl Function<1> for Radial {
     }
 }
 
+impl Distribution<1> for Radial {
+    fn probability_density_of(&self, value: Self::Output) -> f32 {
+        value * value
+    }
+}
+
 /// The radial probability distribution, `r^2R^2`.
 pub struct RadialProbabilityDistribution(Radial);
 
@@ -99,12 +108,12 @@ fn basic_name(qn: Qn) -> SupSubString {
 /// The minimum total probability enclosed within the bounding sphere of an atomic orbital.
 pub const PROBABILITY_WITHIN_BOUND: f32 = 0.998;
 
-fn bound(qn: Qn) -> f32 {
+fn bound(nl: impl Into<Nl>) -> f32 {
     const STEP: f32 = 0.05;
 
     let mut r = 0_f32;
     let mut probability = 0_f32;
-    let psi_sq = RadialProbabilityDistribution::new(qn.into());
+    let psi_sq = RadialProbabilityDistribution::new(nl.into());
 
     while probability < PROBABILITY_WITHIN_BOUND {
         crate::numerics::integrators::integrate_simpson_step(
@@ -115,6 +124,35 @@ fn bound(qn: Qn) -> f32 {
         );
     }
     r
+}
+
+fn max_radial_probability_density(radial: &Radial) -> f32 {
+    const ITERS: usize = 400;
+    const EXPLORATION_PREFERENCE: f32 = 0.3;
+
+    let bound = bound(radial.nl);
+    let PointValue(_, max) = Simple::new(
+        vec![vector![0.0], vector![bound]],
+        |r| radial.evaluate(r).abs(),
+        EXPLORATION_PREFERENCE,
+    )
+    .maximize(ITERS);
+    radial.probability_density_of(max)
+}
+
+fn max_complex_sph_harm_prob_density(l: u32, m_abs: u32) -> f32 {
+    const ITERS: usize = 400;
+    const EXPLORATION_PREFERENCE: f32 = 0.15;
+
+    // Note that the phi component always has norm 1 and does not contribute.
+    let PointValue(_, max) = Simple::new(
+        // phi in [0, pi] -> cos(phi) in [-1, 1].
+        vec![vector![-1.0], vector![1.0]],
+        |cos_theta: &Point1<f32>| renormalized_associated_legendre((l, m_abs), cos_theta.coords.x),
+        EXPLORATION_PREFERENCE,
+    )
+    .maximize(ITERS);
+    max.powi(2)
 }
 
 fn accept_threshold_modifier(qn: Qn) -> f32 {

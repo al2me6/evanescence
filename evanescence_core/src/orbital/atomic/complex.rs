@@ -67,7 +67,10 @@ impl Orbital<SphericalPoint3> for Complex {
 }
 
 impl AcceptRejectParameters<3, SphericalPoint3> for Complex {
-    // TODO: custom maximum impl.
+    fn maximum(&self) -> f32 {
+        super::max_radial_probability_density(&self.radial)
+            * super::max_complex_sph_harm_prob_density(self.qn.l(), self.qn.m().unsigned_abs())
+    }
 
     fn accept_threshold_fudge(&self) -> Option<f32> {
         Some(super::accept_threshold_modifier(self.qn))
