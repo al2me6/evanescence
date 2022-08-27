@@ -129,7 +129,11 @@ impl Component for SupplementalVisualization {
 
         new_state.is_new_orbital(old_state)
             || new_state.supplement() != old_state.supplement()
-            || (new_state.quality() != old_state.quality()) && !old_state.supplement().is_radial()
+            || (new_state.quality() != old_state.quality())
+                && !matches!(
+                    old_state.supplement(),
+                    Visualization::RadialWavefunction | Visualization::CumulativeRadialDistribution
+                )
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {

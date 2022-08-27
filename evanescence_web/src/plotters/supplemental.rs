@@ -12,9 +12,11 @@ use na::vector;
 use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
+use crate::plotly::histogram::{Bins, Histogram};
 use crate::plotly::layout::{Axis, Font, Legend, Scene, Title, Anchor};
 use crate::plotly::surface::{Contour, Contours, Project};
 use crate::plotly::{isosurface, Isosurface, Layout, Marker, Outline, Scatter, Surface};
+use crate::state::cache::MONTE_CARLO_CACHE;
 use crate::state::{Mode, State, Visualization};
 use crate::utils::{self, b16_colors};
 
@@ -53,8 +55,10 @@ impl RadialPlot {
     }
 }
 
+#[allow(clippy::too_many_lines)]
 pub fn radial(state: &State) -> TraceLayout {
     const NUM_POINTS: usize = 600;
+    const HIST_BINS: usize = 75;
 
     assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
 
@@ -75,9 +79,11 @@ pub fn radial(state: &State) -> TraceLayout {
         utils::capitalize_words(state.supplement().to_string())
     );
 
-    let ([x], y) = variant.sample(state.qn().into(), state.bound(), NUM_POINTS);
+    let bound = state.bound();
+    let ([x], y) = variant.sample(state.qn().into(), bound, NUM_POINTS);
 
-    let trace = Scatter {
+    let curve = Scatter {
+        name: Some("Theoretical"),
         x,
         y,
         line: Outline {
@@ -92,6 +98,51 @@ pub fn radial(state: &State) -> TraceLayout {
         },
         fill: (variant == RadialPlot::ProbabilityDistribution).then_some("tozeroy"),
         ..default()
+    };
+
+    let traces = if variant == RadialPlot::ProbabilityDistribution {
+        let mut cache = MONTE_CARLO_CACHE.lock().unwrap();
+        let [xs, ys, zs] = if state.mode().is_complex() {
+            cache
+                .request_complex32(state.into(), state.quality().point_cloud())
+                .unwrap()
+                .coords()
+        } else {
+            cache
+                .request_f32(state.into(), state.quality().point_cloud())
+                .unwrap()
+                .coords()
+        };
+        let rs = itertools::izip!(xs, ys, zs)
+            .map(|(&x, &y, &z)| vector![x, y, z].norm())
+            .collect();
+
+        let bin_size = bound / (HIST_BINS as f32);
+
+        let histogram = Histogram {
+            name: Some("Sampled"),
+            x: rs,
+            hist_norm: Some("probability density"),
+            x_bins: Some(Bins {
+                start: 0.0,
+                size: Some(bin_size),
+                end: bound * 0.99,
+            }),
+            marker: Marker {
+                color_explicit: Some("rgba(253,141,60,0.75)"),
+                line: Some(Outline {
+                    width: Some(1.0),
+                    color: Some(color_scales::ORANGES[4].1),
+                }),
+                ..default()
+            },
+            opacity: Some(0.75),
+            ..default()
+        };
+
+        vec![curve.into(), histogram.into()]
+    } else {
+        vec![curve.into()]
     };
 
     let layout = Layout {
@@ -116,10 +167,16 @@ pub fn radial(state: &State) -> TraceLayout {
             ticks: "outside",
             ..default()
         }),
+        legend: Some(Legend {
+            x: Some(1.0),
+            x_anchor: Some(Anchor::Right),
+            y: Some(0.925),
+            y_anchor: Some(Anchor::Center),
+        }),
         ..default()
     };
 
-    (vec![trace.into()], layout.into())
+    (traces, layout.into())
 }
 
 fn cross_section_layout(plane: CoordinatePlane3, z_axis_title: &str) -> Layout<'_> {
