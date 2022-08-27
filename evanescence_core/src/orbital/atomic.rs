@@ -11,8 +11,9 @@ use crate::geometry::point::IPoint;
 use crate::geometry::storage::PointValue;
 use crate::numerics::optimization::simple_x::Simple;
 use crate::numerics::polynomial::Polynomial;
-use crate::numerics::special::orthogonal_polynomials;
-use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
+use crate::numerics::special::orthogonal_polynomials::{
+    associated_laguerre, renormalized_associated_legendre,
+};
 use crate::numerics::statistics::Distribution;
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Nl, Qn};
@@ -40,7 +41,7 @@ impl Radial {
         Self {
             nl,
             normalization: Self::normalization_factor(n, l),
-            associated_laguerre: orthogonal_polynomials::associated_laguerre(n - l - 1, 2 * l + 1),
+            associated_laguerre: associated_laguerre(n - l - 1, 2 * l + 1),
         }
     }
 
