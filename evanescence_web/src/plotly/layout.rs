@@ -108,6 +108,7 @@ def_plotly_ty! {
 
     #optional drag_mode_str as "dragmode": &'a str,
     #optional drag_mode_bool as "dragmode": bool,
+    #optional hover_mode_bool as "hovermode": bool = Some(false),
     #optional legend: Legend,
     margin: Margin,
     /// For 3D plots only.
