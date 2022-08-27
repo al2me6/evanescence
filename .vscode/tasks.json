@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "trunk: build",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "cd ${workspaceFolder}/evanescence_web; trunk build",
+            "problemMatcher": "$rustc",
+            "presentation": {
+                "reveal": "silent",
+            }
+        },
+        {
+            "label": "trunk: build release",
+            "type": "shell",
+            "group": "build",
+            "command": "cd ${workspaceFolder}/evanescence_web; trunk build --release",
+            "problemMatcher": "$rustc",
+            "presentation": {
+                "reveal": "silent",
+            }
+        }
+    ]
+}
