@@ -13,11 +13,6 @@ use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
 
-enum TraceRenderer {
-    Single(fn(&State) -> JsValue),
-    Multiple(fn(&State) -> Vec<JsValue>),
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 enum Trace {
     Pointillist,
@@ -46,31 +41,22 @@ impl Trace {
             Self::CrossSectionIndicator => state.supplement().is_cross_section(),
             Self::Silhouettes => state.mode().is_hybrid() && state.silhouettes(),
             Self::Nodes => state.mode().is_hybrid() && state.nodes(),
-            // Self::NucleusMarkers => state.mode().is_mo(),
         }
     }
 
-    fn renderer(self, state: &State) -> TraceRenderer {
-        use TraceRenderer::{Multiple, Single};
-        match self {
-            Self::Pointillist => Single(match state.mode() {
+    fn render(self, state: &State) -> Vec<JsValue> {
+        let renderer = match self {
+            Self::Pointillist => match state.mode() {
                 Mode::RealSimple | Mode::RealFull | Mode::Hybrid => plot::real,
                 Mode::Complex => plot::complex,
-            }),
-            Self::NodesRadial => Multiple(plot::nodes_radial),
-            Self::NodesAngular => Multiple(plot::nodes_angular),
-            Self::CrossSectionIndicator => Single(plot::cross_section_indicator),
-            Self::Silhouettes => Multiple(plot::silhouettes),
-            Self::Nodes => Single(plot::nodes_combined),
-            // Self::NucleusMarkers => Single(plot::nucleus_markers),
-        }
-    }
-
-    fn render_to_vec(self, state: &State) -> Vec<JsValue> {
-        match self.renderer(state) {
-            TraceRenderer::Single(renderer) => vec![renderer(state)],
-            TraceRenderer::Multiple(renderer) => renderer(state),
-        }
+            },
+            Self::NodesRadial => plot::nodes_radial,
+            Self::NodesAngular => plot::nodes_angular,
+            Self::CrossSectionIndicator => plot::cross_section_indicator,
+            Self::Silhouettes => plot::silhouettes,
+            Self::Nodes => plot::nodes_combined,
+        };
+        renderer(state)
     }
 }
 
@@ -139,7 +125,7 @@ impl PointillistVisualization {
             .filter(|kind| kind.should_render(state))
             .for_each(|kind| {
                 log::debug!("Rerendering {kind:?}.");
-                let traces = kind.render_to_vec(state);
+                let traces = kind.render(state);
                 rendered_kinds.extend(itertools::repeat_n(kind, traces.len()));
                 traces_to_render.extend(traces.into_iter());
             });
@@ -177,7 +163,7 @@ impl PointillistVisualization {
         // render them.
         if kind.should_render(state) {
             log::debug!("Adding {kind:?}.");
-            let traces = kind.render_to_vec(state);
+            let traces = kind.render(state);
             self.rendered_kinds
                 .extend(itertools::repeat_n(kind, traces.len()));
             Plotly::add_traces(Self::ID, traces.into_boxed_slice());

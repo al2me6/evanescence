@@ -19,6 +19,8 @@ use crate::plotly::{isosurface, Isosurface, Layout, Scatter, Surface};
 use crate::state::{Mode, State, Visualization};
 use crate::utils::{self, b16_colors};
 
+type TraceLayout = (Vec<JsValue>, JsValue);
+
 const ZERO_THRESHOLD: f32 = 1E-7;
 
 #[allow(clippy::ptr_arg)] // This is a function intended to be used with a specific type.
@@ -52,7 +54,7 @@ impl RadialPlot {
     }
 }
 
-pub fn radial(state: &State) -> (JsValue, JsValue) {
+pub fn radial(state: &State) -> TraceLayout {
     const NUM_POINTS: usize = 600;
 
     assert!(state.mode().is_real_or_simple() || state.mode().is_complex());
@@ -118,7 +120,7 @@ pub fn radial(state: &State) -> (JsValue, JsValue) {
         ..default()
     };
 
-    (trace.into(), layout.into())
+    (vec![trace.into()], layout.into())
 }
 
 fn cross_section_layout(plane: CoordinatePlane3, z_axis_title: &str) -> Layout<'_> {
@@ -176,7 +178,7 @@ fn cross_section_z_contour(max_abs: f32) -> Contour<'static> {
     }
 }
 
-pub fn cross_section(state: &State) -> (JsValue, JsValue) {
+pub fn cross_section(state: &State) -> TraceLayout {
     let is_complex = state.mode().is_complex();
     let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
 
@@ -251,10 +253,10 @@ pub fn cross_section(state: &State) -> (JsValue, JsValue) {
     };
     let layout = cross_section_layout(plane, &z_axis_title);
 
-    (trace.into(), layout.into())
+    (vec![trace.into()], layout.into())
 }
 
-pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
+pub fn cross_section_prob_density(state: &State) -> TraceLayout {
     let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
     let (x, y, mut z) = state
         .sample_plane_prob_density(plane)
@@ -293,10 +295,10 @@ pub fn cross_section_prob_density(state: &State) -> (JsValue, JsValue) {
     let z_axis_title = format!("Prob. Density [ |ψ{}|² ]", plane.ordered_triple_form());
     let layout = cross_section_layout(plane, &z_axis_title);
 
-    (trace.into(), layout.into())
+    (vec![trace.into()], layout.into())
 }
 
-pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
+pub fn isosurface_3d(state: &State) -> TraceLayout {
     let trace = match state.mode() {
         Mode::RealSimple | Mode::RealFull => {
             let ([x, y, z], value) = AtomicReal::new(*state.qn())
@@ -340,5 +342,5 @@ pub fn isosurface_3d(state: &State) -> (JsValue, JsValue) {
         ..default()
     };
 
-    (trace.into(), layout.into())
+    (vec![trace.into()], layout.into())
 }

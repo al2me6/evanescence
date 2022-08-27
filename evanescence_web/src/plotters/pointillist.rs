@@ -17,7 +17,7 @@ use crate::state::cache::MONTE_CARLO_CACHE;
 use crate::state::{Mode, State};
 use crate::utils;
 
-pub fn real(state: &State) -> JsValue {
+pub fn real(state: &State) -> Vec<JsValue> {
     assert!([Mode::RealSimple, Mode::RealFull, Mode::Hybrid].contains(&state.mode()));
 
     let ([x, y, z], values) = state.monte_carlo_simulate_real().into_components();
@@ -33,7 +33,7 @@ pub fn real(state: &State) -> JsValue {
     let max_abs = *utils::partial_max(&values_abs).unwrap();
     normalize_collection(0.0..=max_abs, min_point_size..=4.0, &mut values_abs);
 
-    Scatter3D {
+    let trace = Scatter3D {
         x,
         y,
         z,
@@ -50,11 +50,11 @@ pub fn real(state: &State) -> JsValue {
         },
         show_legend: false,
         ..default()
-    }
-    .into()
+    };
+    vec![trace.into()]
 }
 
-pub fn complex(state: &State) -> JsValue {
+pub fn complex(state: &State) -> Vec<JsValue> {
     assert!(state.mode().is_complex());
 
     let ([x, y, z], values) = MONTE_CARLO_CACHE
@@ -72,7 +72,7 @@ pub fn complex(state: &State) -> JsValue {
     let max_modulus = *utils::partial_max(&moduli).unwrap();
     normalize_collection(0.0..=max_modulus, min_point_size..=4.0, &mut moduli);
 
-    Scatter3D {
+    let trace = Scatter3D {
         x,
         y,
         z,
@@ -99,8 +99,8 @@ pub fn complex(state: &State) -> JsValue {
         },
         show_legend: false,
         ..default()
-    }
-    .into()
+    };
+    vec![trace.into()]
 }
 
 fn parametric_sphere(r: f32, samples: usize) -> [Vec<Vec<f32>>; 3] {
@@ -231,10 +231,10 @@ pub fn nodes_angular(state: &State) -> Vec<JsValue> {
     .collect()
 }
 
-pub fn cross_section_indicator(state: &State) -> JsValue {
+pub fn cross_section_indicator(state: &State) -> Vec<JsValue> {
     let plane: CoordinatePlane3 = state.supplement().try_into().unwrap();
     let (x, y, z) = plane.square_wrt_xy_plane(state.bound()).into_components();
-    Surface {
+    let trace = Surface {
         x: Some(x),
         y: Some(y),
         z,
@@ -244,8 +244,8 @@ pub fn cross_section_indicator(state: &State) -> JsValue {
         surface_color: Some(vec![vec![0.0, 0.0]; 2]),
         contours: Some(default()),
         ..default()
-    }
-    .into()
+    };
+    vec![trace.into()]
 }
 
 pub fn silhouettes(state: &State) -> Vec<JsValue> {
@@ -274,14 +274,14 @@ pub fn silhouettes(state: &State) -> Vec<JsValue> {
         .collect()
 }
 
-pub fn nodes_combined(state: &State) -> JsValue {
+pub fn nodes_combined(state: &State) -> Vec<JsValue> {
     assert!(state.mode().is_hybrid());
 
     let ([x, y, z], value) = Hybrid::new(state.hybrid_kind().archetype().clone())
         .bounded_sample_in_cube(state.quality().grid_3d())
         .into_components();
 
-    Isosurface {
+    let trace = Isosurface {
         x,
         y,
         z,
@@ -289,6 +289,6 @@ pub fn nodes_combined(state: &State) -> JsValue {
         color_scale: color_scales::PURP,
         opacity: 0.125,
         ..default()
-    }
-    .into()
+    };
+    vec![trace.into()]
 }

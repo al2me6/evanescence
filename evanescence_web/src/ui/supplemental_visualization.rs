@@ -28,7 +28,7 @@ impl SupplementalVisualization {
     const ID_WRAPPER: &'static str = "supplemental-panel";
 
     fn rerender(&mut self, state: &State) {
-        let renderer: fn(&State) -> (JsValue, JsValue) = match state.supplement() {
+        let renderer: fn(&State) -> (Vec<JsValue>, JsValue) = match state.supplement() {
             Visualization::None => return, // No need to render.
             Visualization::RadialWavefunction
             | Visualization::RadialProbabilityDistribution
@@ -51,10 +51,10 @@ impl SupplementalVisualization {
             state.supplement(),
         );
 
-        let (trace, layout) = renderer(state);
+        let (traces, layout) = renderer(state);
         Plotly::react(
             Self::ID_PLOT,
-            vec![trace].into_boxed_slice(),
+            traces.into_boxed_slice(),
             layout,
             Config {
                 mode_bar_buttons_to_remove: &[
