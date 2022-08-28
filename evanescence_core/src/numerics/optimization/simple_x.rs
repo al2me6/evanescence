@@ -1,12 +1,11 @@
-use std::cmp::{self, Reverse};
 use std::collections::BinaryHeap;
 use std::marker::PhantomData;
-use std::mem;
 use std::rc::Rc;
+use std::{cmp, mem};
 
 use itertools::Itertools;
 use na::allocator::Allocator as MatAllocator;
-use na::{vector, Const, DimAdd, DimName, DimSum, OMatrix, RowOVector, SVector, U1};
+use na::{vector, Const, DimAdd, DimName, DimSum, OMatrix, OVector, SVector, U1};
 
 use crate::geometry::point::IPoint;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
@@ -14,32 +13,45 @@ use crate::geometry::storage::PointValue;
 use crate::numerics::Function;
 
 type Vector<const N: usize> = SVector<f32, N>;
-type RcVector<const N: usize> = Rc<Vector<N>>;
-type RcVectors<const N: usize> = Vec<Rc<Vector<N>>>;
 type Np1<const N: usize> = DimSum<Const<N>, U1>;
-type RowVectorNp1<const N: usize> = RowOVector<f32, Np1<N>>;
+type VectorNp1<const N: usize> = OVector<f32, Np1<N>>;
 type MatrixNxNp1<const N: usize> = OMatrix<f32, Const<N>, Np1<N>>;
 
+/// An `N`-dimensional simplex, containing information about the objective function inside its
+/// volume.
 #[derive(Clone, Debug)]
 struct Simplex<const N: usize>
 where
     Const<N>: DimAdd<U1>,
-    na::DefaultAllocator: MatAllocator<f32, U1, Np1<N>>,
+    na::DefaultAllocator: MatAllocator<f32, Np1<N>, U1>,
 {
     /// The vertices of this `N`-simplex.
-    vertices: RcVectors<N>,
+    vertices: Vec<Rc<Vector<N>>>,
     /// The value of the objective at each vertex.
-    values: RowVectorNp1<N>,
+    values: VectorNp1<N>,
     /// The fraction of the entire search space contained in `self`.
-    content_fraction_wrt_root: f32,
+    content_fraction_of_root: f32,
     /// Position of the vertex used to subdivide this simplex into `N` sub-simplices.
-    subdivision_point: RcVector<N>,
+    subdivision_point: Rc<Vector<N>>,
     /// The fraction of `self`'s content that each subdivided sub-simplex would contain.
     /// Sums to unity.
-    content_fractions_of_subdivisions: RowVectorNp1<N>,
-    objective_score: f32,
+    content_fractions_of_subdivisions: VectorNp1<N>,
+    /// The value of the objective at the subdivision point, as estimated by inverse distance
+    /// interpolation.
+    interpolated_value: f32,
+    /// A measure of the degree to which the content of `self` has already been explored.
+    ///
+    /// `delta * log(content_fraction_of_root, base = NUM_VERTICES)`.
+    ///
+    /// For practical reasons, this actually stores the fixed (_i.e._, non-`delta`) parts of the
+    /// `acquisition_value` computation: `exploration_preference * log(..)`. This allows updating
+    /// `acquisition_value` with fewer operations.
     opportunity_cost: f32,
-    difference: f32,
+    /// The delta value (_i.e._, `max - min`) used to compute the current acquisition value.
+    last_known_delta: f32,
+    /// Number quantifying the 'quality' of this simplex.
+    ///
+    /// `interpolated_value + exploration_preference * opportunity_cost`.
     acquisition_value: f32,
 }
 
@@ -47,73 +59,77 @@ impl<const N: usize> Simplex<N>
 where
     Const<N>: DimAdd<U1>,
     Np1<N>: DimName,
-    na::DefaultAllocator: MatAllocator<f32, U1, Np1<N>>
-        + MatAllocator<f32, Np1<N>, U1>
+    na::DefaultAllocator: MatAllocator<f32, Np1<N>, U1>
         + MatAllocator<f32, Const<N>, Np1<N>>
         + MatAllocator<f32, Np1<N>, Const<N>>,
 {
     const NUM_VERTICES: usize = N + 1;
 
+    /// Construct a new simplex with the given vertices and values. Compute the location of the
+    /// subdivision point and the interpolated objective value at that point.
     fn new(
-        vertices: RcVectors<N>,
-        values: RowVectorNp1<N>,
-        content_fraction_wrt_root: f32,
-        difference: f32,
+        vertices: Vec<Rc<Vector<N>>>,
+        values: VectorNp1<N>,
+        content_fraction_of_root: f32,
         exploration_preference: f32,
+        delta: f32,
     ) -> Self {
-        assert!((0.0..=1.0).contains(&content_fraction_wrt_root));
+        assert!((0.0..=1.0).contains(&content_fraction_of_root));
 
         let vertices_mat =
             MatrixNxNp1::<N>::from_iterator(vertices.iter().flat_map(|v| v.iter()).copied());
 
         let barycenter: Vector<N> = vertices_mat.column_sum() / (vertices_mat.ncols() as f32);
-        let dists_from_barycenter = RowVectorNp1::<N>::from_iterator(
+        let dists_from_barycenter = VectorNp1::<N>::from_iterator(
             vertices_mat
                 .column_iter()
                 .map(|vert| vert.metric_distance(&barycenter)),
         );
-        let subdivision_pt_barycentric: RowVectorNp1<N> =
+
+        let subdivision_pt_barycentric: VectorNp1<N> =
             (&dists_from_barycenter) / dists_from_barycenter.sum();
         approx::assert_abs_diff_eq!(subdivision_pt_barycentric.sum(), 1.0, epsilon = 1E-3);
-        let subdivision_pt_cartesian: Vector<N> =
-            (&vertices_mat) * subdivision_pt_barycentric.transpose();
 
-        let inverse_dists_from_subdivision_pt = RowVectorNp1::<N>::from_iterator(
+        let subdivision_pt_cartesian: Vector<N> = (&vertices_mat) * (&subdivision_pt_barycentric);
+
+        let inverse_dists_from_subdivision_pt = VectorNp1::<N>::from_iterator(
             vertices_mat
                 .column_iter()
                 .map(|vert| vert.metric_distance(&subdivision_pt_cartesian).recip()),
         );
+
         let interpolated_value = inverse_dists_from_subdivision_pt.dot(&values)
             / inverse_dists_from_subdivision_pt.sum();
 
         let opportunity_cost =
-            exploration_preference * content_fraction_wrt_root.log(Simplex::<N>::NUM_VERTICES as _);
+            exploration_preference * content_fraction_of_root.log(Simplex::<N>::NUM_VERTICES as _);
 
         let mut this = Self {
             vertices,
             values,
-            content_fraction_wrt_root,
+            content_fraction_of_root,
             subdivision_point: Rc::new(subdivision_pt_cartesian),
             content_fractions_of_subdivisions: subdivision_pt_barycentric,
-            objective_score: interpolated_value,
+            interpolated_value,
             opportunity_cost,
-            difference: 0.,
+            last_known_delta: 0.,
             acquisition_value: 0.,
         };
-        this.update(difference);
+        this.update_acquisition_value(delta);
         this
     }
 
-    fn update(&mut self, difference: f32) {
-        self.acquisition_value = -(self.objective_score + self.opportunity_cost * difference);
-        self.difference = difference;
+    /// Recompute the acquisition value based on a new delta.
+    fn update_acquisition_value(&mut self, delta: f32) {
+        self.acquisition_value = self.interpolated_value + self.opportunity_cost * delta;
+        self.last_known_delta = delta;
     }
 }
 
 impl<const N: usize> PartialEq for Simplex<N>
 where
     Const<N>: DimAdd<U1>,
-    na::DefaultAllocator: MatAllocator<f32, U1, Np1<N>>,
+    na::DefaultAllocator: MatAllocator<f32, Np1<N>, U1>,
 {
     fn eq(&self, other: &Self) -> bool {
         self.acquisition_value == other.acquisition_value
@@ -123,14 +139,14 @@ where
 impl<const N: usize> Eq for Simplex<N>
 where
     Const<N>: DimAdd<U1>,
-    na::DefaultAllocator: MatAllocator<f32, U1, Np1<N>>,
+    na::DefaultAllocator: MatAllocator<f32, Np1<N>, U1>,
 {
 }
 
 impl<const N: usize> PartialOrd for Simplex<N>
 where
     Const<N>: DimAdd<U1>,
-    na::DefaultAllocator: MatAllocator<f32, U1, Np1<N>>,
+    na::DefaultAllocator: MatAllocator<f32, Np1<N>, U1>,
 {
     fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
         Some(self.cmp(other))
@@ -140,7 +156,7 @@ where
 impl<const N: usize> Ord for Simplex<N>
 where
     Const<N>: DimAdd<U1>,
-    na::DefaultAllocator: MatAllocator<f32, U1, Np1<N>>,
+    na::DefaultAllocator: MatAllocator<f32, Np1<N>, U1>,
 {
     fn cmp(&self, other: &Self) -> cmp::Ordering {
         self.acquisition_value.total_cmp(&other.acquisition_value)
@@ -154,13 +170,13 @@ where
     P: IPoint<N>,
     Obj: FnMut(&P) -> f32,
     Const<N>: DimAdd<U1>,
-    na::DefaultAllocator: MatAllocator<f32, U1, Np1<N>>,
+    na::DefaultAllocator: MatAllocator<f32, Np1<N>, U1>,
 {
-    queue: BinaryHeap<Reverse<Simplex<N>>>,
+    queue: BinaryHeap<Simplex<N>>,
     objective: Obj,
     max_value: f32,
     min_value: f32,
-    best_point: RcVector<N>,
+    best_point: Rc<Vector<N>>,
     exploration_preference: f32,
     phantom: PhantomData<P>,
 }
@@ -171,13 +187,17 @@ where
     Obj: FnMut(&P) -> f32,
     Const<N>: DimAdd<U1>,
     Np1<N>: DimName,
-    na::DefaultAllocator: MatAllocator<f32, U1, Np1<N>>
-        + MatAllocator<f32, Np1<N>, U1>
+    na::DefaultAllocator: MatAllocator<f32, Np1<N>, U1>
         + MatAllocator<f32, Const<N>, Np1<N>>
         + MatAllocator<f32, Np1<N>, Const<N>>,
 {
-    pub fn new(vertices: Vec<Vector<N>>, objective: Obj, exploration_preference: f32) -> Self {
-        let vertices = vertices.into_iter().map(Rc::new).collect_vec();
+    /// Construct a new Simple(x) optimizer for the given `objective` function.
+    ///
+    /// `search_space` contains the vertices of an `N`-simplex, and `exploration_preference` is
+    /// a parameter controlling the algorithm's preference to explore other extrema (as opposed
+    /// to pursuing the first one found).
+    pub fn new(search_space: Vec<Vector<N>>, objective: Obj, exploration_preference: f32) -> Self {
+        let vertices = search_space.into_iter().map(Rc::new).collect_vec();
 
         let mut this = Self {
             queue: BinaryHeap::new(),
@@ -188,44 +208,60 @@ where
             exploration_preference,
             phantom: PhantomData,
         };
-        let values = RowVectorNp1::<N>::from_iterator(
-            vertices.iter().map(|v| this.evaluate_point(v.clone())),
-        );
-        this.push_simplex(vertices, values, 1.);
+        let values =
+            VectorNp1::<N>::from_iterator(vertices.iter().map(|v| this.evaluate_point(v.clone())));
+        this.enqueue_simplex(vertices, values, 1.);
         this
     }
 
-    fn current_difference(&self) -> f32 {
+    /// Give the currently known range of the objective within the search space.
+    ///
+    /// `max_value - min_value`.
+    fn current_delta(&self) -> f32 {
         self.max_value - self.min_value
     }
 
-    fn push_simplex(
+    fn enqueue_simplex(
         &mut self,
-        vertices: RcVectors<N>,
-        values: RowVectorNp1<N>,
-        content_fraction_wrt_root: f32,
+        vertices: Vec<Rc<Vector<N>>>,
+        values: VectorNp1<N>,
+        content_fraction_of_root: f32,
     ) {
-        self.queue.push(Reverse(Simplex::new(
+        self.queue.push(Simplex::new(
             vertices,
             values,
-            content_fraction_wrt_root,
-            self.current_difference(),
+            content_fraction_of_root,
             self.exploration_preference,
-        )));
+            self.current_delta(),
+        ));
     }
 
-    fn select_next_simplex(&mut self) -> Simplex<N> {
-        let mut candidate = self.queue.pop().unwrap().0;
-        while self.current_difference() > candidate.difference {
-            candidate.update(self.current_difference());
-            if candidate.acquisition_value > self.queue.peek().unwrap().0.acquisition_value {
-                mem::swap(&mut candidate, &mut self.queue.peek_mut().unwrap().0);
+    /// Select the simplex that gives the most information for subdivision.
+    fn get_next_simplex(&mut self) -> Simplex<N> {
+        let mut candidate = self.queue.pop().expect("queue is never empty");
+        loop {
+            // Note that the acquisition value was computed based on the delta known at the time of
+            // creation of the simplex. Thus, it may need to be updated.
+            debug_assert!(
+                self.current_delta() >= candidate.last_known_delta,
+                "delta is monotonically increasing"
+            );
+            if self.current_delta() > candidate.last_known_delta {
+                candidate.update_acquisition_value(self.current_delta());
+                // Check to see if it has become (comparatively) worse due to the delta change.
+                let mut next_best = self.queue.peek_mut().unwrap();
+                if candidate.acquisition_value < next_best.acquisition_value {
+                    // If so, put it back in the queue and try the next one.
+                    mem::swap(&mut candidate, &mut next_best);
+                    continue;
+                }
             }
+            return candidate;
         }
-        candidate
     }
 
-    fn evaluate_point(&mut self, point: RcVector<N>) -> f32 {
+    /// Evaluate the objective at the given point and update the known max/min values.
+    fn evaluate_point(&mut self, point: Rc<Vector<N>>) -> f32 {
         let value = (self.objective)(&(*point).into());
         if value > self.max_value {
             self.max_value = value;
@@ -236,7 +272,11 @@ where
         value
     }
 
-    fn construct_and_push_subdivisions(
+    /// Build all subdivisions of the `parent` simplex and enqueue them.
+    ///
+    /// (_i.e._, every simplex obtained by replacing one of the parent's vertices with the
+    /// subdivision point.)
+    fn construct_and_enqueue_subdivisions(
         &mut self,
         parent: &Simplex<N>,
         value_at_subdivision_point: f32,
@@ -246,19 +286,19 @@ where
             let mut values = parent.values.clone();
             vertices[i] = parent.subdivision_point.clone();
             values[i] = value_at_subdivision_point;
-            self.push_simplex(
+            self.enqueue_simplex(
                 vertices,
                 values,
-                parent.content_fraction_wrt_root * parent.content_fractions_of_subdivisions[i],
+                parent.content_fraction_of_root * parent.content_fractions_of_subdivisions[i],
             );
         }
     }
 
-    pub fn maximize(&mut self, steps: usize) -> PointValue<N, P, f32> {
-        for _ in 0..steps {
-            let target = self.select_next_simplex();
+    pub fn maximize(&mut self, iterations: usize) -> PointValue<N, P, f32> {
+        for _ in 0..iterations {
+            let target = self.get_next_simplex();
             let value_at_subdiv_pt = self.evaluate_point(target.subdivision_point.clone());
-            self.construct_and_push_subdivisions(&target, value_at_subdiv_pt);
+            self.construct_and_enqueue_subdivisions(&target, value_at_subdiv_pt);
         }
         PointValue((*self.best_point).into(), self.max_value)
     }
