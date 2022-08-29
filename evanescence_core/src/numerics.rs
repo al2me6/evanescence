@@ -27,11 +27,11 @@ pub mod polynomial;
 
 pub mod function;
 pub mod monte_carlo;
+pub mod optimization;
 pub mod random;
 pub mod root_finding;
 pub mod special;
 pub mod statistics;
-pub mod optimization;
 
 /// Additional `f32` constants.
 pub mod consts {

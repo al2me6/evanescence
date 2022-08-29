@@ -334,7 +334,6 @@ select:focus {
   width: 100%;
   height: 0.5em;
   border-radius: 0.25em;
-  cursor: pointer;
   background: var(--base-00);
   cursor: default;
 }
@@ -359,7 +358,6 @@ select:focus {
   width: 100%;
   height: 0.5em;
   border-radius: 0.25em;
-  cursor: pointer;
   background: var(--base-00);
   cursor: default;
 }
@@ -532,6 +530,40 @@ body.window-open {
   overflow: hidden;
 }
 
+/* Stopwatches */
+
+.visualization {
+  position: relative;
+}
+
+.stopwatch-slot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  cursor: default;
+  --opacity: 50%;
+  opacity: var(--opacity);
+}
+
+.stopwatch-slot:hover {
+  opacity: var(--opacity) !important;
+}
+
+.stopwatch-slot.animate {
+  animation: 1s ease-in 1s forwards fade-out;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: var(--opacity);
+  }
+  to {
+    opacity: 0%;
+  }
+}
+
 /* UI STYLING */
 
 /* Pointillist display. */
@@ -626,7 +658,7 @@ main {
   margin-bottom: 0;
 }
 
-#id-slider>.slider-label {
+#id-slider > .slider-label {
   width: 3.25em;
 }
 

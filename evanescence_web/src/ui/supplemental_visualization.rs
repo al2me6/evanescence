@@ -8,6 +8,7 @@ use evanescence_web::plotly::config::ModeBarButtons;
 use evanescence_web::plotly::{Config, Plotly};
 use evanescence_web::plotters::{supplemental as plot, ISOSURFACE_CUTOFF};
 use evanescence_web::state::{State, StateDispatch, Visualization};
+use evanescence_web::utils::StopwatchSlot;
 use evanescence_web::{time_scope, utils};
 use gloo::utils::document;
 use wasm_bindgen::{JsCast, JsValue};
@@ -15,6 +16,8 @@ use web_sys::HtmlElement;
 use yew::prelude::*;
 
 use super::descriptions::DESC;
+
+pub static SUPPLEMENTAL_STOPWATCH: StopwatchSlot = StopwatchSlot("supplemental-stopwatch");
 
 pub struct SupplementalVisualization {
     current_state: Rc<State>,
@@ -45,6 +48,7 @@ impl SupplementalVisualization {
         log::debug!("Rerendering {:?}.", state.supplement());
 
         let _timer = time_scope!(
+            in: &SUPPLEMENTAL_STOPWATCH,
             "[{}][{}] Render {:?} supplement",
             state.debug_description(),
             state.quality(),
@@ -205,7 +209,9 @@ impl Component for SupplementalVisualization {
                         <p><RawSpan inner_html = { desc } /></p>
                         { isosurface_cutoff_text }
                     </div>
-                    <div class = "visualization" id = { Self::ID_PLOT } />
+                    <div class = "visualization" id = { Self::ID_PLOT }>
+                        <p class = "stopwatch-slot" id = { SUPPLEMENTAL_STOPWATCH.0 } />
+                    </div>
                 </div>
             </div>
         }

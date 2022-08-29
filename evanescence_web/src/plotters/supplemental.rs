@@ -13,7 +13,7 @@ use wasm_bindgen::JsValue;
 
 use crate::plotly::color::{self, color_scales, ColorBar};
 use crate::plotly::histogram::{Bins, Histogram};
-use crate::plotly::layout::{Axis, Font, Legend, Scene, Title, Anchor};
+use crate::plotly::layout::{Anchor, Axis, Font, Legend, Scene, Title};
 use crate::plotly::surface::{Contour, Contours, Project};
 use crate::plotly::{isosurface, Isosurface, Layout, Marker, Outline, Scatter, Surface};
 use crate::state::cache::MONTE_CARLO_CACHE;

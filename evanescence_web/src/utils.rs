@@ -1,11 +1,13 @@
 use std::fmt;
 
 use evanescence_core::utils::sup_sub_string::{SupSubFormat, SupSubSegment};
-use gloo::utils::window;
+use gloo::utils::{document, window};
 use instant::Instant;
 use itertools::Itertools;
 use log::{Level, Record};
 use num::complex::Complex32;
+use wasm_bindgen::JsCast;
+use web_sys::HtmlElement;
 
 pub fn capitalize_words<T: AsRef<str>>(source: T) -> String {
     let mut prev_is_word_separator = true;
@@ -111,21 +113,31 @@ pub fn fire_resize_event() {
         .unwrap();
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct StopwatchSlot(pub &'static str);
+
 #[must_use = "timer is useless if dropped immediately"]
 pub struct ScopeTimer {
     action_description: String,
     begin: Instant,
     file: &'static str,
     line: u32,
+    stopwatch_slot: Option<&'static StopwatchSlot>,
 }
 
 impl ScopeTimer {
-    pub fn new(action_description: String, file: &'static str, line: u32) -> Self {
+    pub fn new(
+        action_description: String,
+        file: &'static str,
+        line: u32,
+        stopwatch_slot: Option<&'static StopwatchSlot>,
+    ) -> Self {
         Self {
             action_description,
             begin: Instant::now(),
             file,
             line,
+            stopwatch_slot,
         }
     }
 }
@@ -133,6 +145,7 @@ impl ScopeTimer {
 impl Drop for ScopeTimer {
     fn drop(&mut self) {
         let time = self.begin.elapsed().as_millis();
+
         log::logger().log(
             &Record::builder()
                 .args(format_args!("{}: {time}ms", self.action_description))
@@ -141,12 +154,33 @@ impl Drop for ScopeTimer {
                 .line(Some(self.line))
                 .build(),
         );
+
+        if let Some(slot) = self.stopwatch_slot && time > 0 {
+            let target = document()
+                .get_element_by_id(slot.0)
+                .unwrap()
+                .dyn_into::<HtmlElement>()
+                .unwrap();
+
+            target.set_inner_html(&format!("({} ms)", time));
+            target.set_title(&self.action_description);
+
+            // Force label to appear before fading again.
+            if time > 400 {
+                target.class_list().remove_1("animate").unwrap();
+                let _ = target.offset_width(); // Force style recomputation.
+                target.class_list().add_1("animate").unwrap();
+            }
+        }
     }
 }
 
 #[macro_export]
 macro_rules! time_scope {
+    (in: $slot:expr, $($arg:tt)+) => {
+        $crate::utils::ScopeTimer::new(format!($($arg)+), file!(), line!(), Some($slot))
+    };
     ($($arg:tt)+) => {
-        $crate::utils::ScopeTimer::new(format!($($arg)+), file!(), line!())
+        $crate::utils::ScopeTimer::new(format!($($arg)+), file!(), line!(), None)
     };
 }

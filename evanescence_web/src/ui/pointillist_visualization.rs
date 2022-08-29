@@ -8,10 +8,12 @@ use evanescence_web::plotly::{Config, Layout, Plotly};
 use evanescence_web::plotters::pointillist as plot;
 use evanescence_web::state::{Mode, State, StateDispatch};
 use evanescence_web::time_scope;
-use evanescence_web::utils::b16_colors;
+use evanescence_web::utils::{b16_colors, StopwatchSlot};
 use strum::{EnumIter, IntoEnumIterator};
 use wasm_bindgen::JsValue;
 use yew::prelude::*;
+
+pub static POINTILLIST_STOPWATCH: StopwatchSlot = StopwatchSlot("pointillist-stopwatch");
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 enum Trace {
@@ -101,6 +103,7 @@ impl PointillistVisualization {
         let state = &self.current_state;
 
         let _timer = time_scope!(
+            in: &POINTILLIST_STOPWATCH,
             "[{}][{}] Full Pointillist render",
             state.debug_description(),
             state.quality(),
@@ -136,6 +139,7 @@ impl PointillistVisualization {
         let state = &self.current_state;
 
         let _timer = time_scope!(
+            in: &POINTILLIST_STOPWATCH,
             "[{}][{}] Render {:?} trace",
             state.debug_description(),
             state.quality(),
@@ -239,7 +243,9 @@ impl Component for PointillistVisualization {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <div class = "visualization" id = { Self::ID } />
+            <div class = "visualization" id = { Self::ID }>
+                <p class = "stopwatch-slot" id = { POINTILLIST_STOPWATCH.0 } />
+            </div>
         }
     }
 
