@@ -97,8 +97,7 @@ impl Component for SupplementalVisualization {
         let placeholder = document()
             .get_element_by_id(Self::ID_PLACEHOLDER)
             .unwrap()
-            .dyn_into::<HtmlElement>()
-            .unwrap();
+            .unchecked_into::<HtmlElement>();
         if is_open {
             // Sum the full heights (including padding, but NOT margins!) of all child elements.
             let children = content.children();

@@ -159,8 +159,7 @@ impl Drop for ScopeTimer {
             let target = document()
                 .get_element_by_id(slot.0)
                 .unwrap()
-                .dyn_into::<HtmlElement>()
-                .unwrap();
+                .unchecked_into::<HtmlElement>();
 
             target.set_inner_html(&format!("({} ms)", time));
             target.set_title(&self.action_description);
