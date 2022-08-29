@@ -90,8 +90,13 @@ impl<D: Distribution<1>> Pdf<1, Point1<f32>, D> {
         let step = (interval.end() - interval.start()) / (count as f32 - 1.);
         let mut cdf = 0.;
         linspace(interval, count)
-            .map(|mut x| {
-                integrate_simpson_step(|xx| self.evaluate(&[xx].into()), &mut x, &mut cdf, step);
+            .map(|x| {
+                integrate_simpson_step(
+                    |xx| self.evaluate(&[xx].into()),
+                    &mut x.clone(),
+                    &mut cdf,
+                    step,
+                );
                 (vector![x], cdf)
             })
             .collect()
