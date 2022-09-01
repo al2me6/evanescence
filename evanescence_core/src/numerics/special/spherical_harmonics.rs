@@ -26,14 +26,30 @@ impl Function<3, SphericalPoint3> for SphericalHarmonic {
 
     #[inline]
     fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
-        let (l, m) = (self.lm.l(), self.lm.m());
-        let y = renormalized_associated_legendre((l, m.unsigned_abs()), point.cos_theta())
-            * (Complex32::i() * m as f32 * point.phi()).exp();
-        // Condon-Shortley phase.
-        if m & 0x1 == 0 {
-            y
+        /// `(-1)^m * x`
+        #[inline]
+        fn times_n1_pow_m(x: Complex32, m: u32) -> Complex32 {
+            if m & 0x1 == 0 {
+                x
+            } else {
+                -x
+            }
+        }
+
+        let (l, m_abs) = (self.lm.l(), self.lm.m().unsigned_abs());
+
+        // `Y_l^|m|` with Condon-Shortley phase added.
+        let y_l_m_abs = times_n1_pow_m(
+            renormalized_associated_legendre((l, m_abs), point.cos_theta())
+                * (Complex32::i() * m_abs as f32 * point.phi()).exp(),
+            m_abs,
+        );
+
+        // `Y_l^{-m} = (-1)^m Y_l^|m|*`
+        if self.lm.m() >= 0 {
+            y_l_m_abs
         } else {
-            -y
+            times_n1_pow_m(y_l_m_abs.conj(), m_abs)
         }
     }
 }
@@ -142,133 +158,70 @@ impl RealSphericalHarmonic {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::LazyLock;
 
-    use na::vector;
+    use approx::assert_relative_eq;
+    use num::complex::Complex32;
+    use serde::Deserialize;
 
-    use super::RealSphericalHarmonic;
+    use super::{RealSphericalHarmonic, SphericalHarmonic};
     use crate::geometry::point::SphericalPoint3;
     use crate::numerics::Function;
     use crate::orbital::quantum_numbers::Lm;
 
-    static POINTS: LazyLock<Vec<SphericalPoint3>> = LazyLock::new(|| {
-        vec![
-            SphericalPoint3::from(vector![
-                0.4817551668747674,
-                -0.0804650251296536,
-                -5.6874218288168015
-            ]),
-            SphericalPoint3::from(vector![
-                2.0333187824258494,
-                -5.438747021019332,
-                -0.6049420414492214
-            ]),
-            SphericalPoint3::from(vector![
-                -5.536298275253506,
-                4.6076805316895,
-                -1.2262339330118561
-            ]),
-            SphericalPoint3::from(vector![
-                -4.149645839500807,
-                -1.2219161435660775,
-                6.136358860884453
-            ]),
-            SphericalPoint3::from(vector![
-                0.16027731917592172,
-                -1.03637296675495,
-                2.9708473002364815
-            ]),
-            SphericalPoint3::from(vector![
-                0.9588954657662077,
-                -5.518368529663465,
-                -4.652089232680136
-            ]),
-            SphericalPoint3::from(vector![
-                -5.511550802584331,
-                4.47433749034273,
-                2.7803369868007075
-            ]),
-            SphericalPoint3::from(vector![
-                -4.867929449744333,
-                0.5252811429346673,
-                -8.256693767935815
-            ]),
-            SphericalPoint3::from(vector![
-                -0.15569673568314418,
-                -7.415856784977347,
-                5.713181575221412
-            ]),
-            SphericalPoint3::from(vector![
-                4.391483176478295,
-                -6.632126843233279,
-                2.103909081619213
-            ]),
-        ]
-    });
-
-    macro_rules! test {
-        ($fn_name:ident, $target:ty, $target_params:expr, $expected:expr) => {
-            #[test]
-            fn $fn_name() {
-                let evaluator = <$target>::new($target_params);
-                let calculated: Vec<_> = POINTS.iter().map(|pt| evaluator.evaluate(pt)).collect();
-                assert_iterable_approx_eq!($expected, &calculated, max_relative = 5E-5);
-            }
-        };
+    #[derive(Deserialize)]
+    struct TestCase<T> {
+        l: u32,
+        m: i32,
+        samples: Vec<T>,
     }
 
-    test!(
-        real_sph_1_0,
-        RealSphericalHarmonic,
-        Lm::new(1, 0).unwrap(),
-        &[
-            -0.486811, -0.0506311, -0.0820011, 0.399348, 0.46074, -0.312183, 0.178182, -0.420266,
-            0.298149, 0.124939
-        ]
-    );
-    test!(
-        real_sph_1_1,
-        RealSphericalHarmonic,
-        Lm::new(1, 1).unwrap(),
-        &[
-            0.0412355, 0.17018, -0.370225, -0.270055, 0.0248569, 0.0643476, -0.353216, -0.247778,
-            -0.0081252, 0.260785
-        ]
-    );
-    test!(
-        real_sph_1_n1,
-        RealSphericalHarmonic,
-        Lm::new(1, -1).unwrap(),
-        &[
-            -0.0068873, -0.455201, 0.308126, -0.0795211, -0.160728, -0.370316, 0.286744, 0.0267368,
-            -0.387006, -0.393845
-        ]
-    );
-    test!(
-        real_sph_2_1,
-        RealSphericalHarmonic,
-        Lm::new(2, 1).unwrap(),
-        &[
-            -0.0918672, -0.0394327, 0.138936, -0.493553, 0.0524122, -0.0919329, -0.288027,
-            0.476559, -0.0110866, 0.149112
-        ]
-    );
-    test!(
-        real_sph_3_n2,
-        RealSphericalHarmonic,
-        Lm::new(3, -2).unwrap(),
-        &[
-            0.00342614, 0.0971969, 0.231812, 0.212525, -0.045616, 0.184347, -0.44722, 0.0689953,
-            0.0232332, -0.318002
-        ]
-    );
-    test!(
-        real_sph_5_n3,
-        RealSphericalHarmonic,
-        Lm::new(5, -3).unwrap(),
-        &[
-            -0.0011583, -0.207523, -0.305109, -0.355185, 0.113205, 0.517974, 0.0691625, 0.11642,
-            0.570845, 0.0332508
-        ]
-    );
+    #[test]
+    fn real_spherical_harmonics() {
+        #[derive(Deserialize)]
+        struct Sample {
+            theta: f32,
+            phi: f32,
+            val: f32,
+        }
+
+        let data: Vec<TestCase<Sample>> = crate::utils::load_test_cases("real_spherical_harmonics");
+        for TestCase { l, m, samples } in data {
+            let real_sph = RealSphericalHarmonic::new(Lm::new(l, m).unwrap());
+            for Sample {
+                theta,
+                phi,
+                val: expected,
+            } in samples
+            {
+                let computed = real_sph.evaluate(&SphericalPoint3::new_spherical(1.0, theta, phi));
+                assert_relative_eq!(expected, computed, max_relative = 5E-4);
+            }
+        }
+    }
+
+    #[test]
+    fn complex_spherical_harmonics() {
+        #[derive(Deserialize)]
+        struct Sample {
+            theta: f32,
+            phi: f32,
+            val: (f32, f32),
+        }
+
+        let data: Vec<TestCase<Sample>> =
+            crate::utils::load_test_cases("complex_spherical_harmonics");
+        for TestCase { l, m, samples } in data {
+            let sph = SphericalHarmonic::new(Lm::new(l, m).unwrap());
+            for Sample {
+                theta,
+                phi,
+                val: (expected_re, expected_im),
+            } in samples
+            {
+                let expected = Complex32::new(expected_re, expected_im);
+                let computed = sph.evaluate(&SphericalPoint3::new_spherical(1.0, theta, phi));
+                assert_relative_eq!(expected, computed, max_relative = 5E-3);
+            }
+        }
+    }
 }

@@ -192,8 +192,8 @@ mod tests {
     fn radial() {
         #[derive(Deserialize)]
         struct Sample {
-            pt: f64,
-            val: f64,
+            pt: f32,
+            val: f32,
         }
 
         #[derive(Deserialize)]
@@ -210,8 +210,7 @@ mod tests {
 
             #[allow(clippy::cast_possible_truncation)]
             for Sample { pt, val: expected } in samples {
-                let expected = expected as f32;
-                let computed = radial.evaluate(&Point1::new(pt as f32));
+                let computed = radial.evaluate(&Point1::new(pt));
                 let tolerance = if n < 9 { 1E-7 } else { 2E-2 };
 
                 assert!(

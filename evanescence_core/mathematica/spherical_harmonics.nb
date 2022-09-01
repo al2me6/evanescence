@@ -1,0 +1,311 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     13103,        303]
+NotebookOptionsPosition[     11861,        279]
+NotebookOutlinePosition[     12301,        296]
+CellTagsIndexPosition[     12258,        293]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"RealSphericalHarmonicY", "[", 
+   RowBox[{"l_", ",", "0", ",", "\[Theta]_", ",", "\[Phi]_"}], "]"}], ":=", 
+  RowBox[{
+   RowBox[{"SphericalHarmonicY", "[", 
+    RowBox[{"l", ",", "0", ",", "\[Theta]", ",", "\[Phi]"}], "]"}], "//", 
+   "Re"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"RealSphericalHarmonicY", "[", 
+   RowBox[{"l_", ",", 
+    RowBox[{"m_", " ", "?", " ", "Positive"}], ",", "\[Theta]_", ",", 
+    "\[Phi]_"}], "]"}], ":=", 
+  RowBox[{
+   SqrtBox["2"], 
+   SuperscriptBox[
+    RowBox[{"(", 
+     RowBox[{"-", "1"}], ")"}], "m"], 
+   RowBox[{"Re", "[", 
+    RowBox[{"SphericalHarmonicY", "[", 
+     RowBox[{"l", ",", "m", ",", "\[Theta]", ",", "\[Phi]"}], "]"}], 
+    "]"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"RealSphericalHarmonicY", "[", 
+   RowBox[{"l_", ",", 
+    RowBox[{"m_", " ", "?", " ", "Negative"}], ",", "\[Theta]_", ",", 
+    "\[Phi]_"}], "]"}], ":=", 
+  RowBox[{
+   SqrtBox["2"], 
+   SuperscriptBox[
+    RowBox[{"(", 
+     RowBox[{"-", "1"}], ")"}], "m"], 
+   RowBox[{"Im", "[", 
+    RowBox[{"SphericalHarmonicY", "[", 
+     RowBox[{"l", ",", 
+      RowBox[{"Abs", "[", "m", "]"}], ",", "\[Theta]", ",", "\[Phi]"}], "]"}],
+     "]"}]}]}]}], "Input",
+ CellChangeTimes->{{3.8708512417511387`*^9, 3.870851262128834*^9}, {
+  3.870851295802226*^9, 3.870851442944438*^9}, {3.870851498416346*^9, 
+  3.8708515572447543`*^9}, {3.870851740791058*^9, 3.870851741969319*^9}, {
+  3.870851851930419*^9, 3.8708519763593245`*^9}, {3.8708530379225793`*^9, 
+  3.870853074949993*^9}, {3.8708531171505184`*^9, 3.870853171656317*^9}, {
+  3.870853496226841*^9, 3.8708535044632797`*^9}, {3.8708535499756308`*^9, 
+  3.8708536294845467`*^9}, {3.870952220022273*^9, 3.8709522257209625`*^9}, {
+  3.870952275167348*^9, 3.87095228911611*^9}, {3.8709524040940943`*^9, 
+  3.8709524080764456`*^9}, {3.8709524403554716`*^9, 3.8709524480078397`*^9}, {
+  3.87103267338211*^9, 3.871032685009725*^9}},
+ CellLabel->"In[13]:=",ExpressionUUID->"41f874c5-75ae-43a6-aab8-09ab545ca84c"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Table", "[", 
+   RowBox[{
+    RowBox[{"SphericalPlot3D", "[", 
+     RowBox[{
+      RowBox[{"1", "+", 
+       RowBox[{
+        FractionBox["1", "2"], 
+        RowBox[{"RealSphericalHarmonicY", "[", 
+         RowBox[{"l", ",", "m", ",", "\[Theta]", ",", "\[Phi]"}], "]"}]}]}], 
+      ",", 
+      RowBox[{"{", 
+       RowBox[{"\[Theta]", ",", "0", ",", "Pi"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"\[Phi]", ",", "0", ",", 
+        RowBox[{"2", "Pi"}]}], "}"}], ",", 
+      RowBox[{"PlotPoints", "\[Rule]", "10"}], ",", 
+      RowBox[{"PlotRange", "\[Rule]", "1.6"}]}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"l", ",", "0", ",", "4"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"m", ",", 
+      RowBox[{"-", "l"}], ",", "l"}], "}"}]}], "]"}], "//", 
+  "TableForm"}]], "Input",
+ CellChangeTimes->{{3.870851641335818*^9, 3.870851686228866*^9}, {
+   3.8708517187873445`*^9, 3.8708517621639743`*^9}, 3.8708518668389964`*^9, {
+   3.8708519821789722`*^9, 3.8708521044422684`*^9}, {3.870852146374778*^9, 
+   3.8708522572370815`*^9}, {3.8708528261242447`*^9, 3.870852926824789*^9}, {
+   3.8708529943222494`*^9, 3.87085299699065*^9}, {3.8708531556020594`*^9, 
+   3.8708531621033034`*^9}, {3.8708532158860235`*^9, 
+   3.8708532181758976`*^9}, {3.8708536670232587`*^9, 
+   3.8708536703432302`*^9}, {3.870853821811325*^9, 3.870853908270504*^9}, {
+   3.870854109051789*^9, 3.870854109554339*^9}, {3.8710327134772897`*^9, 
+   3.871032722709493*^9}, {3.8710327567267065`*^9, 3.8710327568818283`*^9}},
+ CellLabel->"In[18]:=",ExpressionUUID->"07666ad4-d446-404a-bb94-ca964b1148bb"],
+
+Cell[BoxData[
+ RowBox[{"lm", "=", 
+  RowBox[{"Flatten", "[", 
+   RowBox[{
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"l", ",", "m"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"l", ",", "0", ",", "9"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"m", ",", 
+        RowBox[{"-", "l"}], ",", "l"}], "}"}]}], "]"}], ",", "1"}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.870896444851649*^9, 3.870896487870493*^9}},
+ CellLabel->"In[5]:=",ExpressionUUID->"51f04920-9852-4451-be3d-84f916a1f593"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"EvaluateRealAtLm", "[", 
+   RowBox[{"l_", ",", "m_"}], "]"}], ":=", 
+  RowBox[{"<|", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"\"\<l\>\"", "\[Rule]", " ", "l"}], ",", " ", 
+    "\[IndentingNewLine]", 
+    RowBox[{"\"\<m\>\"", "\[Rule]", "m"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"\"\<samples\>\"", "\[Rule]", 
+     RowBox[{"Map", "[", " ", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"<|", "\[IndentingNewLine]", 
+          RowBox[{
+           RowBox[{"\"\<theta\>\"", "\[Rule]", " ", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], ",", "\[IndentingNewLine]", 
+           RowBox[{"\"\<phi\>\"", "\[Rule]", 
+            RowBox[{"Mod", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"#", "[", 
+                RowBox[{"[", "3", "]"}], "]"}], "+", 
+               RowBox[{"2", "Pi"}]}], ",", 
+              RowBox[{"2", "Pi"}]}], "]"}]}], ",", "\[IndentingNewLine]", 
+           RowBox[{"\"\<val\>\"", "\[Rule]", 
+            RowBox[{"N", "@", 
+             RowBox[{"RealSphericalHarmonicY", "[", 
+              RowBox[{"l", ",", "m", ",", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "2", "]"}], "]"}], ",", 
+               RowBox[{"#", "[", 
+                RowBox[{"[", "3", "]"}], "]"}]}], "]"}]}]}]}], 
+          "\[IndentingNewLine]", "|>"}], "\[IndentingNewLine]", ")"}], "&"}], 
+       ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"RandomPoint", "[", 
+         RowBox[{
+          RowBox[{"Sphere", "[", "]"}], ",", "10", ",", 
+          RowBox[{"WorkingPrecision", "\[Rule]", "15"}]}], "]"}], "//", 
+        "ToSphericalCoordinates"}]}], "]"}]}]}], "\[IndentingNewLine]", 
+   "|>"}]}]], "Input",
+ CellChangeTimes->{{3.870950642000452*^9, 3.8709507460615044`*^9}, {
+   3.8709507871576223`*^9, 3.8709508696368303`*^9}, {3.870951011537128*^9, 
+   3.8709511049430017`*^9}, {3.8709511369686265`*^9, 
+   3.8709511519971943`*^9}, {3.870951203033086*^9, 3.8709513344625463`*^9}, {
+   3.8709514688919945`*^9, 3.870951472038662*^9}, {3.8709517145287457`*^9, 
+   3.8709517700766706`*^9}, {3.8709518196608934`*^9, 
+   3.8709518388475056`*^9}, {3.8709519711292696`*^9, 3.870951989214676*^9}, {
+   3.8709525109036407`*^9, 3.870952511352685*^9}, {3.870952542040084*^9, 
+   3.870952573056155*^9}, {3.8709526065139008`*^9, 3.8709526422050767`*^9}, {
+   3.870952672869999*^9, 3.870952673348859*^9}, {3.8709527443025155`*^9, 
+   3.8709527455890355`*^9}, {3.8709528340741725`*^9, 3.870952887196637*^9}, {
+   3.870952958803811*^9, 3.870952981704726*^9}, 3.8710296302358217`*^9, {
+   3.871029691989664*^9, 3.8710297138435335`*^9}, {3.8710298119441004`*^9, 
+   3.8710298352640038`*^9}, {3.87102988354764*^9, 3.871029883957491*^9}, {
+   3.8710301115790024`*^9, 3.871030124997981*^9}},
+ CellLabel->"In[19]:=",ExpressionUUID->"ad6e2a16-ee28-4ab4-bb85-7540a834dc7e"],
+
+Cell[BoxData[
+ RowBox[{"RealSamples", "=", 
+  RowBox[{"EvaluateRealAtLm", "@@@", "lm"}]}]], "Input",
+ CellChangeTimes->{{3.8709511249647965`*^9, 3.870951130545802*^9}, {
+  3.87095130864847*^9, 3.870951313544145*^9}, {3.8709514751929064`*^9, 
+  3.8709514768463945`*^9}, {3.8709516971263547`*^9, 3.870951710069872*^9}, {
+  3.870951851121169*^9, 3.8709518995395145`*^9}, {3.8709519451646595`*^9, 
+  3.870951960844175*^9}, {3.8709519930157504`*^9, 3.870951997692357*^9}, {
+  3.8709520476518097`*^9, 3.870952131497255*^9}, {3.870952162950097*^9, 
+  3.870952170542141*^9}, {3.8710296504518743`*^9, 3.8710296530637054`*^9}, {
+  3.871029708886692*^9, 3.871029786714999*^9}, {3.871029887511157*^9, 
+  3.87102988809172*^9}},
+ CellLabel->"In[7]:=",ExpressionUUID->"d01d3482-ff9f-439d-88ef-b0e4e4a6d5fa"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"EvaluateComplexAtLm", "[", 
+   RowBox[{"l_", ",", "m_"}], "]"}], ":=", 
+  RowBox[{"<|", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"\"\<l\>\"", "\[Rule]", " ", "l"}], ",", " ", 
+    "\[IndentingNewLine]", 
+    RowBox[{"\"\<m\>\"", "\[Rule]", "m"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"\"\<samples\>\"", "\[Rule]", 
+     RowBox[{"Map", "[", " ", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"<|", "\[IndentingNewLine]", 
+          RowBox[{
+           RowBox[{"\"\<theta\>\"", "\[Rule]", " ", 
+            RowBox[{"#", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], ",", "\[IndentingNewLine]", 
+           RowBox[{"\"\<phi\>\"", "\[Rule]", 
+            RowBox[{"Mod", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"#", "[", 
+                RowBox[{"[", "3", "]"}], "]"}], "+", 
+               RowBox[{"2", "Pi"}]}], ",", 
+              RowBox[{"2", "Pi"}]}], "]"}]}], ",", "\[IndentingNewLine]", 
+           RowBox[{"\"\<val\>\"", "\[Rule]", 
+            RowBox[{"ReIm", "@", 
+             RowBox[{"N", "@", 
+              RowBox[{"SphericalHarmonicY", "[", 
+               RowBox[{"l", ",", "m", ",", 
+                RowBox[{"#", "[", 
+                 RowBox[{"[", "2", "]"}], "]"}], ",", 
+                RowBox[{"#", "[", 
+                 RowBox[{"[", "3", "]"}], "]"}]}], "]"}]}]}]}]}], 
+          "\[IndentingNewLine]", "|>"}], "\[IndentingNewLine]", ")"}], "&"}], 
+       ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"RandomPoint", "[", 
+         RowBox[{
+          RowBox[{"Sphere", "[", "]"}], ",", "10", ",", 
+          RowBox[{"WorkingPrecision", "\[Rule]", "15"}]}], "]"}], "//", 
+        "ToSphericalCoordinates"}]}], "]"}]}]}], "\[IndentingNewLine]", 
+   "|>"}]}]], "Input",
+ CellChangeTimes->{{3.8710298986120996`*^9, 3.8710299138633566`*^9}, {
+  3.8710300498052416`*^9, 3.871030050369249*^9}, {3.871030130005171*^9, 
+  3.8710301424756994`*^9}, {3.8710302673919277`*^9, 3.871030310927618*^9}},
+ CellLabel->"In[8]:=",ExpressionUUID->"fdc85a1f-97e5-4199-abb7-8d2cf3b9b1b2"],
+
+Cell[BoxData[
+ RowBox[{"ComplexSamples", "=", 
+  RowBox[{"EvaluateComplexAtLm", "@@@", "lm"}]}]], "Input",
+ CellChangeTimes->{{3.871030173418622*^9, 3.87103018228868*^9}},
+ CellLabel->"In[9]:=",ExpressionUUID->"8f956998-6155-41e0-aad1-e62cf62d5c85"],
+
+Cell[BoxData[
+ RowBox[{"SetDirectory", "[", 
+  RowBox[{"NotebookDirectory", "[", "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.870952096972357*^9, 3.870952098035983*^9}, 
+   3.870952475020069*^9},
+ CellLabel->"In[10]:=",ExpressionUUID->"9ebd11ff-6fd8-4828-b4ae-23c1d8736c44"],
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+  "\"\<real_spherical_harmonics.json\>\"", ",", "RealSamples", ",", 
+   "\"\<JSON\>\""}], "]"}]], "Input",
+ CellChangeTimes->{{3.87095248640371*^9, 3.870952494539457*^9}, {
+  3.8710298732527075`*^9, 3.87102987476499*^9}},
+ CellLabel->"In[21]:=",ExpressionUUID->"b31fedcc-1af9-4994-819a-510135a7c46b"],
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+  "\"\<complex_spherical_harmonics.json\>\"", ",", "ComplexSamples", ",", 
+   "\"\<JSON\>\""}], "]"}]], "Input",
+ CellChangeTimes->{{3.8710301678640537`*^9, 3.8710301693046293`*^9}, {
+  3.8710303324228354`*^9, 3.87103033424551*^9}},
+ CellLabel->"In[12]:=",ExpressionUUID->"ad0a05cb-79d2-4727-85b7-b5509205c9ce"]
+},
+WindowSize->{1920, 1007},
+WindowMargins->{{-8, Automatic}, {Automatic, -8}},
+TaggingRules->{"TryRealOnly" -> False},
+FrontEndVersion->"12.1 for Microsoft Windows (64-bit) (June 19, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"4782c100-ad04-4206-9b5d-37a10f070b1a"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 2028, 47, 69, "Input",ExpressionUUID->"41f874c5-75ae-43a6-aab8-09ab545ca84c"],
+Cell[2589, 69, 1614, 35, 45, "Input",ExpressionUUID->"07666ad4-d446-404a-bb94-ca964b1148bb"],
+Cell[4206, 106, 535, 15, 28, "Input",ExpressionUUID->"51f04920-9852-4451-be3d-84f916a1f593"],
+Cell[4744, 123, 2936, 59, 238, "Input",ExpressionUUID->"ad6e2a16-ee28-4ab4-bb85-7540a834dc7e"],
+Cell[7683, 184, 792, 12, 28, "Input",ExpressionUUID->"d01d3482-ff9f-439d-88ef-b0e4e4a6d5fa"],
+Cell[8478, 198, 2132, 48, 238, "Input",ExpressionUUID->"fdc85a1f-97e5-4199-abb7-8d2cf3b9b1b2"],
+Cell[10613, 248, 249, 4, 28, "Input",ExpressionUUID->"8f956998-6155-41e0-aad1-e62cf62d5c85"],
+Cell[10865, 254, 275, 5, 28, "Input",ExpressionUUID->"9ebd11ff-6fd8-4828-b4ae-23c1d8736c44"],
+Cell[11143, 261, 350, 7, 28, "Input",ExpressionUUID->"b31fedcc-1af9-4994-819a-510135a7c46b"],
+Cell[11496, 270, 361, 7, 28, "Input",ExpressionUUID->"ad0a05cb-79d2-4727-85b7-b5509205c9ce"]
+}
+]
+*)
+

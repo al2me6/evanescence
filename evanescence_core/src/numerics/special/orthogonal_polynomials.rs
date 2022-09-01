@@ -69,21 +69,53 @@ pub fn renormalized_associated_legendre((l, m): (u32, u32), x: f32) -> f32 {
 /// See attached Mathematica notebooks for the computation of test values.
 #[cfg(test)]
 mod tests {
+    use approx::assert_relative_eq;
+    use serde::Deserialize;
+
     #[test]
     fn associated_laguerre() {
-        #[derive(serde::Deserialize)]
+        #[derive(Deserialize)]
         struct TestCase {
             n: u32,
             a: u32,
-            coeffs: Vec<f64>,
+            coeffs: Vec<f32>,
         }
 
         let data: Vec<TestCase> = crate::utils::load_test_cases("laguerre");
-        for TestCase { n, a, coeffs } in data {
-            #[allow(clippy::cast_possible_truncation)] // Intentional.
-            let expected = coeffs.into_iter().map(|a_i| a_i as f32).collect::<Vec<_>>();
+        for TestCase {
+            n,
+            a,
+            coeffs: expected,
+        } in data
+        {
             let computed = super::associated_laguerre(n, a);
             assert_iterable_approx_eq!(ulps_eq, expected, computed, max_ulps = 1);
+        }
+    }
+
+    #[test]
+    fn associated_legendre() {
+        #[derive(Deserialize)]
+        struct Sample {
+            x: f32,
+            val: f32,
+        }
+
+        #[derive(Deserialize)]
+        struct TestCase {
+            n: u32,
+            m: u32,
+            samples: Vec<Sample>,
+        }
+
+        let data: Vec<TestCase> = crate::utils::load_test_cases("legendre");
+        for TestCase { n: l, m, samples } in data {
+            for Sample { x, val: expected } in samples {
+                // Remove the Condon-Shortley phase; our associated Legendre does not have it.
+                let computed =
+                    super::renormalized_associated_legendre((l, m), x) * (-1_f32).powi(m as _);
+                assert_relative_eq!(expected, computed, max_relative = 5E-6);
+            }
         }
     }
 }
