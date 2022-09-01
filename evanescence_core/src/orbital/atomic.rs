@@ -211,7 +211,7 @@ mod tests {
             #[allow(clippy::cast_possible_truncation)]
             for Sample { pt, val: expected } in samples {
                 let computed = radial.evaluate(&Point1::new(pt));
-                let tolerance = if n < 9 { 1E-7 } else { 2E-2 };
+                let tolerance = if n < 9 { 1E-4 } else { 2E-2 };
 
                 assert!(
                     approx::relative_eq!(expected, computed, max_relative = tolerance),
