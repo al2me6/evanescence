@@ -54,8 +54,7 @@ impl BoundingRegion<3, SphericalPoint3> for Complex {
 impl Distribution<3, SphericalPoint3> for Complex {
     #[inline]
     fn probability_density_of(&self, value: Self::Output) -> f32 {
-        let norm = value.norm();
-        norm * norm
+        value.norm_sqr()
     }
 }
 
