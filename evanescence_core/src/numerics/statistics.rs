@@ -11,6 +11,9 @@ use crate::geometry::point::IPoint;
 use crate::geometry::region::BoundingRegion;
 use crate::geometry::storage::{PointValue, Soa};
 
+// FIXME: conflation between 'is distribution' and 'can be interpreted as distribution'.
+// This is complicated by MonteCarlo simulations of orbitals requiring access to the underlying
+// probability amplitude. How to generalize over both scenarios correctly?
 /// A [`Function`] that can also be interpreted as a probability density function.
 pub trait Distribution<const N: usize, P: IPoint<N> = na::Point<f32, N>>: Function<N, P> {
     /// Give the probability density corresponding to a `value` of the underlying function.
