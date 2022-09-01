@@ -155,7 +155,11 @@ impl Drop for ScopeTimer {
                 .build(),
         );
 
-        if let Some(slot) = self.stopwatch_slot && time > 0 {
+        if let Some(slot) = self.stopwatch_slot {
+            if time == 0 {
+                return;
+            }
+
             let target = document()
                 .get_element_by_id(slot.0)
                 .unwrap()
