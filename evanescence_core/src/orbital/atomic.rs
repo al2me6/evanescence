@@ -180,6 +180,7 @@ pub fn subshell_name(l: u32) -> Option<&'static str> {
 #[cfg(test)]
 mod tests {
     use na::Point1;
+    use serde::Deserialize;
 
     use super::{Radial, PROBABILITY_WITHIN_BOUND};
     use crate::numerics::statistics::Pdf;
@@ -189,26 +190,20 @@ mod tests {
 
     #[test]
     fn radial() {
-        #[derive(serde::Deserialize)]
+        #[derive(Deserialize)]
         struct Sample {
             pt: f64,
             val: f64,
         }
 
-        #[derive(serde::Deserialize)]
+        #[derive(Deserialize)]
         struct TestCase {
             n: u32,
             l: u32,
             samples: Vec<Sample>,
         }
 
-        let json = std::fs::read_to_string(
-            [env!("CARGO_MANIFEST_DIR"), "mathematica", "radial.json"]
-                .iter()
-                .collect::<std::path::PathBuf>(),
-        )
-        .unwrap();
-        let data: Vec<TestCase> = serde_json::from_str(&json).unwrap();
+        let data: Vec<TestCase> = crate::utils::load_test_cases("radial");
 
         for TestCase { n, l, samples } in data {
             let radial = Radial::new(Nl::new(n, l).unwrap());

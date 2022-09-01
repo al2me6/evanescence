@@ -60,3 +60,16 @@ pub const UNICODE_SUBSCRIPTS: phf::Map<char, char> = phf_map! {
     '(' => '₍',
     ')' => '₎',
 };
+
+#[cfg(test)]
+pub(crate) fn load_test_cases<T: for<'de> serde::Deserialize<'de>>(filename: &'static str) -> T {
+    use std::fs::File;
+    use std::io::BufReader;
+    use std::path::PathBuf;
+
+    let mut json: PathBuf = [env!("CARGO_MANIFEST_DIR"), "mathematica", filename]
+        .into_iter()
+        .collect();
+    json.set_extension("json");
+    serde_json::from_reader(BufReader::new(File::open(json).unwrap())).unwrap()
+}

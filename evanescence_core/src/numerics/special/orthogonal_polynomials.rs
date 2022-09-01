@@ -78,14 +78,7 @@ mod tests {
             coeffs: Vec<f64>,
         }
 
-        let json = std::fs::read_to_string(
-            [env!("CARGO_MANIFEST_DIR"), "mathematica", "laguerre.json"]
-                .iter()
-                .collect::<std::path::PathBuf>(),
-        )
-        .unwrap();
-        let data: Vec<TestCase> = serde_json::from_str(&json).unwrap();
-
+        let data: Vec<TestCase> = crate::utils::load_test_cases("laguerre");
         for TestCase { n, a, coeffs } in data {
             #[allow(clippy::cast_possible_truncation)] // Intentional.
             let expected = coeffs.into_iter().map(|a_i| a_i as f32).collect::<Vec<_>>();
