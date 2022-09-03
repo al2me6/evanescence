@@ -5,6 +5,8 @@ pub mod atomic;
 pub mod hybrid;
 pub mod quantum_numbers;
 
+use na::Point3;
+
 pub use self::atomic::complex::Complex as AtomicComplex;
 pub use self::atomic::real::Real as AtomicReal;
 pub use self::quantum_numbers::Qn;
@@ -13,7 +15,7 @@ use crate::numerics::statistics::Distribution;
 use crate::utils::sup_sub_string::SupSubString;
 
 /// Trait representing a type of wavefunction.
-pub trait Orbital<P: IPoint<3>>: Distribution<3, P> {
+pub trait Orbital<P: IPoint<3> = Point3<f32>>: Distribution<3, P> {
     /// Give the conventional name of an orbital.
     fn name(&self) -> SupSubString;
 }

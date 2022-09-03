@@ -1,15 +1,15 @@
 use std::f32::consts::PI;
 
-use na::{vector, Vector3};
+use na::{vector, Point, Point3, Vector3};
 
 use super::point::{IPoint, SphericalPoint3};
 use crate::numerics::random::WyRand;
 
-pub trait Region<const N: usize, P: IPoint<N>>: PartialEq + Clone {
+pub trait Region<const N: usize, P: IPoint<N> = Point<f32, N>>: PartialEq + Clone {
     fn sample(&self, rng: &mut WyRand) -> P;
 }
 
-pub trait BoundingRegion<const N: usize, P: IPoint<N>> {
+pub trait BoundingRegion<const N: usize, P: IPoint<N> = Point<f32, N>> {
     type Geometry: Region<N, P>;
     fn bounding_region(&self) -> Self::Geometry;
 }
@@ -41,9 +41,9 @@ fn rand_in_3_ball(radius: f32, rng: &mut WyRand) -> (Vector3<f32>, f32, f32, f32
 }
 
 // Note: two manual impls and no blanket impl to avoid specialization.
-impl Region<3, na::Point3<f32>> for BallCenteredAtOrigin {
+impl Region<3> for BallCenteredAtOrigin {
     #[inline]
-    fn sample(&self, rng: &mut WyRand) -> na::Point3<f32> {
+    fn sample(&self, rng: &mut WyRand) -> Point3<f32> {
         let (cartesian, ..) = rand_in_3_ball(self.radius, rng);
         cartesian.into()
     }

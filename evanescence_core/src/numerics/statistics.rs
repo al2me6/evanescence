@@ -4,7 +4,7 @@ use std::iter;
 use std::marker::PhantomData;
 use std::ops::RangeInclusive;
 
-use na::{vector, Point1};
+use na::{vector, Point, Point1};
 
 use super::Function;
 use crate::geometry::point::IPoint;
@@ -15,7 +15,7 @@ use crate::geometry::storage::{PointValue, Soa};
 // This is complicated by MonteCarlo simulations of orbitals requiring access to the underlying
 // probability amplitude. How to generalize over both scenarios correctly?
 /// A [`Function`] that can also be interpreted as a probability density function.
-pub trait Distribution<const N: usize, P: IPoint<N> = na::Point<f32, N>>: Function<N, P> {
+pub trait Distribution<const N: usize, P: IPoint<N> = Point<f32, N>>: Function<N, P> {
     /// Give the probability density corresponding to a `value` of the underlying function.
     fn probability_density_of(&self, value: Self::Output) -> f32;
 
