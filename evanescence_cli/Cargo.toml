@@ -1,0 +1,16 @@
+[package]
+name = "evanescence_cli"
+description = "Interface for Monte Carlo sampling of orbitals."
+version = "0.1.0"
+edition = "2021"
+authors = ["al2me6 <alvin.q.meng@gmail.com>"]
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/al2me6/evanescence"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "3", features = ["derive"] }
+evanescence_core = { path = "../evanescence_core", features = ["serde"] }
+itertools = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
