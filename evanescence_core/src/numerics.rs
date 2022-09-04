@@ -20,6 +20,8 @@ pub mod consts {
 
 use std::ops::{AddAssign, Div, Neg, RangeInclusive, Sub};
 
+use na::Vector3;
+
 pub use self::function::Function;
 
 /// Produce `num_points` values evenly spaced across `interval`.
@@ -70,4 +72,25 @@ pub fn normalize_collection<'a>(
 ) {
     vals.into_iter()
         .for_each(|v| *v = normalize(source_range.clone(), target_range.clone(), *v));
+}
+
+/// Perform trilinear interpolation given the values of a function at the vertices of a rectangular
+/// prism, passed as a `[f32; 8]` in iteration order `xyz`. (_e.g._, the first element is the
+/// lower left corner and the last is the top right.)
+///
+/// `normalized_offset` is the normalized position of the interpolation target, _i.e._ the vector
+/// `pt - bottom_left`, divided coordinate-wise by the lattice size in the corresponding dimension.
+#[allow(clippy::similar_names)]
+pub fn trilinear_interpolate(
+    [f000, f001, f010, f011, f100, f101, f110, f111]: [f32; 8],
+    normalized_offset: Vector3<f32>,
+) -> f32 {
+    let d = normalized_offset;
+    let f00 = f000 * (1. - d.x) + f100 * d.x;
+    let f01 = f001 * (1. - d.x) + f101 * d.x;
+    let f10 = f010 * (1. - d.x) + f110 * d.x;
+    let f11 = f011 * (1. - d.x) + f111 * d.x;
+    let f0 = f00 * (1. - d.y) + f10 * d.y;
+    let f1 = f01 * (1. - d.y) + f11 * d.y;
+    f0 * (1. - d.z) + f1 * d.z
 }
