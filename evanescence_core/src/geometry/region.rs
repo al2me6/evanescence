@@ -65,13 +65,35 @@ impl<P: IPoint<3>> Region<3, P> for CubeCenteredAtOrigin {
     fn sample(&self, rng: &mut WyRand) -> P {
         let [x, y] = rng.gen_f32x2();
         let z = rng.gen_f32();
-        let shift = self.side_length / 2.;
-        vector![
-            x * self.side_length - shift,
-            y * self.side_length - shift,
-            z * self.side_length - shift
-        ]
-        .into()
+        let bottom_left = -Vector3::from_element(self.side_length / 2.);
+        (vector![x, y, z] * self.side_length + bottom_left).into()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct RectangularPrism {
+    pub bottom_left: Vector3<f32>,
+    pub side_lengths: Vector3<f32>,
+}
+
+impl RectangularPrism {
+    pub fn top_right(&self) -> Vector3<f32> {
+        self.bottom_left + self.side_lengths
+    }
+
+    pub fn clamp(&self, mut pt: Vector3<f32>) -> Vector3<f32> {
+        for (x_i, min, max) in itertools::izip!(&mut pt, &self.bottom_left, &self.top_right()) {
+            *x_i = x_i.clamp(*min, *max);
+        }
+        pt
+    }
+}
+
+impl Region<3, Point3<f32>> for RectangularPrism {
+    fn sample(&self, rng: &mut WyRand) -> Point3<f32> {
+        let [x, y] = rng.gen_f32x2();
+        let z = rng.gen_f32();
+        (vector![x, y, z].component_mul(&self.side_lengths) + self.bottom_left).into()
     }
 }
 
