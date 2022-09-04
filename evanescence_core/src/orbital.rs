@@ -2,6 +2,7 @@
 //!
 //! Types for quantum numbers are available through the [`quantum_numbers`] module.
 pub mod atomic;
+pub mod gaussian_mo;
 pub mod hybrid;
 pub mod quantum_numbers;
 
