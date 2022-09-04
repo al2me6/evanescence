@@ -74,6 +74,10 @@ impl<const N: usize, V> Soa<N, V> {
         })
     }
 
+    pub fn values_mut(&mut self) -> impl Iterator<Item = &mut V> {
+        self.values.iter_mut()
+    }
+
     /// Return the inner vectors of `self`.
     pub fn into_components(self) -> ([Vec<f32>; N], Vec<V>) {
         (self.coords, self.values)
