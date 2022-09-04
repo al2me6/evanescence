@@ -111,7 +111,7 @@ mod tests {
         let data: Vec<TestCase> = crate::utils::load_test_cases("legendre");
         for TestCase { n: l, m, samples } in data {
             for Sample { x, val: expected } in samples {
-                // Remove the Condon-Shortley phase; our associated Legendre does not have it.
+                // Add the Condon-Shortley phase; our associated Legendre does not have it.
                 let computed =
                     super::renormalized_associated_legendre((l, m), x) * (-1_f32).powi(m as _);
                 assert_relative_eq!(expected, computed, max_relative = 5E-6);

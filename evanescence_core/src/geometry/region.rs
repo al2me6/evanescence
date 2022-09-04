@@ -111,7 +111,7 @@ mod tests {
     /// the expected radius. It makes no attempt to verify the uniformity of
     /// the distribution produced.
     #[test]
-    fn point_rng_max_radius() {
+    fn ball_sampling_max_radius() {
         let radius = 2_f32;
         let mut rng = WyRand::new();
         let ball = BallCenteredAtOrigin { radius };
@@ -121,7 +121,7 @@ mod tests {
     }
 
     #[test]
-    fn rng_spherical_coordinates() {
+    fn ball_sampling_spherical_coordinates() {
         let ball = BallCenteredAtOrigin { radius: 2. };
         let rng = &mut WyRand::new();
         for _ in 0..200 {
