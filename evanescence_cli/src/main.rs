@@ -7,12 +7,12 @@ use anyhow::Result;
 use clap::{AppSettings, Parser, Subcommand};
 use evanescence_core::geometry::point::IPoint;
 use evanescence_core::geometry::region::BoundingRegion;
-use evanescence_core::geometry::storage::struct_of_arrays::IntoSoa;
 use evanescence_core::geometry::storage::Soa;
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::gaussian_mo::{self, GaussianMo, MoCube};
 use evanescence_core::orbital::{AtomicReal, Qn};
+use indicatif::{ProgressBar, ProgressStyle};
 use serde::Serialize;
 
 #[derive(Parser, Debug)]
@@ -45,12 +45,26 @@ enum Command {
     },
 }
 
+const SAMPLE_BATCH: usize = 4_096;
+
 fn sample_real<P: IPoint<3>, M: MonteCarlo<3, P, Output = f32>>(
     sampler: &mut M,
     count: usize,
     normalize_magnitudes: bool,
 ) -> Soa<3, f32> {
-    let mut samples = sampler.take(count as _).into_soa();
+    let bar = ProgressBar::new(count as _).with_style(
+        ProgressStyle::with_template("[{bar:40}] {pos}/{len}")
+            .unwrap()
+            .progress_chars("=> "),
+    );
+
+    let mut samples = Soa::with_capacity(count);
+    while samples.len() < count {
+        let batch = usize::min(SAMPLE_BATCH, count - samples.len());
+        samples.extend(sampler.take(batch));
+        bar.inc(batch as _);
+    }
+
     if normalize_magnitudes {
         let max = samples
             .values()
@@ -62,6 +76,10 @@ fn sample_real<P: IPoint<3>, M: MonteCarlo<3, P, Output = f32>>(
             *v /= max;
         }
     }
+
+    bar.finish();
+    println!("Finished sampling in {:.3}s.", bar.elapsed().as_secs_f32());
+
     samples
 }
 

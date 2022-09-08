@@ -11,6 +11,7 @@ repository = "https://github.com/al2me6/evanescence"
 anyhow = "1"
 clap = { version = "3", features = ["derive"] }
 evanescence_core = { path = "../evanescence_core", features = ["serde"] }
+indicatif = "0.17"
 itertools = "0.10"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
