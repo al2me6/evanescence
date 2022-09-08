@@ -77,8 +77,8 @@ I'd like to extend my gratitude to the following people for helping this project
 
 ## About Evanescence
 
-&copy; [Alvin Q. Meng](mailto:alvin.q.meng@gmail.com) 2020-2022
+&copy; 2020-2022 [Alvin Q. Meng](mailto:alvin.q.meng@gmail.com)
 
 Built in [Rust](https://rust-lang.org) and WebAssembly using the [Yew](https://yew.rs) framework and the [Plotly.js](https://plotly.com/javascript) graphing library.
 
-This software is released under the [GNU Affero GPL v3](https://www.gnu.org/licenses/agpl-3.0.en.html) license. The source code can be found on [GitHub](https://github.com/al2me6/evanescence).
+This software is released under the [GNU Affero GPL v3](https://www.gnu.org/licenses/agpl-3.0.en.html). The source code can be found on [GitHub](https://github.com/al2me6/evanescence).

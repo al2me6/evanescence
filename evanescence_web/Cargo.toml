@@ -2,7 +2,7 @@
 name = "evanescence_web"
 description = "A web application for visualizing hydrogenic orbitals."
 version = "0.4.17"
-authors = ["al2me6 <alvin.q.meng@gmail.com>"]
+authors = ["Alvin Q. Meng <alvin.q.meng@gmail.com>"]
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/al2me6/evanescence"
 edition = "2021"

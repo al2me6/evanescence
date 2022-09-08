@@ -15,12 +15,13 @@ Supported orbital types include:
 * Real hydrogen orbitals
 * Complex hydrogen orbitals
 * Linear combinations of real hydrogen orbitals (hybridization)
+* Molecular orbitals in the Gaussian Cube format (`.cub`; not exposed in Web UI)
 
-Also provided are supplemental visualizations, including:
+Also provided are supplemental visualizations, including (where applicable):
 
 * Nodal (radial, angular) surfaces
 * Wavefunction and probability density cross-sections
-* Radial wavefunction and radial probability distribution curves
+* Radial wavefunction, probability distribution, and cumulative distribution curves
 * Probability density isosurfaces
 
 ## References
@@ -29,4 +30,8 @@ Also provided are supplemental visualizations, including:
 
 ## License
 
-This project is released under the GNU Affero GPL license, version 3.
+&copy; 2020-2022 Alvin Q. Meng
+
+This program is released under the GNU Affero GPL, version 3.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
