@@ -16,6 +16,7 @@ pub mod consts {
     pub const FRAC_1_SQRT_3: f32 = 0.577_350_3;
     pub const FRAC_1_SQRT_6: f32 = 0.408_248_3;
     pub const SQRT_3: f32 = 1.732_050_8;
+    pub const ANGSTROM_TO_BOHR: f32 = 1.889_726;
 }
 
 use std::ops::{AddAssign, Div, Neg, RangeInclusive, Sub};

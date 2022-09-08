@@ -5,12 +5,11 @@ use na::{vector, Point3, Vector3};
 
 use super::Orbital;
 use crate::geometry::region::{BoundingRegion, RectangularPrism};
+use crate::numerics::consts::ANGSTROM_TO_BOHR;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::statistics::Distribution;
 use crate::numerics::{trilinear_interpolate, Function};
 use crate::utils::sup_sub_string::SupSubString;
-
-const ANGSTROM_TO_BOHR: f32 = 1.889_726;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Clone, PartialEq, Debug)]
@@ -117,7 +116,7 @@ fn read_next_split<'a>(
     read_next(src).map(str::split_ascii_whitespace)
 }
 
-fn parse_vector3<'a>(src: &mut impl Iterator<Item = &'a str>) -> Result<Vector3<f32>> {
+fn parse_next_vector3<'a>(src: &mut impl Iterator<Item = &'a str>) -> Result<Vector3<f32>> {
     let mut res = [0.; 3];
     for coord in &mut res {
         *coord = src.next().ok_or(ParseCubeError::UnexpectedEof)?.parse()?;
@@ -142,13 +141,13 @@ impl FromStr for MoCube {
         let comment_2 = read_next(lines)?.trim().to_owned();
 
         let mut line = read_next_split(lines)?;
-        let atom_count: i32 = parse_next(&mut line)?;
+        let atom_count = parse_next::<i32>(&mut line)?;
         if atom_count >= 0 {
             Err(ParseCubeError::NotMo)?;
         }
         let atom_count = atom_count.unsigned_abs();
-        let mut initial_point = parse_vector3(&mut line)?;
-        let values_per_point: u32 = parse_next(&mut line)?;
+        let mut initial_point = parse_next_vector3(&mut line)?;
+        let values_per_point = parse_next::<u32>(&mut line)?;
         if values_per_point != 1 {
             Err(ParseCubeError::TooManyValuesPerPoint(values_per_point))?;
         }
@@ -157,10 +156,10 @@ impl FromStr for MoCube {
         let mut step_size = Vector3::<f32>::zeros();
         for i in 0..3 {
             line = read_next_split(lines)?;
-            let point_count_i: isize = parse_next(&mut line)?;
+            let point_count_i = parse_next::<isize>(&mut line)?;
             point_count[i] = point_count_i.unsigned_abs();
 
-            let mut step_vec_i = parse_vector3(&mut line)?;
+            let mut step_vec_i = parse_next_vector3(&mut line)?;
             // Positive - unit is Angstroms.
             if point_count_i >= 0 {
                 step_vec_i *= ANGSTROM_TO_BOHR;
@@ -174,14 +173,13 @@ impl FromStr for MoCube {
 
             step_size[i] = step_vec_i[i];
         }
-        let indices_per_step = vector![point_count.yz().product(), point_count.z, 1];
 
         let mut atoms = Vec::with_capacity(atom_count as _);
         for _ in 0..atom_count {
             line = read_next_split(lines)?;
-            let atomic_number: u32 = parse_next(&mut line)?;
-            let charge: f32 = parse_next(&mut line)?;
-            let position = parse_vector3(&mut line)?;
+            let atomic_number = parse_next::<u32>(&mut line)?;
+            let charge = parse_next::<f32>(&mut line)?;
+            let position = parse_next_vector3(&mut line)?;
             atoms.push(Atom {
                 atomic_number,
                 charge,
@@ -190,11 +188,11 @@ impl FromStr for MoCube {
         }
 
         line = read_next_split(lines)?;
-        let mo_count: u32 = parse_next(&mut line)?;
+        let mo_count = parse_next::<u32>(&mut line)?;
         if mo_count > 1 {
             Err(ParseCubeError::TooManyMos(mo_count))?;
         }
-        let mo_number: u32 = parse_next(&mut line)?;
+        let mo_number = parse_next::<u32>(&mut line)?;
 
         let expected_value_count = point_count.product() as usize;
         let mut values = Vec::<f32>::with_capacity(expected_value_count);
@@ -210,22 +208,21 @@ impl FromStr for MoCube {
             ))?;
         }
 
-        let volume = RectangularPrism {
-            bottom_left: initial_point,
-            // Beware fencepost.
-            side_lengths: step_size.component_mul(&(point_count - Vector3::from_element(1)).cast()),
-        };
-
         Ok(MoCube {
             comment_1,
             comment_2,
             atoms,
             point_count,
             step_size,
-            indices_per_step,
+            indices_per_step: vector![point_count.yz().product(), point_count.z, 1],
             mo_number,
             values,
-            volume,
+            volume: RectangularPrism {
+                bottom_left: initial_point,
+                // Beware fencepost.
+                side_lengths: step_size
+                    .component_mul(&(point_count - Vector3::from_element(1)).cast()),
+            },
         })
     }
 }
