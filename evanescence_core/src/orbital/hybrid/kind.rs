@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt;
 
-use getset::{CopyGetters, Getters};
+use getset::{CopyGetters, Getters, Setters};
 use itertools::Itertools;
 pub use maplit::hashmap;
 
@@ -25,7 +25,7 @@ pub type Mixture = HashMap<u32, u32>;
 /// * The value of `n` is valid: It is nonzero and greater than the `l` values specified in
 ///   the `mixture`.
 /// * All orbitals in linear combinations have the expected value of `n`.
-#[derive(Clone, PartialEq, Debug, Getters, CopyGetters)]
+#[derive(Clone, PartialEq, Debug, Getters, CopyGetters, Setters)]
 pub struct Kind {
     #[getset(get_copy = "pub")]
     /// The principal quantum number `n` of all orbitals.
@@ -36,7 +36,7 @@ pub struct Kind {
     #[getset(get = "pub")]
     /// String describing the type of symmetry this kind possesses.
     pub(crate) symmetry: String,
-    #[getset(get = "pub")]
+    #[getset(get = "pub", set = "pub")]
     /// Extra information about this kind.
     pub(crate) description: Option<String>,
     #[getset(get = "pub")]
