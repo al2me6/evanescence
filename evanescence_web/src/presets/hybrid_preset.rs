@@ -1,230 +1,36 @@
-use std::f32::consts::{FRAC_1_SQRT_2, SQRT_2};
 use std::fmt;
 use std::sync::LazyLock;
 
-use evanescence_core::numerics::consts::{FRAC_1_SQRT_3, FRAC_1_SQRT_6, SQRT_3};
-use evanescence_core::orbital::hybrid::Kind;
-use evanescence_core::{kind, lc};
+use evanescence_core::orbital::hybrid::{library, Kind};
 
 use super::{Preset, PresetLibrary};
 
-#[allow(clippy::too_many_lines)] // Data.
 static HYBRID_PRESETS: LazyLock<Vec<Kind>> = LazyLock::new(|| {
+    use library::SP3D;
+
+    // Note that two copies of sp3d orbitals are made here to allow both geometries to be
+    // displayed, as the archetype is always the combination sampled.
+    let mut sp3d_axial = SP3D.clone();
+    sp3d_axial.set_description(Some("axial".to_owned()));
+
+    let mut sp3d_equatorial_combinations = SP3D.combinations().clone();
+    sp3d_equatorial_combinations.rotate_left(2); // First two are axial.
+    let sp3d_equatorial = Kind::new(
+        SP3D.n(),
+        SP3D.mixture().clone(),
+        SP3D.symmetry().clone(),
+        Some("equatorial".to_string()),
+        sp3d_equatorial_combinations,
+    )
+    .unwrap();
+
     vec![
-        kind! {
-            mixture: {
-                n: 2,
-                0 => 1,
-                1 => 1,
-            },
-            symmetry: "linear",
-            combinations: {
-                lc! {
-                    overall: FRAC_1_SQRT_2,
-                    (2, 0, 0) * 1.0,
-                    (2, 1, 0) * 1.0,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_2,
-                    (2, 0, 0) * 1.0,
-                    (2, 1, 0) * -1.0,
-                },
-            }
-        },
-        kind! {
-            mixture: {
-                n: 2,
-                0 => 1,
-                1 => 2,
-            },
-            symmetry: "trigonal planar",
-            combinations: {
-                lc! {
-                    overall: FRAC_1_SQRT_3,
-                    (2, 0, 0) * 1.0,
-                    (2, 1, 1) * -SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_6,
-                    (2, 0, 0) * SQRT_2,
-                    (2, 1, 1) * 1.0,
-                    (2, 1, -1) * SQRT_3,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_6,
-                    (2, 0, 0) * SQRT_2,
-                    (2, 1, 1) * 1.0,
-                    (2, 1, -1) * -SQRT_3,
-                },
-            }
-        },
-        kind! {
-            mixture: {
-                n: 2,
-                0 => 1,
-                1 => 3,
-            },
-            symmetry: "tetrahedral",
-            combinations: {
-                lc! {
-                    overall: 0.5,
-                    (2, 0, 0) * 1.0,
-                    (2, 1, 1) * 1.0,
-                    (2, 1, -1) * 1.0,
-                    (2, 1, 0) * 1.0,
-                },
-                lc! {
-                    overall: 0.5,
-                    (2, 0, 0) * 1.0,
-                    (2, 1, 1) * -1.0,
-                    (2, 1, -1) * -1.0,
-                    (2, 1, 0) * 1.0,
-                },
-                lc! {
-                    overall: 0.5,
-                    (2, 0, 0) * 1.0,
-                    (2, 1, 1) * 1.0,
-                    (2, 1, -1) * -1.0,
-                    (2, 1, 0) * -1.0,
-                },
-                lc! {
-                    overall: 0.5,
-                    (2, 0, 0) * 1.0,
-                    (2, 1, 1) * -1.0,
-                    (2, 1, -1) * 1.0,
-                    (2, 1, 0) * -1.0,
-                },
-            },
-        },
-        kind! {
-            mixture: {
-                n: 3,
-                0 => 1,
-                1 => 3,
-                2 => 1,
-            },
-            symmetry: "trigonal bipyramidal",
-            description: "axial",
-            combinations: {
-                lc! {
-                    overall: FRAC_1_SQRT_2,
-                    (3, 1, 0) * 1.0,
-                    (3, 2, 0) * 1.0,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_2,
-                    (3, 1, 0) * 1.0,
-                    (3, 2, 0) * -1.0,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_3,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 1) * SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_3,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 1) * -FRAC_1_SQRT_2,
-                    (3, 1, -1) * SQRT_3 * FRAC_1_SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_3,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 1) * -FRAC_1_SQRT_2,
-                    (3, 1, -1) * -SQRT_3 * FRAC_1_SQRT_2,
-                },
-            },
-        },
-        kind! {
-            mixture: {
-                n: 3,
-                0 => 1,
-                1 => 3,
-                2 => 1,
-            },
-            symmetry: "trigonal bipyramidal",
-            description: "equatorial",
-            combinations: {
-                lc! {
-                    overall: FRAC_1_SQRT_3,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 1) * SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_3,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 1) * -FRAC_1_SQRT_2,
-                    (3, 1, -1) * SQRT_3 * FRAC_1_SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_3,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 1) * -FRAC_1_SQRT_2,
-                    (3, 1, -1) * -SQRT_3 * FRAC_1_SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_2,
-                    (3, 1, 0) * 1.0,
-                    (3, 2, 0) * 1.0,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_2,
-                    (3, 1, 0) * 1.0,
-                    (3, 2, 0) * -1.0,
-                },
-            },
-        },
-        kind! {
-            mixture: {
-                n: 3,
-                0 => 1,
-                1 => 3,
-                2 => 2,
-            },
-            symmetry: "octahedral",
-            combinations: {
-                lc! {
-                    overall: FRAC_1_SQRT_6,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 0) * SQRT_3,
-                    (3, 2, 0) * SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_6,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 1) * SQRT_3,
-                    (3, 2, 0) * -FRAC_1_SQRT_2,
-                    (3, 2, 2) * SQRT_3 * FRAC_1_SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_6,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, -1) * SQRT_3,
-                    (3, 2, 0) * -FRAC_1_SQRT_2,
-                    (3, 2, 2) * -SQRT_3 * FRAC_1_SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_6,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 1) * -SQRT_3,
-                    (3, 2, 0) * -FRAC_1_SQRT_2,
-                    (3, 2, 2) * SQRT_3 * FRAC_1_SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_6,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, -1) * -SQRT_3,
-                    (3, 2, 0) * -FRAC_1_SQRT_2,
-                    (3, 2, 2) * -SQRT_3 * FRAC_1_SQRT_2,
-                },
-                lc! {
-                    overall: FRAC_1_SQRT_6,
-                    (3, 0, 0) * 1.0,
-                    (3, 1, 0) * -SQRT_3,
-                    (3, 2, 0) * SQRT_2,
-                },
-            },
-        },
+        library::SP.clone(),
+        library::SP2.clone(),
+        library::SP3.clone(),
+        sp3d_axial,
+        sp3d_equatorial,
+        library::SP3D2.clone(),
     ]
 });
 

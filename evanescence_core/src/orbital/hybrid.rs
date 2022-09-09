@@ -5,6 +5,8 @@ pub mod linear_combination;
 #[macro_use]
 pub mod kind;
 
+pub mod library;
+
 pub use self::kind::Kind;
 use self::linear_combination::Component;
 pub use self::linear_combination::LinearCombination;
@@ -92,13 +94,11 @@ impl AcceptRejectParameters<3, SphericalPoint3> for Hybrid {
 
 #[cfg(test)]
 mod tests {
-    use std::f32::consts::FRAC_1_SQRT_2;
     use std::iter;
 
-    use super::Hybrid;
+    use super::{library, Hybrid};
     use crate::geometry::point::{IPoint, SphericalPoint3};
     use crate::geometry::region::{BoundingRegion, Region};
-    use crate::numerics::consts::{FRAC_1_SQRT_6, SQRT_3};
     use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
     use crate::numerics::random::WyRand;
     use crate::numerics::statistics::Distribution;
@@ -107,13 +107,7 @@ mod tests {
     fn max_prob_density_computation() {
         const BRUTE_FORCE_SAMPLE_COUNT: usize = 2_000_000;
 
-        let sp3d2 = Hybrid::new(lc! {
-            overall: FRAC_1_SQRT_6,
-            (3, 0, 0) * 1.0,
-            (3, 1, 1) * SQRT_3,
-            (3, 2, 0) * -FRAC_1_SQRT_2,
-            (3, 2, 2) * SQRT_3 * FRAC_1_SQRT_2,
-        });
+        let sp3d2 = Hybrid::new(library::SP3D2.combinations()[1].clone());
 
         let rng = &mut WyRand::new();
         let region = sp3d2.bounding_region();

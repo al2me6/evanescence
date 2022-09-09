@@ -1,6 +1,5 @@
 #![feature(once_cell)]
 
-use std::f32::consts::{FRAC_1_SQRT_2, SQRT_2};
 use std::iter;
 use std::sync::LazyLock;
 use std::time::Duration;
@@ -10,13 +9,11 @@ use evanescence_core::geometry::point::SphericalPoint3;
 use evanescence_core::geometry::region::{
     BallCenteredAtOrigin, BoundingRegion, CubeCenteredAtOrigin, Region,
 };
-use evanescence_core::lc;
-use evanescence_core::numerics::consts::{FRAC_1_SQRT_6, SQRT_3};
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::numerics::polynomial::Polynomial;
 use evanescence_core::numerics::random::WyRand;
 use evanescence_core::numerics::{normalize, Function};
-use evanescence_core::orbital::hybrid::Hybrid;
+use evanescence_core::orbital::hybrid::{self, Hybrid};
 use evanescence_core::orbital::{AtomicComplex, AtomicReal, Qn};
 use nalgebra::Point3;
 
@@ -123,25 +120,14 @@ fn hybrid(crit: &mut Criterion) {
     group.throughput(Throughput::Elements(1));
 
     group.bench_function("sp2", |b| {
-        let sp2 = lc! {
-            overall: FRAC_1_SQRT_6,
-            (2, 0, 0) * SQRT_2,
-            (2, 1, 1) * 1.0,
-            (2, 1, -1) * SQRT_3,
-        };
-        let mut sampler = AcceptReject::new(Hybrid::new(sp2));
+        let mut sampler = AcceptReject::new(Hybrid::new(hybrid::library::SP2.archetype().clone()));
         b.iter(|| black_box(sampler.next()));
     });
 
     group.bench_function("sp3d2", |b| {
-        let sp3d2 = lc! {
-            overall: FRAC_1_SQRT_6,
-            (3, 0, 0) * 1.0,
-            (3, 1, 1) * SQRT_3,
-            (3, 2, 0) * -FRAC_1_SQRT_2,
-            (3, 2, 2) * SQRT_3 * FRAC_1_SQRT_2,
-        };
-        let mut sampler = AcceptReject::new(Hybrid::new(sp3d2));
+        let mut sampler = AcceptReject::new(Hybrid::new(
+            hybrid::library::SP3D2.combinations()[1].clone(),
+        ));
         b.iter(|| black_box(sampler.next()));
     });
 
