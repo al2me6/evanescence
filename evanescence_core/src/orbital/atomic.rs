@@ -128,31 +128,25 @@ fn bound(nl: impl Into<Nl>) -> f32 {
 }
 
 fn max_radial_probability_density(radial: &Radial) -> f32 {
-    const ITERS: usize = 400;
-    const EXPLORATION_PREFERENCE: f32 = 0.3;
-
     let bound = bound(radial.nl);
     let PointValue(_, max) = Simple::new(
         vec![vector![0.0], vector![bound]],
         |r| radial.evaluate(r).abs(),
-        EXPLORATION_PREFERENCE,
+        0.15,
     )
-    .maximize(ITERS);
+    .maximize(400);
     radial.probability_density_of(max)
 }
 
 fn max_complex_sph_harm_prob_density(l: u32, m_abs: u32) -> f32 {
-    const ITERS: usize = 400;
-    const EXPLORATION_PREFERENCE: f32 = 0.15;
-
     // Note that the phi component always has norm 1 and does not contribute.
     let PointValue(_, max) = Simple::new(
         // phi in [0, pi] -> cos(phi) in [-1, 1].
         vec![vector![-1.0], vector![1.0]],
         |cos_theta: &Point1<f32>| renormalized_associated_legendre((l, m_abs), cos_theta.coords.x),
-        EXPLORATION_PREFERENCE,
+        0.15,
     )
-    .maximize(ITERS);
+    .maximize(400);
     max.powi(2)
 }
 
