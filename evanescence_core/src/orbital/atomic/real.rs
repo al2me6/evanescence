@@ -265,7 +265,7 @@ mod tests {
         }
 
         const SAMPLES: usize = 10_000;
-        const TRIALS: usize = 8;
+        const TRIALS: usize = 6;
         const KS_THRESHOLD: f32 = 0.015;
         const P_THRESHOLD: f32 = 0.05;
         const MAX_FAILS: usize = 2;
