@@ -13,9 +13,14 @@ pub mod statistics;
 
 /// Additional `f32` constants.
 pub mod consts {
-    pub const FRAC_1_SQRT_3: f32 = 0.577_350_3;
+    pub const FRAC_1_6: f32 = 0.166_666_67;
+    pub const FRAC_1_3: f32 = 0.333_333_33;
     pub const FRAC_1_SQRT_6: f32 = 0.408_248_3;
+    pub const SQRT_FRAC_2_9: f32 = 0.471_404_52;
+    pub const FRAC_1_SQRT_3: f32 = 0.577_350_3;
+    pub const SQRT_FRAC_2_3: f32 = 0.816_496_58;
     pub const SQRT_3: f32 = 1.732_050_8;
+
     pub const ANGSTROM_TO_BOHR: f32 = 1.889_726;
 }
 

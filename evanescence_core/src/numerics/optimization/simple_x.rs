@@ -10,6 +10,7 @@ use na::{vector, Const, DimAdd, DimName, DimSum, OMatrix, OVector, SVector, U1};
 use crate::geometry::point::IPoint;
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::storage::PointValue;
+use crate::numerics::consts::{FRAC_1_3, SQRT_FRAC_2_3, SQRT_FRAC_2_9};
 use crate::numerics::Function;
 
 type Vector<const N: usize> = SVector<f32, N>;
@@ -314,10 +315,6 @@ where
     F: Function<3, P> + BoundingRegion<3, P, Geometry = BallCenteredAtOrigin>,
 {
     fn bounding_simplex(&self) -> Vec<Vector<3>> {
-        const FRAC_1_3: f32 = 0.333_333_33;
-        const SQRT_FRAC_2_9: f32 = 0.471_404_52;
-        const SQRT_FRAC_2_3: f32 = 0.816_496_58;
-
         let radius = self.bounding_region().radius;
 
         let mut tetrahedron = vec![

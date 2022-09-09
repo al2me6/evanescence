@@ -1,3 +1,5 @@
+use crate::numerics::consts::FRAC_1_6;
+
 /// A potato trapezoidal integrator computing the integral of `y dx` given existing samples.
 ///
 /// `xs` and `ys` must have the same length, and `xs` should be monotonically increasing.
@@ -12,8 +14,6 @@ pub fn integrate_trapezoidal(xs: &[f32], ys: &[f32]) -> f32 {
 /// # Panics
 /// Panics if the step size `h` is not positive.
 pub fn integrate_simpson_step(mut dfdx: impl FnMut(f32) -> f32, x: &mut f32, y: &mut f32, h: f32) {
-    const FRAC_1_6: f32 = 0.166_666_67;
-
     assert!(h > 0_f32);
 
     let k_1 = dfdx(*x);
