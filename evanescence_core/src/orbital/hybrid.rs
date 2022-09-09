@@ -78,15 +78,9 @@ impl Orbital<SphericalPoint3> for Hybrid {
 
 impl AcceptRejectParameters<3, SphericalPoint3> for Hybrid {
     fn maximum(&self) -> f32 {
-        const ITERS: usize = 400;
-        const EXPLORATION_PREFERENCE: f32 = 0.3;
-
-        let PointValue(_, max) = Simple::new(
-            self.bounding_simplex(),
-            |pt| self.evaluate(pt).abs(),
-            EXPLORATION_PREFERENCE,
-        )
-        .maximize(ITERS);
+        let PointValue(_, max) =
+            Simple::new(self.bounding_simplex(), |pt| self.evaluate(pt).abs(), 0.15)
+                .maximize(75_000);
 
         self.probability_density_of(max)
     }
@@ -107,22 +101,33 @@ mod tests {
     fn max_prob_density_computation() {
         const BRUTE_FORCE_SAMPLE_COUNT: usize = 2_000_000;
 
-        let sp3d2 = Hybrid::new(library::SP3D2.combinations()[1].clone());
+        for kind in [
+            &library::SP,
+            &library::SP2,
+            &library::SP3,
+            &library::SP3D, // Its archetype does not have s character and is hard to optimize.
+            &library::SP3D2,
+        ] {
+            let orbital = Hybrid::new(kind.archetype().clone());
 
-        let rng = &mut WyRand::new();
-        let region = sp3d2.bounding_region();
-        let brute_force_max = Iterator::chain(
-            iter::once(SphericalPoint3::origin()),
-            iter::repeat_with(|| region.sample(rng)),
-        )
-        .take(BRUTE_FORCE_SAMPLE_COUNT)
-        .map(|pt| sp3d2.probability_density(&pt))
-        .reduce(f32::max)
-        .unwrap();
+            let rng = &mut WyRand::new();
+            let region = orbital.bounding_region();
+            let brute_force_max = Iterator::chain(
+                iter::once(SphericalPoint3::origin()),
+                iter::repeat_with(|| region.sample(rng)),
+            )
+            .take(BRUTE_FORCE_SAMPLE_COUNT)
+            .map(|pt| orbital.probability_density(&pt))
+            .reduce(f32::max)
+            .unwrap();
 
-        let explicit_max = <_ as AcceptRejectParameters<3, _>>::maximum(&sp3d2);
+            let explicit_max = <_ as AcceptRejectParameters<3, _>>::maximum(&orbital);
 
-        println!("brute-force: {brute_force_max}; explicit: {explicit_max}");
-        assert!(brute_force_max * (1.0 - 1E-6) <= explicit_max);
+            println!(
+                "{} brute-force: {brute_force_max}; explicit: {explicit_max}",
+                **kind
+            );
+            assert!(brute_force_max * (1.0 - 5E-3) <= explicit_max);
+        }
     }
 }
