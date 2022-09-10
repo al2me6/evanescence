@@ -78,7 +78,7 @@ fn sample_real<P: IPoint<3>, M: MonteCarlo<3, P, Output = f32>>(
     }
 
     bar.finish();
-    println!("Finished sampling in {:.3}s.", bar.elapsed().as_secs_f32());
+    eprintln!("Finished sampling in {:.3}s.", bar.elapsed().as_secs_f32());
 
     samples
 }
