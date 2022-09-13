@@ -5,7 +5,7 @@ use crate::geometry::point::{SphericalCoordinatesExt, SphericalPoint3};
 use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::special::spherical_harmonics::SphericalHarmonic;
-use crate::numerics::statistics::Distribution;
+use crate::numerics::statistics::AsDistribution;
 use crate::numerics::Function;
 use crate::orbital::{Orbital, Qn};
 use crate::utils::sup_sub_string::SupSubString;
@@ -51,7 +51,7 @@ impl BoundingRegion<3, SphericalPoint3> for Complex {
     }
 }
 
-impl Distribution<3, SphericalPoint3> for Complex {
+impl AsDistribution<3, SphericalPoint3> for Complex {
     #[inline]
     fn probability_density_of(&self, value: Self::Output) -> f32 {
         value.norm_sqr()

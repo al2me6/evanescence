@@ -7,7 +7,7 @@ use super::Orbital;
 use crate::geometry::region::{BoundingRegion, RectangularPrism};
 use crate::numerics::consts::ANGSTROM_TO_BOHR;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
-use crate::numerics::statistics::Distribution;
+use crate::numerics::statistics::AsDistribution;
 use crate::numerics::{trilinear_interpolate, Function};
 use crate::utils::sup_sub_string::SupSubString;
 
@@ -253,7 +253,7 @@ impl BoundingRegion<3> for GaussianMo {
     }
 }
 
-impl Distribution<3> for GaussianMo {
+impl AsDistribution<3> for GaussianMo {
     fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value
     }

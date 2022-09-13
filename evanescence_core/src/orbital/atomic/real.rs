@@ -9,7 +9,7 @@ use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::root_finding::find_roots_in_interval_brent;
 use crate::numerics::special::orthogonal_polynomials::renormalized_associated_legendre;
 use crate::numerics::special::spherical_harmonics::RealSphericalHarmonic;
-use crate::numerics::statistics::Distribution;
+use crate::numerics::statistics::AsDistribution;
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Lm, Qn};
 use crate::orbital::Orbital;
@@ -69,7 +69,7 @@ impl BoundingRegion<3, SphericalPoint3> for Real {
     }
 }
 
-impl Distribution<3, SphericalPoint3> for Real {
+impl AsDistribution<3, SphericalPoint3> for Real {
     #[inline]
     fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value

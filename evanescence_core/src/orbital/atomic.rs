@@ -14,7 +14,7 @@ use crate::numerics::polynomial::Polynomial;
 use crate::numerics::special::orthogonal_polynomials::{
     associated_laguerre, renormalized_associated_legendre,
 };
-use crate::numerics::statistics::Distribution;
+use crate::numerics::statistics::{AsDistribution, Distribution};
 use crate::numerics::Function;
 use crate::orbital::quantum_numbers::{Nl, Qn};
 use crate::utils::sup_sub_string::SupSubString;
@@ -69,7 +69,7 @@ impl Function<1> for Radial {
     }
 }
 
-impl Distribution<1> for Radial {
+impl AsDistribution<1> for Radial {
     fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value
     }
@@ -96,11 +96,7 @@ impl Function<1> for RadialProbabilityDistribution {
     }
 }
 
-impl Distribution<1> for RadialProbabilityDistribution {
-    fn probability_density_of(&self, value: Self::Output) -> f32 {
-        value
-    }
-}
+impl Distribution<1> for RadialProbabilityDistribution {}
 
 fn basic_name(qn: Qn) -> SupSubString {
     sup_sub_string!["ψ" sub(format!("{}{}{}", qn.n(), qn.l(), qn.m()))]

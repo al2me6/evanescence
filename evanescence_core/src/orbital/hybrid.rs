@@ -16,7 +16,7 @@ use crate::geometry::region::{BallCenteredAtOrigin, BoundingRegion};
 use crate::geometry::storage::PointValue;
 use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
 use crate::numerics::optimization::simple_x::{BoundingSimplex, Simple};
-use crate::numerics::statistics::Distribution;
+use crate::numerics::statistics::AsDistribution;
 use crate::numerics::Function;
 use crate::utils::sup_sub_string::SupSubString;
 
@@ -61,7 +61,7 @@ impl BoundingRegion<3, SphericalPoint3> for Hybrid {
     }
 }
 
-impl Distribution<3, SphericalPoint3> for Hybrid {
+impl AsDistribution<3, SphericalPoint3> for Hybrid {
     #[inline]
     fn probability_density_of(&self, value: Self::Output) -> f32 {
         value * value
@@ -93,7 +93,7 @@ mod tests {
     use crate::geometry::region::{BoundingRegion, Region};
     use crate::numerics::monte_carlo::accept_reject::AcceptRejectParameters;
     use crate::numerics::random::WyRand;
-    use crate::numerics::statistics::Distribution;
+    use crate::numerics::statistics::AsDistribution;
 
     #[test]
     fn max_prob_density_computation() {

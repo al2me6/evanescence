@@ -7,10 +7,10 @@ use crate::geometry::point::IPoint;
 use crate::geometry::region::{BoundingRegion, Region};
 use crate::geometry::storage::PointValue;
 use crate::numerics::random::WyRand;
-use crate::numerics::statistics::Distribution;
+use crate::numerics::statistics::AsDistribution;
 
 pub trait AcceptRejectParameters<const N: usize, P: IPoint<N> = Point<f32, N>>:
-    BoundingRegion<N, P> + Distribution<N, P>
+    BoundingRegion<N, P> + AsDistribution<N, P>
 {
     fn maximum(&self) -> f32 {
         let mut rng = WyRand::new();

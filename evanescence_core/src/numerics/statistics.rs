@@ -4,18 +4,23 @@ use std::iter;
 use std::marker::PhantomData;
 use std::ops::RangeInclusive;
 
-use na::{vector, Point, Point1};
+use na::{vector, Point};
 
 use super::Function;
 use crate::geometry::point::IPoint;
 use crate::geometry::region::BoundingRegion;
 use crate::geometry::storage::{PointValue, Soa};
 
-// FIXME: conflation between 'is distribution' and 'can be interpreted as distribution'.
-// This is complicated by MonteCarlo simulations of orbitals requiring access to the underlying
-// probability amplitude. How to generalize over both scenarios correctly?
-/// A [`Function`] that can also be interpreted as a probability density function.
-pub trait Distribution<const N: usize, P: IPoint<N> = Point<f32, N>>: Function<N, P> {
+/// Marker trait indicating that a [`Function`] _is_ a probability density function.
+pub trait Distribution<const N: usize, P: IPoint<N> = Point<f32, N>>:
+    Function<N, P, Output = f32>
+{
+}
+
+/// Trait describing _the interpretation of a [`Function`] as_ a probability density function.
+///
+/// In the context of quantum mechanics, this trait may be used to represent probability amplitudes.
+pub trait AsDistribution<const N: usize, P: IPoint<N> = Point<f32, N>>: Function<N, P> {
     /// Give the probability density corresponding to a `value` of the underlying function.
     fn probability_density_of(&self, value: Self::Output) -> f32;
 
@@ -42,7 +47,18 @@ pub trait Distribution<const N: usize, P: IPoint<N> = Point<f32, N>>: Function<N
     }
 }
 
-/// The probability density function of a [`Distribution`].
+impl<const N: usize, P, F> AsDistribution<N, P> for F
+where
+    F: Distribution<N, P>,
+    P: IPoint<N>,
+{
+    #[inline]
+    fn probability_density_of(&self, value: Self::Output) -> f32 {
+        value
+    }
+}
+
+/// Wrapper type for evaluating the PDF of a [`Function`] that is [`AsDistribution`].
 ///
 /// Example:
 ///
@@ -77,7 +93,7 @@ impl<const N: usize, P, D> Pdf<N, P, D> {
 impl<const N: usize, P, D> Function<N, P> for Pdf<N, P, D>
 where
     P: IPoint<N>,
-    D: Distribution<N, P>,
+    D: AsDistribution<N, P>,
 {
     type Output = f32;
 
@@ -88,7 +104,12 @@ where
     }
 }
 
-impl<D: Distribution<1>> Pdf<1, Point1<f32>, D> {
+// Todo: impl this on `D: Distribution` instead.
+impl<P, D> Pdf<1, P, D>
+where
+    P: IPoint<1>,
+    D: AsDistribution<1, P>,
+{
     pub fn sample_cdf(&self, interval: RangeInclusive<f32>, count: usize) -> Soa<1, f32> {
         let step = (interval.end() - interval.start()) / (count as f32 - 1.);
         let mut x = *interval.start();
@@ -97,7 +118,7 @@ impl<D: Distribution<1>> Pdf<1, Point1<f32>, D> {
             iter::once((vector![x], cdf)),
             iter::repeat_with(|| {
                 super::integrators::integrate_simpson_step(
-                    |xx| self.evaluate(&[xx].into()),
+                    |xx| self.evaluate(&vector![xx].into()),
                     &mut x,
                     &mut cdf,
                     step,
@@ -113,7 +134,7 @@ impl<D: Distribution<1>> Pdf<1, Point1<f32>, D> {
 impl<const N: usize, P, D> BoundingRegion<N, P> for Pdf<N, P, D>
 where
     P: IPoint<N>,
-    D: Distribution<N, P> + BoundingRegion<N, P>,
+    D: AsDistribution<N, P> + BoundingRegion<N, P>,
 {
     type Geometry = D::Geometry;
 
