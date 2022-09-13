@@ -99,7 +99,7 @@ impl LinearCombination {
 
 impl fmt::Display for LinearCombination {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.expression().format(SupSubFormat::Unicode).unwrap())
+        f.write_str(&self.expression().format_or_normal(SupSubFormat::Unicode))
     }
 }
 

@@ -90,6 +90,21 @@ impl SupSubString {
     pub fn format(&self, format: SupSubFormat) -> Option<String> {
         self.format_with(|segment| segment.format(format))
     }
+
+    /// Try to format all segments in the requested format, falling back to normal case for
+    /// segments that cannot be formatted (due to unsupported characters).
+    pub fn format_or_normal(&self, format: SupSubFormat) -> String {
+        self.0
+            .iter()
+            .map(|seg| {
+                seg.format(format).unwrap_or_else(|| {
+                    SupSubSegment::Normal(Cow::Owned(seg.inner().to_owned()))
+                        .format(format)
+                        .unwrap()
+                })
+            })
+            .collect()
+    }
 }
 
 impl From<Vec<SupSubSegment>> for SupSubString {

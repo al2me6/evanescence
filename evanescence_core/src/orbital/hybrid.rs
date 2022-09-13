@@ -39,10 +39,8 @@ impl Function<3, SphericalPoint3> for Hybrid {
 
     #[inline]
     fn evaluate(&self, point: &SphericalPoint3) -> Self::Output {
-        self.lc
-            .iter()
-            .enumerate()
-            .map(|(idx, Component { weight, .. })| weight * self.reals[idx].evaluate(point))
+        Iterator::zip(self.lc.iter(), &self.reals)
+            .map(|(Component { weight, .. }, real)| weight * real.evaluate(point))
             .sum()
     }
 }
@@ -121,13 +119,13 @@ mod tests {
             .reduce(f32::max)
             .unwrap();
 
-            let explicit_max = <_ as AcceptRejectParameters<3, _>>::maximum(&orbital);
+            let optimization_max = <_ as AcceptRejectParameters<3, _>>::maximum(&orbital);
 
             println!(
-                "{} brute-force: {brute_force_max}; explicit: {explicit_max}",
+                "{} brute-force: {brute_force_max}; optimization: {optimization_max}",
                 **kind
             );
-            assert!(brute_force_max * (1.0 - 5E-3) <= explicit_max);
+            assert!(brute_force_max * (1.0 - 5E-3) <= optimization_max);
         }
     }
 }
