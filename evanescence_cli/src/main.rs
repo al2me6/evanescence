@@ -4,13 +4,14 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use anyhow::Result;
-use clap::{AppSettings, Parser, Subcommand};
+use clap::{AppSettings, Parser, Subcommand, ValueEnum};
 use evanescence_core::geometry::point::IPoint;
 use evanescence_core::geometry::region::BoundingRegion;
 use evanescence_core::geometry::storage::Soa;
 use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 use evanescence_core::numerics::monte_carlo::MonteCarlo;
 use evanescence_core::orbital::gaussian_mo::{self, GaussianMo, MoCube};
+use evanescence_core::orbital::hybrid::{self, Hybrid, Kind};
 use evanescence_core::orbital::{AtomicReal, Qn};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde::Serialize;
@@ -43,6 +44,40 @@ enum Command {
         /// Path to `.cub` file
         cube: PathBuf,
     },
+    /// Sample hybridized hydrogen orbitals
+    Hybrid {
+        #[clap(arg_enum)]
+        kind: HybridKinds,
+        #[clap(long, conflicts_with = "nth")]
+        /// List the individual linear combinations of the given `kind`
+        list: bool,
+        #[clap(long, default_value_t = 1)]
+        /// Use the n-th linear combination
+        nth: usize,
+    },
+}
+
+#[derive(Clone, Copy, Debug, ValueEnum)]
+enum HybridKinds {
+    SP,
+    SP2,
+    SP3,
+    SP3D,
+    SP3D2,
+}
+
+impl HybridKinds {
+    fn get(&self) -> &'static Kind {
+        use hybrid::library;
+        #[allow(clippy::explicit_auto_deref)] // False positive.
+        match self {
+            Self::SP => &*library::SP,
+            Self::SP2 => &*library::SP2,
+            Self::SP3 => &*library::SP3,
+            Self::SP3D => &*library::SP3D,
+            Self::SP3D2 => &*library::SP3D2,
+        }
+    }
 }
 
 const SAMPLE_BATCH: usize = 4_096;
@@ -125,6 +160,15 @@ struct GaussianMoJson {
     psi: Vec<f32>,
 }
 
+#[derive(Serialize)]
+struct HybridJson {
+    bounding_sphere_radius: f32,
+    x: Vec<f32>,
+    y: Vec<f32>,
+    z: Vec<f32>,
+    psi: Vec<f32>,
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
@@ -150,12 +194,15 @@ fn main() -> Result<()> {
         }
         Command::GaussianMo { cube } => {
             let cube_file = std::fs::read_to_string(cube)?;
+
             let cube = MoCube::from_str(&cube_file)?;
             let atoms = cube.atoms().clone();
             let gaussian_mo = GaussianMo::new(cube);
+
             let sampler = &mut AcceptReject::new(gaussian_mo);
             let ([x, y, z], psi) =
                 sample_real(sampler, cli.count as _, cli.normalize_magnitudes).into_components();
+
             let json = GaussianMoJson {
                 atoms,
                 x,
@@ -164,6 +211,32 @@ fn main() -> Result<()> {
                 psi,
             };
             write_json(cli.out.as_ref(), json)?;
+        }
+        Command::Hybrid { kind, nth, list } => {
+            let kind = kind.get();
+            if list {
+                println!("{kind}-hybridized orbitals:");
+                for (idx, combination) in kind.combinations().iter().enumerate() {
+                    println!("{}: {combination}", idx + 1);
+                }
+            } else {
+                let hybrid = Hybrid::new(kind.combinations()[nth - 1].clone());
+                let bounding_sphere_radius = hybrid.bounding_region().radius;
+
+                let sampler = &mut AcceptReject::new(hybrid);
+                let ([x, y, z], psi) =
+                    sample_real(sampler, cli.count as _, cli.normalize_magnitudes)
+                        .into_components();
+
+                let json = HybridJson {
+                    bounding_sphere_radius,
+                    x,
+                    y,
+                    z,
+                    psi,
+                };
+                write_json(cli.out.as_ref(), json)?;
+            }
         }
     }
 
