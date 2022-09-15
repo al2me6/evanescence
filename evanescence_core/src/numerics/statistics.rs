@@ -47,10 +47,10 @@ pub trait AsDistribution<const N: usize, P: IPoint<N> = Point<f32, N>>: Function
     }
 }
 
-impl<const N: usize, P, F> AsDistribution<N, P> for F
+impl<const N: usize, P, D> AsDistribution<N, P> for D
 where
-    F: Distribution<N, P>,
     P: IPoint<N>,
+    D: Distribution<N, P>,
 {
     #[inline]
     fn probability_density_of(&self, value: Self::Output) -> f32 {
