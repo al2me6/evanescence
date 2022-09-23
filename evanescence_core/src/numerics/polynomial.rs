@@ -32,8 +32,7 @@ impl Polynomial {
 
     pub fn degree(&self) -> usize {
         debug_assert!(self.is_canonical(), "got coefficients {:?}", self.0);
-        self.last_nonzero_coefficient_index()
-            .expect("coefficients were empty")
+        self.last_nonzero_coefficient_index().unwrap_or(0)
     }
 
     fn last_nonzero_coefficient_index(&self) -> Option<usize> {
@@ -42,7 +41,9 @@ impl Polynomial {
     }
 
     fn is_canonical(&self) -> bool {
-        !self.0.is_empty() && self.last_nonzero_coefficient_index() == Some(self.0.len() - 1)
+        !self.0.is_empty()
+            && (self.last_nonzero_coefficient_index() == Some(self.0.len() - 1)
+                || self.0.len() == 1)
     }
 
     fn canonicalize(&mut self) {
@@ -258,7 +259,7 @@ macro_rules! impl_mul_div_assign {
         impl ops::DivAssign<$Rhs> for Polynomial {
             fn div_assign(&mut self, rhs: $Rhs) {
                 self.0.iter_mut().for_each(|a_i| *a_i /= rhs);
-                self.canonicalize();
+                debug_assert!(self.is_canonical());
             }
         }
     };
@@ -276,6 +277,10 @@ mod tests {
         let a = polynomial![1., 0., 2., 3., 0., 0.];
         assert_eq!(a.degree(), 3);
         assert_iterable_approx_eq!(&a, &[1., 0., 2., 3.]);
+
+        let z = polynomial![0.];
+        assert_eq!(z.degree(), 0);
+        assert_iterable_approx_eq!(&z, &[0.]);
     }
 
     #[test]
