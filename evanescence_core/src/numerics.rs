@@ -24,9 +24,9 @@ pub mod consts {
     pub const ANGSTROM_TO_BOHR: f32 = 1.889_726;
 }
 
-use std::ops::{AddAssign, Div, Neg, RangeInclusive, Sub};
+use std::ops::{Neg, RangeInclusive};
 
-use na::Vector3;
+use na::{ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, Vector3};
 
 pub use self::function::Function;
 
@@ -36,15 +36,11 @@ pub fn linspace<T>(
     num_points: usize,
 ) -> impl ExactSizeIterator<Item = T> + Clone
 where
-    for<'a> T: AddAssign<&'a T> + Sub<&'a T, Output = T> + Div<f32, Output = T> + Clone,
+    T: ClosedAdd + ClosedSub + ClosedMul<f32> + ClosedDiv<f32> + Copy + 'static,
 {
-    let step = (interval.end().clone() - interval.start()) / (num_points as f32 - 1.0);
-    let mut acc = interval.start().clone();
-    (0..num_points).map(move |_| {
-        let next = acc.clone();
-        acc += &step;
-        next
-    })
+    let (start, end) = interval.into_inner();
+    let step = (end - start) / ((num_points - 1) as f32);
+    (0..num_points).map(move |i| start + step * (i as f32))
 }
 
 /// Produce `num_points` values evenly spaced across `[-range, range]`.
@@ -53,10 +49,9 @@ pub fn symmetric_linspace<T>(
     num_points: usize,
 ) -> impl ExactSizeIterator<Item = T> + Clone
 where
-    for<'a> T:
-        AddAssign<&'a T> + Sub<&'a T, Output = T> + Div<f32, Output = T> + Neg<Output = T> + Clone,
+    T: ClosedAdd + ClosedSub + ClosedMul<f32> + ClosedDiv<f32> + Neg<Output = T> + Copy + 'static,
 {
-    linspace((-range.clone())..=range, num_points)
+    linspace(-range..=range, num_points)
 }
 
 /// Map `val`, which has a value within `source_range`, to `target_range`.
@@ -99,4 +94,27 @@ pub fn trilinear_interpolate(
     let f0 = f00 * (1. - d.y) + f10 * d.y;
     let f1 = f01 * (1. - d.y) + f11 * d.y;
     f0 * (1. - d.z) + f1 * d.z
+}
+
+#[cfg(test)]
+mod tests {
+    use na::vector;
+
+    #[test]
+    fn linspace() {
+        assert_iterable_approx_eq!(
+            super::linspace(0.0..=1.0, 5).collect_vec(),
+            &[0.0, 0.25, 0.5, 0.75, 1.0],
+        );
+        assert_iterable_approx_eq!(
+            super::linspace(vector![0.0, 0.0]..=vector![1.0, 2.0], 5).collect_vec(),
+            &[
+                vector![0.0, 0.0],
+                vector![0.25, 0.5],
+                vector![0.5, 1.0],
+                vector![0.75, 1.5],
+                vector![1.0, 2.0]
+            ],
+        );
+    }
 }
