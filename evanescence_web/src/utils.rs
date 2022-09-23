@@ -172,8 +172,8 @@ impl Drop for ScopeTimer {
             if time > 400 {
                 target.class_list().remove_1("animate").unwrap();
                 let _ = target.offset_width(); // Force style recomputation.
-                target.class_list().add_1("animate").unwrap();
             }
+            target.class_list().add_1("animate").unwrap();
         }
     }
 }
