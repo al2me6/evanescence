@@ -71,7 +71,7 @@ impl LinearCombination {
                     }
                 })
             })
-            .unwrap_or_else(|| format!("{:.3}", weight).trim_end_matches('0').to_owned());
+            .unwrap_or_else(|| format!("{weight:.3}").trim_end_matches('0').to_owned());
         let mut ret = sup_sub_string![nrm(coefficient) " "];
         ret.extend(AtomicReal::name_qn(qn));
         ret

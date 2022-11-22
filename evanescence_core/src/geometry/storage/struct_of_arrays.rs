@@ -56,10 +56,7 @@ impl<const N: usize, V> Soa<N, V> {
     where
         I: SliceIndex<[f32], Output = [f32]> + SliceIndex<[V], Output = [V]> + Clone,
     {
-        SoaSlice {
-            coords: std::array::from_fn(|i| &self.coords[i][idx.clone()]),
-            values: &self.values[idx],
-        }
+        self.get(idx).expect("index out of bounds")
     }
 
     #[allow(clippy::needless_pass_by_value)] // Symmetry w/ `slice`.

@@ -25,7 +25,7 @@ pub fn capitalize_words<T: AsRef<str>>(source: T) -> String {
 }
 
 pub fn fmt_scientific_notation<T: fmt::LowerExp>(source: T, precision: usize) -> String {
-    format!("{:.*e}</sup>", precision, source)
+    format!("{source:.precision$e}</sup>")
         .replace('-', "−") // "hyphen" -> "minus".
         .replace('e', " × 10<sup>")
 }
@@ -165,7 +165,7 @@ impl Drop for ScopeTimer {
                 .unwrap()
                 .unchecked_into::<HtmlElement>();
 
-            target.set_inner_html(&format!("({} ms)", time));
+            target.set_inner_html(&format!("({time} ms)"));
             target.set_title(&self.action_description);
 
             // Force label to appear before fading again.

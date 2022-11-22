@@ -195,7 +195,7 @@ impl FromStr for MoCube {
         }
         let mo_number = parse_next::<u32>(&mut line)?;
 
-        let expected_value_count = point_count.product() as usize;
+        let expected_value_count = point_count.product();
         let mut values = Vec::<f32>::with_capacity(expected_value_count);
         while let Ok(line) = read_next_split(lines) {
             for float in line {
