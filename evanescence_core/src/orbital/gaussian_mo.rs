@@ -160,8 +160,9 @@ impl FromStr for MoCube {
             point_count[i] = point_count_i.unsigned_abs();
 
             let mut step_vec_i = parse_next_vector3(&mut line)?;
-            // Positive - unit is Angstroms.
-            if point_count_i >= 0 {
+            // Negative - unit is Angstroms.
+            // Note disagreement between the two sources cited above.
+            if point_count_i < 0 {
                 step_vec_i *= ANGSTROM_TO_BOHR;
                 initial_point[i] *= ANGSTROM_TO_BOHR;
             }
