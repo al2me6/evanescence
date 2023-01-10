@@ -321,8 +321,7 @@ pub fn cross_section_prob_density(state: &State) -> TraceLayout {
     let max = *utils::partial_max(z.iter().flat_map(|row| row.iter())).unwrap();
     assert!(
         max >= 0.0,
-        "probability densities must be positive; got {}",
-        max
+        "probability densities must be positive; got {max}"
     );
 
     if max < ZERO_THRESHOLD {
