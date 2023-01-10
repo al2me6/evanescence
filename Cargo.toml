@@ -1,5 +1,14 @@
 [workspace]
-members = ["evanescence_core", "evanescence_web", "evanescence_cli"]
+resolver = "2"
+members = ["evanescence_core", "evanescence_cli", "evanescence_web"]
+
+[workspace.dependencies]
+approx = { version = "0.5", features = ["num-complex"] }
+itertools = "0.10"
+nalgebra = "0.31"
+num = "0.4"
+serde = { version = "1", features = ["derive"] }
+strum = { version = "0.24", features = ["derive"] }
 
 [profile.test.package]
 evanescence_core.opt-level = 3

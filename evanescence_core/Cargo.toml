@@ -8,16 +8,16 @@ repository = "https://github.com/al2me6/evanescence"
 edition = "2021"
 
 [dependencies]
-approx = { version = "0.5", features = ["num-complex"] }
+approx.workspace = true
 getrandom = { version = "0.2", features = ["js"] }
 getset = "0.1"
-itertools = "0.10"
+itertools.workspace = true
 log = "0.4"
 maplit = "1"
-nalgebra = "0.31"
-num = "0.4"
+nalgebra.workspace = true
+num.workspace = true
 phf = { version = "0.11", features = ["macros"] }
-serde = { version = "1", features = ["derive"], optional = true }
+serde = { workspace = true, optional = true }
 smallvec = "1"
 strum = { version = "0.24", features = ["derive"] }
 thiserror = "1"
