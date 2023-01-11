@@ -184,6 +184,20 @@ impl std::fmt::Display for Qn {
     }
 }
 
+#[macro_export]
+/// Construct a [`Qn`] that is validated at compile-time.
+macro_rules! qn {
+    ($n:literal, $l:literal, $m:literal) => {{
+        const QN: $crate::orbital::quantum_numbers::Qn = {
+            match $crate::orbital::quantum_numbers::Qn::new($n, $l, $m) {
+                Ok(qn) => qn,
+                Err(_) => panic!("quantum numbers are invalid"),
+            }
+        };
+        QN
+    }};
+}
+
 /// Type representing the quantum numbers `n` and `l`.
 ///
 /// # Invariants
@@ -294,28 +308,28 @@ mod tests {
 
     #[test]
     fn clamping_setters() {
-        let mut qn = Qn::new(5, 4, -3).unwrap();
+        let mut qn = qn!(5, 4, -3);
         qn.set_n_clamping(3).unwrap();
-        assert_eq!(Qn::new(3, 2, -2).unwrap(), qn);
+        assert_eq!(qn!(3, 2, -2), qn);
         qn.set_l_clamping(0).unwrap();
-        assert_eq!(Qn::new(3, 0, 0).unwrap(), qn);
-        qn = Qn::new(4, 2, 1).unwrap();
+        assert_eq!(qn!(3, 0, 0), qn);
+        qn = qn!(4, 2, 1);
         qn.set_n_clamping(1).unwrap();
-        assert_eq!(Qn::new(1, 0, 0).unwrap(), qn);
+        assert_eq!(qn!(1, 0, 0), qn);
     }
 
     #[test]
     fn m_setter() {
-        let mut qn = Qn::new(5, 4, -3).unwrap();
+        let mut qn = qn!(5, 4, -3);
         qn.set_m(2).unwrap();
-        assert_eq!(Qn::new(5, 4, 2).unwrap(), qn);
+        assert_eq!(qn!(5, 4, 2), qn);
         qn.set_m(-4).unwrap();
-        assert_eq!(Qn::new(5, 4, -4).unwrap(), qn);
+        assert_eq!(qn!(5, 4, -4), qn);
     }
 
     #[test]
     fn invalid_n_setter() {
-        let mut qn = Qn::new(5, 4, -3).unwrap();
+        let mut qn = qn!(5, 4, -3);
         assert_eq!(Err(InvalidQnError::N), qn.set_n_clamping(0));
     }
 
@@ -326,13 +340,13 @@ mod tests {
 
     #[test]
     fn invalid_l_setter() {
-        let mut qn = Qn::new(5, 4, -3).unwrap();
+        let mut qn = qn!(5, 4, -3);
         assert_eq!(Err(InvalidQnError::L { n: 5, l: 5 }), qn.set_l_clamping(5));
     }
 
     #[test]
     fn invalid_m_setter() {
-        let mut qn = Qn::new(5, 4, -3).unwrap();
+        let mut qn = qn!(5, 4, -3);
         assert_eq!(Err(InvalidQnError::M { l: 4, m: 5 }), qn.set_m(5));
     }
 
@@ -356,30 +370,30 @@ mod tests {
     #[test]
     fn enumerate_qn() {
         let expected = &[
-            Qn::new(1, 0, 0),
-            Qn::new(2, 0, 0),
-            Qn::new(2, 1, -1),
-            Qn::new(2, 1, 0),
-            Qn::new(2, 1, 1),
-            Qn::new(3, 0, 0),
-            Qn::new(3, 1, -1),
-            Qn::new(3, 1, 0),
-            Qn::new(3, 1, 1),
+            qn!(1, 0, 0),
+            qn!(2, 0, 0),
+            qn!(2, 1, -1),
+            qn!(2, 1, 0),
+            qn!(2, 1, 1),
+            qn!(3, 0, 0),
+            qn!(3, 1, -1),
+            qn!(3, 1, 0),
+            qn!(3, 1, 1),
             // ^^ There are 9 quantum numbers up until n=3, l=2. ^^
-            Qn::new(3, 2, -2),
-            Qn::new(3, 2, -1),
-            Qn::new(3, 2, 0),
-            Qn::new(3, 2, 1),
-            Qn::new(3, 2, 2),
+            qn!(3, 2, -2),
+            qn!(3, 2, -1),
+            qn!(3, 2, 0),
+            qn!(3, 2, 1),
+            qn!(3, 2, 2),
         ];
         for (exp, test) in expected.iter().zip(Qn::enumerate_up_to_n(3).unwrap()) {
-            assert_eq!(exp, &Ok(test));
+            assert_eq!(exp, &test);
         }
         for (exp, test) in expected[..9]
             .iter()
             .zip(Qn::enumerate_up_to_n_l(3, 1).unwrap())
         {
-            assert_eq!(exp, &Ok(test));
+            assert_eq!(exp, &test);
         }
     }
 }

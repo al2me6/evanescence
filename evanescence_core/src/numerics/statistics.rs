@@ -67,9 +67,10 @@ where
 /// use evanescence_core::geometry::point::SphericalPoint3;
 /// use evanescence_core::numerics::statistics::Pdf;
 /// use evanescence_core::numerics::Function;
-/// use evanescence_core::orbital::{AtomicReal, Qn};
+/// use evanescence_core::orbital::AtomicReal;
+/// use evanescence_core::qn;
 ///
-/// let qn = Qn::new(3, 2, 1).unwrap();
+/// let qn = qn!(3, 2, 1);
 ///
 /// assert_relative_eq!(
 ///     2.446E-4,

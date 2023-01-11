@@ -6,10 +6,11 @@
 //! ```
 //! use evanescence_core::geometry::point::SphericalPoint3;
 //! use evanescence_core::numerics::Function;
-//! use evanescence_core::orbital::{AtomicReal, Qn};
+//! use evanescence_core::orbital::AtomicReal;
+//! use evanescence_core::qn;
 //!
 //! // The 4d_{z^2} orbital.
-//! let qn = Qn::new(4, 2, 0).unwrap(); // The constructor validates the parameters.
+//! let qn = qn!(4, 2, 0); // The constructor validates the parameters.
 //! let value = AtomicReal::new(qn).evaluate(&SphericalPoint3::new(1.0, 3.2, 4.7));
 //! approx::assert_ulps_eq!(value, 0.008895547);
 //! ```
@@ -18,9 +19,10 @@
 //! ```
 //! use evanescence_core::numerics::monte_carlo::accept_reject::AcceptReject;
 //! use evanescence_core::numerics::monte_carlo::MonteCarlo;
-//! use evanescence_core::orbital::{AtomicReal, Qn};
+//! use evanescence_core::orbital::AtomicReal;
+//! use evanescence_core::qn;
 //!
-//! let qn = Qn::new(4, 2, 0).unwrap();
+//! let qn = qn!(4, 2, 0);
 //! let results = AcceptReject::new(AtomicReal::new(qn)).simulate(10_000);
 //! ```
 
@@ -44,9 +46,9 @@ extern crate typenum as tn;
 
 #[macro_use]
 pub mod utils;
-
 #[macro_use]
 pub mod numerics;
+#[macro_use]
+pub mod orbital;
 
 pub mod geometry;
-pub mod orbital;
