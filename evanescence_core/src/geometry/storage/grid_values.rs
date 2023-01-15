@@ -120,7 +120,7 @@ impl<V> GridValues<V> {
 /// Type representing one of the three coordinate planes in `R^3`.
 #[allow(clippy::upper_case_acronyms)] // "XY", etc. are not acronyms.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Display)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Display)]
 pub enum CoordinatePlane3 {
     XY,
     YZ,

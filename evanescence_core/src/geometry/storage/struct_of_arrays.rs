@@ -15,14 +15,14 @@ use crate::geometry::storage::{IPoint, PointValue};
 
 // FIXME: Serde can't handle arbitrary-sized arrays...
 // #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, PartialEq, Getters)]
+#[derive(Clone, PartialEq, Debug, Getters)]
 #[getset(get = "pub")]
 pub struct Soa<const N: usize, V> {
     coords: [Vec<f32>; N],
     values: Vec<V>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct SoaSlice<'a, const N: usize, V> {
     coords: [&'a [f32]; N],
     values: &'a [V],
