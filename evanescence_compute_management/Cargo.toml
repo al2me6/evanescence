@@ -1,0 +1,13 @@
+[package]
+name = "evanescence_compute_management"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+derivative = "2"
+evanescence_core = { path = "../evanescence_core", features = ["serde"] }
+itertools.workspace = true
+nalgebra.workspace = true
+num.workspace = true
+strum.workspace = true
+thiserror = "1"

@@ -1,6 +1,11 @@
 [workspace]
 resolver = "2"
-members = ["evanescence_core", "evanescence_cli", "evanescence_web"]
+members = [
+    "evanescence_core",
+    "evanescence_compute_management",
+    "evanescence_cli",
+    "evanescence_web",
+]
 
 [workspace.dependencies]
 approx = { version = "0.5", features = ["num-complex"] }
