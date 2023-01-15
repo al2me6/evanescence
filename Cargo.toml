@@ -10,7 +10,7 @@ members = [
 [workspace.dependencies]
 approx = { version = "0.5", features = ["num-complex"] }
 itertools = "0.10"
-nalgebra = "0.31"
+nalgebra = "0.32"
 num = "0.4"
 serde = { version = "1", features = ["derive"] }
 strum = { version = "0.24", features = ["derive"] }
